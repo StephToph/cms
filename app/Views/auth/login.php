@@ -105,7 +105,7 @@
                                 </div>
                             </div>
                         </div>
-                            <div class="nk-split-content nk-split-stretch d-none d-md-block" style="flex-shrink: 0 !important; background-image: url(<?=site_url('assets/bg.webp'); ?>);
+                            <div class="nk-split-content nk-split-stretch d-none d-md-block" style="flex-shrink: 0 !important; background-image: url(<?=site_url('assets/logo1.jpg'); ?>);
                             background-position: center;
                             background-color: rgba(0, 0, 0, 0.5);
                             background-size: cover;
