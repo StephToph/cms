@@ -36,38 +36,44 @@ $this->Crud = new Crud();
                     <input class="form-control" type="text" id="name" name="name" value="<?php if(!empty($e_name)) {echo $e_name;} ?>" required>
                 </div>
             </div>
-        </div>
-        <label for="name">*<?=translate_phrase('Role');?></label>
-        <div class="row" id="container">
-            <?php if(!empty($e_roles)){$a = 0;
-                foreach($e_roles as $k => $val){
-                    $r_val = 'style="display:none;"';$req = 'required';
-                    if($a > 0){
-                        $r_val = 'style="display:display;"';$req = '';
-                    }
-                    ?>
-                <div class="col-sm-12 mb-3 ">
-                    <div class="form-group input-group">
-                        <input class="form-control" type="text" id="role" placeholder="Enter Department Roles" name="roles[]" value="<?php if(!empty($val)) {echo $val;} ?>" <?=$req; ?>>
-                        <button <?=$r_val; ?>  class="btn btn-icon btn-outline-danger deleteBtn" type="button"><i class="icon ni ni-trash"></i> </button>
-                    </div>
-                    
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Email'); ?></label>
+                    <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" required>
                 </div>
-           <?php $a++; }} else {?>
-                <div class="col-sm-12 mb-3 ">
-                    <div class="form-group input-group">
-                        <input class="form-control" type="text" id="role" placeholder="Enter Department Roles" name="roles[]" value="<?php if(!empty($val)) {echo $val;} ?>" required>
-                        <button style="display:none;" class="btn btn-icon btn-outline-danger deleteBtn" type="button"><i class="icon ni ni-trash"></i> </button>
-                    </div>
-                    
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Phone'); ?></label>
+                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>">
                 </div>
-           <?php }?>
+            </div>
+
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Address'); ?></label>
+                    <input class="form-control" type="text" id="address" name="address" value="<?php if(!empty($e_address)) {echo $e_address;} ?>" required>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group"><b>Ministry Logo</b><br>
+                    <label for="img-upload" class="pointer text-center" style="width:100%;">
+                        <input type="hidden" name="img" value="<?php if(!empty($e_img)){echo $e_img;} ?>" />
+                        <img id="img" src="<?php if(!empty($e_img)){echo site_url( $e_img);} ?>" style="max-width:100%;" />
+                        <span class="btn btn-info btn-block no-mrg-btm">Choose Image</span>
+                        <input class="d-none" type="file" name="pics" id="img-upload" accept="image/*">
+                    </label>
+                </div>
+            </div>
+            
         </div>
+        
 
         <div class="row" >
-            <div class="col-sm-12 mb-3 text-center">
-                <button id="addMore" class="btn btn-ico btn-outline-primary" type="button"><i class="icon ni ni-plus"></i> <?=translate_phrase('Add More Roles');?></button>
-            </div>
+            
             <div class="col-sm-12 text-center mt-3">
                 <button class="btn btn-primary bb_fo_btn" type="submit">
                     <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
@@ -82,25 +88,19 @@ $this->Crud = new Crud();
 <?php echo form_close(); ?>
 <script>
     $('.js-select2').select2();
-    document.getElementById('addMore').addEventListener('click', function() {
-        var container = document.getElementById('container');
-        var div = container.children[0].cloneNode(true);
-        
-        // Clear input value of the cloned div
-        div.querySelector('input').value = '';
-        div.querySelector('input').removeAttribute('required');
-        
-        
-        // Show delete button in the cloned div
-        div.querySelector('.deleteBtn').style.display = 'inline-block';
-        
-        // Add event listener to delete button
-        div.querySelector('.deleteBtn').addEventListener('click', function() {
-            div.parentNode.removeChild(div);
-        });
-        
-        container.appendChild(div);
-    });
+    function readURL(input, id) {
+		if (input.files && input.files[0]) {
+			var reader = new FileReader();
+			reader.onload = function (e) {
+				$('#' + id).attr('src', e.target.result);
+			}
+			reader.readAsDataURL(input.files[0]);
+		}
+	}
+	
+	$("#img-upload").change(function(){
+		readURL(this, 'img');
+	});
 </script>
 
-<script src="<?php echo site_url(); ?>assets/js/jsform.js"></script
+<script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>

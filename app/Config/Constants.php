@@ -50,7 +50,7 @@ defined('DECADE') || define('DECADE', 315360000);
  |
  | Provide simple customize global contants values
  */
-defined('app_name') || define('app_name', 'MINISTRY');
+defined('app_name') || define('app_name', 'C M S');
 defined('app_meta_desc') || define('app_meta_desc', 'Church Management System');
 defined('app_email') || define('app_email', 'admin@ceaurora.vip');
 defined('app_website') || define('app_website', 'ceaurora.vip');

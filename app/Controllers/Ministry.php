@@ -31,7 +31,7 @@ class Ministry extends BaseController {
        
 		
 		$table = 'ministry';
-		$form_link = site_url($mod);
+		$form_link = site_url($mod.'/index/');
 		if($param1){$form_link .= '/'.$param1;}
 		if($param2){$form_link .= '/'.$param2.'/';}
 		if($param3){$form_link .= $param3;}
@@ -59,13 +59,13 @@ class Ministry extends BaseController {
 						$del_id = $this->request->getVar('d_dept_id');
 						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-						$code = $this->Crud->read_field('id', $del_id, 'dept', 'name');
-						$action = $by.' deleted Department ('.$code.') Record';
+						$code = $this->Crud->read_field('id', $del_id, 'ministry', 'name');
+						$action = $by.' deleted Ministry ('.$code.') Record';
 
 						if($this->Crud->deletes('id', $del_id, $table) > 0) {
 							
 							$this->Crud->activity('user', $del_id, $action);
-							echo $this->Crud->msg('success', 'Department Deleted');
+							echo $this->Crud->msg('success', 'Ministry Deleted');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('danger', 'Please try later');
@@ -82,7 +82,10 @@ class Ministry extends BaseController {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
 								$data['e_name'] = $e->name;
-								$data['e_roles'] = json_decode($e->roles);
+								$data['e_email'] = $e->email;
+								$data['e_phone'] = $e->phone;
+								$data['e_address'] = $e->address;
+								$data['e_img'] = $e->logo;
 							}
 						}
 					}
@@ -91,40 +94,61 @@ class Ministry extends BaseController {
 				if($this->request->getMethod() == 'post'){
 					$dept_id = $this->request->getVar('dept_id');
 					$name = $this->request->getVar('name');
-					$roles = $this->request->getVar('roles');
+					$email = $this->request->getVar('email');
+					$phone = $this->request->getVar('phone');
+					$address = $this->request->getVar('address');
+					$img_id =  $this->request->getVar('img');
+
+					
+					//// Image upload
+					if (file_exists($this->request->getFile('pics'))) {
+						if (!empty($img_id)) {
+							unlink(FCPATH . $img_id);
+						}
+						$path = 'assets/images/ministry/';
+						$file = $this->request->getFile('pics');
+						$getImg = $this->Crud->img_upload($path, $file);
+
+						if (!empty($getImg->path)) $img_id = $getImg->path;
+					}
+
 
 					$ins_data['name'] = $name;
-					$ins_data['roles'] = json_encode($roles);
-					// print_r($roles);
-					// die;
+					$ins_data['email'] = $email;
+					$ins_data['address'] = $address;
+					$ins_data['phone'] = $phone;
+					if (!empty($img_id) || !empty($getImg->path))  $ins_data['logo'] = $img_id;
+					
 					// do create or update
 					if($dept_id) {
 						$upd_rec = $this->Crud->updates('id', $dept_id, $table, $ins_data);
 						if($upd_rec > 0) {
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$code = $this->Crud->read_field('id', $dept_id, 'dept', 'name');
-							$action = $by.' updated Department ('.$code.') Record';
-							$this->Crud->activity('user', $dept_id, $action);
+							$code = $this->Crud->read_field('id', $dept_id, 'ministry', 'name');
+							$action = $by.' updated Ministry ('.$code.') Record';
+							$this->Crud->activity('miinistry', $dept_id, $action);
 
-							echo $this->Crud->msg('success', 'Record Updated');
+							echo $this->Crud->msg('success', 'Ministry Updated');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
 					} else {
 						if($this->Crud->check('name', $name, $table) > 0) {
-							echo $this->Crud->msg('warning', 'Record Already Exist');
+							echo $this->Crud->msg('warning', 'Ministry Already Exist');
 						} else {
+							
+							$ins_data['reg_date'] = date(fdate);
 							$ins_rec = $this->Crud->create($table, $ins_data);
 							if($ins_rec > 0) {
 								///// store activities
 								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-								$code = $this->Crud->read_field('id', $ins_rec, 'dept', 'name');
-								$action = $by.' created Department ('.$code.') Record';
-								$this->Crud->activity('user', $ins_rec, $action);
+								$code = $this->Crud->read_field('id', $ins_rec, 'ministry', 'name');
+								$action = $by.' created Ministry ('.$code.') Record';
+								$this->Crud->activity('miinistry', $ins_rec, $action);
 
-								echo $this->Crud->msg('success', 'Record Created');
+								echo $this->Crud->msg('success', 'Ministry Created');
 								echo '<script>location.reload(false);</script>';
 							} else {
 								echo $this->Crud->msg('danger', 'Please try later');	
@@ -152,7 +176,9 @@ class Ministry extends BaseController {
 			$items = '
 				<div class="nk-tb-item nk-tb-head">
 					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Role(s)').'</span></div>
+					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Contact').'</span></div>
+					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Address').'</span></div>
+					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Date').'</span></div>
 					<div class="nk-tb-col nk-tb-col-tools">
 						<ul class="nk-tb-actions gx-1 my-n1">
 							
@@ -170,11 +196,11 @@ class Ministry extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_dept('', '', '', $log_id, $search);
+				$all_rec = $this->Crud->filter_ministry('', '', '', $log_id, $search);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_dept($limit, $offset, '', $log_id, $search);
+				$query = $this->Crud->filter_ministry($limit, $offset, '', $log_id, $search);
 				$data['count'] = $counts;
 				
 
@@ -182,21 +208,24 @@ class Ministry extends BaseController {
 					foreach ($query as $q) {
 						$id = $q->id;
 						$name = $q->name;
-						$roles = $q->roles;
-						$rolesa = json_decode($roles);
-						$rols = '';
-						if(!empty($rolesa)){
-							foreach($rolesa as $r => $val){
-								$rols .= $val.', ';
-							}
+						$email = $q->email;
+						$phone = $q->phone;
+						$logo = $q->logo;
+						$address = $q->address;
+						$reg_date = date('d/m/Y', strtotime($q->reg_date));
+
+						if (!empty($logo)) {
+							$img = '<img height="60px" width="80px" src="' . site_url($logo) . '">';
+						} else {
+							$img = $this->Crud->image_name($name);
 						}
 						// add manage buttons
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
 							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/index/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/index/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								
 								
 							';
@@ -205,12 +234,24 @@ class Ministry extends BaseController {
 						$item .= '
 							<div class="nk-tb-item">
 								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">' . ucwords($name) . ' </span>
-									</div>
+									<div class="user-card">
+								      	<div class="user-avatar">            
+									  		'.$img.'      
+										</div>        
+										<div class="user-name">            
+											<span class="tb-lead">' . ucwords($name) . '</span>        
+										</div>    
+									</div>  
 								</div>
 								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><b>' . ucwords(rtrim($rols, ', ')) . '</b></span>
+									<span class="text-dark">'.$email.'</span><br>
+									<span class="text-dark">'.$phone.'</span>
+								</div>
+								<div class="nk-tb-col tb-col">
+									<span class="text-dark">'.$address.'</span>
+								</div>
+								<div class="nk-tb-col tb-col">
+									<span class="text-dark">'.$reg_date.'</span>
 								</div>
 								<div class="nk-tb-col nk-tb-col-tools">
 									<ul class="nk-tb-actions gx-1">
@@ -237,8 +278,8 @@ class Ministry extends BaseController {
 			if(empty($item)) {
 				$resp['item'] = $items.'
 					<div class="text-center text-muted">
-						<br/><br/><br/><br/>
-						<i class="ni ni-building" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Department Returned').'
+						<br/><br/><br/>
+						<i class="ni ni-server" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Ministry Returned').'
 					</div>
 				';
 			} else {
