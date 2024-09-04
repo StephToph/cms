@@ -2855,11 +2855,11 @@ class Accounts extends BaseController {
 						$item .= '
 							<div class="nk-tb-item">
 								<div class="nk-tb-col tb-col-md">
-									<span class="text-dark">' . ucwords($title) . '</span>
+									<span class="text-dark">' . ucwords(strtolower($title)) . '</span>
 								</div>
 								<div class="nk-tb-col">
 									<div class="user-info">
-										<span class="tb-lead"><b>' . ucwords($name) . '</b> </span>
+										<span class="tb-lead"><b>' . ucwords(strtolower($name)) . '</b> </span>
 									</div>
 								</div>
 								<div class="nk-tb-col tb-col-md">
@@ -2872,7 +2872,7 @@ class Accounts extends BaseController {
 									<span class="text-dark">' . ($email) .'</span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
-									<span class="text-dark">' . ucwords($chat_handle) . '</span>
+									<span class="text-dark">' . strtolower($chat_handle) . '</span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
 									<span class="text-dark">' . ($cell) . '</span>

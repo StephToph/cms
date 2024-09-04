@@ -338,7 +338,7 @@ class Ministry extends BaseController {
 						$reg_date = date('d/m/Y', strtotime($q->reg_date));
 
 						if (!empty($logo)) {
-							$img = '<img height="60px" width="80px" src="' . site_url($logo) . '">';
+							$img = '<img height="40px"  src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
