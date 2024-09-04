@@ -254,6 +254,10 @@ class Ministry extends BaseController {
 						if (!empty($getImg->path)) $img_id = $getImg->path;
 					}
 
+					if(empty($img_id)){
+						echo $this->Crud->msg('warning', 'You must enter your Ministry Logo to Continue');
+						die;
+					}
 
 					$ins_data['name'] = $name;
 					$ins_data['email'] = $email;
@@ -357,7 +361,7 @@ class Ministry extends BaseController {
 						$reg_date = date('d/m/Y', strtotime($q->reg_date));
 
 						if (!empty($logo)) {
-							$img = '<img height="40px"  src="' . site_url($logo) . '">';
+							$img = '<img height="40px" width="50px"  src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
