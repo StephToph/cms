@@ -166,7 +166,7 @@ $this->Crud = new Crud();
                                                                     </span>
 
                                                                     <span class="profile-ud-value" id="sends_text" style="display:none;">
-                                                                        <a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="btn  btn-outline-success pop" pageName="<?=site_url('ministry/index/manage/admin_send/'); ?>"><em class="icon ni ni-share"></em> <span>Send Login</span></a>
+                                                                        <a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="btn  btn-outline-success pop" pageName="<?=site_url('ministry/index/manage/admin_send'); ?>"><em class="icon ni ni-share"></em> <span>Send Login</span></a>
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -240,7 +240,7 @@ $this->Crud = new Crud();
                 } else {
                     $('#sends_text').fadeIn(500); // More standard method for fading in
                     var urls = site_url + 'ministry/index/manage/admin_send/' + dt.admin_id;
-                    $('#send_btn').attr('page-name', urls); // Use data attribute for custom data
+                    $('#send_btn').attr('pageName', urls); // Use data attribute for custom data
                 }
             }
         });
