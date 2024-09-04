@@ -128,6 +128,7 @@ class Ministry extends BaseController {
 							$data['e_id'] = $e->id;
 							$data['e_surname'] = $e->surname;
 							$data['e_email'] = $e->email;
+							$data['e_title'] = $e->title;
 							$data['e_phone'] = $e->phone;
 							$data['e_firstname'] = $e->firstname;
 						}
@@ -138,9 +139,15 @@ class Ministry extends BaseController {
 						$surname = $this->request->getVar('surname');
 						$email = $this->request->getVar('email');
 						$phone = $this->request->getVar('phone');
+						$title = $this->request->getVar('title');
 						$firstname = $this->request->getVar('firstname');
-	
+						
+						if(empty($title) || $title == ' '){
+							echo $this->Crud->msg('danger', 'Select Title');
+							die;
+						}
 						$ins_data['surname'] = $surname;
+						$ins_data['title'] = $title;
 						$ins_data['email'] = $email;
 						$ins_data['firstname'] = $firstname;
 						$ins_data['phone'] = $phone;
@@ -439,7 +446,10 @@ class Ministry extends BaseController {
 				$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 				if($this->Crud->check2('ministry_id', $ministry_id, 'role_id',  $admin_role, 'user') == 0){
 					$status = 0;
+					$title =  '<span class="text-danger">-</span>';
 					$name =  '<span class="text-danger">-</span>';
+					$surname =  '<span class="text-danger">-</span>';
+					$firstname =  '<span class="text-danger">-</span>';
 					$user_id =  '<span class="text-danger">-</span>';
 					$last_log =  '<span class="text-danger">-</span>';
 					$email =  '<span class="text-danger">-</span>';
@@ -453,6 +463,7 @@ class Ministry extends BaseController {
 				} else {
 					$status = 1;
 					
+					$title = $this->Crud->read_field('id', $admin_id, 'user', 'title');
 					$surname = $this->Crud->read_field('id', $admin_id, 'user', 'surname');
 					$firstname = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
 					$user_id = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
@@ -472,10 +483,13 @@ class Ministry extends BaseController {
 				$resp['status'] = $status;
 				$resp['ministry'] = $ministry;
 				$resp['fullname'] = $name;
+				$resp['surname'] = $surname;
+				$resp['firstname'] = $firstname;
 				$resp['last_log'] = $last_log;
 				$resp['user_id'] = $user_id;
 				$resp['user_role'] = $user_role;
 				$resp['email'] = $email;
+				$resp['title'] = $title;
 				$resp['phone'] = $phone;
 				$resp['admin_id'] = $admin_id;
 				$resp['send_text'] = $send_text;

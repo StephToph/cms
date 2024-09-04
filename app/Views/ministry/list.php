@@ -122,8 +122,20 @@ $this->Crud = new Crud();
                                                             
                                                             <div class="profile-ud-item">
                                                                 <div class="profile-ud wider"><span
-                                                                        class="profile-ud-label">Full Name</span><span
-                                                                        class="profile-ud-value" id="names"></span>
+                                                                        class="profile-ud-label">Title</span><span
+                                                                        class="profile-ud-value" id="title"></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="profile-ud-item">
+                                                                <div class="profile-ud wider"><span
+                                                                        class="profile-ud-label">First Name</span><span
+                                                                        class="profile-ud-value" id="firstname"></span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="profile-ud-item">
+                                                                <div class="profile-ud wider"><span
+                                                                        class="profile-ud-label">Surname</span><span
+                                                                        class="profile-ud-value" id="surname"></span>
                                                                 </div>
                                                             </div>
                                                             <div class="profile-ud-item">
@@ -207,10 +219,13 @@ $this->Crud = new Crud();
                 var dt = JSON.parse(data);
                 $('#name').html(dt.fullname);
                 $('#names').html(dt.fullname);
+                $('#surname').html(dt.surname);
+                $('#firstname').html(dt.firstname);
                 $('#user_id').html(dt.user_id);
                 $('#last_log').html(dt.last_log);
                 $('#email').html(dt.email);
                 $('#status').html(dt.status);
+                $('#title').html(dt.title);
                 $('#phone').html(dt.phone);
                 $('#ministry').html(dt.ministry);
                 $('#user_role').html(dt.user_role);
