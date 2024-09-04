@@ -31,7 +31,7 @@
         content="Add Money, Make Transfers, Pay Bills">
     <meta name="theme-color" content="blue">
     <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="<?=site_url(); ?>assets/fav.png">
+    <link rel="shortcut icon" href="<?=site_url(); ?>assets/new_logo.png">
     <title><?=$title; ?></title>
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlitee5ca.css?ver=3.2.3">
@@ -51,9 +51,10 @@
                         data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
                     </div>
                     <div class="nk-header-brand">
+                       
                         <a href="<?=site_url(); ?>" class="logo-link">
-                            <img class="logo-light logo-img logo-img-lg" src="<?=site_url(); ?>assets/logo.png" srcset="<?=site_url(); ?>assets/logo.png 2x" style="max-width:70%" alt="logo">
-                            <img class="logo-dark logo-img logo-img-lg" src="<?=site_url(); ?>assets/logo.png" srcset="<?=site_url(); ?>assets/logo.png 2x" style="max-width:70%" alt="logo-dark">
+                            <img class="logo-light logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo">
+                            <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo-dark">
                         </a>
                     </div>
                 </div>
@@ -169,9 +170,9 @@
                                 <a href="javascript:;" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
                             </div>
                             <div class="nk-header-brand d-xl-none">
-                                <a href="<?=site_url('dashboard');?>" class="logo-link nk-sidebar-logo">
-                                    <img class="logo-light logo-img logo-img-lg" src="<?=site_url();?>assets/logo.png?v=0" srcset="<?=site_url();?>assets/logo.png?v=0 2x" width="" alt="logo">
-                                    <img class="logo-dark logo-img logo-img-lg" src="<?=site_url();?>assets/logo.png?v=0" srcset="<?=site_url();?>assets/logo.png?v=0 2x" width="" alt="logo-dark">
+                                <a href="<?=site_url(); ?>" class="logo-link">
+                                    <img class="logo-light logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo">
+                                    <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo-dark">
                                 </a>
                             </div>
                             <div class="nk-header-tools">

@@ -2023,6 +2023,38 @@ class Crud extends Model {
         $db->close();
     }
 
+	public function filter_church_admin($limit='', $offset='',$log_id, $status='all', $search='', $role_id) {
+        $db = db_connect();
+        $builder = $db->table('user');
+		$builder->where('is_admin', 1);
+		$builder->where('church_id', $role_id);
+        
+        // build query
+		$builder->orderBy('id', 'DESC');
+		if(!empty($search)) {
+            $builder->groupStart()
+				->like('surname', $search)
+				->orLike('email', $search)
+				->orLike('firstname', $search)
+				->orLike('othername', $search)
+				->orLike('phone', $search)
+				->groupEnd();
+        }
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
 	public function filter_field($limit='', $offset='', $territory='all',$log_id, $id, $state_id='0', $status='all', $search='', $approve='all', $ref_status='all', $start_date='', $end_date='') {
         $db = db_connect();
         $builder = $db->table('user');
@@ -2838,10 +2870,12 @@ class Crud extends Model {
 	}
 
 	////// store activities
-	public function activity($item, $item_id, $action) {
+	public function activity($item, $item_id, $action)
+	{
 		$ins['item'] = $item;
 		$ins['item_id'] = $item_id;
 		$ins['action'] = $action;
+		$ins['user_id'] = session()->get('td_id');
 		$ins['reg_date'] = date(fdate);
 		return $this->create('activity', $ins);
 	}
