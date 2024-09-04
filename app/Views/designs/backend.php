@@ -5,13 +5,22 @@
     $username = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
     $log_name = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
     $email = $this->Crud->read_field('id', $log_id, 'user', 'email');
+    $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+    
+    $ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+    $ministry_logo = $this->Crud->read_field('id', $ministry_id, 'ministry', 'logo');
     $log_role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
 	$log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
     $log_user_img_id = 0;
     $log_user_img = $this->Crud->image($log_user_img_id, 'big');
-    $balance = 0;
-    $earnings = 0;
-    $withdrawns = 0;
+    
+    $logo = 'assets/new_logo.png';
+    $min_title = $title;
+    if($ministry_id > 0){
+        $logo = $ministry_logo;
+        $min_title = str_replace('C M S', $ministry, $title);
+        define('app_name', $ministry);
+    }
 
     
     header("Access-Control-Allow-Origin: *");  // Replace * with the specific origin(s) you want to allow
@@ -31,8 +40,8 @@
         content="Add Money, Make Transfers, Pay Bills">
     <meta name="theme-color" content="blue">
     <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="<?=site_url(); ?>assets/new_logo.png">
-    <title><?=$title; ?></title>
+    <link rel="shortcut icon" href="<?=site_url($logo); ?>">
+    <title><?=$min_title; ?></title>
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlitee5ca.css?ver=3.2.3">
     <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/css/skins/theme-egyptian.css?ver=3.2.3">
@@ -53,8 +62,8 @@
                     <div class="nk-header-brand">
                        
                         <a href="<?=site_url(); ?>" class="logo-link">
-                            <img class="logo-light logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo">
-                            <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo-dark">
+                            <img class="logo-light logo-img logo-img-lg" style="max-height:50px" src="<?=site_url($logo); ?>" srcset="<?=site_url($logo); ?>" alt="logo">
+                            <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url($logo); ?>" srcset="<?=site_url($logo); ?>" alt="logo-dark">
                         </a>
                     </div>
                 </div>
@@ -171,8 +180,8 @@
                             </div>
                             <div class="nk-header-brand d-xl-none">
                                 <a href="<?=site_url(); ?>" class="logo-link">
-                                    <img class="logo-light logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo">
-                                    <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url(); ?>assets/new_logo.png" srcset="<?=site_url(); ?>assets/new_logo.png" alt="logo-dark">
+                                    <img class="logo-light logo-img logo-img-lg" style="max-height:50px" src="<?=site_url($logo); ?>" srcset="<?=site_url($logo); ?>" alt="logo">
+                                    <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url($logo); ?>" srcset="<?=site_url($logo); ?>" alt="logo-dark">
                                 </a>
                             </div>
                             <div class="nk-header-tools">
