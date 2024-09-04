@@ -485,18 +485,6 @@ class Church extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Contact').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Address').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Hierachy').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
-		
 				
 			';
 			$a = 1;
@@ -531,7 +519,7 @@ class Church extends BaseController {
 						if(!empty($ministry_id))$mins .= '<b>'.$this->Crud->read_field('id', $ministry_id, 'ministry', 'name').'</b><br>';
 						if(!empty($regional_id))$mins .= ' '.$this->Crud->read_field('id', $regional_id, 'church', 'name').' Region';
 						if (!empty($logo)) {
-							$img = '<img height="80px" src="' . site_url($logo) . '">';
+							$img = '<img height="40px" src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
@@ -542,71 +530,67 @@ class Church extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Zone\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								
 								
 							';
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<div class="user-card">
-								      	<div class="user-avatar lg">            
-									  		'.$img.'      
-										</div>        
-										<div class="user-name">            
-											<span class="tb-lead"><b>' . ucwords($name) . '</b></span>   
-											<span class="text-muted">'.$reg_date.'</span>     
-										</div>    
-									</div>  
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark">'.$email.'</span><br>
-									<span class="text-dark">'.$phone.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark">'.$address.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-info">'.$mins.'</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
+						<tr>
+							<td>
+								<div class="user-card">
+									<div class="user-avatar">            
+										'.$img.'      
+									</div>        
+									<div class="user-name">            
+										<span class="tb-lead">' . ucwords($name) . '</span>        
+									</div>    
+								</div>  
+							</td>
+							<td>
+								<span class="text-dark">'.$email.'</span><br>
+								<span class="text-dark">'.$phone.'</span>
+							</td>
+							<td><span class="text-dark">'.$address.'</span></td>
+							<td><span class="text-dark">'.$mins.'</span></td>
+							<td>
+								<ul class="nk-tb-actions">
+									<li>
+										<div class="drodown">
+											<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+											<div class="dropdown-menu dropdown-menu-end">
+												<ul class="link-list-opt no-bdr">
+													' . $all_btn . '
+												</ul>
 											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
-						';
-						$a++;
-					}
+										</div>
+									</li>
+								</ul>
+							</td>
+						</tr>
+						
+					';
+					$a++;
 				}
-				
 			}
 			
-			if(empty($item)) {
-				$resp['item'] = $items.'
-					<div class="text-center text-muted">
-						<br/><br/><br/>
-						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Zonal Church Returned').'
-					</div>
-				';
-			} else {
-				$resp['item'] = $items . $item;
-				if($offset >= 25){
-					$resp['item'] = $item;
-				}
-				
+		}
+		
+		if(empty($item)) {
+			$resp['item'] = $items.'
+				<Tr><td colspan="8"><div class="text-center text-muted">
+					<br/><br/><br/>
+					<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Zonal Church Returned').'
+				</div></td></tr>
+			';
+		} else {
+			$resp['item'] = $items . $item;
+			if($offset >= 25){
+				$resp['item'] = $item;
 			}
+			
+		}
 
 			$resp['count'] = $counts;
 
@@ -825,18 +809,7 @@ class Church extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Contact').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Address').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Hierachy').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
-		
+				
 				
 			';
 			$a = 1;
@@ -874,7 +847,7 @@ class Church extends BaseController {
 						if(!empty($zonal_id))$mins .= '&#8594; '.$this->Crud->read_field('id', $zonal_id, 'church', 'name').' Zone';
 
 						if (!empty($logo)) {
-							$img = '<img height="80px" src="' . site_url($logo) . '">';
+							$img = '<img height="40px" src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
@@ -885,37 +858,33 @@ class Church extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Group\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								
 								
 							';
 						}
 
-						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
+							
+							$item .= '
+							<tr>
+								<td>
 									<div class="user-card">
-								      	<div class="user-avatar lg">            
-									  		'.$img.'      
+										<div class="user-avatar">            
+											'.$img.'      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead"><b>' . ucwords($name) . '</b></span>   
-											<span class="text-muted">'.$reg_date.'</span>     
+											<span class="tb-lead">' . ucwords($name) . '</span>        
 										</div>    
 									</div>  
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">'.$email.'</span><br>
 									<span class="text-dark">'.$phone.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark">'.$address.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-info">'.$mins.'</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
+								</td>
+								<td><span class="text-dark">'.$address.'</span></td>
+								<td><span class="text-dark">'.$mins.'</span></td>
+								<td>
+									<ul class="nk-tb-actions">
 										<li>
 											<div class="drodown">
 												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -927,8 +896,9 @@ class Church extends BaseController {
 											</div>
 										</li>
 									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+							</tr>
+							
 						';
 						$a++;
 					}
@@ -938,10 +908,10 @@ class Church extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<Tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/>
 						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Group Church Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -950,6 +920,7 @@ class Church extends BaseController {
 				}
 				
 			}
+
 
 			$resp['count'] = $counts;
 
@@ -1175,18 +1146,6 @@ class Church extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Contact').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Address').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Hierachy').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
-		
 				
 			';
 			$a = 1;
@@ -1226,7 +1185,7 @@ class Church extends BaseController {
 						if(!empty($group_id))$mins .= '<br>&#8594; '.$this->Crud->read_field('id', $group_id, 'church', 'name').' Group';
 
 						if (!empty($logo)) {
-							$img = '<img height="80px" src="' . site_url($logo) . '">';
+							$img = '<img height="40px" src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
@@ -1237,37 +1196,32 @@ class Church extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								
 								
 							';
 						}
-
+							
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
+							<tr>
+								<td>
 									<div class="user-card">
-								      	<div class="user-avatar lg">            
-									  		'.$img.'      
+										<div class="user-avatar">            
+											'.$img.'      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead"><b>' . ucwords($name) . '</b></span>   
-											<span class="text-muted">'.$reg_date.'</span>     
+											<span class="tb-lead">' . ucwords($name) . '</span>        
 										</div>    
 									</div>  
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">'.$email.'</span><br>
 									<span class="text-dark">'.$phone.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark">'.$address.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-info">'.$mins.'</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
+								</td>
+								<td><span class="text-dark">'.$address.'</span></td>
+								<td><span class="text-dark">'.$mins.'</span></td>
+								<td>
+									<ul class="nk-tb-actions">
 										<li>
 											<div class="drodown">
 												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -1279,21 +1233,22 @@ class Church extends BaseController {
 											</div>
 										</li>
 									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+							</tr>
+							
 						';
 						$a++;
 					}
 				}
 				
 			}
-			
+		
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<Tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/>
-						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No  Church Assembly Returned').'
-					</div>
+						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Church Assembly Returned').'
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -1302,7 +1257,6 @@ class Church extends BaseController {
 				}
 				
 			}
-
 			$resp['count'] = $counts;
 
 			$more_record = $counts - ($offset + $rec_limit);
