@@ -87,21 +87,32 @@ class Ministry extends BaseController {
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 						
 						$name = ucwords($firstname.' '.$othername.' '.$surname);
+						$reset_link = site_url('auth/email_verify?uid='.$user_no);
+						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
 						$body = '
 							Dear '.$name.', <br><br>
-								A Ministry Administrator Account Has been Created with This Email on for '.ucwords($ministry).' on '.app_name.' Platform;<br>
-								Below are your login Credentials:<br><br>
+								<p>A Ministry Administrator account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
+    							Below are your Account Details:<br><br>
 
 								Website: '.site_url().'
 								Membership ID: '.$user_no.'<br>
 								Email: '.$email.'<br>
 								Phone: '.$phone.'<br>
-								Password: 123456<br><br>
-								Do not disclose your Login credentials with anyone to avoid unauthorized access.
+								
+								<p>To ensure the security of your account, please set your password by clicking the link below:</p>
+    
+
+								'.$link.'
+
+								<p>This link will direct you to a secure page where you can choose your own password. If you encounter any issues or have questions, please feel free to contact our support team.</p>
+								<p><strong>Important:</strong> Do not disclose your login credentials to anyone to avoid unauthorized access.</p>
+								<p>Welcome aboard, and we look forward to your participation!</p>
+								<p>Best regards,<br>
 								
 						';
 						if($this->request->getMethod() == 'post'){
-							$email_status = $this->Crud->send_email($email, 'Administrator Account', $body);
+							$head = 'Welcome to '.$ministry.' - Set Your Password';
+							$email_status = $this->Crud->send_email($email, $head, $body);
 							if($email_status > 0){
 								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
 								echo '<script>
@@ -443,6 +454,7 @@ class Ministry extends BaseController {
 			if($ministry_id){
 				$admin_role = $this->Crud->read_field('name', 'Ministry Administrator', 'access_role', 'id');
 				$admin_id = $this->Crud->read_field2('ministry_id', $ministry_id, 'role_id',  $admin_role, 'user', 'id');
+				if(empty($admin_id))$admin_id = 0;
 				$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 				if($this->Crud->check2('ministry_id', $ministry_id, 'role_id',  $admin_role, 'user') == 0){
 					$status = 0;

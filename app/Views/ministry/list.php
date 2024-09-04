@@ -165,7 +165,7 @@ $this->Crud = new Crud();
                                                                         <a href="javascript:;" id="admin_btn" pageTitle="Add Admin"  class="btn btn-block btn-outline-primary pop" pageName="<?= site_url('ministry/index/manage/admin'); ?>"><em class="icon ni ni-edit-alt"></em> <span id="btn_text">Add Admin</span></a>
                                                                     </span>
 
-                                                                    <span class="profile-ud-value" id="sends_text">
+                                                                    <span class="profile-ud-value" id="sends_text" style="display:none;">
                                                                         <a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="btn  btn-outline-success pop" pageName="<?=site_url('ministry/index/manage/admin_send/'); ?>"><em class="icon ni ni-share"></em> <span>Send Login</span></a>
                                                                     </span>
                                                                 </div>
@@ -234,11 +234,13 @@ $this->Crud = new Crud();
                 var urls = site_url + 'ministry/index/manage/admin/'+ministry_id;
                 $('#admin_btn').attr('pageName', urls);
                 
-                if(dt.status === 0){
-                    $('#sends_text').html('');
-                } else{
+                
+                if (dt.admin_id <= 0) {
+                    $('#sends_text').fadeOut(500); // More standard method for fading out
+                } else {
+                    $('#sends_text').fadeIn(500); // More standard method for fading in
                     var urls = site_url + 'ministry/index/manage/admin_send/' + dt.admin_id;
-                    $('#send_btn').attr('pageName', urls);
+                    $('#send_btn').attr('page-name', urls); // Use data attribute for custom data
                 }
             }
         });

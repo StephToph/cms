@@ -52,11 +52,11 @@ defined('DECADE') || define('DECADE', 315360000);
  */
 defined('app_name') || define('app_name', 'C M S');
 defined('app_meta_desc') || define('app_meta_desc', 'Church Management System');
-defined('app_email') || define('app_email', 'admin@ceaurora.vip');
-defined('app_website') || define('app_website', 'ceaurora.vip');
-defined('push_email') || define('push_email', 'admin@ceaurora.vip');
+defined('app_email') || define('app_email', 'hello@loveworldbuddy.com');
+defined('app_website') || define('app_website', 'https://loveworldbuddy.com');
+defined('push_email') || define('push_email', 'hello@loveworldbuddy.com');
 defined('fdate') || define('fdate', 'Y-m-d H:i:s');
-defined('curr') || define('curr', '$;');
+defined('curr') || define('curr', 'SP;');
 defined('pay_server') || define('pay_server', 'test');
 
 /*
