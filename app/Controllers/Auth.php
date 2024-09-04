@@ -27,6 +27,16 @@ class Auth extends BaseController {
 			if($resp->status == true) {
 				$this->session->set('td_id', $resp->data->id);
 				echo $this->Crud->msg($resp->code, translate_phrase($resp->msg));
+
+				$id = $resp->data->id;
+				$this->session->set('td_id', $id);
+				
+				$this->Crud->updates('id', $id, 'user', array('last_log'=> date(fdate)));
+				///// store activities
+				$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
+				$action = $codes . ' logged in ';
+				$this->Crud->activity('authentication', $id, $action);
+				
 				echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
 				$this->session->set('td_auth_message', '');
 				
@@ -86,7 +96,7 @@ class Auth extends BaseController {
 						$msg = 'Login Successful!';
 						$code = 'success';
 						$id = $this->Crud->read_field($type, $email, 'user', 'id');
-	
+						$this->session->set('td_id', $id);
 						$this->Crud->updates('id', $id, 'user', array('last_log'=> date(fdate)));
 						///// store activities
 						$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
