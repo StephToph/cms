@@ -2893,7 +2893,7 @@ class Crud extends Model {
 
 		if($role != 'Developer' && $role !='Administrator'){
 			if($user_id != 0 ){
-				$builder->where("item_id", $user_id);
+				$builder->where("user_id", $user_id);
 			}
 		}
 		
