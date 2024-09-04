@@ -178,18 +178,7 @@ class Church extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Contact').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Address').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Date').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
-		
+				
 				
 			';
 			$a = 1;
@@ -219,7 +208,7 @@ class Church extends BaseController {
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 
 						if (!empty($logo)) {
-							$img = '<img height="80px" src="' . site_url($logo) . '">';
+							$img = '<img height="40px" src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
@@ -230,36 +219,32 @@ class Church extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								
 								
 							';
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
+							<tr>
+								<td>
 									<div class="user-card">
-								      	<div class="user-avatar lg">            
+								      	<div class="user-avatar">            
 									  		'.$img.'      
 										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($name) . '</span>        
 										</div>    
 									</div>  
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">'.$email.'</span><br>
 									<span class="text-dark">'.$phone.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark">'.$address.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark">'.$reg_date.'</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
+								</td>
+								<td><span class="text-dark">'.$address.'</span></td>
+								<td><span class="text-dark">'.$reg_date.'</span></td>
+								<td>
+									<ul class="nk-tb-actions">
 										<li>
 											<div class="drodown">
 												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -271,8 +256,9 @@ class Church extends BaseController {
 											</div>
 										</li>
 									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+							</tr>
+							
 						';
 						$a++;
 					}
@@ -282,10 +268,10 @@ class Church extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<Tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/>
 						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Regional Church Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -1343,8 +1329,342 @@ class Church extends BaseController {
 			return view($mod, $data);
 		}
     }
-	
 
+	
+	public function administrator($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'church/administrator';
+
+        $log_id = $this->session->get('td_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            // return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+        $data['current_language'] = $this->session->get('current_language');
+		$table = 'user';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+		
+		$church_id = $this->session->get('church_id');
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($_POST){
+						$del_id = $this->request->getPost('d_user_id');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'firstname');
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by.' deleted Administrator ('.$code.')';
+							$this->Crud->activity('user', $del_id, $action);
+							echo '<script>
+								load_admin("","",'.$church_id.');
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_surname'] = $e->surname;
+								$data['e_firstname'] = $e->firstname;
+								$data['e_phone'] = $e->phone;
+								$data['e_address'] = $e->address;
+								$data['e_activate'] = $e->activate;
+								$data['e_email'] = $e->email;
+								$data['e_role_id'] = $e->role_id;
+							}
+						}
+					}
+				} 
+				
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getPost('user_id');
+					$surname = $this->request->getPost('surname');
+					$firstname = $this->request->getPost('firstname');
+					$phone = $this->request->getPost('phone');
+					$email = $this->request->getPost('email');
+					$address = $this->request->getPost('address');
+					$activate = $this->request->getPost('activate');
+					$password = $this->request->getPost('password');
+
+					
+					$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+					$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+					if($church_type == 'region'){
+						$urole_id = $this->Crud->read_field('name', 'Regional Manager',  'access_role', 'id');
+
+					}
+					if($church_type == 'zone'){
+						$urole_id = $this->Crud->read_field('name', 'Zonal Manager',  'access_role', 'id');
+
+					}
+					if($church_type == 'group'){
+						$urole_id = $this->Crud->read_field('name', 'Group Manager',  'access_role', 'id');
+
+					}
+					if($church_type == 'church'){
+						$urole_id = $this->Crud->read_field('name', 'Church Leader',  'access_role', 'id');
+
+					}
+
+					$ins_data['surname'] = $surname;
+					$ins_data['firstname'] = $firstname;
+					$ins_data['email'] = $email;
+					$ins_data['phone'] = $phone;
+					$ins_data['activate'] = $activate;
+					$ins_data['address'] = $address;
+					$ins_data['role_id'] = $urole_id;
+					if($password) { $ins_data['password'] = md5($password); }
+					
+					// do create or update
+					if($user_id) {
+						$upd_rec = $this->Crud->updates('id', $user_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Updated'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+							$action = $by.' updated Administrator ('.$code.') Record';
+							$this->Crud->activity('user', $user_id, $action);
+								echo '<script>
+									load_admin("","",'.$church_id.');
+									$("#modal").modal("hide");
+								</script>';
+						} else {
+							echo $this->Crud->msg('info', translate_phrase('No Changes'));	
+						}
+					} else {
+						if($this->Crud->check('email', $email, $table) > 0 || $this->Crud->check('phone', $phone, $table) > 0) {
+							echo $this->Crud->msg('warning', ('Email and/or Phone Already Exist'));
+						} else {
+							$ins_data['ministry_id'] = $ministry_id;
+							$ins_data['church_id'] = $church_id;
+							$ins_data['is_admin'] = 1;
+							$ins_data['reg_date'] = date(fdate);
+
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Record Created'));
+								$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
+
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'user', 'firstname');
+								$action = $by.' created Administrator ('.$code.')';
+								$this->Crud->activity('user', $ins_rec, $action);
+
+								echo '<script>
+									load_admin("","",'.$church_id.');
+									$("#modal").modal("hide");
+								</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+							}	
+						}
+					}
+					exit;	
+				}
+			}
+		}
+		
+
+		// record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			
+			if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
+			$search = $this->request->getPost('search');
+			$church_id = $this->request->getPost('id');
+			$this->session->set('church_id', $church_id);
+			
+			if(empty($ref_status))$ref_status = 0;
+			$items = '
+					
+			';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$role_ids = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+
+				$all_rec = $this->Crud->filter_church_admin('', '', $log_id, $status, $search, $church_id);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_church_admin($limit, $offset, $log_id, $status, $search, $church_id);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$fullname = $q->firstname.' '.$q->surname;
+						$email = $q->email;
+						$phone = $q->phone;
+						$address = $q->address;
+						$img = $this->Crud->image($q->img_id, 'big');
+						$activate = $q->activate;
+						$u_role = $this->Crud->read_field('id', $q->role_id, 'access_role', 'name');
+						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
+
+						$referral = '';
+						
+						$approved = '';
+						if ($activate == 1) {
+							$a_color = 'success';
+							$approve_text = 'Account Activated';
+							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> ';
+						} else {
+							$a_color = 'danger';
+							$approve_text = 'Account Deactivated';
+							$approved = '<span class="text-danger"><i class="ri-check-circle-line"></i></span> ';
+						}
+
+						// add manage buttons
+						
+							$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								
+								
+							';
+						
+
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-avatar ">
+											<img alt="" src="' . site_url($img) . '" height="40px"/>
+										</div>
+										<div class="user-info">
+											<span class="tb-lead">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<br>
+											
+										</div>
+									</div>
+								</td>
+								<td><span>' . $email . '</span></td>
+								<td><span class="text-dark"><b>' . $phone . '</b></span></td>
+								<td><span>' . $u_role . '</span></td>
+								<td><span>' . ucwords($address) . '</span></td>
+								<td><span class="tb-amount">' . $reg_date . ' </span></td>
+								<td>
+									<ul class="nk-tb-actions gx-1">
+										<li>
+											<div class="drodown">
+												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+												<div class="dropdown-menu dropdown-menu-end">
+													<ul class="link-list-opt no-bdr">
+														' . $all_btn . '
+													</ul>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-users" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Administrator Account Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view('church/admin_form', $data);
+		} 
+
+	}
+	
 	public function get_region(){
 		$ministry_id = $this->request->getPost('ministry_id');
 		if(empty($ministry_id)){
