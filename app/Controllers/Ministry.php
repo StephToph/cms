@@ -122,8 +122,9 @@ class Ministry extends BaseController {
 							} else {
 								echo $this->Crud->msg('danger', 'Error Sending Email');
 							}
-							die;
+							die;	
 						}
+						
 					}
 					
 				}
