@@ -1703,6 +1703,14 @@ class Crud extends Model {
         // build query
 		$builder->orderBy('id', 'desc');
 		
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			$builder->where('ministry_id', $ministry_id);
+		} 
+
+
 		$builder->where('type', $type);
         if(!empty($search)) {
             $builder->like('name', $search);
