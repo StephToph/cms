@@ -141,7 +141,11 @@ class Ministry extends BaseController {
 						$phone = $this->request->getVar('phone');
 						$title = $this->request->getVar('title');
 						$firstname = $this->request->getVar('firstname');
-	
+						
+						if(empty($title) || $title == ' '){
+							echo $this->Crud->msg('danger', 'Select Title');
+							die;
+						}
 						$ins_data['surname'] = $surname;
 						$ins_data['title'] = $title;
 						$ins_data['email'] = $email;

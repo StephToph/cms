@@ -96,7 +96,7 @@
                     <label class="form-label">Title</label>
                     <div class="form-control-wrap">
                         <select class="js-select2" name="title" id="title" data-placeholder="Select Title" required>
-                            <option value="">Select Title</option>
+                            <option value=" ">Select Title</option>
                             <option value="Mr." <?php if(!empty($e_title)){if($e_title ==  'Mr.'){echo 'selected';}}; ?>>Mr.</option>
                             <option value="Mrs." <?php if(!empty($e_title)){if($e_title ==  'Mrs.'){echo 'selected';}}; ?>>Mrs.</option>
                             <option value="Ms." <?php if(!empty($e_title)){if($e_title ==  'Ms.'){echo 'selected';}}; ?>>Ms.</option>
