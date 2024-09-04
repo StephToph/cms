@@ -208,115 +208,68 @@ class Auth extends BaseController {
     }
 	
 	///// otp
-    public function otp($param1='', $param2='') {
+    public function email_verify($param1='', $param2='') {
         // check login
-        $log_id = $this->session->get('td_id');
-        
-		if($param1 == 'resend'){
-			$email = $this->Crud->read_field('id', $log_id, 'user', 'email');
-			$phone = $this->Crud->read_field('id', $log_id, 'user', 'phone');
+        $uid = $this->request->getGet('uid');
+		$this->session->set('user_no', $uid);
 
-			if(empty($log_id)){
-				$phone = $this->request->getPost('phone');
-				$email = $this->request->getPost('email');
-				
-			}
-			
-			$otp = $this->Crud->api('post', 'otp/post', array('email' => $email, 'phone'=>$phone));
-			$otp = json_decode($otp);
-			if($otp->status == true){
-				echo $this->Crud->msg('success', translate_phrase($otp->msg));
-				
-			} else {
-				echo $this->Crud->msg('danger', translate_phrase($otp->msg));
-			}
-			die;
-		}
-        if($this->request->getMethod() == 'post') {
-            $email = $this->request->getVar('email');
-            $phone = $this->request->getVar('phone');
-            $otp = $this->request->getVar('otp');
-
-			$name = $this->Crud->read_field('phone', $phone, 'user', 'fullname');
-			$user_id = $this->Crud->read_field('phone', $phone, 'user', 'id');
-			$p_data['account_name']= $name;
-			$p_data['bvn']= "";
-			
-			
-
-            if(!$phone || !$otp) {
-                echo $this->Crud->msg('danger', translate_phrase('Please provide Phone Number and OTP'));
-            } else {
-                $data['phone'] = $phone;
-				$data['otp'] = $otp;
-
-				
-				$add = $this->Crud->api('post', 'otp/verify', $data);
-				
-				$add = json_decode($add);
-				if($add->status == true){
-					//Create Virtual Account
-					if($this->Crud->check('user_id', $user_id, 'virtual_account') == 0){
-						$virtual = $this->Crud->providus('post', 'PiPCreateReservedAccountNumber', $p_data);
-						$virtuals =json_decode($virtual);
+        $data['current_language'] = $this->session->get('current_language');
 		
-						if($virtuals->requestSuccessful == true){
-							$v_data['acc_no'] = $virtuals->account_number;
-							$v_data['user_id'] = $user_id;
-							$v_data['response'] = $virtual;
-							$v_data['reg_date'] = date(fdate);
-							$this->Crud->create('virtual_account',  $v_data);
+        $data['title'] = translate_phrase('Email Verification').' - '.app_name;
+        return view('auth/email_verify', $data);
+    }
 
-							$fullname  = $this->Crud->read_field('id', $user_id, 'user', 'fullname');
-							$phone  = $this->Crud->read_field('id', $user_id, 'user', 'phone');
-							$email  = $this->Crud->read_field('id', $user_id, 'user', 'email');
-							
+	public function verify($param1=''){
+		$user_id = $this->session->get('user_no');
+		if(!empty($user_id)){
+			if($param1 == 'email'){
+				$acc_email = $this->Crud->read_field('user_no', $user_id, 'user', 'email');
 
-
-							//Send Notification
-							$first_msg = 'Hi '.ucwords($fullname).', Welcome to ZEND-TIDREMS. Your Tax ID is '.$virtuals->account_number.'. Kindly make your allocated tax payment to Account No: '.$virtuals->account_number.' (Providus Bank). Thank you. TIDREM Team';
-							$api_key = $this->Crud->read_field('name', 'termil_api', 'setting', 'value'); // pick from DB
-							
-							if($phone) {
-								$phone = '234'.substr($phone,1);
-								$datass['to'] = $phone;
-								$datass['from'] = 'N-Alert';
-								$datass['sms'] = $first_msg;
-								$datass['api_key'] = $api_key;
-								$datass['type'] = 'plain';
-								$datass['channel'] = 'dnd';
-								$this->Crud->termii('post', 'sms/send', $datass);
-							}
-					
-							// send email
-							if($email) {
-								$data['email_address'] = $email;
-								$this->Crud->send_email($email, 'Welcome Message', $first_msg);
-							}
-							$this->Crud->notify('0', $user_id, $first_msg, 'authentication', $user_id);
-
-
-						}
+				if($this->request->getMethod() == 'post'){
+					$email = $this->request->getPost('email');
+					if($email != $acc_email){
+						echo $this->Crud->msg('danger', translate_phrase('Email does not match.'));
+					} else{
+						echo $this->Crud->msg('success', translate_phrase('Email Verification Successful.'));
+						echo '<script>
+							$("#bb_ajax_form").hide(500);
+							$("#bb_ajax_form3").hide();
+							$("#bb_ajax_form2").show(500);
+							$("#bb_ajax_msg2").html("<h5 class=text-success>'.translate_phrase('Email Verification Successful.!').'</h5>");
+						</script>';
 					}
 
-					
-					echo $this->Crud->msg('success', translate_phrase('OTP Confirmed! You can now Login.'));
-					$this->session->set('td_id', '');
-					echo '<script>window.location.replace("'.site_url('auth/login').'");</script>';
-					
-				} else {
-					echo $this->Crud->msg($add->code, translate_phrase($add->msg));	
+					die;
 				}
-            }
+			}
 
-            die;
-        }
-		
-        $data['current_language'] = $this->session->get('current_language');
-		$data['user_id'] = $log_id;
-        $data['title'] = translate_phrase('One Time Password').' - '.app_name;
-        return view('auth/otp', $data);
-    }
+			if($param1 == 'password'){
+				$acc_email = $this->Crud->read_field('user_no', $user_id, 'user', 'email');
+				$acc_id = $this->Crud->read_field('user_no', $user_id, 'user', 'id');
+
+				if($this->request->getMethod() == 'post'){
+					$password = $this->request->getPost('password');
+					$confirm = $this->request->getPost('confirm');
+					if($password != $confirm){
+						echo $this->Crud->msg('danger', translate_phrase('Password do not match.'));
+					} else{
+						$this->Crud->updates('id', $acc_id, 'user', array('password'=> md5($password)));
+						$codes = $this->Crud->read_field('id', $acc_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $acc_id, 'user', 'surname');
+						$action = $codes . ' Updated  Password Successfully.';
+
+						$this->Crud->activity('authentication', $acc_id, $action);
+						
+						echo $this->Crud->msg('success', translate_phrase('Email Verification Successful.'));
+						$this->session->set('user_no', '');
+						echo '<script>window.location.replace("'.site_url('auth').'");</script>';
+					
+					}
+
+					die;
+				}
+			}
+		}
+	}
 
     ///// REGISTER//////////////////////////
     public function register() {

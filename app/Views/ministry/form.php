@@ -172,7 +172,7 @@
             
             <div class="col-sm-12 text-center">
                 <button class="btn btn-success text-uppercase" type="submit">
-                    <em class="icon ni ni-share-alt"></em> <span><?=translate_phrase('Yes - Send Login Details');?></span>
+                    <em class="icon ni ni-share-alt"></em> <span><?=('Yes - Send Login Details');?></span>
                 </button>
             </div>
         </div>

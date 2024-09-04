@@ -86,13 +86,13 @@
                                         <div class="form-label-group"><label class="form-label"
                                                 for="password">Password</label><a class="link link-primary link-sm"
                                                 tabindex="-1" href="<?=site_url('auth/forgot'); ?>">Reset Password?</a></div>
-                                        <div class="form-control-wrap"><a tabindex="-1" href="#"
-                                                class="form-icon form-icon-right passcode-switch lg"
-                                                data-target="password"><em
-                                                    class="passcode-icon icon-show icon ni ni-eye"></em><em
-                                                    class="passcode-icon icon-hide icon ni ni-eye-off"></em></a><input
-                                                type="password" name="password" class="form-control form-control-lg" id="password"
-                                                placeholder="Enter your password"></div>
+                                        <div class="form-control-wrap">
+                                            <a tabindex="-1" href="#" class="form-icon form-icon-right passcode-switch lg" data-target="password">
+                                                <em class="passcode-icon icon-show icon ni ni-eye"></em>
+                                                <em class="passcode-icon icon-hide icon ni ni-eye-off"></em>
+                                            </a>
+                                            <input type="password" name="password" class="form-control form-control-lg" id="password" placeholder="Enter your password">
+                                        </div>
                                     </div>
                                     <div class="form-group"><button class="btn btn-lg btn-primary btn-block">Sign
                                             in</button></div>
