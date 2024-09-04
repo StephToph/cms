@@ -73,6 +73,129 @@ class Ministry extends BaseController {
 						exit;	
 					}
 				}
+			} elseif($param2 == 'admin_send'){ 
+				if($param3){
+					$admin_id = $param3;
+					if($admin_id){
+						$surname = $this->Crud->read_field('id', $admin_id, 'user', 'surname');
+						$firstname = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
+						$othername = $this->Crud->read_field('id', $admin_id, 'user', 'othername');
+						$user_no = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
+						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
+						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
+						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						
+						$name = ucwords($firstname.' '.$othername.' '.$surname);
+						$body = '
+							Dear '.$name.', <br><br>
+								A Ministry Administrator Account Has been Created with This Email on for '.ucwords($ministry).' on '.app_name.' Platform;<br>
+								Below are your login Credentials:<br><br>
+
+								Website: '.site_url().'
+								Membership ID: '.$user_no.'<br>
+								Email: '.$email.'<br>
+								Phone: '.$phone.'<br>
+								Password: 123456<br><br>
+								Do not disclose your Login credentials with anyone to avoid unauthorized access.
+								
+						';
+						if($this->request->getMethod() == 'post'){
+							$email_status = $this->Crud->send_email($email, 'Administrator Account', $body);
+							if($email_status > 0){
+								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
+								echo '<script>
+										load_admin('.$ministry_id.');
+										$("#modal").modal("hide");
+									</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Error Sending Email');
+							}
+							die;
+						}
+					}
+					
+				}
+			} elseif($param2 == 'admin'){
+				if($param3) {
+					$table = 'user';
+					$ministry_id = $param3;
+					$admin_role = $this->Crud->read_field('name', 'Ministry Administrator', 'access_role', 'id');
+					$admin_id = $this->Crud->read_field2('ministry_id', $ministry_id, 'role_id', $admin_role, 'user', 'id');
+					$edit = $this->Crud->read_single('id', $admin_id, 'user');
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_surname'] = $e->surname;
+							$data['e_email'] = $e->email;
+							$data['e_phone'] = $e->phone;
+							$data['e_firstname'] = $e->firstname;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$ministry_id = $this->request->getVar('ministry_id');
+						$surname = $this->request->getVar('surname');
+						$email = $this->request->getVar('email');
+						$phone = $this->request->getVar('phone');
+						$firstname = $this->request->getVar('firstname');
+	
+						$ins_data['surname'] = $surname;
+						$ins_data['email'] = $email;
+						$ins_data['firstname'] = $firstname;
+						$ins_data['phone'] = $phone;
+
+						// do create or update
+						if($admin_id) {
+							$upd_rec = $this->Crud->updates('id', $admin_id, $table, $ins_data);
+							if($upd_rec > 0) {
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
+								$action = $by.' updated Ministry Administrator ('.$code.') Record';
+								$this->Crud->activity('user', $admin_id, $action);
+	
+								echo $this->Crud->msg('success', 'Administrator Updated');
+								echo '<script>
+									load_admin('.$ministry_id.');
+									$("#modal").modal("hide");
+								</script>';
+							} else {
+								echo $this->Crud->msg('info', 'No Changes');	
+							}
+						} else {
+							if($this->Crud->check('email', $email, $table) > 0) {
+								echo $this->Crud->msg('warning', 'Email Already Exist');
+							} else {
+								$ins_data['role_id'] = $admin_role;
+								$ins_data['password'] = md5('admin');
+								$ins_data['ministry_id'] = $ministry_id;
+								$ins_data['activate'] = 1;
+								$ins_data['is_admin'] = 1;
+								$ins_data['reg_date'] = date(fdate);
+								$ins_rec = $this->Crud->create($table, $ins_data);
+								if($ins_rec > 0) {
+									$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
+									///// store activities
+									$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+									$code = $this->Crud->read_field('id', $ins_rec, 'user', 'firstname');
+									$action = $by.' created Administrator ('.$code.') Record';
+									$this->Crud->activity('user', $ins_rec, $action);
+	
+									echo $this->Crud->msg('success', 'Administrator Created');
+									echo '<script>
+										load_admin('.$ministry_id.');
+										$("#modal").modal("hide");
+									</script>';
+								} else {
+									echo $this->Crud->msg('danger', 'Please try later');	
+								}	
+							}
+						}
+	
+						die;	
+					}
+				}
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -226,6 +349,7 @@ class Ministry extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/index/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/index/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_admin(' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								
 								
 							';
@@ -305,6 +429,62 @@ class Ministry extends BaseController {
 
 			echo json_encode($resp);
 			die;
+		}
+
+		if($param1 == 'load_admin'){
+			$ministry_id = $this->request->getPost('ministry_id');
+			if($ministry_id){
+				$admin_role = $this->Crud->read_field('name', 'Ministry Administrator', 'access_role', 'id');
+				$admin_id = $this->Crud->read_field2('ministry_id', $ministry_id, 'role_id',  $admin_role, 'user', 'id');
+				$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+				if($this->Crud->check2('ministry_id', $ministry_id, 'role_id',  $admin_role, 'user') == 0){
+					$status = 0;
+					$name =  '<span class="text-danger">-</span>';
+					$user_id =  '<span class="text-danger">-</span>';
+					$last_log =  '<span class="text-danger">-</span>';
+					$email =  '<span class="text-danger">-</span>';
+					$phone =  '<span class="text-danger">-</span>';
+					$user_role =  '<span class="text-danger">-</span>';
+
+					$btn_text = 'Add Admin';
+					$sends_text = '';
+					$send_text = '<span class="text-danger">Click on the <b>Add Administrator</b> Button to add or edit the Ministry Adminstrator</span>';
+
+				} else {
+					$status = 1;
+					
+					$surname = $this->Crud->read_field('id', $admin_id, 'user', 'surname');
+					$firstname = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
+					$user_id = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
+					$last_log = $this->Crud->read_field('id', $admin_id, 'user', 'last_log');
+					$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
+					$role_ids = $this->Crud->read_field('id', $admin_id, 'user', 'role_id');
+					$user_role = $this->Crud->read_field('id', $role_ids, 'access_role', 'name');
+					if(empty($last_log)){
+						$last_log = 'Not Logged In';
+					}
+					$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
+					$name = ucwords($firstname.' '.$surname);
+					$btn_text = 'Edit Admin';$send_text = '';
+					$sends_text = '';
+				}
+
+				$resp['status'] = $status;
+				$resp['ministry'] = $ministry;
+				$resp['fullname'] = $name;
+				$resp['last_log'] = $last_log;
+				$resp['user_id'] = $user_id;
+				$resp['user_role'] = $user_role;
+				$resp['email'] = $email;
+				$resp['phone'] = $phone;
+				$resp['admin_id'] = $admin_id;
+				$resp['send_text'] = $send_text;
+				$resp['sends_text'] = $sends_text;
+				$resp['btn_text'] = $btn_text;
+
+				echo json_encode($resp);
+				die;
+			}
 		}
 
 		if($param1 == 'manage') { // view for form data posting

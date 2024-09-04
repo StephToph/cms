@@ -1,7 +1,7 @@
 
 <?php
-use App\Models\Crud;
-$this->Crud = new Crud();
+    use App\Models\Crud;
+    $this->Crud = new Crud();
 ?>
 <?php echo form_open_multipart($form_link, array('id'=>'bb_ajax_form', 'class'=>'')); ?>
     <!-- delete view -->
@@ -84,6 +84,77 @@ $this->Crud = new Crud();
             <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
         </div>
 
+    <?php } ?>
+
+     <!-- insert/edit view -->
+     <?php if($param2 == 'admin') { ?>
+        
+        <div class="row">
+            <input type="hidden" name="ministry_id" value="<?php if(!empty($param3)){echo $param3;} ?>" />
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Surname'); ?></label>
+                    <input class="form-control" type="text" id="surname" name="surname" value="<?php if(!empty($e_surname)) {echo $e_surname;} ?>" required>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('First Name'); ?></label>
+                    <input class="form-control" type="text" id="firstname" name="firstname" value="<?php if(!empty($e_firstname)) {echo $e_firstname;} ?>" required>
+                </div>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Email'); ?></label>
+                    <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" required>
+                </div>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Phone'); ?></label>
+                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>">
+                </div>
+            </div>
+
+
+            
+            
+        </div>
+        
+
+        <div class="row" >
+            
+            <div class="col-sm-12 text-center mt-3">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+    <?php } ?>
+
+    <?php if($param2 == 'admin_send') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h3><b><?=translate_phrase('Are you sure?');?></b></h3>
+                <input type="hidden" name="admin_id" value="<?php if(!empty($param3)){echo $param3;} ?>" />
+            </div>
+            
+            <div class="col-sm-12 text-center">
+                <button class="btn btn-success text-uppercase" type="submit">
+                    <em class="icon ni ni-share-alt"></em> <span><?=translate_phrase('Yes - Send Login Details');?></span>
+                </button>
+            </div>
+        </div>
     <?php } ?>
 <?php echo form_close(); ?>
 <script>
