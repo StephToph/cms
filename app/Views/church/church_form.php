@@ -185,7 +185,7 @@ $this->Crud = new Crud();
         
         if (eRegionId !== '') {
             var ministryId = $('#ministry_id').val();
-            console.log(ministryId);
+            
             if (ministryId !== '') {
                 $.ajax({
                     type: 'POST',

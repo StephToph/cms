@@ -3680,6 +3680,10 @@ class Ministry extends BaseController {
 								$data['e_content'] = $e->content;
 								$data['e_dept_id'] = $e->dept_id;
 								$data['e_type'] = $e->type;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_id'] = ($e->church_id);
+								$data['e_level'] = $e->level;
+								$data['e_send_type'] = $e->send_type;
 							}
 						}
 					}
@@ -3711,37 +3715,160 @@ class Ministry extends BaseController {
 					$title = $this->request->getPost('title');
 					$content = $this->request->getPost('content');
 					$type = $this->request->getPost('type');
+					$level = $this->request->getPost('level');
+					$send_type = $this->request->getPost('send_type');
+					$church_id = $this->request->getPost('church_id');
+					$ministry_id = $this->request->getPost('ministry_id');
 					$dept_id = $this->request->getPost('dept_id');
 					$roles_id = $this->request->getPost('roles_id');
 
-					if ($type == 'general') {
+					if(empty($ministry_id)){
+						echo $this->Crud->msg('warning', 'Select  Ministry');
+						die;
+					}
 
-						$rolea = array();
-						$recp = array();
-						//Role ID
-						if (!empty($roles_id)) {
-							for ($i = 0; $i < count($roles_id); $i++) {
-								$users = $this->Crud->read_single('role_id', $roles_id[$i], 'user');
-								$rolea[] = $roles_id[$i];
-								if (!empty($users)) {
-									foreach ($users as $u) {
-										$recp[] = $u->id;
+					$recps = [];
+					$recps_church = [];
+					
+					if($level == 'all'){
+						$church_id = 0;
+						if($type == 'general'){
+							$dept_id = 0;
+							$user = $this->Crud->read_single('ministry_id', $ministry_id, 'user');
+							if($user){
+								foreach($user as $u){
+									$recps[] = $u->id;
+								}
+							}
+
+						} else{
+							if($dept_id){
+								$dept = $this->Crud->read2('dept_id', $dept_id, 'ministry_id', $ministry_id, 'user');
+								if($dept){
+									foreach($dept as $d){
+										$recps[] = $d->id;
 									}
 								}
 							}
-						}
-						$roles = json_encode($rolea);
-						$recps = json_encode($recp);
 
-					} else {
-						$recps = $this->Crud->read_field('id', $dept_id, 'dept', 'members');
-						$roles = '';
+						}
+						$recps_church[] = $church_id;
+					} else{
+						if($send_type == 'individual'){
+							for($i=0;$i<count($church_id);$i++){
+
+								if($type == 'general'){
+									$dept_id = 0;
+									$user = $this->Crud->read_single('church_id',  $church_id[$i], 'user');
+									if($user){
+										foreach($user as $u){
+											$recps[] = $u->id;
+										}
+									}
+		
+								} else{
+									if($dept_id){
+										$dept = $this->Crud->read2('dept_id', $dept_id, 'church_id',  $church_id[$i], 'user');
+										if($dept){
+											foreach($dept as $d){
+												$recps[] = $d->id;
+											}
+										}
+									}
+		
+								}
+								
+								$recps_church[] = $church_id[$i];
+							}
+						}
+
+						if($send_type == 'general'){
+							for($i=0;$i<count($church_id);$i++){
+								if($type == 'general'){
+									$dept_id = 0;
+									$user = $this->Crud->read_single('church_id',  $church_id[$i], 'user');
+									if($user){
+										foreach($user as $u){
+											$recps[] = $u->id;
+										}
+									}
+		
+								} else{
+									if($dept_id){
+										$dept = $this->Crud->read2('dept_id', $dept_id, 'church_id',  $church_id[$i], 'user');
+										if($dept){
+											foreach($dept as $d){
+												$recps[] = $d->id;
+											}
+										}
+									}
+		
+								}
+
+								$recps_church[] = $church_id[$i];
+
+
+								//Ge the church type and loop thru their hierarchy
+								$church_type = $this->Crud->read_field('id', $church_id[$i], 'church', 'type');
+
+								if($church_type ==  'region'){
+									$types = $this->Crud->read_single('regional_id', $church_id[$i], 'church');
+								}
+								if($church_type ==  'zone'){
+									$types = $this->Crud->read_single('zonal_id', $church_id[$i], 'church');
+								}
+								if($church_type ==  'group'){
+									$types = $this->Crud->read_single('group_id', $church_id[$i], 'church');
+								}
+
+								if($types){
+									foreach($types as $t){
+
+										if($type == 'general'){
+											$dept_id = 0;
+											$user = $this->Crud->read_single('church_id',  $t->id, 'user');
+											if($user){
+												foreach($user as $u){
+													$recps[] = $u->id;
+												}
+											}
+				
+										} else{
+											if($dept_id){
+												$dept = $this->Crud->read2('dept_id', $dept_id, 'church_id',  $t->id, 'user');
+												if($dept){
+													foreach($dept as $d){
+														$recps[] = $d->id;
+													}
+												}
+											}
+				
+										}
+
+										
+										$recps_church[] = $t->id;
+									}
+								}
+
+								
+							}
+						}
+					
 					}
+
+					if(empty($recps)){
+						echo $this->Crud->msg('warning', 'No recipients in this Category');
+						die;
+					}
+
 					$ins_data['title'] = $title;
 					$ins_data['content'] = $content;
-					$ins_data['to_id'] = $recps;
+					$ins_data['to_id'] = json_encode($recps);
 					$ins_data['type'] = $type;
-					$ins_data['role_id'] = $roles;
+					$ins_data['level'] = $level;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = json_encode($recps_church);
+					$ins_data['send_type'] = $send_type;
 					$ins_data['dept_id'] = $dept_id;
 
 					// print_r($recps);
@@ -3770,26 +3897,29 @@ class Ministry extends BaseController {
 							echo $this->Crud->msg('info', 'No Changes');
 						}
 					} else {
-						if ($this->Crud->check('title', $title, $table) > 0) {
-							echo $this->Crud->msg('warning', 'Record Already Exist');
+						if ($this->Crud->check2('to_id', $log_id, 'title', $title, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Announcement Already Exist');
 						} else {
 							$ins_data['reg_date'] = date(fdate);
 							$ins_data['from_id'] = $log_id;
+							// print_r($ins_data);
 							$ins_rec = $this->Crud->create($table, $ins_data);
 							if ($ins_rec > 0) {
-								echo $this->Crud->msg('success', 'Record Created');
-								foreach (json_decode($recps, true) as $re => $val) {
+								foreach ($recps as $re => $val) {
 									$in_data['from_id'] = $log_id;
 									$in_data['to_id'] = $val;
 									$in_data['content'] = $content;
 									$in_data['item'] = 'announcement';
-									$in_data['new'] = 1;
+									$in_data['new'] = 0;
 									$in_data['reg_date'] = date(fdate);
 									$in_data['item_id'] = $ins_rec;
 									$this->Crud->create('notify', $in_data);
 								}
+
+								
+								echo $this->Crud->msg('success', 'Announcement Sent Successfully');
 								///// store activities
-								$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 								$code = $this->Crud->read_field('id', $ins_rec, 'announcement', 'title');
 								$action = $by . ' created (' . $code . ') Announcement ';
 								$this->Crud->activity('announcement', $ins_rec, $action, $log_id);
@@ -3831,6 +3961,59 @@ class Ministry extends BaseController {
 			$res['item'] = $sel;
 			echo json_encode($res);
 			die;
+		}
+
+		//Get Church From the ministry
+		if($param1 == 'get_church'){
+			$ministry_id = $this->request->getPost('ministry_id');
+			$level = $this->request->getPost('level');
+			if ($ministry_id) {
+				$church = $this->Crud->read_single_order('ministry_id', $ministry_id, 'church', 'type', 'asc');
+				if(!empty($level) && $level !=  'all'){
+					$church = $this->Crud->read2_order('type', $level, 'ministry_id', $ministry_id, 'church', 'name', 'asc');
+				}
+
+				$churches = [];
+				$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+				$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+				$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+				$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
+						
+				if (!empty($church)) {
+					foreach ($church as $c) {
+						if($church_type == 'region' && $c->type == 'region')continue;
+						
+						if($church_type == 'zone'){
+							if($c->type == 'region'  || $c->type == 'zone')continue;
+
+						}
+						if($church_type == 'group'){
+							if($c->type == 'region' ||  $c->type == 'zone' || $c->type == 'group')continue;
+
+						}
+
+						if($church_type == 'church'){
+							if($c->type == 'region' || $c->type == 'zone' || $c->type == 'group' || $c->type == 'church')continue;
+						}
+						
+						$churches[] = [
+							'id' => $c->id,
+							'name' => $c->name,
+							'type' => $c->type
+						];
+					}
+				}
+
+				return $this->response->setJSON([
+					'success' => true,
+					'data' => $churches
+				]);
+			}
+			
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Invalid Ministry ID'
+			]);
 		}
 
 		// record listing
@@ -3876,7 +4059,7 @@ class Ministry extends BaseController {
 						$user_i = $q->from_id;
 
 						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
-						$user = $this->Crud->read_field('id', $user_i, 'user', 'fullname');
+						$user = $this->Crud->read_field('id', $user_i, 'user', 'firstname');
 
 						$teams = '';
 						if ($role == 'developer' || $role == 'administrator' || $user_i == $log_id) {
