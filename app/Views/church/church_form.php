@@ -115,6 +115,7 @@ $this->Crud = new Crud();
                 <div class="form-group">
                     <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
                     <select class="js-select2 regional_select" name="regional_id" id="regional_id">
+                        <option value="">Select Region</option>
                         <?php
                             $ministryId = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
                             $regions = $this->Crud->read2_order('ministry_id', $ministryId, 'type', 'region', 'church', 'name', 'asc');
@@ -301,7 +302,7 @@ $this->Crud = new Crud();
                     success: function(data) {
                         $('#zonal_id').empty();
                         if (data.length === 0) {
-                            $('#zonal_id').append('<option value="">No regions found</option>'); // display a message if no regions are found
+                            $('#zonal_id').append('<option value="">No Zones found</option>'); // display a message if no regions are found
                         } else {
                             $('#zonal_id').append('<option value="">Select Zone</option>');
                             $.each(data, function(index, region) {
@@ -328,7 +329,7 @@ $this->Crud = new Crud();
                     success: function(data) {
                         $('#group_id').empty();
                         if (data.length === 0) {
-                            $('#group_id').append('<option value="">No group found</option>'); // display a message if no regions are found
+                            $('#group_id').append('<option value="">No Group Church found</option>'); // display a message if no regions are found
                         } else {
                             $.each(data, function(index, region) {
                                 $('#group_id').append('<option value="' + region.id + '">' + region.name + '</option>');
