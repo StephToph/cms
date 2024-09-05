@@ -2038,6 +2038,38 @@ class Crud extends Model {
         $db->close();
     }
 
+	
+	//Filter Announements
+	public function filter_announcement($limit = '', $offset = '', $user_id, $search = '')
+	{
+		$db = db_connect();
+		$builder = $db->table('announcement');
+
+		// build query
+		$role_id = $this->read_field('id', $user_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+
+		if (!empty($search)) {
+			$builder->like('title', $search);
+		}
+		// build query
+		$builder->orderBy('id', 'DESC');
+
+
+		// limit query
+		if ($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if ($limit) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+
+		// return query
+		return $query->getResult();
+		$db->close();
+	}
+
 	public function filter_church_admin($limit='', $offset='',$log_id, $status='all', $search='', $role_id) {
         $db = db_connect();
         $builder = $db->table('user');

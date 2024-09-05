@@ -3595,6 +3595,414 @@ class Ministry extends BaseController {
 		echo $lga;
 	}
 
+	
+	public function announcement($param1 = '', $param2 = '', $param3 = '')
+	{
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+		$log_id = $this->session->get('td_id');
+
+		$mod = 'ministry/announcement';
+
+		$data['current_language'] = $this->session->get('current_language');
+
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if ($role_r == 0) {
+			return redirect()->to(site_url('dashboard'));
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+
+		$table = 'announcement';
+		$form_link = site_url($mod);
+		if ($param1) {
+			$form_link .= '/' . $param1;
+		}
+		if ($param2) {
+			$form_link .= '/' . $param2 . '/';
+		}
+		if ($param3) {
+			$form_link .= $param3;
+		}
+
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+
+		// manage record
+		if ($param1 == 'manage') {
+			// prepare for delete
+			if ($param2 == 'delete') {
+				if ($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if ($_POST) {
+						$del_id = $this->request->getPost('d_announcement_id');
+						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', 'Record Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;
+					}
+				}
+			} else {
+				// prepare for edit
+				if ($param2 == 'edit') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_to_id'] = $e->to_id;
+								$data['e_role_id'] = json_decode($e->role_id);
+								$data['e_from_id'] = $e->from_id;
+								$data['e_title'] = $e->title;
+								$data['e_content'] = $e->content;
+								$data['e_dept_id'] = $e->dept_id;
+								$data['e_type'] = $e->type;
+							}
+						}
+					}
+				}
+
+
+				if ($param2 == 'view') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_role_id'] = $e->role_id;
+								$data['e_to_id'] = $e->to_id;
+								$data['e_from_id'] = $e->from_id;
+								$data['e_title'] = $e->title;
+								$data['e_content'] = $e->content;
+								$data['e_dept_id'] = $e->dept_id;
+								$data['e_type'] = $e->type;
+								$data['e_reg_date'] = date('M d, Y h:i A', strtotime($e->reg_date));
+							}
+						}
+					}
+				}
+
+
+				if ($_POST) {
+					$announcement_id = $this->request->getPost('announcement_id');
+					$title = $this->request->getPost('title');
+					$content = $this->request->getPost('content');
+					$type = $this->request->getPost('type');
+					$dept_id = $this->request->getPost('dept_id');
+					$roles_id = $this->request->getPost('roles_id');
+
+					if ($type == 'general') {
+
+						$rolea = array();
+						$recp = array();
+						//Role ID
+						if (!empty($roles_id)) {
+							for ($i = 0; $i < count($roles_id); $i++) {
+								$users = $this->Crud->read_single('role_id', $roles_id[$i], 'user');
+								$rolea[] = $roles_id[$i];
+								if (!empty($users)) {
+									foreach ($users as $u) {
+										$recp[] = $u->id;
+									}
+								}
+							}
+						}
+						$roles = json_encode($rolea);
+						$recps = json_encode($recp);
+
+					} else {
+						$recps = $this->Crud->read_field('id', $dept_id, 'dept', 'members');
+						$roles = '';
+					}
+					$ins_data['title'] = $title;
+					$ins_data['content'] = $content;
+					$ins_data['to_id'] = $recps;
+					$ins_data['type'] = $type;
+					$ins_data['role_id'] = $roles;
+					$ins_data['dept_id'] = $dept_id;
+
+					// print_r($recps);
+					// do create or update
+					if ($announcement_id) {
+						$upd_rec = $this->Crud->updates('id', $announcement_id, $table, $ins_data);
+						if ($upd_rec > 0) {
+							echo $this->Crud->msg('success', 'Record Updated');
+							foreach (json_decode($recps) as $re => $val) {
+								$in_data['from_id'] = $log_id;
+								$in_data['to_id'] = $val;
+								$in_data['content'] = $content;
+								$in_data['item'] = 'announcement';
+								$in_data['new'] = 1;
+								$in_data['reg_date'] = date(fdate);
+								$in_data['item_id'] = $announcement_id;
+								$this->Crud->create('notify', $in_data);
+							}
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+							$code = $this->Crud->read_field('id', $announcement_id, 'announcement', 'title');
+							$action = $by . ' updated (' . $code . ') Announcement ';
+							$this->Crud->activity('announcement', $announcement_id, $action, $log_id);
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');
+						}
+					} else {
+						if ($this->Crud->check('title', $title, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Record Already Exist');
+						} else {
+							$ins_data['reg_date'] = date(fdate);
+							$ins_data['from_id'] = $log_id;
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if ($ins_rec > 0) {
+								echo $this->Crud->msg('success', 'Record Created');
+								foreach (json_decode($recps, true) as $re => $val) {
+									$in_data['from_id'] = $log_id;
+									$in_data['to_id'] = $val;
+									$in_data['content'] = $content;
+									$in_data['item'] = 'announcement';
+									$in_data['new'] = 1;
+									$in_data['reg_date'] = date(fdate);
+									$in_data['item_id'] = $ins_rec;
+									$this->Crud->create('notify', $in_data);
+								}
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'announcement', 'title');
+								$action = $by . ' created (' . $code . ') Announcement ';
+								$this->Crud->activity('announcement', $ins_rec, $action, $log_id);
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');
+							}
+						}
+					}
+					exit;
+				}
+			}
+		}
+
+		//Get Recipient
+		if ($param1 == 'recipient') {
+			$sel = '';
+			$selected = $this->request->getPost('selected');
+			if (!empty($selected)) {
+				$mem = explode(",", $selected);
+				$i = 0;
+				foreach ($mem as $me => $val) {
+					$sele = $this->Crud->read_single_order('role_id', $val, 'user', 'fullname', 'asc');
+					$rol = $this->Crud->read_field('id', $val, 'access_role', 'name');
+					$sel .= '<div class="col-sm-4 m-b-5"><b>' . strtoupper($rol) . '</b><br><div class="row">';
+					if (!empty($sele)) {
+						foreach ($sele as $selec) {
+							$id = $this->Crud->read_field('id', $selec->id, 'user', 'fullname');
+							$sel .= '<div class="col-sm-12 m-b-5 checkbox">
+                                        <input name="recipients[]"  id="recipients' . $selec->id . '"  class="recipients" value="' . $selec->id . '"  type="checkbox" checked>
+                                        <label for="recipients' . $selec->id . '">' . ucwords($id) . '</label>
+                                    </div>';
+						}
+					}
+					$sel .= '</div></div>';
+					$i++;
+				}
+			}
+			$res['item'] = $sel;
+			echo json_encode($res);
+			die;
+		}
+
+		// record listing
+		if ($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$count = 0;
+			$rec_limit = 150;
+			$item = '';
+
+			if ($limit == '') {
+				$limit = $rec_limit;
+			}
+			if ($offset == '') {
+				$offset = 0;
+			}
+
+			$search = $this->request->getPost('search');
+			$todo = $param1;
+
+			if (!$log_id) {
+				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
+			} else {
+				$query = $this->Crud->filter_announcement($limit, $offset, $log_id, $search);
+				$all_rec = $this->Crud->filter_announcement('', '', $log_id, $search);
+				if (!empty($all_rec)) {
+					$count = count($all_rec);
+				} else {
+					$count = 0;
+				}
+				$data['count'] = $count;
+
+				if (!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$title = $q->title;
+						$content = $q->content;
+						$to_id = $q->to_id;
+						$team = $q->role_id;
+						$dept_id = $q->dept_id;
+						$type = $q->type;
+						$user_i = $q->from_id;
+
+						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
+						$user = $this->Crud->read_field('id', $user_i, 'user', 'fullname');
+
+						$teams = '';
+						if ($role == 'developer' || $role == 'administrator' || $user_i == $log_id) {
+							if (!empty($team)) {
+								$t_count = 0;
+								foreach (json_decode($team) as $te => $value) {
+
+
+									$names = $this->Crud->read_field('id', $value, 'access_role', 'name');
+									$teams .= '<span class="badge badge-dim rounded-pill bg-primary mb-1">' . strtoupper($names) . '</span>';
+									$t_count++;
+									if ($t_count > 4) {
+										$remaining_count = count(json_decode($team)) - $t_count;
+										if ($remaining_count > 0) {
+											$teams .= '<span class="badge badge-dim rounded-pill bg-secondary mb-1">+' . $remaining_count . ' more</span>';
+										}
+										break; // Break the loop if $t_count exceeds 4
+									}
+								}
+
+
+							}
+						}
+						if ($type == 'department') {
+							$teams = $this->Crud->read_field('id', $dept_id, 'dept', 'name') . ' Department';
+						}
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							$all_btn = '
+                                    <a href="javascript:;" class="text-primary pop" pageTitle="Manage ' . $title . '" pageName="' . site_url('ministry/announcement/manage/edit/' . $id) . '" pageSize="modal-lg">
+										<i class="ni ni-edit-alt"></i> Edit
+                                    </a> ||  
+                                    <a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageName="' . site_url('ministry/announcement/manage/view/' . $id) . '" pageSize="modal-xl">
+										<i class="ni ni-eye"></i> View
+                                    </a>
+                            ';
+						}
+
+						if ($role == 'developer' || $role == 'administrator') {
+							$item .= '
+								<tr>
+									<td><span class="text-muted small">' . $reg_date . '</span></td>
+									<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
+									<td>' . ucwords($user) . '</td>
+									<td>' . ucwords($type) . ' Announcement</td>
+									<td>' . $teams . '</td>
+									<td>' . $all_btn . '</td>
+								</tr>
+								
+							';
+						} else {
+							if ($user_i == $log_id) {
+								$item .= '
+									<tr>
+										<td><span class="text-muted small">' . $reg_date . '</span></td>
+										<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
+										<td>' . ucwords($user) . '</td>
+										<td>' . ucwords($type) . ' Announcement</td>
+										<td>' . $teams . '</td>
+										<td>' . $all_btn . '</td>
+									</tr>
+									
+                                ';
+							} else {
+								if (!empty($team)) {
+									if (in_array($log_id, json_decode($to_id), true)) {
+										$item .= '
+											<tr>
+												<td><span class="text-muted small">' . $reg_date . '</span></td>
+												<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
+												<td>' . ucwords($user) . '</td>
+												<td>' . ucwords($type) . ' Announcement</td>
+												<td>' . $teams . '</td>
+												<td>' . $all_btn . '</td>
+											</tr>
+												
+                                        ';
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (empty($item)) {
+				$resp['item'] = '
+					<tr><td colspan="8">
+					<div class="text-center text-muted col-sm-12">
+						<br/><br/>
+						<i class="icon ni ni-vol" style="font-size:120px;"></i><br/>No Annoucement Returned
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+			}
+
+			$more_record = $count - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			$resp['count'] = $count;
+			if ($count > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+
+		if ($param1 == 'manage') { // view for form data posting
+			return view($mod . '_form', $data);
+		} else { // view for main page
+
+			$data['title'] = 'Announcement  | ' . app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+	}
+
+
 
 	//Get task master
 	public function validate_field($territory){
