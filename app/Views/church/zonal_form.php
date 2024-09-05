@@ -110,7 +110,7 @@ $this->Crud = new Crud();
                         <select id="region_id" name="region_id" class="js-select2">
                             <?php
                                 $rid= $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                                $part = $this->Crud->read_single_order('type', 'region', 'church', 'name', 'asc');
+                                $part = $this->Crud->read2_order('ministry_id', $rid, 'type', 'region', 'church', 'name', 'asc');
                                 if(!empty($part)){
                                     foreach($part as $p){
                                         $sel = '';

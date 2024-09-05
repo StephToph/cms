@@ -19,7 +19,7 @@
     if($ministry_id > 0){
         $logo = $ministry_logo;
         $min_title = str_replace('C M S', $ministry, $title);
-        define('app_name', $ministry);
+        // define('app_name', $ministry);
     }
 
     

@@ -109,7 +109,7 @@ $this->Crud = new Crud();
                     <select class="js-select2 regional_select" name="regional_id" id="regional_id">
                         <?php
                             $ministryId = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                            $regions = $this->Crud->read_single_order('type', 'region', 'church', 'name', 'asc');
+                            $regions = $this->Crud->read2_order('ministry_id', $ministryId, 'type', 'region', 'church', 'name', 'asc');
                             foreach ($regions as $region) {
                                 $selected = ($e_regional_id == $region->id) ? 'selected' : '';
                                 echo '<option value="' . $region->id . '" ' . $selected . '>' . ucwords($region->name) . '</option>';
