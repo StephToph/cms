@@ -1619,7 +1619,14 @@ class Crud extends Model {
 		$builder->orderBy('id', 'DESC');
 		
 		$role_id = $this->read_field('name', 'Member', 'access_role', 'id');
-
+		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			$builder->where('ministry_id', $ministry_id);
+			$builder->where('church_id', $church_id);
+		} 
 		$builder->where('role_id', $role_id);
         if(!empty($search)) {
             $builder->like('fullname', $search);
@@ -1703,6 +1710,14 @@ class Crud extends Model {
         // build query
 		$builder->orderBy('id', 'desc');
 		
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			$builder->where('ministry_id', $ministry_id);
+		} 
+
+
 		$builder->where('type', $type);
         if(!empty($search)) {
             $builder->like('name', $search);

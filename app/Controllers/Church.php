@@ -204,6 +204,8 @@ class Church extends BaseController {
 						$email = $q->email;
 						$phone = $q->phone;
 						$logo = $q->logo;
+						$ministry_id = $q->ministry_id;
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 						$address = $q->address;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 
@@ -233,7 +235,8 @@ class Church extends BaseController {
 									  		'.$img.'      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span>        
+											<span class="tb-lead">' . ucwords($name) . '</span> <br>
+											<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>        
 										</div>    
 									</div>  
 								</td>
@@ -514,9 +517,9 @@ class Church extends BaseController {
 						$ministry_id = $q->ministry_id;
 						$regional_id = $q->regional_id;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
-
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 						$mins = '';
-						if(!empty($ministry_id))$mins .= '<b>'.$this->Crud->read_field('id', $ministry_id, 'ministry', 'name').'</b><br>';
+						
 						if(!empty($regional_id))$mins .= ' '.$this->Crud->read_field('id', $regional_id, 'church', 'name').' Region';
 						if (!empty($logo)) {
 							$img = '<img height="40px" src="' . site_url($logo) . '">';
@@ -544,7 +547,8 @@ class Church extends BaseController {
 										'.$img.'      
 									</div>        
 									<div class="user-name">            
-										<span class="tb-lead">' . ucwords($name) . '</span>        
+										<span class="tb-lead">' . ucwords($name) . '</span>   <br>
+										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>              
 									</div>    
 								</div>  
 							</td>
@@ -840,9 +844,9 @@ class Church extends BaseController {
 						$regional_id = $q->regional_id;
 						$zonal_id = $q->zonal_id;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
-
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name'); 
 						$mins = '';
-						if(!empty($ministry_id))$mins .= '<b>'.$this->Crud->read_field('id', $ministry_id, 'ministry', 'name').'</b><br>';
+						
 						if(!empty($regional_id))$mins .= ' '.$this->Crud->read_field('id', $regional_id, 'church', 'name').' Region';
 						if(!empty($zonal_id))$mins .= '&#8594; '.$this->Crud->read_field('id', $zonal_id, 'church', 'name').' Zone';
 
@@ -873,7 +877,8 @@ class Church extends BaseController {
 											'.$img.'      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span>        
+											<span class="tb-lead">' . ucwords($name) . '</span> <br>
+										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                   
 										</div>    
 									</div>  
 								</td>
@@ -1177,9 +1182,9 @@ class Church extends BaseController {
 						$zonal_id = $q->zonal_id;
 						$group_id = $q->group_id;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
-
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 						$mins = '';
-						if(!empty($ministry_id))$mins .= '<b>'.$this->Crud->read_field('id', $ministry_id, 'ministry', 'name').'</b><br>';
+						
 						if(!empty($regional_id))$mins .= ' '.$this->Crud->read_field('id', $regional_id, 'church', 'name').' Region';
 						if(!empty($zonal_id))$mins .= '&#8594; '.$this->Crud->read_field('id', $zonal_id, 'church', 'name').' Zone';
 						if(!empty($group_id))$mins .= '<br>&#8594; '.$this->Crud->read_field('id', $group_id, 'church', 'name').' Group';
@@ -1210,7 +1215,8 @@ class Church extends BaseController {
 											'.$img.'      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span>        
+											<span class="tb-lead">' . ucwords($name) . '</span>    <br>
+										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                        
 										</div>    
 									</div>  
 								</td>
