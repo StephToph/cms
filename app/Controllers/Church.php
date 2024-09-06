@@ -1374,6 +1374,7 @@ class Church extends BaseController {
 								$data['e_phone'] = $e->phone;
 								$data['e_address'] = $e->address;
 								$data['e_activate'] = $e->activate;
+								$data['e_title'] = $e->title;
 								$data['e_email'] = $e->email;
 								$data['e_role_id'] = $e->role_id;
 							}
@@ -1387,6 +1388,7 @@ class Church extends BaseController {
 					$firstname = $this->request->getPost('firstname');
 					$phone = $this->request->getPost('phone');
 					$email = $this->request->getPost('email');
+					$title = $this->request->getPost('title');
 					$address = $this->request->getPost('address');
 					$activate = $this->request->getPost('activate');
 					$password = $this->request->getPost('password');
@@ -1416,6 +1418,7 @@ class Church extends BaseController {
 					$ins_data['email'] = $email;
 					$ins_data['phone'] = $phone;
 					$ins_data['activate'] = $activate;
+					$ins_data['title'] = $title;
 					$ins_data['address'] = $address;
 					$ins_data['role_id'] = $urole_id;
 					if($password) { $ins_data['password'] = md5($password); }

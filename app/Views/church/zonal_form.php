@@ -103,7 +103,7 @@ $this->Crud = new Crud();
                 </div>
             </div>
             <?php } else {?>
-                <input type="hidden" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
+                <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
                 <div class="col-sm-12 mb-3">
                     <div class="form-group">
                         <label for="name">*<?=translate_phrase('Region'); ?></label>
@@ -174,7 +174,7 @@ $this->Crud = new Crud();
                     success: function(data) {
                         $('#region_id').empty();
                         if (data.length === 0) {
-                            $('#region_id').append('<option value="">No regions found</option>'); // display a message if no regions are found
+                            $('#region_id').append('<option value="">No Regions found</option>'); // display a message if no regions are found
                         } else {
                             $.each(data, function(index, region) {
                                 var selected = '';

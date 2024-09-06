@@ -41,7 +41,7 @@
                                                 </li>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
                                                 <li>
-                                                    <a href="javascript:;" pageName="<?=site_url('ministry/calendar/manage'); ?>" pageTitle="Add" class="btn btn-icon btn-outline-primary pop"><em class="icon ni ni-plus-c"></em></a>
+                                                    <a href="javascript:;" pageName="<?=site_url('ministry/calendar/manage'); ?>" pageTitle="Add" pageSize="modal-lg" class="btn btn-icon btn-outline-primary pop"><em class="icon ni ni-plus-c"></em></a>
                                                 </li>
                                             </ul><!-- .btn-toolbar -->
                                         </div><!-- .card-tools -->
