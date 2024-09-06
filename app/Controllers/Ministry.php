@@ -3696,13 +3696,17 @@ class Ministry extends BaseController {
 						if (!empty($edit)) {
 							foreach ($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_role_id'] = $e->role_id;
 								$data['e_to_id'] = $e->to_id;
+								$data['e_role_id'] = json_decode($e->role_id);
 								$data['e_from_id'] = $e->from_id;
 								$data['e_title'] = $e->title;
 								$data['e_content'] = $e->content;
 								$data['e_dept_id'] = $e->dept_id;
 								$data['e_type'] = $e->type;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_id'] = ($e->church_id);
+								$data['e_level'] = $e->level;
+								$data['e_send_type'] = $e->send_type;
 								$data['e_reg_date'] = date('M d, Y h:i A', strtotime($e->reg_date));
 							}
 						}
@@ -3738,6 +3742,12 @@ class Ministry extends BaseController {
 							if($user){
 								foreach($user as $u){
 									$recps[] = $u->id;
+									if ($u->church_id > 0) {
+										// Check if church_id is not already in the array
+										if (!in_array($u->church_id, $recps_church)) {
+											$recps_church[] = $u->church_id;
+										}
+									}
 								}
 							}
 
@@ -3747,12 +3757,18 @@ class Ministry extends BaseController {
 								if($dept){
 									foreach($dept as $d){
 										$recps[] = $d->id;
+										if ($d->church_id > 0) {
+											// Check if church_id is not already in the array
+											if (!in_array($d->church_id, $recps_church)) {
+												$recps_church[] = $d->church_id;
+											}
+										}
 									}
 								}
 							}
 
 						}
-						$recps_church[] = $church_id;
+						
 					} else{
 						if($send_type == 'individual'){
 							for($i=0;$i<count($church_id);$i++){
@@ -4057,34 +4073,17 @@ class Ministry extends BaseController {
 						$dept_id = $q->dept_id;
 						$type = $q->type;
 						$user_i = $q->from_id;
+						$send_type = $q->send_type;
+						$level = $q->level;
+						$ministry_id = $q->ministry_id;
+						$church_id = json_decode($q->church_id);
 
 						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
-						$user = $this->Crud->read_field('id', $user_i, 'user', 'firstname');
+						$user = $this->Crud->read_field('id', $user_i, 'user', 'firstname').' '.$this->Crud->read_field('id', $user_i, 'user', 'surname');
 
-						$teams = '';
-						if ($role == 'developer' || $role == 'administrator' || $user_i == $log_id) {
-							if (!empty($team)) {
-								$t_count = 0;
-								foreach (json_decode($team) as $te => $value) {
-
-
-									$names = $this->Crud->read_field('id', $value, 'access_role', 'name');
-									$teams .= '<span class="badge badge-dim rounded-pill bg-primary mb-1">' . strtoupper($names) . '</span>';
-									$t_count++;
-									if ($t_count > 4) {
-										$remaining_count = count(json_decode($team)) - $t_count;
-										if ($remaining_count > 0) {
-											$teams .= '<span class="badge badge-dim rounded-pill bg-secondary mb-1">+' . $remaining_count . ' more</span>';
-										}
-										break; // Break the loop if $t_count exceeds 4
-									}
-								}
-
-
-							}
-						}
+						$depts = '';
 						if ($type == 'department') {
-							$teams = $this->Crud->read_field('id', $dept_id, 'dept', 'name') . ' Department';
+							$depts = '<span class="small">'.$this->Crud->read_field('id', $dept_id, 'dept', 'name') . ' Department</span>';
 						}
 						// add manage buttons
 						if ($role_u != 1) {
@@ -4100,14 +4099,39 @@ class Ministry extends BaseController {
                             ';
 						}
 
+						$church = '';
+						if ($role == 'developer' || $role == 'administrator' || $user_i == $log_id) {
+							if (!empty($church_id)) {
+								$t_count = 0;
+								foreach (($church_id) as $te => $value) {
+
+
+									$names = $this->Crud->read_field('id', $value, 'church', 'name');
+									$church .= '<span class="badge badge-dim rounded-pill bg-primary mb-1">' . strtoupper($names) . '</span>';
+									$t_count++;
+									if ($t_count > 4) {
+										$remaining_count = count(($church_id)) - $t_count;
+										if ($remaining_count > 0) {
+											$church .= '<span class="badge badge-dim rounded-pill bg-secondary mb-1">+' . $remaining_count . ' more</span>';
+										}
+										break; // Break the loop if $t_count exceeds 4
+									}
+								}
+
+
+							}
+						}
+						
+
 						if ($role == 'developer' || $role == 'administrator') {
 							$item .= '
 								<tr>
 									<td><span class="text-muted small">' . $reg_date . '</span></td>
 									<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
 									<td>' . ucwords($user) . '</td>
-									<td>' . ucwords($type) . ' Announcement</td>
-									<td>' . $teams . '</td>
+									<td>' . ucwords($type) . ' Announcement<br>'.$depts.'</td>
+									<td>' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></td>
+									<td>' . $church . '</td>
 									<td>' . $all_btn . '</td>
 								</tr>
 								
@@ -4119,8 +4143,9 @@ class Ministry extends BaseController {
 										<td><span class="text-muted small">' . $reg_date . '</span></td>
 										<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
 										<td>' . ucwords($user) . '</td>
-										<td>' . ucwords($type) . ' Announcement</td>
-										<td>' . $teams . '</td>
+										<td>' . ucwords($type) . ' Announcement<br>'.$depts.'</td>
+										<td>' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></td>
+										<td>' . $church . '</td>
 										<td>' . $all_btn . '</td>
 									</tr>
 									
@@ -4133,8 +4158,9 @@ class Ministry extends BaseController {
 												<td><span class="text-muted small">' . $reg_date . '</span></td>
 												<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
 												<td>' . ucwords($user) . '</td>
-												<td>' . ucwords($type) . ' Announcement</td>
-												<td>' . $teams . '</td>
+												<td>' . ucwords($type) . ' Announcement<br>'.$depts.'</td>
+												<td>' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></td>
+												<td>' . $church . '</td>
 												<td>' . $all_btn . '</td>
 											</tr>
 												

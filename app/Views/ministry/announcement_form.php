@@ -39,13 +39,13 @@ $this->Crud = new Crud();
                 </div>
                 <div class="user-info">
                     <span
-                        class="lead-text"><?= ucwords($this->Crud->read_field('id', $e_from_id, 'user', 'firstname')); ?></span>
+                        class="lead-text"><?= ucwords($this->Crud->read_field('id', $e_from_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $e_from_id, 'user', 'surname')); ?></span>
                     <span class="sub-text"><?= $e_reg_date; ?></span>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 mb-3">
-            <h5><?= ucwords($e_type); ?> Announcement</h5>
+            <h5><?= ucwords($e_type); ?> Announcement to <?= ucwords($e_level); ?> Church (<?= ucwords($e_send_type); ?>)</h5>
         </div>
 
         <div class="col-sm-12 mb-3">
@@ -56,7 +56,7 @@ $this->Crud = new Crud();
         </div>
 
         <div class="mb-3">
-            <h6>Recipient</h6>
+            <h6></h6>
             <div class="mt-2 row">
                 <?php
                 if ($e_type == 'department') { ?>
@@ -71,11 +71,20 @@ $this->Crud = new Crud();
                     </div>
 
                 <?php } else {
-                    echo '<p class="text-info">Users with</p>';
-                    if (!empty($e_role_id)) {
-                        foreach (json_decode($e_role_id) as $rec => $va) {
+                    if($e_send_type == 'general'){
+                        echo '<p class="text-info">Members In</p>';
+                    }
+
+                    if($e_send_type == 'individual'){
+                        echo '<p class="text-info">Church</p>';
+                    }
+                    
+                    
+                    if (!empty($e_church_id)) {
+                        foreach (json_decode($e_church_id) as $rec => $va) {
                             ;
-                            $role = $this->Crud->read_field('id', $va, 'access_role', 'name');
+                            $role = $this->Crud->read_field('id', $va, 'church', 'name');
+                            $level = $this->Crud->read_field('id', $va, 'church', 'type');
 
                             $wors = $this->Crud->image_name($role);
                             $img = '<span>' . $wors . '</span>';
@@ -85,12 +94,13 @@ $this->Crud = new Crud();
                                 <div class="user-card">
                                     <div class="user-avatar"><?= $img; ?></div>
                                     <div class="user-info">
-                                        <span class="lead-text"><?= ucwords($role); ?> Role</span>
+                                        <span class="lead-text"><?= ucwords($role.' '.$level); ?> </span>
                                     </div>
                                 </div>
                             </div>
                         <?php }
-                    } ?>
+                        
+                    }?>
 
                 <?php } ?>
 
