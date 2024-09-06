@@ -1230,19 +1230,17 @@ class Ministry extends BaseController {
 		
 		$table = 'events';
 		
-		$data['current_language'] = $this->session->get('current_language');
-
         $form_link = site_url($mod);
 		if($param1){$form_link .= '/'.$param1;}
 		if($param2){$form_link .= '/'.$param2.'/';}
 		if($param3){$form_link .= $param3;}
 		
-		
 		// pass parameters to view
 		$data['param1'] = $param1;
 		$data['param2'] = $param2;
 		$data['param3'] = $param3;
-		$data['form_link'] = $form_link;
+		$data['form_link'] = rtrim($form_link, '/');
+        $data['current_language'] = $this->session->get('current_language');
 		
 		// manage record
 		if($param1 == 'manage') {
@@ -1302,25 +1300,78 @@ class Ministry extends BaseController {
 				}
 				
 				if($this->request->getMethod() == 'post'){
-					$support_id =  $this->request->getVar('support_id');
-					$approved =  $this->request->getVar('approved');
+					$e_id =  $this->request->getVar('e_id');
+					$title =  $this->request->getVar('title');
+					$content =  $this->request->getVar('content');
+					$start_date =  $this->request->getVar('start_date');
+					$start_time =  $this->request->getVar('start_time');
+					$end_date =  $this->request->getVar('end_date');
+					$end_time =  $this->request->getVar('end_time');
+					$event_type =  $this->request->getVar('event_type');
+					$recurring_pattern =  $this->request->getVar('recurring_pattern');
+					$week_day =  $this->request->getVar('week_day');
+					$month_day =  $this->request->getVar('month_day');
+					$year =  $this->request->getVar('year');
+					$location =  $this->request->getVar('location');
+					$venue =  $this->request->getVar('venue');
+					$ministry_id =  $this->request->getVar('ministry_id');
+					$level =  $this->request->getVar('level');
+					$send_type =  $this->request->getVar('send_type');
+					$church_id =  $this->request->getVar('church_id');
+
+					$pattern = '';
+					$ins_data['title'] = $title;
+					$ins_data['description'] = $content;
+					$ins_data['start_date'] = $start_date;
+					$ins_data['start_time'] = $start_time;
+					$ins_data['end_date'] = $end_date;
+					$ins_data['end_time'] = $end_time;
+					$ins_data['event_type'] = $event_type;
+					$ins_data['recurrence_pattern'] = $recurring_pattern;
+					$ins_data['pattern'] = $pattern;
+					$ins_data['location'] = $location;
+					$ins_data['venue'] = $venue;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['event_for'] = $send_type;
+					$ins_data['church_type'] = $level;
+					$ins_data['church_id'] = json_encode($church_id);
 					
+					$ins_data['updated_at'] = date(fdate);
 					// do create or update
-					if($support_id) {
-						$upd_data = array(
-							'approve' => $approved
-							
-						);
-						$upd_rec = $this->Crud->updates('id', $support_id, $table, $upd_data);
+					if($e_id) {
+						$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
 						if($upd_rec > 0) {
 							echo $this->Crud->msg('success', 'Updated');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
-                        die;
-					}
 						
+					} else{
+						
+						$ins_data['created_at'] = date(fdate);
+						
+						if($this->Crud->check2('title', $title, 'ministry_id', $ministry_id, $table) > 0) {
+							echo $this->Crud->msg('warning', ('Event Already Exist'));
+						} else {
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Event Created'));
+								
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'events', 'title');
+								$action = $by.' created Event ('.$code.')';
+								$this->Crud->activity('event', $ins_rec, $action);
+
+								
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+							}	
+						}
+					}
+					die;	
 				}
 			}
 		}

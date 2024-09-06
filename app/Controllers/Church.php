@@ -1361,6 +1361,63 @@ class Church extends BaseController {
 						exit;	
 					}
 				}
+			}  elseif($param2 == 'admin_send'){ 
+				if($param3){
+					$admin_id = $param3;
+					if($admin_id){
+						$surname = $this->Crud->read_field('id', $admin_id, 'user', 'surname');
+						$firstname = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
+						$role_id = $this->Crud->read_field('id', $admin_id, 'user', 'role_id');
+						$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
+						$othername = $this->Crud->read_field('id', $admin_id, 'user', 'othername');
+						$user_no = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
+						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
+						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
+						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						
+						$name = ucwords($firstname.' '.$othername.' '.$surname);
+						$reset_link = site_url('auth/email_verify?uid='.$user_no);
+						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
+						$body = '
+							Dear '.$name.', <br><br>
+								<p>A '.ucwords($roles).' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
+    							Below are your Account Details:<br><br>
+
+								Website: '.site_url().'
+								Membership ID: '.$user_no.'<br>
+								Email: '.$email.'<br>
+								Phone: '.$phone.'<br>
+								
+								<p>To ensure the security of your account, please set your password by clicking the link below:</p>
+    
+
+								'.$link.'
+
+								<p>This link will direct you to a secure page where you can choose your own password. If you encounter any issues or have questions, please feel free to contact our support team.</p>
+								<p><strong>Important:</strong> Do not disclose your login credentials to anyone to avoid unauthorized access.</p>
+								<p>Welcome aboard, and we look forward to your participation!</p>
+								<p>Best regards,<br>
+								
+						';
+						if($this->request->getMethod() == 'post'){
+							$head = 'Welcome to '.$ministry.' - Set Your Password';
+							$email_status = $this->Crud->send_email($email, $head, $body);
+							if($email_status > 0){
+								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
+								echo '<script>
+										load_admin('.$ministry_id.');
+										$("#modal").modal("hide");
+									</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Error Sending Email');
+							}
+							
+						}
+						
+					}die;	
+					
+				}
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -1548,7 +1605,7 @@ class Church extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								
+								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="'.site_url($mod.'/manage/admin_send/'.$id).'"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
 						
@@ -1567,11 +1624,11 @@ class Church extends BaseController {
 										</div>
 									</div>
 								</td>
-								<td><span>' . $email . '</span></td>
-								<td><span class="text-dark"><b>' . $phone . '</b></span></td>
-								<td><span>' . $u_role . '</span></td>
-								<td><span>' . ucwords($address) . '</span></td>
-								<td><span class="tb-amount">' . $reg_date . ' </span></td>
+								<td><span class=" small">' . $email . '</span></td>
+								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
+								<td><span class=" small">' . $u_role . '</span></td>
+								<td><span class=" small">' . ucwords($address) . '</span></td>
+								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
 								<td>
 									<ul class="nk-tb-actions gx-1">
 										<li>
