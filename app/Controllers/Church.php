@@ -1413,6 +1413,11 @@ class Church extends BaseController {
 
 					}
 
+					if(empty($title) || $title == ' '){
+						echo $this->Crud->msg('danger', 'Select Title');
+						die;
+					}
+
 					$ins_data['surname'] = $surname;
 					$ins_data['firstname'] = $firstname;
 					$ins_data['email'] = $email;
