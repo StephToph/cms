@@ -45,6 +45,8 @@
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlitee5ca.css?ver=3.2.3">
     <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/css/skins/theme-egyptian.css?ver=3.2.3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/css/bootstrap-timepicker.min.css">
+
     
 </head>
 
@@ -450,7 +452,10 @@
     
     </script>
     
-
+    <?php if($page_active == 'ministry/calendar'){?>
+        <script src="<?php echo base_url(); ?>/assets/js/libs/fullcalendar.js"></script>
+        <script src="<?php echo base_url(); ?>/assets/js/apps/calendar.js?v=<?=time();?>"></script>
+    <?php } ?>
 <link rel="stylesheet" href="<?php echo site_url(); ?>assets/css/editors/summernote.css">
 <script src="<?php echo site_url(); ?>assets/js/libs/editors/summernote.js"></script>
 <script src="<?php echo site_url(); ?>assets/js/editors.js"></script>
