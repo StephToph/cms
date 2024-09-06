@@ -34,7 +34,7 @@
             <input type="hidden" name="user_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
             <div class="col-sm-12 mb-3">
                 <div class="form-group">
-                    <label>Church Level</label>
+                    <label>Title</label>
                     <select class="js-select2" name="title" id="title" data-placeholder="Select Title" required>
                         <option value=" ">Select Title</option>
                         <option value="Mr." <?php if(!empty($e_title)){if($e_title ==  'Mr.'){echo 'selected';}}; ?>>Mr.</option>
@@ -97,7 +97,7 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label for="activate"><?=translate_phrase('Active Status');?></label>
-                    <select class="select2" id="activate" name="activate" required>
+                    <select class="js-select2" id="activate" name="activate" required>
                         <option value="1" <?php if(!empty($e_activate)){if($e_activate == 1){echo 'selected';}} ?>><?=translate_phrase('Active');?></option>
                         <option value="0" <?php if($param2 == 'edit' && empty($e_activate)){if($e_activate == 0){echo 'selected';}} ?>><?=translate_phrase('Disable');?></option>
                     </select>
@@ -117,6 +117,6 @@
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script>
     $(function() {
-        $('.select2').select2();
+        $('.js-select2').select2();
     });
 </script>
