@@ -113,25 +113,6 @@ $this->Crud = new Crud();
 
 <!-- insert/edit view -->
 <?php if ($param2 == 'edit' || $param2 == '') { ?>
-    <style>
-        .bootstrap-timepicker-widget {
-            z-index: 1000; /* Ensure the timepicker widget is above other elements */
-        }
-        .bootstrap-timepicker-widget .picker-switch {
-            /* Styling for the switch button */
-            background-color: #fff; /* Ensure the button is visible */
-            border: 1px solid #ccc; /* Add a border to make it visible */
-        }
-        .bootstrap-timepicker-widget .btn {
-            /* Styling for the up/down buttons */
-            border-radius: 50%; /* Make buttons round */
-            background-color: #007bff; /* Button background color */
-            color: #fff; /* Button text color */
-        }
-        .bootstrap-timepicker-widget .btn:hover {
-            background-color: #0056b3; /* Darker color on hover */
-        }
-    </style>
 
     <div class="row">
         <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
@@ -156,40 +137,144 @@ $this->Crud = new Crud();
             </div>
         </div>
 
-        <div class="col-sm-6 mb-3">
+        <div class="col-sm-3 mb-3">
             <div class="form-group">
-                <label class="form-label">Datepicker</label>
+                <label class="form-label">Start Date</label>
                 <div class="form-control-wrap">
-                    <input type="text" data-date-format="yyyy-mm-dd" class="form-control date-picker">
+                    <input type="text" data-date-format="yyyy-mm-dd" name="start_date" id="start_date" class="form-control date-picker" value="<?php if (!empty($e_start_date)) {echo $e_start_date;} ?>">
                 </div>
 
+            </div>
+        </div>
+
+        <div class="col-sm-3 mb-3">
+            <div class="form-group"> 
+                <label class="form-label">Start Time</label>
+                <div class="form-control-wrap"> 
+                    <input type="time" class="form-control time-picke"  name="start_time" id="start_time" placeholder="Enter Time" value="<?php if (!empty($e_start_time)) {echo $e_start_time;} ?>"> 
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3 mb-3">
+            <div class="form-group">
+                <label class="form-label">End Date</label>
+                <div class="form-control-wrap">
+                    <input type="text" data-date-format="yyyy-mm-dd" name="end_date" id="end_date" class="form-control date-picker" value="<?php if (!empty($e_end_date)) {echo $e_end_date;} ?>">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-sm-3 mb-3">
+            <div class="form-group"> 
+                <label class="form-label">End Time</label>
+                <div class="form-control-wrap"> 
+                    <input type="time" class="form-control time-picke"  name="end_time" id="end_time" placeholder="Enter Time" value="<?php if (!empty($e_end_time)) {echo $e_end_time;} ?>"> 
+                </div>
+            </div>
+        </div>
+        
+        
+
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label>Event Type</label>
+                <select class="js-select2" data-search="on" name="event_type" id="event_type" required>
+                    <option value="one-time" <?php if (!empty($e_event_type)) {
+                        if ($e_event_type == 'one-time') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>One Time</option>
+                    </option>
+                    <option value="recurring" <?php if (!empty($e_event_type)) {
+                        if ($e_event_type == 'recurring') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>
+                        Recurring</option>
+
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-6 mb-3" id="pattern_resp" style="display:none;">
+            <div class="form-group">
+                <label>Recurring Pattern</label>
+                <select class="js-select2" data-search="on" name="recurring_pattern" id="recurring_pattern">
+                    <option value="daily" <?php if (!empty($e_recurring_pattern)) {
+                        if ($e_recurring_pattern == 'daily') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Daily</option>
+                    </option>
+                    <option value="weekly" <?php if (!empty($e_recurring_pattern)) {
+                        if ($e_recurring_pattern == 'weekly') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Weekly</option>
+                    </option>
+                    <option value="monthly" <?php if (!empty($e_recurring_pattern)) {
+                        if ($e_recurring_pattern == 'monthly') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Monthly</option>
+                    </option>
+                    <option value="yearly" <?php if (!empty($e_recurring_pattern)) {
+                        if ($e_recurring_pattern == 'yearly') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Yearly</option>
+                    </option>
+                    
+                </select>
             </div>
         </div>
 
         <div class="col-sm-6 mb-3">
-            <div class="form-group"> 
-                <label class="form-label">Timepicker</label>
-                <div class="form-control-wrap"> 
-                    <input type="text" class="form-control time-picker" placeholder="Input placeholder"> 
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-12 mb-3">
             <div class="form-group">
-                <label for="name">Content</label>
-                <textarea id="summernote" class="form-control" name="content" rows="5" required><?php if (!empty($e_content)) {
-                    echo $e_content;
-                } ?></textarea>
+                <label for="location">Location</label>
+                <select class="js-select2" data-search="on" name="location" id="location">
+                    <option value="church" <?php if (!empty($e_location)) {
+                        if ($e_location == 'church') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Church Auditorium</option>
+                    </option>
+                    <option value="other" <?php if (!empty($e_location)) {
+                        if ($e_location == 'other') {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Other Venue</option>
+                    </option>
+                    
+                </select>
             </div>
         </div>
 
-        <div <?php
+        <div class="col-sm-6 mb-3" id="venue_resp" style="display:none;">
+            <div class="form-group">
+                <label for="location">Venue</label>
+                <input class="form-control" type="text" id="venue" name="venue" value="<?php if (!empty($e_venue)) {
+                    echo $e_venue;
+                } ?>">
+            </div>
+        </div>
+
+        <?php
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 
-        if ($ministry_id > 0) { ?> type="hidden"
-                name="ministry_id" value="<?php echo $ministry_id; ?>">
+        if ($ministry_id > 0) { ?>
+            <input type="hidden" name="ministry_id" value="<?php echo $ministry_id; ?>">
                 <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
             <?php } else { ?>
                 <div class="col-sm-6 mb-3">
@@ -355,76 +440,6 @@ $this->Crud = new Crud();
             <?php } ?>
 
 
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label>Announcement Type</label>
-                    <select class="js-select2" data-search="on" name="type" id="type" required>
-                        <option value="general" <?php if (!empty($e_type)) {
-                            if ($e_type == 'general') {
-                                echo 'selected';
-                            }
-                        }
-                        ; ?>>General
-                            Announcement</option>
-                        </option>
-                        <option value="department" <?php if (!empty($e_type)) {
-                            if ($e_type == 'department') {
-                                echo 'selected';
-                            }
-                        }
-                        ; ?>>
-                            Department Announcement</option>
-
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-6 mb-3" id="dept_resp" style="display: none;">
-                <div class="form-group">
-                    <label>Department</label>
-                    <select class="js-select2" data-search="on" name="dept_id" id="dept_id">
-                        <?php
-
-                        $dept = $this->Crud->read_order('dept', 'name', 'asc');
-                        if (!empty($dept)) {
-                            foreach ($dept as $d) {
-                                $sel = '';
-                                if (!empty($e_dept_id)) {
-                                    if ($e_dept_id == $d->id) {
-                                        $sel = 'selected';
-                                    }
-                                }
-                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
-                            }
-                        }
-                        ?>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-sm-12 mb-3" id="role_resp" style="display: none;">
-                <!-- <div class="form-group">
-                <label>User Roles</label>
-                <select class="js-select2" data-search="on" multiple name="roles_id[]" id="roles_id">
-                    <option value="everybody">Everybody</option>
-                    <?php
-
-                    $dept = $this->Crud->read_single_order('name !=', 'Developer', 'access_role', 'name', 'asc');
-                    if (!empty($dept)) {
-                        foreach ($dept as $d) {
-                            $sel = '';
-                            if (!empty($e_role_id)) {
-                                if (in_array($d->id, $e_role_id)) {
-                                    $sel = 'selected';
-                                }
-                            }
-                            echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
-                        }
-                    }
-                    ?>
-                </select>
-            </div> -->
-            </div>
-
             <div class="col-sm-12 text-center">
                 <hr />
                 <button class="btn btn-primary bb_for_btn" id="bt" type="submit">
@@ -445,7 +460,6 @@ $this->Crud = new Crud();
 
     <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 
-    <script src="<?=site_url(); ?>assets/js/bootstrap-timepicker.min.js"></script>
     <script>
 
         $(function () {
@@ -454,17 +468,6 @@ $this->Crud = new Crud();
                 autoclose: true
             });
 
-            $('.time-picker').timepicker({
-                timeFormat: 'h:i:s A', // 12-hour format with AM/PM
-                interval: 30,       // Set interval to 30 minutes
-                minTime: '00:00',   // Minimum time
-                maxTime: '23:59',   // Maximum time
-                defaultTime: '',    // No default time
-                startTime: '00:00', // Start time for the picker
-                dynamic: false,
-                dropdown: true,
-                scrollbar: true
-            });
             $('#church_id').select2({
                 placeholder: 'Select Church(s)',
                 allowClear: true  // This allows clearing the selection if needed
@@ -498,7 +501,28 @@ $this->Crud = new Crud();
                 var selectedType = $(this).val();
                 toggleFields(selectedType);
             });
+            
+            $('#event_type').on('change', function () {
+                var selectedType = $(this).val();
+                if (selectedType == 'one-time') {
+                    $('#pattern_resp').hide(500);
+                }
+                if (selectedType == 'recurring') {
+                    $('#pattern_resp').show(500);
+                }
 
+            });
+
+            $('#location').on('change', function () {
+                var selectedType = $(this).val();
+                if (selectedType == 'church') {
+                    $('#venue_resp').hide(500);
+                }
+                if (selectedType == 'other') {
+                    $('#venue_resp').show(500);
+                }
+
+            });
             $('#send_type').on('change', function () {
                 var selectedType = $(this).val();
                 if (selectedType == 'general') {
@@ -510,22 +534,7 @@ $this->Crud = new Crud();
 
             });
 
-            $('#roles_id').on('change', function () {
-                var selectedValues = $(this).val();
-
-                // Check if "Everybody" is selected
-                if (selectedValues && selectedValues.includes('everybody')) {
-                    // Select all options except "everybody"
-                    $('#roles_id option').prop('selected', true);
-                    $('#roles_id option[value="everybody"]').prop('selected', false);
-                } else {
-                    // Unselect "everybody" if it was selected previously
-                    $('#roles_id option[value="everybody"]').prop('selected', false);
-                }
-
-                // Trigger Select2 to update the view
-                $('#roles_id').trigger('change.select2');
-            });
+           
 
         });
 

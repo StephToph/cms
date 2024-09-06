@@ -95,7 +95,7 @@ $this->Crud = new Crud();
             </div>
             
             <?php } else {?>
-                <input type="hidden" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
+                <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
                 
             <?php } ?>
            
