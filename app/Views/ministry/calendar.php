@@ -58,13 +58,13 @@
                                     </div><!-- .card-search -->
                                 </div><!-- .card-inner -->
                                 <div class="card-inner ">
-                                    <div class="table-responsive">
+                                    <div class="table-responsiv">
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
                                                     <th>Title</th>
                                                     <th>Church</th>
-                                                    <th>Start Date</th>
+                                                    <th>Date</th>
                                                     <th>Type</th>
                                                     <th>Location</th>
                                                     <th></th>

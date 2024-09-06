@@ -1431,15 +1431,9 @@ class Ministry extends BaseController {
 							$all_btn = '';
 						} else {
 							$all_btn = '
-								<div class="text-right">
-									
-									<a href="javascript:;" class="text-warning pop" pageTitle="Edit '.$title.'" pageSize="modal-sm" pageName="'.site_url('ministry/calendar/manage/edit/'.$id).'">
-										<i class="ni ni-pen"></i> Edit
-									</a>&nbsp;
-									<a href="javascript:;" class="text-danger pop" pageTitle="Delete '.$title.'" pageSize="modal-sm" pageName="'.site_url('ministry/calendar/manage/delete/'.$id).'">
-										<i class="ni ni-trash"></i> Delete
-									</a>
-								</div>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								
 							';
 						}
 
@@ -1528,12 +1522,19 @@ class Ministry extends BaseController {
 			foreach($cal_ass as $key => $value){
 				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
 				$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
+				
+				$class = 'fc-event-warning';
+				if($value->church_type == 'all') $class = 'fc-event-primary';
+				if($value->church_type == 'region') $class = 'fc-event-info';
+				if($value->church_type == 'zone') $class = 'fc-event-indigo';
+				if($value->church_type == 'group') $class = 'fc-event-danger';
+				if($value->church_type == 'church') $class = 'fc-event-success';
 				$cal_events[$key]['id'] = $value->id.rand();
 				$cal_events[$key]['title'] = strtoupper($value->title);
 				$cal_events[$key]['start'] = $start;
 				$cal_events[$key]['end'] = $end;
 				$cal_events[$key]['description'] = ucwords($value->description);
-				$cal_events[$key]['className'] = 'fc-event-warning';
+				$cal_events[$key]['className'] = $class;
 			}
 			
 		}
