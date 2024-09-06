@@ -1323,9 +1323,9 @@ class Ministry extends BaseController {
 					$ins_data['title'] = $title;
 					$ins_data['description'] = $content;
 					$ins_data['start_date'] = $start_date;
-					$ins_data['start_time'] = $start_time;
+					$ins_data['start_time'] = date('H:i', strtotime($start_time));
 					$ins_data['end_date'] = $end_date;
-					$ins_data['end_time'] = $end_time;
+					$ins_data['end_time'] = date('H:i', strtotime($end_time));
 					$ins_data['event_type'] = $event_type;
 					$ins_data['recurrence_pattern'] = $recurring_pattern;
 					$ins_data['pattern'] = $pattern;
@@ -1403,10 +1403,10 @@ class Ministry extends BaseController {
 				if(!empty($query)) {
 					foreach($query as $q) {
 						$id = $q->id;
-						$reg_date =  date('M d, Y h:i A', strtotime($q->reg_date));
+						$reg_date =  date('M d, Y h:i A', strtotime($q->created_at));
 						$title = $q->title;
 						$church_id = $q->church_id;
-						$img = $this->Crud->image($q->img_id, 'big');
+						$img = $q->image;
 						$ministry_id = $q->ministry_id;
 						$church_type = $q->church_type;
 						$start_date = $q->start_date;
@@ -1414,10 +1414,10 @@ class Ministry extends BaseController {
 						$event_type = $q->event_type;
 						$recurrence_pattern = $q->recurrence_pattern;
 						$status = $q->status;
-						
-                        
+						$images = '';
+						if(!empty($img))$images = '<img  src="' . site_url($img) . '" class="img-responsive">';
 						//$approve = '';
-						if($approve == 1) { 
+						if($status == 1) { 
 							$colors = 'success';
 							$approve_text = 'Approved';
 							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> '; 
@@ -1431,26 +1431,23 @@ class Ministry extends BaseController {
 							$all_btn = '';
 						} else {
 							$all_btn = '
-								<div class="text-right">
-									
-									<a href="javascript:;" class="text-warning pop" pageTitle="Edit '.$title.'" pageSize="modal-sm" pageName="'.site_url('ministry/calendar/manage/edit/'.$id).'">
-										<i class="ni ni-pen"></i> Edit
-									</a>&nbsp;
-									<a href="javascript:;" class="text-danger pop" pageTitle="Delete '.$title.'" pageSize="modal-sm" pageName="'.site_url('ministry/calendar/manage/delete/'.$id).'">
-										<i class="ni ni-trash"></i> Delete
-									</a>
-								</div>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								
 							';
 						}
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 
+						$start = date('Y-m-d', strtotime($q->start_date)).' '.date('H:i', strtotime($q->start_time));
+						$end = date('Y-m-d', strtotime($q->end_date)).' '.date('H:i', strtotime($q->end_time));
+				
 						$item .= '
 							<tr>
 								<td>
 									<div class="user-card">
 										<div class="user-avatar">            
-											'.$img.'      
+											'.$images.'      
 										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($title) . '</span> <br>
@@ -1459,12 +1456,11 @@ class Ministry extends BaseController {
 									</div>  
 								</td>
 								<td>
-									<span class="text-dark">'.$church_type.'</span>
+									<span class="small text-dark">'.ucwords($church_type).' Churches</span>
 								</td>
-								<td><span class="text-dark">'.$start_date.'</span></td>
-								<td><span class="text-dark">'.$end_date.'</span></td>
-								<td><span class="text-dark">'.$event_type.'</span></td>
-								<td><span class="text-dark">'.$status.'</span></td>
+								<td><span class="small text-dark">'.$start.' <b>&#8594;</b> '.$end.'</span></td>
+								<td><span class="small text-dark">'.ucwords($event_type).'</span></td>
+								<td><span class="small text-dark">'.ucwords($q->location).'</span></td>
 								<td>
 									<ul class="nk-tb-actions">
 										<li>
@@ -1521,18 +1517,27 @@ class Ministry extends BaseController {
 		}
 
 		$cal_events = array();
-		// $cal_ass = $this->Crud->read('assignment');
-		// if(!empty($cal_ass)){
-		// 	foreach($cal_ass as $key => $value){
-		// 		$cal_events[$key]['id'] = $value->id.rand();
-		// 		$cal_events[$key]['title'] = strtoupper($value->name);
-		// 		$cal_events[$key]['start'] = $value->reg_date;
-		// 		$cal_events[$key]['end'] = $value->deadline;
-		// 		$cal_events[$key]['description'] = ucwords($value->details);
-		// 		$cal_events[$key]['className'] = 'fc-event-warning';
-		// 	}
+		$cal_ass = $this->Crud->read('events');
+		if(!empty($cal_ass)){
+			foreach($cal_ass as $key => $value){
+				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
+				$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
+				
+				$class = 'fc-event-warning';
+				if($value->church_type == 'all') $class = 'fc-event-primary';
+				if($value->church_type == 'region') $class = 'fc-event-info';
+				if($value->church_type == 'zone') $class = 'fc-event-indigo';
+				if($value->church_type == 'group') $class = 'fc-event-danger';
+				if($value->church_type == 'church') $class = 'fc-event-success';
+				$cal_events[$key]['id'] = $value->id.rand();
+				$cal_events[$key]['title'] = strtoupper($value->title);
+				$cal_events[$key]['start'] = $start;
+				$cal_events[$key]['end'] = $end;
+				$cal_events[$key]['description'] = ucwords($value->description);
+				$cal_events[$key]['className'] = $class;
+			}
 			
-		// }
+		}
 
 
 		$data['cal_events'] = ($cal_events);

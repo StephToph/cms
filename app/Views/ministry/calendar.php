@@ -58,16 +58,15 @@
                                     </div><!-- .card-search -->
                                 </div><!-- .card-inner -->
                                 <div class="card-inner ">
-                                    <div class="table-responsive">
+                                    <div class="table-responsiv">
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
                                                     <th>Title</th>
                                                     <th>Church</th>
-                                                    <th>Start Date</th>
-                                                    <th>End Date</th>
+                                                    <th>Date</th>
                                                     <th>Type</th>
-                                                    <th>Status</th>
+                                                    <th>Location</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -100,7 +99,7 @@
     });
     // Parse the JSON string into a JavaScript object/array
     var calEvents = JSON.parse(calEventsStr);
-
+    console.log(calEvents);
     function event_back() {
         $('#calendar_resp').hide(500);
         $('#view_resp').show(500);
