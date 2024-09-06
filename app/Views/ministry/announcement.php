@@ -57,11 +57,12 @@
                                     <thead>
                                         <tr>
                                             <th>Date</th>
-                                            <th >Title</th>
-                                            <th>Staff</th>
+                                            <th>Title</th>
+                                            <th>Sender</th>
                                             <th>Type</th>
-                                            <th width="350px">Recipient</th>
-                                            <th width="200px">Action</th>
+                                            <th>Level</th>
+                                            <th>Church</th>
+                                            <th width="250px">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody id="load_data"> </tbody>

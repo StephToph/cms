@@ -948,7 +948,7 @@ class Church extends BaseController {
 			return view($mod.'_form', $data);
 		} else { // view for main page
 			
-			$data['title'] = translate_phrase('Zonal Church').' - '.app_name;
+			$data['title'] = translate_phrase('Group Church').' - '.app_name;
 			$data['page_active'] = $mod;
 			return view($mod, $data);
 		}
