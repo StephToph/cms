@@ -1374,6 +1374,7 @@ class Church extends BaseController {
 						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
 						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
 						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
+						$church_id = $this->Crud->read_field('id', $admin_id, 'user', 'church_id');
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 						
 						$name = ucwords($firstname.' '.$othername.' '.$surname);
@@ -1406,7 +1407,7 @@ class Church extends BaseController {
 							if($email_status > 0){
 								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
 								echo '<script>
-										load_admin('.$ministry_id.');
+										load_admin("","",'.$church_id.');
 										$("#modal").modal("hide");
 									</script>';
 							} else {
