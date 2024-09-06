@@ -151,7 +151,7 @@ $this->Crud = new Crud();
             <div class="form-group"> 
                 <label class="form-label">Start Time</label>
                 <div class="form-control-wrap"> 
-                    <input type="time" class="form-control time-picke"  name="start_time" id="start_time" placeholder="Enter Time" value="<?php if (!empty($e_start_time)) {echo $e_start_time;} ?>"> 
+                    <input type="text" class="form-control time-picker"  name="start_time" id="start_time" placeholder="Enter Time" value="<?php if (!empty($e_start_time)) {echo $e_start_time;} ?>"> 
                 </div>
             </div>
         </div>
@@ -170,7 +170,7 @@ $this->Crud = new Crud();
             <div class="form-group"> 
                 <label class="form-label">End Time</label>
                 <div class="form-control-wrap"> 
-                    <input type="time" class="form-control time-picke"  name="end_time" id="end_time" placeholder="Enter Time" value="<?php if (!empty($e_end_time)) {echo $e_end_time;} ?>"> 
+                    <input type="text" class="form-control time-picker"  name="end_time" id="end_time" placeholder="Enter Time" value="<?php if (!empty($e_end_time)) {echo $e_end_time;} ?>"> 
                 </div>
             </div>
         </div>
@@ -237,6 +237,42 @@ $this->Crud = new Crud();
             </div>
         </div>
 
+        
+
+        <div class="col-sm-6 mb-3" id="week_resp" style="display: none;">
+            <div class="form-group">
+                <label for="days_of_week">Select Day of the Week</label>
+                <select id="days_of_week" name="week_day" class="js-select2">
+                    <option value="">-- Select a Day --</option>
+                    <option value="monday" <?php if(!empty($e_week_day)){if($e_week_day == 'monday'){echo'selected';}} ?>>Monday</option>
+                    <option value="tuesday" <?php if(!empty($e_week_day)){if($e_week_day == 'tuesday'){echo'selected';}} ?>>Tuesday</option>
+                    <option value="wednesday" <?php if(!empty($e_week_day)){if($e_week_day == 'wednesday'){echo'selected';}} ?>>Wednesday</option>
+                    <option value="thursday" <?php if(!empty($e_week_day)){if($e_week_day == 'thursday'){echo'selected';}} ?>>Thursday</option>
+                    <option value="friday" <?php if(!empty($e_week_day)){if($e_week_day == 'friday'){echo'selected';}} ?>>Friday</option>
+                    <option value="saturday" <?php if(!empty($e_week_day)){if($e_week_day == 'saturday'){echo'selected';}} ?>>Saturday</option>
+                    <option value="sunday" <?php if(!empty($e_week_day)){if($e_week_day == 'sunday'){echo'selected';}} ?>>Sunday</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-6 mb-3" id="month_resp" style="display: none;">
+            <div class="form-group">
+                <label for="days_of_month">Select a Day of the Month</label>
+                <select id="days_of_month" name="month_day" class="js-select2">
+                    <!-- Options will be added by JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-6 mb-3" id="year_resp" style="display: none;">
+            <div class="form-group">
+                <label for="months_of_year">Select a Month of the Year</label>
+                <select id="months_of_year" name="year" class="js-select2">
+                    <!-- Options will be added by JavaScript -->
+                </select>
+            </div>
+        </div>
+
         <div class="col-sm-6 mb-3">
             <div class="form-group">
                 <label for="location">Location</label>
@@ -274,8 +310,8 @@ $this->Crud = new Crud();
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 
         if ($ministry_id > 0) { ?>
-            <input type="hidden" name="ministry_id" value="<?php echo $ministry_id; ?>">
-                <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+            <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
+                <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
             <?php } else { ?>
                 <div class="col-sm-6 mb-3">
                     <div class="form-group">
@@ -308,7 +344,7 @@ $this->Crud = new Crud();
                     <div class="form-group">
                         <label>Church Level</label>
                         <select class="js-select2" data-search="on" name="level" id="level">
-                            <option value="all">All Church Level</option>
+                            <option value=" ">Select Church Level</option>
                             <?php
 
                             $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
@@ -362,6 +398,7 @@ $this->Crud = new Crud();
                                     Church Assembly</option>
 
                             <?php } else { ?>
+                                <option value="all">All Church Level</option>
                                 <option value="region" <?php if (!empty($e_level)) {
                                     if ($e_level == 'region') {
                                         echo 'selected';
@@ -395,7 +432,7 @@ $this->Crud = new Crud();
 
                 <div class="col-sm-6 mb-3" id="send_resp" style="display:none;">
                     <div class="form-group">
-                        <label>Send Type</label>
+                        <label>Event For</label>
                         <select class="js-select2" data-search="on" name="send_type" id="send_type" required>
                             <option value="general" <?php if (!empty($e_send_type)) {
                                 if ($e_send_type == 'general') {
@@ -415,12 +452,15 @@ $this->Crud = new Crud();
                         <span id="send_text" class="text-danger small">
                             <?php if (!empty($e_send_type)) {
                                 if ($e_send_type == 'general') {
-                                    echo 'You are Sending this Announcement to all churches under the Selected Churches';
+                                    echo 'This Event would apply to all Churches under the Selected  Region/Zone/Group/Church Assembly';
+
                                 } else {
-                                    echo 'You are Sending this Announcement to only Selected Churches';
+                                    echo 'This  Event would apply to the Selected Church Only';
+
                                 }
                             } else {
-                                echo 'You are Sending this Announcement to all churches under the Selected Churches';
+                                echo 'This Event would apply to all Churches under the Selected  Region/Zone/Group/Church Assembly';
+
                             }
                             ?>
                         </span>
@@ -478,6 +518,8 @@ $this->Crud = new Crud();
         var site_url = '<?php echo site_url(); ?>';
 
         $(document).ready(function () {
+            $('.time-picker').timepicker({});
+
             // Function to show/hide fields based on selected announcement type
             function toggleFields(selectedType) {
                 if (selectedType == 'department') {
@@ -506,9 +548,34 @@ $this->Crud = new Crud();
                 var selectedType = $(this).val();
                 if (selectedType == 'one-time') {
                     $('#pattern_resp').hide(500);
+                    $('#week_resp').hide(500);
+                    $('#month_resp').hide(500);
+                    $('#year_resp').hide(500);
+                
+
                 }
                 if (selectedType == 'recurring') {
                     $('#pattern_resp').show(500);
+                }
+
+            });
+            
+            $('#recurring_pattern').on('change', function () {
+                var selectedType = $(this).val();
+                if (selectedType == 'weekly') {
+                    $('#week_resp').show(500);
+                    $('#month_resp').hide(500);
+                    $('#year_resp').hide(500);
+                }
+                if (selectedType == 'monthly') {
+                    $('#week_resp').hide(500);
+                    $('#month_resp').show(500);
+                    $('#year_resp').hide(500);
+                }
+                if (selectedType == 'yearly') {
+                    $('#week_resp').hide(500);
+                    $('#month_resp').hide(500);
+                    $('#year_resp').show(500);
                 }
 
             });
@@ -526,15 +593,55 @@ $this->Crud = new Crud();
             $('#send_type').on('change', function () {
                 var selectedType = $(this).val();
                 if (selectedType == 'general') {
-                    $('#send_text').html('You are Sending this Announcement to all churches under the Selected Churches');
+                    $('#send_text').html('This Event would apply to all Churches under the Selected  Region/Zone/Group/Church Assembly');
                 }
                 if (selectedType == 'individual') {
-                    $('#send_text').html('You are Sending this Announcement to only Selected Churches');
+                    $('#send_text').html('This  Event would apply to the Selected Church Only');
                 }
 
             });
 
-           
+           // Function to populate days of the month
+            function populateDaysOfMonth() {
+                var daysOfMonth = $('#days_of_month');
+                daysOfMonth.empty(); // Clear existing options
+                daysOfMonth.append('<option value="">Select a Day</option>'); // Placeholder option
+                
+                for (var i = 1; i <= 31; i++) {
+                    daysOfMonth.append('<option value="' + i + '">' + i + '</option>');
+                }
+            }
+
+            // Function to populate months of the year
+            function populateMonthsOfYear() {
+                var monthsOfYear = $('#months_of_year');
+                monthsOfYear.empty(); // Clear existing options
+                monthsOfYear.append('<option value="">Select a Month</option>'); // Placeholder option
+
+                var months = [
+                    { value: 1, name: 'January' },
+                    { value: 2, name: 'February' },
+                    { value: 3, name: 'March' },
+                    { value: 4, name: 'April' },
+                    { value: 5, name: 'May' },
+                    { value: 6, name: 'June' },
+                    { value: 7, name: 'July' },
+                    { value: 8, name: 'August' },
+                    { value: 9, name: 'September' },
+                    { value: 10, name: 'October' },
+                    { value: 11, name: 'November' },
+                    { value: 12, name: 'December' }
+                ];
+
+                $.each(months, function(index, month) {
+                    monthsOfYear.append('<option value="' + month.value + '">' + month.name + '</option>');
+                });
+            }
+
+            // Call functions to populate dropdowns on page load
+            populateDaysOfMonth();
+            populateMonthsOfYear();
+
 
         });
 
@@ -603,13 +710,21 @@ $this->Crud = new Crud();
             var ministryId = $('#ministry_id').val();
             var initialLevel = $('#level').val();
             if (ministryId || initialLevel) {
-                if (initialLevel === 'all') {
+                // console.log(initialLevel);
+                if(initialLevel !== ' '){
+                    if (initialLevel === 'all' ) {
+                        $('#church_div').hide(600);
+                        $('#send_resp').hide(600); // Hide the Church dropdown
+                    } else {
+                        $('#send_resp').show(600);
+                        $('#church_div').show(600); // Show the Church dropdown
+                    }
+                } else{
                     $('#church_div').hide(600);
-                    $('#send_resp').hide(600); // Hide the Church dropdown
-                } else {
-                    $('#send_resp').show(600);
-                    $('#church_div').show(600); // Show the Church dropdown
+                    $('#send_resp').hide(600); 
+
                 }
+                
                 loadChurches(ministryId, initialLevel);
             }
 
@@ -625,7 +740,7 @@ $this->Crud = new Crud();
                 var selectedLevel = $(this).val();
                 var selectedMinistryId = $('#ministry_id').val();
 
-                if (selectedLevel === 'all') {
+                if (selectedLevel === 'all' || selectedLevel === ' ') {
                     $('#church_div').hide(600);
                     $('#send_resp').hide(600); // Hide the Church dropdown
                 } else {
@@ -636,7 +751,7 @@ $this->Crud = new Crud();
             });
 
             // Initial check to handle the case when the page loads with a preset level
-            if (initialLevel !== 'all') {
+            if (initialLevel !== 'all' && initialLevel !== ' ') {
                 $('#church_div').show(600); // Ensure the Church dropdown is shown if a level is selected
             } else {
                 $('#church_div').hide(600); // Hide the Church dropdown if the level is 'all'

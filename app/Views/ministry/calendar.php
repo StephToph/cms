@@ -96,7 +96,7 @@
     var site_url = '<?php echo site_url(); ?>';   
     var calEventsStr = '<?php if (!empty($cal_events)) { echo json_encode($cal_events); } else { echo "[]"; } ?>';
     $(function() {
-        load('', '');
+        // load('', '');
     });
     // Parse the JSON string into a JavaScript object/array
     var calEvents = JSON.parse(calEventsStr);
