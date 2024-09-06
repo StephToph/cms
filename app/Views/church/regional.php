@@ -61,7 +61,7 @@ $this->Crud = new Crud();
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
                             <div class="">
-                                <div class="table-responsive">
+                                <div class="table-responsiv">
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
@@ -138,7 +138,7 @@ $this->Crud = new Crud();
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
                             <div class="card-inner ">
-                                <div class="table-responsive">
+                                <div class="table-responsiv">
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
