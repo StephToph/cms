@@ -1412,10 +1412,10 @@ class Church extends BaseController {
 							} else {
 								echo $this->Crud->msg('danger', 'Error Sending Email');
 							}
-							
+							die;
 						}
 						
-					}die;	
+					}	
 					
 				}
 			} else {
@@ -1618,7 +1618,7 @@ class Church extends BaseController {
 											<img alt="" src="' . site_url($img) . '" height="40px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<span class="tb-lead small">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
 											<br>
 											
 										</div>
