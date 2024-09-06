@@ -113,6 +113,25 @@ $this->Crud = new Crud();
 
 <!-- insert/edit view -->
 <?php if ($param2 == 'edit' || $param2 == '') { ?>
+    <style>
+        .bootstrap-timepicker-widget {
+            z-index: 1000; /* Ensure the timepicker widget is above other elements */
+        }
+        .bootstrap-timepicker-widget .picker-switch {
+            /* Styling for the switch button */
+            background-color: #fff; /* Ensure the button is visible */
+            border: 1px solid #ccc; /* Add a border to make it visible */
+        }
+        .bootstrap-timepicker-widget .btn {
+            /* Styling for the up/down buttons */
+            border-radius: 50%; /* Make buttons round */
+            background-color: #007bff; /* Button background color */
+            color: #fff; /* Button text color */
+        }
+        .bootstrap-timepicker-widget .btn:hover {
+            background-color: #0056b3; /* Darker color on hover */
+        }
+    </style>
 
     <div class="row">
         <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
@@ -426,7 +445,7 @@ $this->Crud = new Crud();
 
     <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-timepicker/0.5.2/js/bootstrap-timepicker.min.js"></script>
+    <script src="<?=site_url(); ?>assets/js/bootstrap-timepicker.min.js"></script>
     <script>
 
         $(function () {

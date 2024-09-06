@@ -241,11 +241,11 @@ class Church extends BaseController {
 									</div>  
 								</td>
 								<td>
-									<span class="text-dark">'.$email.'</span><br>
-									<span class="text-dark">'.$phone.'</span>
+									<span class="small text-dark ">'.$email.'</span><br>
+									<span class="small text-dark ">'.$phone.'</span>
 								</td>
-								<td><span class="text-dark">'.$address.'</span></td>
-								<td><span class="text-dark">'.$reg_date.'</span></td>
+								<td><span class="small text-dark ">'.$address.'</span></td>
+								<td><span class="small text-dark ">'.$reg_date.'</span></td>
 								<td>
 									<ul class="nk-tb-actions">
 										<li>
@@ -553,11 +553,11 @@ class Church extends BaseController {
 								</div>  
 							</td>
 							<td>
-								<span class="text-dark">'.$email.'</span><br>
-								<span class="text-dark">'.$phone.'</span>
+								<span class="small text-dark">'.$email.'</span><br>
+								<span class="small text-dark">'.$phone.'</span>
 							</td>
-							<td><span class="text-dark">'.$address.'</span></td>
-							<td><span class="text-dark">'.$mins.'</span></td>
+							<td><span class="small text-dark">'.$address.'</span></td>
+							<td><span class="small text-dark">'.$mins.'</span></td>
 							<td>
 								<ul class="nk-tb-actions">
 									<li>
@@ -883,11 +883,11 @@ class Church extends BaseController {
 									</div>  
 								</td>
 								<td>
-									<span class="text-dark">'.$email.'</span><br>
-									<span class="text-dark">'.$phone.'</span>
+									<span class="small text-dark">'.$email.'</span><br>
+									<span class="small text-dark">'.$phone.'</span>
 								</td>
-								<td><span class="text-dark">'.$address.'</span></td>
-								<td><span class="text-dark">'.$mins.'</span></td>
+								<td><span class="small text-dark">'.$address.'</span></td>
+								<td><span class="small text-dark">'.$mins.'</span></td>
 								<td>
 									<ul class="nk-tb-actions">
 										<li>
@@ -1221,11 +1221,11 @@ class Church extends BaseController {
 									</div>  
 								</td>
 								<td>
-									<span class="text-dark">'.$email.'</span><br>
-									<span class="text-dark">'.$phone.'</span>
+									<span class="small text-dark">'.$email.'</span><br>
+									<span class="small text-dark">'.$phone.'</span>
 								</td>
-								<td><span class="text-dark">'.$address.'</span></td>
-								<td><span class="text-dark">'.$mins.'</span></td>
+								<td><span class="small text-dark">'.$address.'</span></td>
+								<td><span class="small text-dark">'.$mins.'</span></td>
 								<td>
 									<ul class="nk-tb-actions">
 										<li>
