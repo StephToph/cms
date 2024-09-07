@@ -2346,6 +2346,8 @@ class Accounts extends BaseController {
 					}
 				}
 				if($this->request->getMethod() == 'post'){
+					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
 					$file = $this->request->getFile('csv_file');
 					$records = $this->Crud->processFile($file);
 					// $record = json_decode($records);
@@ -2394,6 +2396,8 @@ class Accounts extends BaseController {
 								$ins_data['foundation_school'] = strtolower($foundation_school);
 								$ins_data['chat_handle'] = strtolower($chat_handle);
 								$ins_data['dob'] = $dob;
+								$ins_data['church_id'] = $church_id;
+								$ins_data['ministry_id'] = $ministry_id;
 								$ins_data['family_status'] = strtolower($marital_status);
 								$ins_data['password'] = md5($surname);
 					
