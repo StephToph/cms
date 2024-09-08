@@ -1629,9 +1629,15 @@ class Crud extends Model {
 		} 
 		$builder->where('role_id', $role_id);
         if(!empty($search)) {
-            $builder->like('fullname', $search);
-			$builder->orLike('email', $search);
-			$builder->orLike('chat_handle', $search);
+            $builder->groupStart()
+				->like('surname', $search)
+				->orLike('email', $search)
+				->orLike('firstname', $search)
+				->orLike('chat_handle', $search)
+				->orLike('othername', $search)
+				->orLike('user_no', $search)
+				->orLike('phone', $search)
+				->groupEnd();
         }
 
 		
@@ -1649,6 +1655,63 @@ class Crud extends Model {
         $db->close();
     }
 
+	public function numberToOrdinal($number) {
+		// Ensure the input is an integer between 1 and 100
+		if (!is_int($number)) {
+			return '';
+		}
+	
+		// Special cases for numbers ending in 11, 12, or 13
+		$lastDigit = $number % 10;
+		$lastTwoDigits = $number % 100;
+	
+		if ($lastTwoDigits >= 11 && $lastTwoDigits <= 13) {
+			$suffix = 'th';
+		} else {
+			switch ($lastDigit) {
+				case 1:
+					$suffix = 'st';
+					break;
+				case 2:
+					$suffix = 'nd';
+					break;
+				case 3:
+					$suffix = 'rd';
+					break;
+				default:
+					$suffix = 'th';
+					break;
+			}
+		}
+	
+		return $number . $suffix;
+	}
+	
+	public function numberToMonth($number) {
+		// Array mapping numbers to month names
+		$months = [
+			1 => 'January',
+			2 => 'February',
+			3 => 'March',
+			4 => 'April',
+			5 => 'May',
+			6 => 'June',
+			7 => 'July',
+			8 => 'August',
+			9 => 'September',
+			10 => 'October',
+			11 => 'November',
+			12 => 'December'
+		];
+	
+		// Validate the number
+		if (isset($months[$number])) {
+			return $months[$number];
+		} else {
+			return ''; // Handle out of range numbers
+		}
+	}
+	
 	
 	public function filter_dept($limit='', $offset='', $search='') {
         $db = db_connect();

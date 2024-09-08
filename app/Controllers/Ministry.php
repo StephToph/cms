@@ -1274,9 +1274,22 @@ class Ministry extends BaseController {
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_approve'] = $e->approve;
-								$data['e_details'] = $e->details;
-								$data['e_amount'] = $e->amount;
+								$data['e_title'] = $e->title;
+								$data['e_description'] = $e->description;
+								$data['e_start_date'] = $e->start_date;
+								$data['e_start_time'] = $e->start_time;
+								$data['e_end_date'] = $e->end_date;
+								$data['e_end_time'] = $e->end_time;
+								$data['e_location'] = $e->location;
+								$data['e_venue'] = $e->venue;
+								$data['e_event_type'] = $e->event_type;
+								$data['e_recurrence_pattern'] = $e->recurrence_pattern;
+								$data['e_pattern'] = $e->pattern;
+								$data['e_image'] = $e->image;
+								$data['e_event_for'] = $e->event_for;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_type'] = $e->church_type;
 							}
 						}
 					}
@@ -1289,11 +1302,24 @@ class Ministry extends BaseController {
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_name'] = $e->name;
-								$data['e_details'] = $e->details;
-								$data['e_amount'] = $e->amount;
-								$data['e_reg_date'] = $e->reg_date;
-								$data['e_user_id'] = $e->user_id;
+								$data['e_title'] = $e->title;
+								$data['e_description'] = $e->description;
+								$data['e_start_date'] = $e->start_date;
+								$data['e_start_time'] = $e->start_time;
+								$data['e_end_date'] = $e->end_date;
+								$data['e_end_time'] = $e->end_time;
+								$data['e_location'] = $e->location;
+								$data['e_venue'] = $e->venue;
+								$data['e_event_type'] = $e->event_type;
+								$data['e_recurrence_pattern'] = $e->recurrence_pattern;
+								$data['e_pattern'] = $e->pattern;
+								$data['e_image'] = $e->image;
+								$data['e_event_for'] = $e->event_for;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_created_at'] = $e->created_at;
+								$data['e_updated_at'] = $e->updated_at;
+								$data['e_church_type'] = $e->church_type;
 							}
 						}
 					}
@@ -1318,8 +1344,38 @@ class Ministry extends BaseController {
 					$level =  $this->request->getVar('level');
 					$send_type =  $this->request->getVar('send_type');
 					$church_id =  $this->request->getVar('church_id');
+					$img_id =  $this->request->getVar('img');
 
+					
+					//// Image upload
+					if (file_exists($this->request->getFile('pics'))) {
+						if (!empty($img_id)) {
+							unlink(FCPATH . $img_id);
+						}
+						$path = 'assets/images/events/';
+						$file = $this->request->getFile('pics');
+						$getImg = $this->Crud->img_upload($path, $file);
+
+						if (!empty($getImg->path)) $img_id = $getImg->path;
+					}
+
+					if($event_type == 'one-time'){
+						$recurring_pattern = '';
+					}
 					$pattern = '';
+					if($event_type == 'recurring'){
+						if($recurring_pattern == 'weekly'){
+							$pattern = $week_day;
+						}
+						if($recurring_pattern == 'monthly'){
+							$pattern = $month_day;
+						}
+						if($recurring_pattern == 'yearly'){
+							$pattern = $year;
+						}
+						
+					
+					}
 					$ins_data['title'] = $title;
 					$ins_data['description'] = $content;
 					$ins_data['start_date'] = $start_date;
@@ -1335,6 +1391,7 @@ class Ministry extends BaseController {
 					$ins_data['event_for'] = $send_type;
 					$ins_data['church_type'] = $level;
 					$ins_data['church_id'] = json_encode($church_id);
+					if (!empty($img_id) || !empty($getImg->path))  $ins_data['image'] = $img_id;
 					
 					$ins_data['updated_at'] = date(fdate);
 					// do create or update
@@ -1415,7 +1472,7 @@ class Ministry extends BaseController {
 						$recurrence_pattern = $q->recurrence_pattern;
 						$status = $q->status;
 						$images = '';
-						if(!empty($img))$images = '<img  src="' . site_url($img) . '" class="img-responsive">';
+						if(!empty($img))$images = '<img  src="' . site_url($img) . '" height="40px" width="40px" class="img-responsive">';
 						//$approve = '';
 						if($status == 1) { 
 							$colors = 'success';
@@ -1433,6 +1490,7 @@ class Ministry extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								
 							';
 						}
