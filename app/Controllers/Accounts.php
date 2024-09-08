@@ -2825,13 +2825,14 @@ class Accounts extends BaseController {
 						$user_no = $q->user_no;
 						$phone = $q->phone;
 						$email = $q->email;
+						$church_id = $q->church_id;
 						$chat_handle = $q->chat_handle;
 						$dob = date('d M Y', strtotime($q->dob));
 						if(empty($dob))$dob = '-';
 						$cell_id = $q->cell_id;
 						$title = $q->title;
 						$activate = $q->activate;
-						
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 						$cell = '-';
 						if(!empty($q->cell_id)){
 							$cell = $this->Crud->read_field('id', $q->cell_id, 'cells', 'name');
@@ -2863,7 +2864,7 @@ class Accounts extends BaseController {
 								</div>
 								<div class="nk-tb-col">
 									<div class="user-info">
-										<span class="tb-lead"><b>' . ucwords(strtolower($name)) . '</b> </span>
+										<span class="tb-lead"><b>' . ucwords(strtolower($name)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
 									</div>
 								</div>
 								<div class="nk-tb-col tb-col-md">

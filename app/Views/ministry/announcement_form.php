@@ -420,7 +420,7 @@ $this->Crud = new Crud();
 
     $(document).ready(function () {
         <?php
-            $e_church_ids = !empty($e_church_id) ? json_encode(explode(',', $e_church_id)) : '[]';
+            $e_church_ids = !empty($e_church_id) ? json_encode($e_church_id) : '[]';
         ?>
         var eChurchId = <?php echo $e_church_ids; ?>;
         if (typeof eChurchId === 'string') {
