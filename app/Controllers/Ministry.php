@@ -1576,14 +1576,17 @@ class Ministry extends BaseController {
 
 		$cal_events = array();
 		$cal_ass = $this->Crud->read('events');
-		if($role != 'developer' || $role != 'administrator'){
-			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		
+		$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+		if($role != 'developer' && $role != 'administrator'){
 			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
 		}
 		if(!empty($cal_ass)){
 			foreach($cal_ass as $key => $value){
-				if($value->church_type != 'all' && $role != 'ministry administrator'){
+				if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
 					if(!in_array($church_id, json_decode($value->church_id))){
 						continue;
 					}
@@ -1608,7 +1611,7 @@ class Ministry extends BaseController {
 		}
 
 
-		$data['cal_events'] = ($cal_events);
+		$data['cal_events'] = array_values($cal_events);
         if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} else { // view for main page

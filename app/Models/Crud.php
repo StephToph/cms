@@ -1699,6 +1699,22 @@ class Crud extends Model {
 
 		return $text;
 	}
+
+	public function removeKeysFromJson($jsonData) {
+		 // Decode JSON to PHP associative array
+		 $data = json_decode($jsonData, true);
+
+		 // Check for decoding errors
+		 if (json_last_error() !== JSON_ERROR_NONE) {
+			 return json_encode(["error" => "Invalid JSON data"]);
+		 }
+	 
+		 // Extract only the values from the associative array
+		 $values = array_values($data);
+	
+		// Encode PHP array back to JSON
+		return json_encode($data);
+	}
 	
 	public function numberToMonth($number) {
 		// Array mapping numbers to month names
