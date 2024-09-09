@@ -16,9 +16,9 @@
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title">Announcement</h3>
+                            <h3 class="nk-block-title page-title">Forms</h3>
                             <div class="nk-block-des text-soft">
-                                <p>You have total <span id="counta"></span> announcement.</p>
+                                <p>You have total <span id="counta"></span> form(s).</p>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
@@ -38,7 +38,7 @@
                                             </li><!-- li -->
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
-                                                <a href="javascript:;" pageName="<?=site_url('ministry/announcement/manage'); ?>" pageTitle="Add" pageSize="modal-lg" class="btn btn-icon btn-outline-primary pop"><em class="icon ni ni-plus-c"></em></a>
+                                                <a href="javascript:;" pageName="<?=site_url('ministry/invitation/manage'); ?>" pageTitle="Add" pageSize="modal-lg" class="btn btn-icon btn-outline-primary pop"><em class="icon ni ni-plus-c"></em></a>
                                             </li>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
@@ -52,7 +52,7 @@
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
-                            <div class="card-inner table-responsive">
+                            <div class="card-inner table-responsive-lg">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
@@ -104,7 +104,7 @@
         var search = $('#search').val();
 
         $.ajax({
-            url: site_url + 'ministry/announcement/load' + methods,
+            url: site_url + 'ministry/invitation/load' + methods,
             type: 'post',
             data: {search: search },
             success: function (data) {

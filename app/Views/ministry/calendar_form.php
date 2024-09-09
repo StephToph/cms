@@ -157,7 +157,7 @@ $this->Crud = new Crud();
 
         <div class="col-sm-12 mb-3">
             <div class="form-group">
-                <label for="name">Content</label>
+                <label for="name">Description</label>
                 <textarea id="summernote" class="form-control" name="content" rows="5" required><?php if (!empty($e_description)) {
                     echo $e_description;
                 } ?></textarea>

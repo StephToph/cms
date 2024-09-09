@@ -114,7 +114,7 @@ $this->Crud = new Crud();
 <?php if ($param2 == 'edit' || $param2 == '') { ?>
     
     <div class="row">
-        <input type="hidden" name="announcement_id" value="<?php if (!empty($e_id)) {
+        <input type="hidden" name="form_id" value="<?php if (!empty($e_id)) {
             echo $e_id;
         } ?>" />
 
@@ -130,8 +130,8 @@ $this->Crud = new Crud();
         <div class="col-sm-12 mb-3">
             <div class="form-group">
                 <label for="name">Description</label>
-                <textarea id="summernote" class="form-control" name="content" rows="5" required><?php if (!empty($e_content)) {
-                    echo $e_content;
+                <textarea id="summernot" class="form-control" name="description" rows="5" required><?php if (!empty($e_description)) {
+                    echo $e_description;
                 } ?></textarea>
             </div>
         </div>
@@ -230,12 +230,12 @@ $this->Crud = new Crud();
                     <span id="send_text" class="text-danger small">
                         <?php  if (!empty($e_send_type)) {
                             if($e_send_type == 'general'){
-                                echo 'You are Sending this Announcement to all churches under the Selected Churches';
+                                echo 'This form will apply to all churches under selected Church Level';
                             } else {
-                                echo 'You are Sending this Announcement to only Selected Churches';
+                                echo 'This form would apply to only selected Church Level';
                             }
                         } else{
-                            echo 'You are Sending this Announcement to all churches under the Selected Churches';
+                            echo 'This form will apply to all churches under selected Church Level';
                         }
                         ?>
                         </span>
@@ -254,74 +254,8 @@ $this->Crud = new Crud();
 
         <?php } ?>
 
-
         <div class="col-sm-6 mb-3">
-            <div class="form-group">
-                <label>Announcement Type</label>
-                <select class="js-select2" data-search="on" name="type" id="type" required>
-                    <option value="general" <?php if (!empty($e_type)) {
-                        if ($e_type == 'general') {
-                            echo 'selected';
-                        }
-                    }
-                    ; ?>>General
-                        Announcement</option></option>
-                    <option value="department" <?php if (!empty($e_type)) {
-                        if ($e_type == 'department') {
-                            echo 'selected';
-                        }
-                    }
-                    ; ?>>
-                        Department Announcement</option>
-                    
-                </select>
-            </div>
-        </div>
-        <div class="col-sm-6 mb-3" id="dept_resp" style="display: none;">
-            <div class="form-group">
-                <label>Department</label>
-                <select class="js-select2" data-search="on" name="dept_id" id="dept_id">
-                    <?php
 
-                    $dept = $this->Crud->read_order('dept', 'name', 'asc');
-                    if (!empty($dept)) {
-                        foreach ($dept as $d) {
-                            $sel = '';
-                            if (!empty($e_dept_id)) {
-                                if ($e_dept_id == $d->id) {
-                                    $sel = 'selected';
-                                }
-                            }
-                            echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
-                        }
-                    }
-                    ?>
-                </select>
-            </div>
-        </div>
-
-        <div class="col-sm-12 mb-3" id="role_resp" style="display: none;">
-            <!-- <div class="form-group">
-                <label>User Roles</label>
-                <select class="js-select2" data-search="on" multiple name="roles_id[]" id="roles_id">
-                    <option value="everybody">Everybody</option>
-                    <?php
-
-                    $dept = $this->Crud->read_single_order('name !=', 'Developer', 'access_role', 'name', 'asc');
-                    if (!empty($dept)) {
-                        foreach ($dept as $d) {
-                            $sel = '';
-                            if (!empty($e_role_id)) {
-                                if (in_array($d->id, $e_role_id)) {
-                                    $sel = 'selected';
-                                }
-                            }
-                            echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
-                        }
-                    }
-                    ?>
-                </select>
-            </div> -->
         </div>
 
         <div class="col-sm-12 text-center">
@@ -390,10 +324,10 @@ $this->Crud = new Crud();
         $('#send_type').on('change', function (){
             var  selectedType = $(this).val();
             if(selectedType == 'general'){
-                $('#send_text').html('You are Sending this Announcement to all churches under the Selected Churches');  
+                $('#send_text').html('This form will apply to all churches under selected Church Level');  
             }
             if(selectedType == 'individual'){
-                $('#send_text').html('You are Sending this Announcement to only Selected Churches');  
+                $('#send_text').html('This form would apply to only selected Church Level');  
             }
 
         });
