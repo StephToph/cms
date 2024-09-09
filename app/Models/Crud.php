@@ -1686,6 +1686,19 @@ class Crud extends Model {
 	
 		return $number . $suffix;
 	}
+
+	public function convertText($html) {
+		// Decode HTML entities to get the raw text
+		$html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+		// Strip all HTML tags
+		$text = strip_tags($html);
+
+		// Optional: Clean up any extra spaces or newlines
+		$text = trim($text);
+
+		return $text;
+	}
 	
 	public function numberToMonth($number) {
 		// Array mapping numbers to month names

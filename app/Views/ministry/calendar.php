@@ -90,6 +90,37 @@
         </div>
     </div>
 
+    <div class="modal fade" id="previewEventPopup">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div id="preview-event-header" class="modal-header">
+                    <h5 id="preview-event-title" class="modal-title">Placeholder Title</h5><a href="#" class="close"
+                        data-bs-dismiss="modal" aria-label="Close"><em class="icon ni ni-cross"></em></a>
+                </div>
+                <div class="modal-body">
+                    <div class="row gy-3 py-1">
+                        <div class="col-sm-6">
+                            <h6 class="overline-title">Start Time</h6>
+                            <p id="preview-event-start"></p>
+                        </div>
+                        <div class="col-sm-6" id="preview-event-end-check">
+                            <h6 class="overline-title">End Time</h6>
+                            <p id="preview-event-end"></p>
+                        </div>
+                        <div class="col-sm-10" id="preview-event-description-check">
+                            <h6 class="overline-title">Description</h6>
+                            <p id="preview-event-description"></p>
+                        </div>
+                    </div>
+                    <!-- <ul class="d-flex justify-content-between gx-4 mt-3">
+                        <li><button  pageTitle="Edit " pageSize="modal-lg" pageName="<?=site_url('ministry/calendar/manage/edit/'); ?>" class="btn btn-primary pop">Edit Event</button></li>
+                        <li><button data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#deleteEventPopup"
+                                class="btn btn-danger pop btn-dim">Delete</button></li>
+                    </ul> -->
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script>
     var site_url = '<?php echo site_url(); ?>';   

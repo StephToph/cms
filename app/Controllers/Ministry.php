@@ -1576,8 +1576,18 @@ class Ministry extends BaseController {
 
 		$cal_events = array();
 		$cal_ass = $this->Crud->read('events');
+		if($role != 'developer' || $role != 'administrator'){
+			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
+		}
 		if(!empty($cal_ass)){
 			foreach($cal_ass as $key => $value){
+				if($value->church_type != 'all' && $role != 'ministry administrator'){
+					if(!in_array($church_id, json_decode($value->church_id))){
+						continue;
+					}
+				}
 				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
 				$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
 				
@@ -1587,11 +1597,11 @@ class Ministry extends BaseController {
 				if($value->church_type == 'zone') $class = 'fc-event-indigo';
 				if($value->church_type == 'group') $class = 'fc-event-danger';
 				if($value->church_type == 'church') $class = 'fc-event-success';
-				$cal_events[$key]['id'] = $value->id.rand();
+				$cal_events[$key]['id'] = $value->id;
 				$cal_events[$key]['title'] = strtoupper($value->title);
 				$cal_events[$key]['start'] = $start;
 				$cal_events[$key]['end'] = $end;
-				$cal_events[$key]['description'] = ucwords($value->description);
+				$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
 				$cal_events[$key]['className'] = $class;
 			}
 			
