@@ -254,13 +254,62 @@ $this->Crud = new Crud();
 
         <?php } ?>
 
-        <div class="col-sm-6 mb-3">
+        <div class="col-sm-12 mb-3 " >
+            <div class="row card-bordered optionsa my-2 p-2">
+                <h5>Field <span class="field-number">1</span></h5>
+                <div class="col-sm-6 mb-3">
+                    <label>Field Label</label>
+                    <input class="form-control" type="text" id="label_1" name="label[]" value="<?php if (!empty($e_label)) { echo $e_label; } ?>" required>
+                </div>
+    
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label>Field Type</label>
+                        <select class="form-select " name="type[]" id="type_1" required>
+                            <option value="text" <?php if (!empty($e_type) && $e_type == 'text') { echo 'selected'; } ?>>Text</option>
+                            <option value="single_choice" <?php if (!empty($e_type) && $e_type == 'single_choice') { echo 'selected'; } ?>>Single Choice</option>
+                            <option value="multiple_choice" <?php if (!empty($e_type) && $e_type == 'multiple_choice') { echo 'selected'; } ?>>Multiple Choice</option>
+                            <option value="true_false" <?php if (!empty($e_type) && $e_type == 'true_false') { echo 'selected'; } ?>>True or False</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="options_container_1" style="display:none;">
+                    <div class="col-sm-12 mb-3 option_resp" id="option_1">
+                        <div class="d-flex align-items-center mb-2">
+                            <label class="me-2">Option</label>
+                            <input class="form-control" type="text" name="options[]" id="option_input_1">
+                            <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-bs-toggle="tooltip" data-bs-placement="top" id="delete_option_1" title="Delete Option" style="display:none;"> <i class="icon ni ni-trash"></i> </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-3 mb-2" id="add_more_options_1" style="display:none;">
+                    <label class="text-white">.</label>
+                    <button class="btn btn-warning btn-dim btn-blck bb_for_btn" id="add_option_1" data-bs-toggle="tooltip" data-bs-placement="top" title="Add Options" type="button">
+                        <span>Add More Options</span><i class="icon ni ni-plus"></i>
+                    </button>
+                </div>
+                <div class="col-sm-9 text-white my-2">.</div>
+                <div class="col-sm-3 text-right my-2" id="delete_field_resp" style="display:none;">
+                    <button class="btn btn-danger btn-block bb_for_btn" id="delete_field" type="button">
+                        <i class="icon ni ni-trash"></i> <span>Delete Field</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-sm-6 text-center my-2">
+                <hr />
+                <button class="btn btn-info btn-block bb_for_btn" id="add_field" type="button">
+                    <i class="icon ni ni-plus-c"></i> <span>Add More Field</span>
+                </button>
+            </div>
 
         </div>
 
-        <div class="col-sm-12 text-center">
+        <div class="col-sm-12 text-center mt-4">
             <hr />
-            <button class="btn btn-primary bb_for_btn" id="bt" type="submit">
+            <button class="btn btn-primary bb_for_btn" type="submit">
                 <i class="icon ni ni-save"></i> Save
             </button>
         </div>
@@ -296,63 +345,11 @@ $this->Crud = new Crud();
 
     var site_url = '<?php echo site_url(); ?>';
 
-    $(document).ready(function () {
-        // Function to show/hide fields based on selected announcement type
-        function toggleFields(selectedType) {
-            if (selectedType == 'department') {
-                $('#dept_resp').show(500);
-                $('#role_resp').hide(500);
-            } else if (selectedType == 'general') {
-                $('#dept_resp').hide(500);
-                $('#role_resp').show(500);
-            } else {
-                $('#dept_resp').hide(500);
-                $('#role_resp').hide(500);
-            }
-        }
-
-        // Trigger on page load to initialize based on current value
-        var initialType = $('#type').val();
-        toggleFields(initialType);
-
-        // Trigger on change of announcement type select
-        $('#type').on('change', function () {
-            var selectedType = $(this).val();
-            toggleFields(selectedType);
-        });
-
-        $('#send_type').on('change', function (){
-            var  selectedType = $(this).val();
-            if(selectedType == 'general'){
-                $('#send_text').html('This form will apply to all churches under selected Church Level');  
-            }
-            if(selectedType == 'individual'){
-                $('#send_text').html('This form would apply to only selected Church Level');  
-            }
-
-        });
-
-        $('#roles_id').on('change', function () {
-            var selectedValues = $(this).val();
-
-            // Check if "Everybody" is selected
-            if (selectedValues && selectedValues.includes('everybody')) {
-                // Select all options except "everybody"
-                $('#roles_id option').prop('selected', true);
-                $('#roles_id option[value="everybody"]').prop('selected', false);
-            } else {
-                // Unselect "everybody" if it was selected previously
-                $('#roles_id option[value="everybody"]').prop('selected', false);
-            }
-
-            // Trigger Select2 to update the view
-            $('#roles_id').trigger('change.select2');
-        });
-
-    });
+    var fieldCounter = 1;
 
 
     $(document).ready(function () {
+       
         <?php
             $e_church_ids = !empty($e_church_id) ? json_encode($e_church_id) : '[]';
         ?>
@@ -456,4 +453,113 @@ $this->Crud = new Crud();
         }
     });
 
+    
+</script>
+<script>
+$(document).ready(function() {
+    // Initialize a counter for the fields
+    let fieldCounter = 1;
+
+    // Add more field when button is clicked
+    $('#add_field').click(function() {
+        fieldCounter++;
+        addField(fieldCounter);
+    });
+
+    // Function to add a new field
+    function addField(counter) {
+        const newField = `
+        <div class="row card-bordered optionsa my-2 p-2">
+            <h5>Field <span class="field-number">${counter}</span></h5>
+            <div class="col-sm-6 mb-3">
+                <label>Field Label</label>
+                <input class="form-control" type="text" id="label_${counter}" name="label[]" required>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label>Field Type</label>
+                    <select class="form-select" name="type[]" id="type_${counter}" required>
+                        <option value="text">Text</option>
+                        <option value="single_choice">Single Choice</option>
+                        <option value="multiple_choice">Multiple Choice</option>
+                        <option value="true_false">True or False</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="options_container_${counter}" style="display:none;">
+                <div class="col-sm-12 mb-3 option_resp" id="option_${counter}">
+                    <div class="d-flex align-items-center mb-2">
+                        <label class="me-2">Option</label>
+                        <input class="form-control" type="text" name="options[]" id="option_input_${counter}">
+                        <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-bs-toggle="tooltip" data-bs-placement="top" id="delete_option_${counter}" title="Delete Option" style="display:none;">
+                            <i class="icon ni ni-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-3 mb-2" id="add_more_options_${counter}" style="display:none;">
+                <label class="text-white">.</label>
+                <button class="btn btn-warning btn-dim btn-blck bb_for_btn" id="add_option_${counter}" data-bs-toggle="tooltip" data-bs-placement="top" title="Add Options" type="button">
+                    <span>Add More Options</span><i class="icon ni ni-plus"></i>
+                </button>
+            </div>
+            <div class="col-sm-9 text-white my-2">.</div>
+            <div class="col-sm-3 text-right my-2" id="delete_field_resp_${counter}" style="display:none;">
+                <button class="btn btn-danger btn-block delete-field-btn" id="delete_field_${counter}" type="button">
+                    <i class="icon ni ni-trash"></i> <span>Delete Field</span>
+                </button>
+            </div>
+        </div>`;
+
+        // Append the new field to the container
+        $('.row.card-bordered').last().after(newField);
+
+        // Show delete button if more than one field
+        if (fieldCounter > 1) {
+            $('.row.card-bordered').each(function() {
+                $(this).find('[id^="delete_field_resp_"]').show(500);
+            });
+        }
+
+    }
+
+    // Delegate the click event for dynamically added delete buttons
+    $(document).on('click', '.delete-field-btn', function() {
+        const counter = $(this).data('counter');
+        $(this).closest('.optionsa').remove();
+        resetCounters();
+        // Update fieldCounter to match the remaining fields
+        fieldCounter = $('.optionsa').length;
+        
+        // Hide delete button if only one field is left
+        if (fieldCounter <= 1) {
+            $('.row.card-bordered').find('[id^="delete_field_resp_"]').hide(500);
+        }
+    });
+
+    function resetCounters() {
+        let newCounter = 1;
+
+        $('.optionsa').each(function() {
+            $(this).attr('data-counter', newCounter);
+            $(this).find('.field-number').text(newCounter);
+
+            $(this).find('[id^="label_"]').attr('id', `label_${newCounter}`);
+            $(this).find('[id^="type_"]').attr('id', `type_${newCounter}`);
+            $(this).find('[id^="options_container_"]').attr('id', `options_container_${newCounter}`);
+            $(this).find('[id^="option_"]').attr('id', `option_${newCounter}`);
+            $(this).find('[id^="option_input_"]').attr('id', `option_input_${newCounter}`);
+            $(this).find('[id^="add_option_"]').attr('id', `add_option_${newCounter}`);
+            $(this).find('[id^="delete_option_"]').attr('id', `delete_option_${newCounter}`);
+            $(this).find('[id^="delete_field_resp_"]').attr('id', `delete_field_resp_${newCounter}`);
+            $(this).find('[id^="delete_field_"]').attr('id', `delete_field_${newCounter}`);
+            $(this).find('.delete-field-btn').attr('data-counter', newCounter);
+
+            newCounter++;
+        });
+    }
+});
 </script>
