@@ -1588,7 +1588,7 @@ class Ministry extends BaseController {
 			foreach($cal_ass as $key => $value){
 				if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
 					if(!in_array($church_id, json_decode($value->church_id))){
-						continue;
+						// continue;
 					}
 				}
 				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
