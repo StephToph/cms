@@ -510,7 +510,7 @@ $this->Crud = new Crud();
             <div class="col-sm-6 mb-3" id="send_resp" style="display:none;">
                 <div class="form-group">
                     <label>Event For</label>
-                    <select class="js-select2" data-search="on" name="send_type" id="send_type" required>
+                    <select class="js-select2" data-search="on" name="send_type" id="send_type" >
                         <option value="general" <?php if (!empty($e_event_for)) {
                             if ($e_event_for == 'general') {
                                 echo 'selected';
