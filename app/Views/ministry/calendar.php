@@ -89,7 +89,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="modal fade" id="previewEventPopup">
         <div class="modal-dialog modal-md" role="document">
             <div class="modal-content">
