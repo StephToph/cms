@@ -561,5 +561,44 @@ $(document).ready(function() {
             newCounter++;
         });
     }
+
+     // Show options container and add_more_options based on field type
+     $(document).on('change', '[id^="type_"]', function() {
+        const counter = $(this).closest('.optionsa').data('counter');
+        const type = $(this).val();
+        // console.log(type);
+        if (type !== 'single_choice' && type !== 'multiple_choice') {
+            $(`#options_container_${counter}`).hide(500);
+            $(`#add_more_options_${counter}`).hide(500);
+        } else {
+            $(`#options_container_${counter}`).show(500);
+            $(`#add_more_options_${counter}`).show(500);
+        }
+    });
+
+    // Add more options dynamically
+    $(document).on('click', '[id^="add_option_"]', function() {
+        const counter = $(this).closest('.optionsa').data('counter');
+        const optionCount = $(`#options_container_${counter} .option_resp`).length + 1;
+        
+        const newOption = `
+        <div class="col-sm-12 mb-3 option_resp" id="option_${counter}_${optionCount}">
+            <div class="d-flex align-items-center mb-2">
+                <label class="me-2">Option</label>
+                <input class="form-control" type="text" name="options[]" id="option_input_${counter}_${optionCount}">
+                <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-bs-toggle="tooltip" data-bs-placement="top" id="delete_option_${counter}_${optionCount}" title="Delete Option">
+                    <i class="icon ni ni-trash"></i>
+                </button>
+            </div>
+        </div>`;
+
+        // Append the new option to the options container
+        $(`#options_container_${counter}`).append(newOption);
+    });
+
+    // Delegate the click event for dynamically added delete option buttons
+    $(document).on('click', '[id^="delete_option_"]', function() {
+        $(this).closest('.option_resp').remove();
+    });
 });
 </script>
