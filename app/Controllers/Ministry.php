@@ -1082,12 +1082,12 @@ class Ministry extends BaseController {
 							$all_btn = '';
 						} else {
 							$all_btn = '
-                                    <a href="javascript:;" class="text-primary pop" pageTitle="Manage ' . $title . '" pageName="' . site_url('ministry/announcement/manage/edit/' . $id) . '" pageSize="modal-lg">
-										<i class="ni ni-edit-alt"></i> Edit
-                                    </a> ||  
-                                    <a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageName="' . site_url('ministry/announcement/manage/view/' . $id) . '" pageSize="modal-xl">
-										<i class="ni ni-eye"></i> View
-                                    </a>
+								<a href="javascript:;" class="text-primary pop" pageTitle="Manage ' . $title . '" pageName="' . site_url('ministry/announcement/manage/edit/' . $id) . '" pageSize="modal-lg">
+									<i class="ni ni-edit-alt"></i> Edit
+								</a> ||  
+								<a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageName="' . site_url('ministry/announcement/manage/view/' . $id) . '" pageSize="modal-xl">
+									<i class="ni ni-eye"></i> View
+								</a>
                             ';
 						}
 
@@ -1101,7 +1101,7 @@ class Ministry extends BaseController {
 									$names = $this->Crud->read_field('id', $value, 'church', 'name');
 									$church .= '<span class="badge badge-dim rounded-pill bg-primary mb-1">' . strtoupper($names) . '</span>';
 									$t_count++;
-									if ($t_count > 4) {
+									if ($t_count > 2) {
 										$remaining_count = count(($church_id)) - $t_count;
 										if ($remaining_count > 0) {
 											$church .= '<span class="badge badge-dim rounded-pill bg-secondary mb-1">+' . $remaining_count . ' more</span>';
@@ -1119,12 +1119,12 @@ class Ministry extends BaseController {
 							$item .= '
 								<tr>
 									<td><span class="text-muted small">' . $reg_date . '</span></td>
-									<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
-									<td>' . ucwords($user) . '</td>
-									<td>' . ucwords($type) . ' Announcement<br>'.$depts.'</td>
-									<td>' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></td>
-									<td>' . $church . '</td>
-									<td>' . $all_btn . '</td>
+									<td><span class="tb-lead small">' . ucwords($title) . '</span> </td>
+									<td><span class="tb-lead small">' . ucwords($user) . '</span></td>
+									<td><span class="tb-lead small">' . ucwords($type) . ' Announcement<br>'.$depts.'</span></td>
+									<td><span class="tb-lead small">' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></span></td>
+									<td><span class="tb-lead small">' . $church . '</span></td>
+									<td><span class="tb-lead small">' . $all_btn . '</span></td>
 								</tr>
 								
 							';
@@ -1133,13 +1133,14 @@ class Ministry extends BaseController {
 								$item .= '
 									<tr>
 										<td><span class="text-muted small">' . $reg_date . '</span></td>
-										<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
-										<td>' . ucwords($user) . '</td>
-										<td>' . ucwords($type) . ' Announcement<br>'.$depts.'</td>
-										<td>' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></td>
-										<td>' . $church . '</td>
-										<td>' . $all_btn . '</td>
+										<td><span class="tb-lead small">' . ucwords($title) . '</span> </td>
+										<td><span class="tb-lead small">' . ucwords($user) . '</span></td>
+										<td><span class="tb-lead small">' . ucwords($type) . ' Announcement<br>'.$depts.'</span></td>
+										<td><span class="tb-lead small">' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></span></td>
+										<td><span class="tb-lead small">' . $church . '</span></td>
+										<td><span class="tb-lead small">' . $all_btn . '</span></td>
 									</tr>
+								
 									
                                 ';
 							} else {
@@ -1148,13 +1149,14 @@ class Ministry extends BaseController {
 										$item .= '
 											<tr>
 												<td><span class="text-muted small">' . $reg_date . '</span></td>
-												<td><span class="tb-lead">' . ucwords($title) . '</span> </td>
-												<td>' . ucwords($user) . '</td>
-												<td>' . ucwords($type) . ' Announcement<br>'.$depts.'</td>
-												<td>' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></td>
-												<td>' . $church . '</td>
-												<td>' . $all_btn . '</td>
+												<td><span class="tb-lead small">' . ucwords($title) . '</span> </td>
+												<td><span class="tb-lead small">' . ucwords($user) . '</span></td>
+												<td><span class="tb-lead small">' . ucwords($type) . ' Announcement<br>'.$depts.'</span></td>
+												<td><span class="tb-lead small">' . ucwords($level) . ' Church(es)<br><span class="small text-info"><b>' . ucwords($send_type) . '</b></span></span></td>
+												<td><span class="tb-lead small">' . $church . '</span></td>
+												<td><span class="tb-lead small">' . $all_btn . '</span></td>
 											</tr>
+								
 												
                                         ';
 									}
@@ -1345,7 +1347,9 @@ class Ministry extends BaseController {
 					$send_type =  $this->request->getVar('send_type');
 					$church_id =  $this->request->getVar('church_id');
 					$img_id =  $this->request->getVar('img');
-
+					if(empty($church_id)){
+						$church_id = array();
+					}
 					
 					//// Image upload
 					if (file_exists($this->request->getFile('pics'))) {
@@ -1588,7 +1592,7 @@ class Ministry extends BaseController {
 			foreach($cal_ass as $key => $value){
 				if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
 					if(!in_array($church_id, json_decode($value->church_id))){
-						// continue;
+						continue;
 					}
 				}
 				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
