@@ -65,7 +65,7 @@
                         s = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"),
                         o = d.toUTCString().split(" "),
                         l = ((o = "00:00:00" == (o = o[o.length - 2]) ? "" : o), e.event._def.ui.classNames[0].slice(3)),
-                        e = e.event._def.publicId,
+                        id = e.event._def.publicId, // Store the event ID
                         i =
                             (f("#edit-event-title").val(t),
                             f("#edit-event-start-date").val(i).datepicker("update"),
@@ -75,7 +75,7 @@
                             f("#edit-event-description").val(a),
                             f("#edit-event-theme").val(l),
                             f("#edit-event-theme").trigger("change.select2"),
-                            m.attr("data-id", e),
+                            m.attr("data-id", id),
                             String(n.getDate()).padStart(2, "0") + " " + v[n.getMonth()] + " " + n.getFullYear() + (r ? " - " + h(r) : "")),
                         s = String(d.getDate()).padStart(2, "0") + " " + v[d.getMonth()] + " " + d.getFullYear() + (o ? " - " + h(o) : ""),
                         e =
@@ -84,6 +84,7 @@
                             f("#preview-event-start").text(i),
                             f("#preview-event-end").text(s),
                             f("#preview-event-description").text(a),
+                            f("#preview-event-id").text(id), // Add the event ID to the preview modal
                             a || f("#preview-event-description-check").css("display", "none"),
                             u(),
                             document.querySelectorAll(".fc-more-popover"));
@@ -92,6 +93,12 @@
                             e.remove();
                         }),
                         p.modal("show");
+                        // Update the button's pageName attribute with the event ID
+                        var button = document.querySelector('.pop');
+                        if (button) {
+                            var baseUrl = button.getAttribute('pageName').split('/manage/edit/')[0];
+                            button.setAttribute('pageName', baseUrl + '/manage/edit/' + id);
+                        }
                 },
                 events: calEvents,
             });
