@@ -1605,7 +1605,7 @@ class Ministry extends BaseController {
 				if($value->church_type == 'group') $class = 'fc-event-danger';
 				if($value->church_type == 'church') $class = 'fc-event-success';
 				$cal_events[$key]['id'] = $value->id;
-				$cal_events[$key]['title'] = strtoupper($value->title);
+				$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->title));
 				$cal_events[$key]['start'] = $start;
 				$cal_events[$key]['end'] = $end;
 				$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
