@@ -647,7 +647,7 @@ class Ministry extends BaseController {
 					}
 
 					if ($_POST) {
-						$del_id = $this->request->getPost('d_announcement_id');
+						$del_id = $this->request->getPost('d_id');
 						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
 							echo $this->Crud->msg('success', 'Record Deleted');
 							echo '<script>location.reload(false);</script>';
@@ -1258,7 +1258,7 @@ class Ministry extends BaseController {
 					}
 					
 					if($this->request->getMethod() == 'post'){
-						$del_id =  $this->request->getVar('d_support_id');
+						$del_id =  $this->request->getVar('d_id');
 						if($this->Crud->deletes('id', $del_id, $table) > 0) {
 							echo $this->Crud->msg('success', 'Record Deleted');
 							echo '<script>location.reload(false);</script>';
@@ -1680,9 +1680,16 @@ class Ministry extends BaseController {
 					}
 					
 					if($this->request->getMethod() == 'post'){
-						$del_id =  $this->request->getVar('d_support_id');
+						$del_id =  $this->request->getVar('d_id');
+						
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'form', 'name');
 						if($this->Crud->deletes('id', $del_id, $table) > 0) {
-							echo $this->Crud->msg('success', 'Record Deleted');
+							///// store activities
+							$action = $by.' deleted Form ('.$code.')';
+							$this->Crud->activity('form', $del_id, $action);
+
+							echo $this->Crud->msg('success', 'Form Deleted');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('danger', 'Please try later');
@@ -1698,19 +1705,11 @@ class Ministry extends BaseController {
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_title'] = $e->title;
+								$data['e_title'] = $e->name;
 								$data['e_description'] = $e->description;
-								$data['e_start_date'] = $e->start_date;
-								$data['e_start_time'] = $e->start_time;
-								$data['e_end_date'] = $e->end_date;
-								$data['e_end_time'] = $e->end_time;
-								$data['e_location'] = $e->location;
-								$data['e_venue'] = $e->venue;
-								$data['e_event_type'] = $e->event_type;
-								$data['e_recurrence_pattern'] = $e->recurrence_pattern;
-								$data['e_pattern'] = $e->pattern;
-								$data['e_image'] = $e->image;
-								$data['e_event_for'] = $e->event_for;
+								$data['e_fields'] = json_decode($e->fields);
+								$data['e_event_id'] = $e->event_id;
+								$data['e_send_type'] = $e->send_type;
 								$data['e_church_id'] = $e->church_id;
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_church_type'] = $e->church_type;
@@ -1726,24 +1725,15 @@ class Ministry extends BaseController {
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_title'] = $e->title;
+								$data['e_title'] = $e->name;
 								$data['e_description'] = $e->description;
-								$data['e_start_date'] = $e->start_date;
-								$data['e_start_time'] = $e->start_time;
-								$data['e_end_date'] = $e->end_date;
-								$data['e_end_time'] = $e->end_time;
-								$data['e_location'] = $e->location;
-								$data['e_venue'] = $e->venue;
-								$data['e_event_type'] = $e->event_type;
-								$data['e_recurrence_pattern'] = $e->recurrence_pattern;
-								$data['e_pattern'] = $e->pattern;
-								$data['e_image'] = $e->image;
-								$data['e_event_for'] = $e->event_for;
+								$data['e_fields'] = $e->fields;
+								$data['e_event_id'] = $e->event_id;
+								$data['e_send_type'] = $e->send_type;
 								$data['e_church_id'] = $e->church_id;
 								$data['e_ministry_id'] = $e->ministry_id;
-								$data['e_created_at'] = $e->created_at;
-								$data['e_updated_at'] = $e->updated_at;
 								$data['e_church_type'] = $e->church_type;
+								$data['e_reg_date'] = $e->reg_date;
 							}
 						}
 					}
@@ -1752,79 +1742,57 @@ class Ministry extends BaseController {
 				if($this->request->getMethod() == 'post'){
 					$e_id =  $this->request->getVar('e_id');
 					$title =  $this->request->getVar('title');
-					$content =  $this->request->getVar('content');
-					$start_date =  $this->request->getVar('start_date');
-					$start_time =  $this->request->getVar('start_time');
-					$end_date =  $this->request->getVar('end_date');
-					$end_time =  $this->request->getVar('end_time');
-					$event_type =  $this->request->getVar('event_type');
-					$recurring_pattern =  $this->request->getVar('recurring_pattern');
-					$week_day =  $this->request->getVar('week_day');
-					$month_day =  $this->request->getVar('month_day');
-					$year =  $this->request->getVar('year');
-					$location =  $this->request->getVar('location');
-					$venue =  $this->request->getVar('venue');
+					$description =  $this->request->getVar('description');
+					$label =  $this->request->getVar('label');
+					$type =  $this->request->getVar('type');
+					$options =  $this->request->getVar('options');
 					$ministry_id =  $this->request->getVar('ministry_id');
+					$event_id =  $this->request->getVar('event_id');
 					$level =  $this->request->getVar('level');
 					$send_type =  $this->request->getVar('send_type');
 					$church_id =  $this->request->getVar('church_id');
-					$img_id =  $this->request->getVar('img');
 					if(empty($church_id)){
 						$church_id = array();
 					}
 					
-					//// Image upload
-					if (file_exists($this->request->getFile('pics'))) {
-						if (!empty($img_id)) {
-							unlink(FCPATH . $img_id);
+					$fields = [];
+					if (!empty($label)) {
+						for ($i = 0; $i < count($label); $i++) {
+							$field = [
+								'label' => $label[$i],
+								'type' => $type[$i],
+							];
+							if (in_array($type[$i], ['single_choice', 'multiple_choice'])) {
+								$option = $options[$i + 1] ?? []; 
+								$field['options'] = $option;
+							}
+							$fields[] = $field;
 						}
-						$path = 'assets/images/events/';
-						$file = $this->request->getFile('pics');
-						$getImg = $this->Crud->img_upload($path, $file);
-
-						if (!empty($getImg->path)) $img_id = $getImg->path;
 					}
-
-					if($event_type == 'one-time'){
-						$recurring_pattern = '';
-					}
-					$pattern = '';
-					if($event_type == 'recurring'){
-						if($recurring_pattern == 'weekly'){
-							$pattern = $week_day;
-						}
-						if($recurring_pattern == 'monthly'){
-							$pattern = $month_day;
-						}
-						if($recurring_pattern == 'yearly'){
-							$pattern = $year;
-						}
-						
 					
-					}
-					$ins_data['title'] = $title;
-					$ins_data['description'] = $content;
-					$ins_data['start_date'] = $start_date;
-					$ins_data['start_time'] = date('H:i', strtotime($start_time));
-					$ins_data['end_date'] = $end_date;
-					$ins_data['end_time'] = date('H:i', strtotime($end_time));
-					$ins_data['event_type'] = $event_type;
-					$ins_data['recurrence_pattern'] = $recurring_pattern;
-					$ins_data['pattern'] = $pattern;
-					$ins_data['location'] = $location;
-					$ins_data['venue'] = $venue;
+					
+
+					$ins_data['name'] = $title;
+					$ins_data['description'] = $description;
+					$ins_data['fields'] = json_encode($fields);
 					$ins_data['ministry_id'] = $ministry_id;
-					$ins_data['event_for'] = $send_type;
+					$ins_data['send_type'] = $send_type;
+					$ins_data['event_id'] = $event_id;
 					$ins_data['church_type'] = $level;
 					$ins_data['church_id'] = json_encode($church_id);
-					if (!empty($img_id) || !empty($getImg->path))  $ins_data['image'] = $img_id;
 					
-					$ins_data['updated_at'] = date(fdate);
 					// do create or update
 					if($e_id) {
 						$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
 						if($upd_rec > 0) {
-							echo $this->Crud->msg('success', 'Updated');
+							
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $e_id, 'form', 'name');
+							$action = $by.' updated Form ('.$code.')';
+							$this->Crud->activity('form', $e_id, $action);
+
+							echo $this->Crud->msg('success', 'From Updated');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
@@ -1832,20 +1800,20 @@ class Ministry extends BaseController {
 						
 					} else{
 						
-						$ins_data['created_at'] = date(fdate);
+						$ins_data['reg_date'] = date(fdate);
 						
-						if($this->Crud->check2('title', $title, 'ministry_id', $ministry_id, $table) > 0) {
-							echo $this->Crud->msg('warning', ('Event Already Exist'));
+						if($this->Crud->check2('name', $title, 'ministry_id', $ministry_id, $table) > 0) {
+							echo $this->Crud->msg('warning', ('Form Already Exist'));
 						} else {
 							$ins_rec = $this->Crud->create($table, $ins_data);
 							if($ins_rec > 0) {
-								echo $this->Crud->msg('success', translate_phrase('Event Created'));
+								echo $this->Crud->msg('success', translate_phrase('Form Created'));
 								
 								///// store activities
 								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-								$code = $this->Crud->read_field('id', $ins_rec, 'events', 'title');
-								$action = $by.' created Event ('.$code.')';
-								$this->Crud->activity('event', $ins_rec, $action);
+								$code = $this->Crud->read_field('id', $ins_rec, 'form', 'name');
+								$action = $by.' created Form ('.$code.')';
+								$this->Crud->activity('form', $ins_rec, $action);
 
 								
 								echo '<script>location.reload(false);</script>';
@@ -1886,28 +1854,12 @@ class Ministry extends BaseController {
 				if(!empty($query)) {
 					foreach($query as $q) {
 						$id = $q->id;
-						$reg_date =  date('M d, Y h:i A', strtotime($q->created_at));
-						$title = $q->title;
+						$reg_date =  date('M d, Y h:i A', strtotime($q->reg_date));
+						$title = $q->name;
 						$church_id = $q->church_id;
-						$img = $q->image;
 						$ministry_id = $q->ministry_id;
 						$church_type = $q->church_type;
-						$start_date = $q->start_date;
-						$end_date = $q->end_date;
-						$event_type = $q->event_type;
-						$recurrence_pattern = $q->recurrence_pattern;
-						$status = $q->status;
-						$images = '';
-						if(!empty($img))$images = '<img  src="' . site_url($img) . '" height="40px" width="40px" class="img-responsive">';
-						//$approve = '';
-						if($status == 1) { 
-							$colors = 'success';
-							$approve_text = 'Approved';
-							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> '; 
-						} else {
-							$colors = 'danger';
-							$approve_text = 'Not Approved';
-						}
+						$send_type = $q->send_type;
 
 						// add manage buttons
 						if($role_u != 1) {
@@ -1917,36 +1869,34 @@ class Ministry extends BaseController {
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
 								
 							';
 						}
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
-
-						$start = date('Y-m-d', strtotime($q->start_date)).' '.date('H:i', strtotime($q->start_time));
-						$end = date('Y-m-d', strtotime($q->end_date)).' '.date('H:i', strtotime($q->end_time));
-				
+						$events = $this->Crud->read_field('id', $q->event_id, 'events', 'title');
+						if($q->event_id == 0){
+							$events = '-';
+						}
+						$responses = 0;
 						$item .= '
 							<tr>
 								<td>
 									<div class="user-card">
-										<div class="user-avatar">            
-											'.$images.'      
-										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($title) . '</span> <br>
-										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                   
+											<span class="tb-lead text-primary small">' . ucwords($ministry) . '</span> 
 										</div>    
 									</div>  
 								</td>
 								<td>
 									<span class="small text-dark">'.ucwords($church_type).' Churches</span>
 								</td>
-								<td><span class="small text-dark">'.$start.' <b>&#8594;</b> '.$end.'</span></td>
-								<td><span class="small text-dark">'.ucwords($event_type).'</span></td>
-								<td><span class="small text-dark">'.ucwords($q->location).'</span></td>
+								<td>'.ucwords($events).'</td>
+								<td>'.number_format($responses).'</td>
 								<td>
-									<ul class="nk-tb-actions">
+									<ul class="nk-tb-actions ">
 										<li>
 											<div class="drodown">
 												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
