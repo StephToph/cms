@@ -1727,7 +1727,7 @@ class Ministry extends BaseController {
 								$data['e_id'] = $e->id;
 								$data['e_title'] = $e->name;
 								$data['e_description'] = $e->description;
-								$data['e_fields'] = $e->fields;
+								$data['e_fields'] = json_decode($e->fields);
 								$data['e_event_id'] = $e->event_id;
 								$data['e_send_type'] = $e->send_type;
 								$data['e_church_id'] = $e->church_id;
@@ -1868,8 +1868,8 @@ class Ministry extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
 								
 							';
 						}
