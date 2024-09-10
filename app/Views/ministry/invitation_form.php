@@ -275,12 +275,48 @@ $this->Crud = new Crud();
                                 foreach ($events as $event) {
                                     if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
                                         if($event->church_type != 'all'){
-                                            if($log_church_type == 'region'){
-                                                if($event->church_type == 'region' && !in_array($log_church_id, $event->church_id))continue;
+                                            if($event->church_type == 'region' && $event->event_for == 'general'){
+                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'regional_id');
+                                                if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+                                            } else {
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
                                             }
-                                            if($log_church_type == 'zone'){
-                                                if($event->church_type == 'zone' && !in_array($log_church_id, $event->church_id))continue;
+                                           
+                                            if($event->church_type == 'zone' && $event->event_for == 'general'){
+                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'zonal_id');
+                                                if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+                                            } else {
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
                                             }
+                                            if($event->church_type == 'group' && $event->event_for == 'general'){
+                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'group_id');
+                                                if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+                                            } else {
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
+                                            }
+                                           
+                                            if($event->church_type == 'church' && $event->event_for == 'general'){
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
+                                            }
+                                           
                                         }
                                     }
 
