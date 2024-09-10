@@ -30,82 +30,85 @@ $this->Crud = new Crud();
 
 <?php if ($param2 == 'view') { ?>
     <div class="row">
-        <div class="col-sm-6 mb-3">
-            <div class="user-card">
-                <div class="user-avatar">
-                    <?php $img = $this->Crud->read_field('id', $e_from_id, 'user', 'img_id');
-                    $src = base_url($this->Crud->image($img, 'big')); ?>
-                    <img src="<?= $src; ?>" alt="">
-                </div>
-                <div class="user-info">
-                    <span
-                        class="lead-text"><?= ucwords($this->Crud->read_field('id', $e_from_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $e_from_id, 'user', 'surname')); ?></span>
-                    <span class="sub-text"><?= $e_reg_date; ?></span>
-                </div>
-            </div>
-        </div>
-        <div class="col-sm-6 mb-3">
-            <h5><?= ucwords($e_type); ?> Announcement to <?= ucwords($e_level); ?> Church (<?= ucwords($e_send_type); ?>)</h5>
-        </div>
-
-        <div class="col-sm-12 mb-3">
-            <h5 class="text-center text-info"><?= ucwords($e_title); ?></h5>
-            <div class="my-1">
-                <p><?= ucwords(($e_content)); ?></p>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <h6></h6>
-            <div class="mt-2 row">
-                <?php
-                if ($e_type == 'department') { ?>
-                    <div class="col-sm-6 mb-2">
-                        <div class="user-card">
-                            <div class="user-info">
-                                <span
-                                    class="lead-text"><?= ucwords($this->Crud->read_field('id', $e_dept_id, 'dept', 'name')); ?>
-                                    Department</span>
-                            </div>
-                        </div>
-                    </div>
-
-                <?php } else {
-                    if($e_send_type == 'general'){
-                        echo '<p class="text-info">Members In</p>';
-                    }
-
-                    if($e_send_type == 'individual'){
-                        echo '<p class="text-info">Church</p>';
-                    }
+        
+        <div class="col-sm-12 mb-3 table-responsive">
+            <table class="table table-hovered">
+                
+                <tr>
+                    <td><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
+                </tr>
+                <tr>
+                    <td><?= ucwords(($e_description)); ?></d></td>
+                </tr>
+            </table>
+            <table class="table table-hovered">
+                <tr>
+                    <td><b>Minstry</b></td>
+                    <td><?=$this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name');?></td>
+                    <td><b>Church Level</b></td>
+                    <td><?=ucwords($e_church_type);?> Level</td>
                     
-                    
-                    if (!empty($e_church_id)) {
-                        foreach (json_decode($e_church_id) as $rec => $va) {
-                            ;
-                            $role = $this->Crud->read_field('id', $va, 'church', 'name');
-                            $level = $this->Crud->read_field('id', $va, 'church', 'type');
-
-                            $wors = $this->Crud->image_name($role);
-                            $img = '<span>' . $wors . '</span>';
-
-                            ?>
-                            <div class="col-sm-4 mb-2">
-                                <div class="user-card">
-                                    <div class="user-avatar"><?= $img; ?></div>
-                                    <div class="user-info">
-                                        <span class="lead-text"><?= ucwords($role.' '.$level); ?> </span>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php }
-                        
-                    }?>
-
+                </tr>
+                <tr>
+                    <td><b>Form is For</b></td>
+                    <td><?=ucwords($e_send_type);?> Church</td>
+                    <td><b>Created At</b></td>
+                    <td><?=date('d F Y h:i:sA', strtotime($e_reg_date));?></td>
+                </tr>
+                <?php if($e_church_type != 'all'){?>
+                <tr>
+                   
+                    <td><b>Church</b></td>
+                    <td colspan="4"><?php 
+                        $church = '';
+                        if(!empty($e_church_id)){
+                            $churches = json_decode($e_church_id);
+                            if(!empty($churches)){
+                                foreach($churches as $c => $val){
+                                    $church .=  ucwords($this->Crud->read_field('id', $val, 'church', 'name')).', ';
+                                }
+                            }
+                        }
+                        echo rtrim($church,', ');
+                       
+                    ?></td>
+                </tr>
                 <?php } ?>
+                <tr>
+                    <td colspan="5" class=" text-center"><b class="text-danger">Form Fields</b></td>
+                </tr>
+                <?php 
+                    // $e_fields = json_decode
+                    if(!empty($e_fields)){
+                        foreach($e_fields as $f => $field){
+                            $type = str_replace('_', ' ',  $field->type);
+                            $opts = '';
+                            if($field->type == 'single_choice' || $field->type == 'multiple_choice'){
+                                $opt = '';
+                                $options = $field->options;
+                                foreach($options as $op => $option){
+                                    $opt .= $option.', ';
+                                }
+                                
+                                $optaa = rtrim($opt, ', ');
+                                $opta = '<span class="text-info">{'.ucwords($opt).'}</span>';
+                            } else{
+                                $opta = '';
+                            }
+                            $opts = $opta;
+                            ?>
+                            <tr>
+                                <td colspan="2"><b><?=ucwords($field->label);?></b></td>
+                                <td colspan="3"><?=ucwords($type).' '.$opts;?></td>
+                            </tr>
+                        <?php }
+                    }
+                    
+                ?>
 
-            </div>
+            </table>
         </div>
+
     </div>
 
 <?php } ?>
@@ -275,12 +278,48 @@ $this->Crud = new Crud();
                                 foreach ($events as $event) {
                                     if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
                                         if($event->church_type != 'all'){
-                                            if($log_church_type == 'region'){
-                                                if($event->church_type == 'region' && !in_array($log_church_id, $event->church_id))continue;
+                                            if($event->church_type == 'region' && $event->event_for == 'general'){
+                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'regional_id');
+                                                if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+                                            } else {
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
                                             }
-                                            if($log_church_type == 'zone'){
-                                                if($event->church_type == 'zone' && !in_array($log_church_id, $event->church_id))continue;
+                                           
+                                            if($event->church_type == 'zone' && $event->event_for == 'general'){
+                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'zonal_id');
+                                                if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+                                            } else {
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
                                             }
+                                            if($event->church_type == 'group' && $event->event_for == 'general'){
+                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'group_id');
+                                                if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+                                            } else {
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
+                                            }
+                                           
+                                            if($event->church_type == 'church' && $event->event_for == 'general'){
+                                                if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                    continue;
+                                                }
+
+                                            }
+                                           
                                         }
                                     }
 
