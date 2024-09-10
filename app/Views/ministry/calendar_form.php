@@ -15,7 +15,7 @@ $this->Crud = new Crud();
     <div class="row">
         <div class="col-sm-12 text-center">
             <h3><b>Are you sure?</b></h3>
-            <input type="hidden" name="d_announcement_id" value="<?php if (!empty($d_id)) {
+            <input type="hidden" name="d_id" value="<?php if (!empty($d_id)) {
                 echo $d_id;
             } ?>" />
         </div>

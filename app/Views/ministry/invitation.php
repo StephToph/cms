@@ -52,17 +52,15 @@
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
-                            <div class="card-inner table-responsive-lg">
+                            <div class="table-responsive-lg">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Date</th>
                                             <th>Title</th>
-                                            <th>Sender</th>
-                                            <th>Type</th>
                                             <th>Level</th>
-                                            <th>Church</th>
-                                            <th width="150px">Action</th>
+                                            <th>Event</th>
+                                            <th>Responses</th>
+                                            <th ></th>
                                         </tr>
                                     </thead>
                                     <tbody id="load_data"> </tbody>
