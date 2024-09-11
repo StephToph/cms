@@ -78,7 +78,7 @@ $this->Crud = new Crud();
                     <td colspan="5" class=" text-center"><b class="text-danger">Form Fields</b></td>
                 </tr>
                 <?php 
-                    // $e_fields = json_decode
+                    
                     if(!empty($e_fields)){
                         foreach($e_fields as $f => $field){
                             $type = str_replace('_', ' ',  $field->type);
@@ -110,6 +110,181 @@ $this->Crud = new Crud();
         </div>
 
     </div>
+
+<?php } ?>
+
+
+<?php if ($param2 == 'extension') { ?>
+    <div class="row">
+        
+        <div class="col-sm-12 mb-3 table-responsive">
+            <h5 class="text-center text-info"><?= ucwords($e_title); ?></h5>
+            <table class="table table-hover">
+                <tr>
+                    <td colspan="5" class=" text-cente"><b class="text-danger">Form Fields</b></td>
+                </tr>
+                <?php 
+                    
+                    if(!empty($e_fields)){
+                        foreach($e_fields as $f => $field){
+                            $type = str_replace('_', ' ',  $field->type);
+                            $opts = '';
+                            if($field->type == 'single_choice' || $field->type == 'multiple_choice'){
+                                $opt = '';
+                                $options = $field->options;
+                                foreach($options as $op => $option){
+                                    $opt .= $option.', ';
+                                }
+                                
+                                $optaa = rtrim($opt, ', ');
+                                $opta = '<span class="text-info">{'.ucwords($opt).'}</span>';
+                            } else{
+                                $opta = '';
+                            }
+                            $opts = $opta;
+                            ?>
+                            <tr>
+                                <td colspan="2"><b><?=ucwords($field->label);?></b></td>
+                                <td colspan="3"><?=ucwords($type).' '.$opts;?></td>
+                            </tr>
+                        <?php }
+                    }
+                    
+                ?>
+
+            </table>
+        </div>
+
+    </div>
+    <style>
+        .text-right {
+            text-align: right;
+        }
+        
+    </style>
+    <div class="row">
+        <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
+            echo $e_id;
+        } ?>" />
+
+        <div class="col-sm-12 mb-3 " >
+            <?php
+                $label = '';
+                $type = '';
+                if(!empty($e_fields)){
+                    foreach($e_fields as $fe => $value){
+                        
+                        $label = $value->label;
+                        $type = $value->type;
+                        if (isset($value->options) && !empty($value->options)) {
+                            $options = $value->options;
+                        } else {
+                            $options = [];
+                        }
+                        if($fe == 0)break;
+                    }
+                   
+                }
+
+                $type = isset($type) ? $type : ''; 
+
+                $displayStyle = ($type === 'single_choice' || $type === 'multiple_choice') ? 'display:block;' : 'display:none;';
+
+            ?>
+            <div class="row card-bordered optionsa my-2 p-2" data-counter="1">
+                <h5>Field <span class="field-number">1</span></h5>
+                <div class="col-sm-6 mb-3">
+                    <label>Field Label</label>
+                    <input class="form-control" type="text" id="label_1" name="label[]" value="<?php if (!empty($label)) { echo $label; } ?>" required>
+                </div>
+    
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label>Field Type</label>
+                        <select class="form-select " name="type[]" id="type_1" required>
+                            <option value="text" <?php if (!empty($type) && $type == 'text') { echo 'selected'; } ?>>Text</option>
+                            <option value="single_choice" <?php if (!empty($type) && $type == 'single_choice') { echo 'selected'; } ?>>Single Choice</option>
+                            <option value="multiple_choice" <?php if (!empty($type) && $type == 'multiple_choice') { echo 'selected'; } ?>>Multiple Choice</option>
+                            <option value="true_false" <?php if (!empty($type) && $type == 'true_false') { echo 'selected'; } ?>>True or False</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="options_container_1" class="options-container" style="<?php echo $displayStyle; ?>">
+                    <?php
+                        if(!empty($type)){
+                            if($type == 'single_choice' || $type == 'multiple_choice'){
+                                if(!empty($options)){
+                                    for($i=0;$i<count($options);$i++){
+                                        if($i > 1){
+                                            echo '
+                                            <div class="col-sm-12 mb-3 option_resp" id="option_1_'.$i.'">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <label class="me-2">Option</label>
+                                                    <input class="form-control" type="text" name="options[1][]" id="option_input_1_'.$i.'" value="'.$options[$i].'">
+                                                    <button class="btn btn-outline-danger btn-sm ms-2" type="button" data-bs-toggle="tooltip" data-bs-placement="top" id="delete_option_1_'.$i.'" title="Delete Option">
+                                                        <i class="icon ni ni-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>';
+                                        } else {
+
+                                            echo '
+                                            <div class="col-sm-12 mb-3 option_resp" id="option_1_'.$i.'">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <label class="me-2">Option</label>
+                                                    <input class="form-control" type="text" name="options[1][]" id="option_input_1_'.$i.'" value="'.$options[$i].'">
+                                                   
+                                                </div>
+                                            </div>';
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                    ?>
+                </div>
+
+                <div class="col-sm-3 mb-2" id="add_more_options_1" style="<?php echo $displayStyle; ?>">
+                    <label class="text-white">.</label>
+                    <button class="btn btn-warning btn-dim btn-blck bb_for_btn" id="add_option_1" data-bs-toggle="tooltip" data-bs-placement="top" title="Add Options" type="button">
+                        <span>Add  Options</span><i class="icon ni ni-plus"></i>
+                    </button>
+                </div>
+                <div class="col-sm-5 text-white my-2">.</div>
+                <div class="col-sm-3 text-right my-2" id="delete_field_resp" style="display:none;">
+                    <button class="btn btn-danger btn-block bb_for_btn" id="delete_field" type="button">
+                        <i class="icon ni ni-trash"></i> <span>Delete Field</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-sm-12 text-center my-2">
+                <hr />
+                <button class="btn btn-info btn-block bb_for_btn" id="add_field" type="button">
+                    <i class="icon ni ni-plus-c"></i> <span>Add Field</span>
+                </button>
+            </div>
+
+        </div>
+
+        <div class="col-sm-12 text-center mt-4">
+            <hr />
+            <button class="btn btn-primary bb_for_btn" type="submit">
+                <i class="icon ni ni-save"></i> Save
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 my-3">
+            <div id="bb_ajax_msg"></div>
+        </div>
+    </div>
+
 
 <?php } ?>
 
