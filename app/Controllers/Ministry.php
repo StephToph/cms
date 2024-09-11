@@ -1697,7 +1697,25 @@ class Ministry extends BaseController {
 						die;	
 					}
 				}
-			} else {
+			} elseif($param2 == 'extension'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_title'] = $e->name;
+							$data['e_description'] = $e->description;
+							$data['e_fields'] = json_decode($e->fields);
+							$data['e_event_id'] = $e->event_id;
+							$data['e_send_type'] = $e->send_type;
+							$data['e_church_id'] = $e->church_id;
+							$data['e_ministry_id'] = $e->ministry_id;
+							$data['e_church_type'] = $e->church_type;
+							$data['e_reg_date'] = $e->reg_date;
+						}
+					}
+				}
+			}else {
 				// prepare for edit
 				if($param2 == 'edit') {
 					if($param3) {
@@ -1770,6 +1788,10 @@ class Ministry extends BaseController {
 						}
 					}
 					
+					if(empty($fields)){
+						echo $this->Crud->msg('warning', 'Enter the Field of the Form yo want to Create');
+						die;
+					}
 					
 
 					$ins_data['name'] = $title;
@@ -1792,7 +1814,7 @@ class Ministry extends BaseController {
 							$action = $by.' updated Form ('.$code.')';
 							$this->Crud->activity('form', $e_id, $action);
 
-							echo $this->Crud->msg('success', 'From Updated');
+							echo $this->Crud->msg('success', 'Form Updated');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
@@ -1851,6 +1873,11 @@ class Ministry extends BaseController {
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 				$query = $this->Crud->filter_forms($limit, $offset, $log_id, $status, $search);
 
+				$log_church_id = $this->Crud->read_field('id',  $log_id, 'user', 'church_id');
+				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'region_id');
+				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zone_id');
+				$log_group_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'group_id');
+
 				if(!empty($query)) {
 					foreach($query as $q) {
 						$id = $q->id;
@@ -1860,7 +1887,35 @@ class Ministry extends BaseController {
 						$ministry_id = $q->ministry_id;
 						$church_type = $q->church_type;
 						$send_type = $q->send_type;
+						$event_id = $q->event_id;
 
+						$feed_btn = '';
+						if($event_id > 0){
+							if($role == 'developer' || $role =='administrator'){
+								$feed_btn = '<li><a href="javascript:;" class="text-dark pop" pageTitle="Form Extension" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/extension/' . $id) . '"><em class="icon ni ni-list-index-fill"></em><span>'.translate_phrase('Form Extension').'</span></a></li>';
+							}
+							if($church_type != 'all'){
+
+								if($church_type == 'region' && $send_type == 'general'){
+									if(in_array($log_region_id, $church_id)){
+										$feed_btn = '<li><a href="javascript:;" class="text-dark pop" pageTitle="Form Extension" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/extension/' . $id) . '"><em class="icon ni ni-list-index-fill"></em><span>'.translate_phrase('Form Extension').'</span></a></li>';
+									}
+								} 
+
+								if($church_type == 'zone' && $send_type == 'general'){
+									if(in_array($log_zone_id, $church_id)){
+										$feed_btn = '<li><a href="javascript:;" class="text-dark pop" pageTitle="Form Extension" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/extension/' . $id) . '"><em class="icon ni ni-list-index-fill"></em><span>'.translate_phrase('Form Extension').'</span></a></li>';
+									}
+								} 
+
+								if($church_type == 'group' && $send_type == 'general'){
+									if(in_array($log_group_id, $church_id)){
+										$feed_btn = '<li><a href="javascript:;" class="text-dark pop" pageTitle="Form Extension" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/extension/' . $id) . '"><em class="icon ni ni-list-index-fill"></em><span>'.translate_phrase('Form Extension').'</span></a></li>';
+									}
+								} 
+
+							}
+						}
 						// add manage buttons
 						if($role_u != 1) {
 							$all_btn = '';
@@ -1871,7 +1926,7 @@ class Ministry extends BaseController {
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
 								
-							';
+							'.$feed_btn;
 						}
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
