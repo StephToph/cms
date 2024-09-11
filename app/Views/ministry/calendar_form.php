@@ -554,20 +554,20 @@ $this->Crud = new Crud();
                 </div>
             </div>
 
-            <div class="col-sm-12 mb-3">
-                <div class="form-group"><b>Event Banner</b><br>
-                    <label for="img-upload" class="pointer text-center" style="width:100%;">
-                        <input type="hidden" name="img" value="<?php if(!empty($e_image)){echo $e_image;} ?>" />
-                        <img id="img" src="<?php if(!empty($e_image)){echo site_url( $e_image);} ?>" style="max-width:100%;" />
-                        <span class="btn btn-info btn-block no-mrg-btm">Choose Image</span>
-                        <input class="d-none" type="file" name="pics" id="img-upload" accept="image/*">
-                    </label>
-                </div>
-            </div>
+           
 
         <?php } ?>
 
-
+        <div class="col-sm-12 mb-3">
+            <div class="form-group"><b>Event Banner</b><br>
+                <label for="img-upload" class="pointer text-center" style="width:100%;">
+                    <input type="hidden" name="img" value="<?php if(!empty($e_image)){echo $e_image;} ?>" />
+                    <img id="img" src="<?php if(!empty($e_image)){echo site_url( $e_image);} ?>" style="max-width:100%;" />
+                    <span class="btn btn-info btn-block no-mrg-btm">Choose Image</span>
+                    <input class="d-none" type="file" name="pics" id="img-upload" accept="image/*">
+                </label>
+            </div>
+        </div>
         <div class="col-sm-12 text-center">
             <hr />
             <button class="btn btn-primary bb_for_btn" id="bt" type="submit">

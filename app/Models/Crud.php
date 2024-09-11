@@ -1832,6 +1832,32 @@ class Crud extends Model {
         $db->close();
     }
 
+
+	public function filter_knowledge($limit='', $offset='', $log_id='', $search='') {
+        $db = db_connect();
+        $builder = $db->table('knowledge');
+
+        // build query
+		$builder->orderBy('id', 'desc');
+		
+        if(!empty($search)) {
+            $builder->like('title', $search);
+        }
+		
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
 	public function filter_events($limit='', $offset='', $log_id='', $status= '', $search='', $type='') {
         $db = db_connect();
         $builder = $db->table('events');
