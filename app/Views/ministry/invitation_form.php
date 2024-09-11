@@ -445,7 +445,7 @@ $this->Crud = new Crud();
                             $log_ministry_id = $this->Crud->read_field('id', $log_id, 'user',  'ministry_id');
                             $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
-                            $events = $this->Crud->read_single('ministry_id', $log_ministry_id, 'events');
+                            $events = $this->Crud->read_single_order('ministry_id', $log_ministry_id, 'events', 'title', 'asc');
                             if($role == 'developer' || $role == 'administrator'){
                                 $events = $this->Crud->read('events');
                             }
