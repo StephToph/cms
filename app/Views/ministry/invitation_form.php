@@ -792,8 +792,9 @@ $this->Crud = new Crud();
 
         // Add more field when button is clicked
         $('#add_field').click(function() {
-            fieldCounter++;
+            
             addField(fieldCounter);
+            fieldCounter++;
         });
 
         // Function to add a new field

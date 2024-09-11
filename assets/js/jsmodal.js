@@ -6,7 +6,7 @@
 */
 //////////===== Dynamic Modal Pop-up ===/////////
 $(".pop").click(function () {
-	$(".modal").on('hidden.bs.modal', function () {
+	$(".modal").off('hidden.bs.modal').on('hidden.bs.modal', function () {
 		$(this).data('bs.modal', null);
 	});
 
@@ -24,7 +24,7 @@ $(".pop").click(function () {
 });
 
 $(".pop-right").click(function () {
-	$(".modal").on('hidden.bs.modal', function () {
+	$(".modal").off('hidden.bs.modal').on('hidden.bs.modal', function () {
 		$(this).data('bs.modal', null);
 	});
 
@@ -39,7 +39,7 @@ $(".pop-right").click(function () {
 	$(".modal-right").modal("show");
 });
 
-$(".pop-left").click(function () {
+$(".modal").off('hidden.bs.modal').on('hidden.bs.modal', function () {
 	$(".modal").on('hidden.bs.modal', function () {
 		$(this).data('bs.modal', null);
 	});
