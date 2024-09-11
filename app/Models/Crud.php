@@ -1901,6 +1901,36 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
+	
+	public function filter_form_extension($limit='', $offset='', $log_id='', $form_id= '') {
+        $db = db_connect();
+        $builder = $db->table('form_extension');
+
+        // build query
+		$builder->orderBy('id', 'desc');
+		$builder->where('form_id', $form_id);
+
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		
+		if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
+			$builder->where('church_id', $church_id);
+		} 
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
 	public function filter_service_type($limit='', $offset='', $search='') {
         $db = db_connect();
         $builder = $db->table('service_type');
