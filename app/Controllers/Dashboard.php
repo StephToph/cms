@@ -286,6 +286,9 @@ class Dashboard extends BaseController {
         $tithe = 0;
         $tithe_part = 0;
         $partnership = 0;
+        $membership = 0;
+        $first_timer = 0;
+        $new_convert = 0;
         $partnership_part = 0;
         $offering = 0;
         $partnership_list = '';
@@ -321,7 +324,9 @@ class Dashboard extends BaseController {
             $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
             $cells = $this->Crud->read('cells');
              $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+            $member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
             
+            $membership = $this->Crud->filter_members($log_id, $start_date, $end_date);
              $partnership = 0;
             if(!empty($partners)){
                 foreach($partners as $u){
@@ -503,6 +508,9 @@ class Dashboard extends BaseController {
        
         $resp['tithe'] = '$'.number_format($tithe,2);
         $resp['tithe_part'] = number_format($tithe_part);
+        $resp['membership'] = number_format($membership);
+        $resp['first_timer'] = number_format($first_timer);
+        $resp['new_convert'] = number_format($new_convert);
         $resp['offering'] = '$'.number_format($offering,2);
         $resp['partnership'] = '$'.number_format($partnership,2);
         $resp['partnership_part'] = number_format($partnership_part);

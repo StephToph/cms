@@ -133,6 +133,60 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <div class="card card-bordered  card-full">
+                                <div class="card-inner">
+                                    <div class="card-title-group align-start mb-0">
+                                        <div class="card-title">
+                                            <h6 class="title">Total Membership</h6>
+                                        </div>
+                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                data-bs-toggle="tooltip" data-bs-placement="left"
+                                                title="Total Membership"></em>
+                                            </div>
+                                    </div>
+                                    <div class="card-amount"><span class="amount" id="membership"> 0 <span
+                                                class="currency currency-usd"></span></span></div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card card-bordered  card-full">
+                                <div class="card-inner">
+                                    <div class="card-title-group align-start mb-0">
+                                        <div class="card-title">
+                                            <h6 class="title">Total First Timer</h6>
+                                        </div>
+                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                data-bs-toggle="tooltip" data-bs-placement="left"
+                                                title="Total First Timer"></em>
+                                            </div>
+                                    </div>
+                                    <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
+                                                class="currency currency-usd"></span></span></div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card card-bordered  card-full">
+                                <div class="card-inner">
+                                    <div class="card-title-group align-start mb-0">
+                                        <div class="card-title">
+                                            <h6 class="title">Total New Convert</h6>
+                                        </div>
+                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                data-bs-toggle="tooltip" data-bs-placement="left"
+                                                title="Total New Convert"></em>
+                                            </div>
+                                    </div>
+                                    <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
+                                                class="currency currency-usd"></span></span></div>
+                                    
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-12">
                             <div class="card card-bordered card-full">
                                 <div class="card-inner d-flex flex-column h-100">
@@ -651,6 +705,15 @@
         $('#cell_data').html(
         '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
         );
+        $('#membership').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
+        $('#first_timer').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
+        $('#new_convert').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
         var date_type = $('#date_type').val();
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
@@ -674,6 +737,9 @@
                 $('#partnership').html(dt.partnership);
                 $('#partnership_list').html(dt.partnership_list);
                 $('#cell_data').html(dt.cell_data);
+                $('#membership').html(dt.membership);
+                $('#new_convert').html(dt.new_convert);
+                $('#first_timer').html(dt.first_timer);
                 
                 //Progress plugins
                 NioApp.BS.progress('[data-progress]');
