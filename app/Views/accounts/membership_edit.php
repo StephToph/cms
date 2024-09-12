@@ -41,7 +41,7 @@
                                 <?php } else { ?>
                                     <div class="col-md-6 col-lg-4 col-xxl-3 ">
                                         <div class="form-group">
-                                            <label>Ministry</label>
+                                            <label class="form-label">Ministry</label>
                                             <select class="js-select2" data-search="on" name="ministry_id" id="ministry_id">
                                                 <option value="">Select Ministry</option>
                                                 <?php
@@ -68,7 +68,7 @@
                                 <?php if ($role != 'Church Leader') { ?>
                                     <div class="col-md-6 col-lg-4 col-xxl-3">
                                         <div class="form-group">
-                                            <label>Church Level</label>
+                                            <label  class="form-label">Church Level</label>
                                             <select class="js-select2" data-search="on" name="level" id="level">
                                                 <option value="">Select Church Level</option>
                                                 <?php
@@ -106,7 +106,7 @@
                                 
                                     <div class="col-md-6 col-lg-4 col-xxl-3" id="church_div" style="display:none;">
                                         <div class="form-group">
-                                            <label>Church</label>
+                                            <label  class="form-label">Church</label>
                                             <select class="js-select2" data-search="on" name="church_id" id="church_id">
                                                 <option value="">Select</option>
 

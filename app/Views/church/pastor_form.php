@@ -32,7 +32,7 @@
 
         <div class="row">
             <input type="hidden" name="user_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
-            <div class="col-sm-12 mb-3">
+            <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label>Title</label>
                     <select class="js-select2" name="title" id="title" data-placeholder="Select Title" required>
@@ -79,6 +79,35 @@
                 </div>
             </div>
 
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label >Role</label>
+                    <div class="form-control-wrap">
+                        <select class="form-select js-select2" id="role_id" name="role_id"
+                            data-placeholder="Select Role Role">
+                            <option value="">Select</option>
+                            <?php
+                                $allowed = ['Pastor', 'Pastor-in-Charge'];
+
+                                $parent  = $this->Crud->read_order('access_role', 'name', 'asc');
+                                if(!empty($parent)){
+                                    foreach($parent as $p){
+                                        if(!in_array($p->name, $allowed))continue;
+                                        $sel = '';
+                                        if(!empty($e_role_id)){
+                                            if($e_role_id == $p->id){
+                                                $sel = 'selected';
+                                            }
+                                        }
+                                        echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name).'</option>';
+                                    }
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+                                
             <div class="col-sm-12 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Address');?></label>
