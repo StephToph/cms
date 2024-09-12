@@ -81,6 +81,13 @@ $this->Crud = new Crud();
                     <input class="form-control" type="text" id="location" name="location" value="<?php if(!empty($e_location)) {echo $e_location;} ?>" required>
                 </div>
             </div>
+
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Phone'); ?></label>
+                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>">
+                </div>
+            </div>
             
         </div>
         <div  id="containers">
@@ -145,40 +152,12 @@ $this->Crud = new Crud();
             <?php } ?>
         </div>
         <div class="col-sm-12 mb-3 text-center">
-            <button id="addMores" class="btn btn-ico btn-outline-info" type="button"><i class="icon ni ni-plus-c"></i>  <?=translate_phrase('Add More Days');?></button>
+            <button id="addMores" class="btn btn-ico btn-outline-info" type="button"><i class="icon ni ni-plus-c"></i>  <span><?=translate_phrase('Add More Days');?></span></button>
         </div>
 
-        <label for="name">*<?=translate_phrase('Cell Role');?></label>
-        <div class="row" id="container">
-            <?php if(!empty($e_roles)){$a = 0;
-                foreach($e_roles as $k => $val){
-                    $r_val = 'style="display:none;"';$req = 'required';
-                    if($a > 0){
-                        $r_val = 'style="display:display;"';$req = '';
-                    }
-                    ?>
-                <div class="col-sm-12 mb-3 ">
-                    <div class="form-group input-group">
-                        <input class="form-control" type="text" id="role" placeholder="Enter Cell Roles" name="roles[]" value="<?php if(!empty($val)) {echo $val;} ?>" <?=$req; ?>>
-                        <button <?=$r_val; ?>  class="btn btn-icon btn-outline-danger deleteBtn" type="button"><i class="icon ni ni-trash"></i> </button>
-                    </div>
-                    
-                </div>
-           <?php $a++; }} else {?>
-                <div class="col-sm-12 mb-3 ">
-                    <div class="form-group input-group">
-                        <input class="form-control" type="text" id="role" placeholder="Enter Cell Roles" name="roles[]" value="<?php if(!empty($val)) {echo $val;} ?>" required>
-                        <button style="display:none;" class="btn btn-icon btn-outline-danger deleteBtn" type="button"><i class="icon ni ni-trash"></i> </button>
-                    </div>
-                    
-                </div>
-           <?php }?>
-        </div>
 
         <div class="row" >
-            <div class="col-sm-12 mb-3 text-center">
-                <button id="addMore" class="btn btn-ico btn-outline-primary" type="button"><i class="icon ni ni-plus"></i> <?=translate_phrase('Add More Roles');?></button>
-            </div>
+            
             <div class="col-sm-12 text-center mt-3">
                 <button class="btn btn-primary bb_fo_btn" type="submit">
                     <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>

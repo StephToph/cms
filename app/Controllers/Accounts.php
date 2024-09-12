@@ -1250,7 +1250,7 @@ class Accounts extends BaseController {
 								$data['e_id'] = $e->id;
 								$data['e_location'] = $e->location;
 								$data['e_name'] = $e->name;
-								$data['e_roles'] = json_decode($e->roles);
+								$data['e_phone'] = $e->phone;
 								$data['e_time'] = json_decode($e->time);
 							}
 						}
@@ -1260,7 +1260,7 @@ class Accounts extends BaseController {
 				if($this->request->getMethod() == 'post'){
 					$cell_id = $this->request->getVar('cell_id');
 					$name = $this->request->getVar('name');
-					$roles = $this->request->getVar('roles');
+					$phone = $this->request->getVar('phone');
 					$location = $this->request->getVar('location');
 					$times = $this->request->getVar('times');
 					$days = $this->request->getVar('days');
@@ -1271,12 +1271,16 @@ class Accounts extends BaseController {
 						// echo $day;
 						$time[$day] = $times[$i];
 					}
-					// print_r($time);
-					// print_r($days);
-					// die;
+					
+					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					
+
 					$ins_data['name'] = $name;
-					$ins_data['roles'] = json_encode($roles);
 					$ins_data['location'] = $location;
+					$ins_data['phone'] = $phone;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
 					$ins_data['time'] = json_encode($time);
 					
 					// do create or update
@@ -1335,7 +1339,7 @@ class Accounts extends BaseController {
 				<div class="nk-tb-item nk-tb-head">
 					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Name').'</span></div>
 					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.translate_phrase('Location').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Role(s)').'</span></div>
+					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Phone').'</span></div>
 					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('Day/Time').'</span></div>
 					<div class="nk-tb-col nk-tb-col-tools">
 						<ul class="nk-tb-actions gx-1 my-n1">
@@ -1368,14 +1372,8 @@ class Accounts extends BaseController {
 						$name = $q->name;
 						$location = $q->location;
 						$time = $q->time;
-						$roles = $q->roles;
-						$rolesa = json_decode($roles);
-						$rols = '';
-						if(!empty($rolesa)){
-							foreach($rolesa as $r => $val){
-								$rols .= $val.', ';
-							}
-						}
+						$phone = $q->phone;
+						
 
 						$times = '<span class="text-danger">No Meeting Time</span>';
 						if(!empty($time)){
@@ -1404,7 +1402,7 @@ class Accounts extends BaseController {
 									<span class="text-dark">' . ucwords($location) . '</span>
 								</div>
 								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><b>' . ucwords(rtrim($rols, ', ')) . '</b></span>
+									<span class="text-dark"><b>' . ucwords($phone) . '</b></span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
 									<span class="text-dark">' . ($times) . '</span>
