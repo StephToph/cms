@@ -36,7 +36,7 @@
                                     $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 
                                     if ($ministry_id > 0) { ?>
-                                        <input type="hidden" name="ministry_id" value="<?php echo $ministry_id; ?>">
+                                        <input type="hidden" name="ministry_id"  id="ministry_id"  value="<?php echo $ministry_id; ?>">
                                         <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
                                 <?php } else { ?>
                                     <div class="col-md-6 col-lg-4 col-xxl-3 ">

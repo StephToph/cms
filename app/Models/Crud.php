@@ -3454,7 +3454,7 @@ class Crud extends Model {
 
 		$data = [];
 		$status = false;
-		for ($row = 2; $row <= $highestRow; ++$row) {
+		for ($row = 1; $row <= $highestRow; ++$row) {
 			
 			$firstname = $sheet->getCellByColumnAndRow(1, $row)->getValue();
 			$othername = $sheet->getCellByColumnAndRow(2, $row)->getValue();
@@ -3474,11 +3474,13 @@ class Crud extends Model {
 			$employer_address = $sheet->getCellByColumnAndRow(16, $row)->getValue();
 			// echo $firstname.' '.$othername.'<br>';
 
-			if (strtolower($firstname) == 'firstname' && strtolower($othername) == 'othername' && strtolower($surname) == 'surname' && strtolower($email) == 'email' && strtolower($phone) == 'phone' && strtolower($address) == 'address' && strtolower($marital_status) == 'marital_status') {
+			if($row == 1){
+				if (strtolower($firstname) == 'firstname' && strtolower($othername) == 'othername' && strtolower($surname) == 'surname' && strtolower($email) == 'email' && strtolower($phone) == 'phone' && strtolower($address) == 'address' && strtolower($marital_status) == 'marital-status'&& strtolower($marriage_anniversary) == 'marriage-anniversary'&& strtolower($title) == 'title'&& strtolower($gender) == 'gender'&& strtolower($chat_handle) == 'chat-handle'&& strtolower($job) == 'job'&& strtolower($foundation_school) == 'foundation-school'&& strtolower($baptism) == 'baptism'&& strtolower($employer_address) == 'employer-address'&& strtolower($dobCellValue) == 'dob') {
 
-				// echo $state.' '.$email.' '.$sub_sub_cate.' '.$phone.'<br>';
-				$status = true;
-				continue;
+					// echo $state.' '.$email.' '.$sub_sub_cate.' '.$phone.'<br>';
+					$status = true;
+					continue;
+				}
 			}
 
 			$dobFormatted = $this->convertExcelDate($dobCellValue);
