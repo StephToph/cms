@@ -1656,10 +1656,10 @@ class Crud extends Model {
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
 		if($role != 'developer' && $role != 'administrator'){
 			$builder->where('ministry_id', $ministry_id);
-			$builder->orWhere('church_id', $church_id);
+			$builder->where('church_id', $church_id);
 		} 
 		$builder->where('role_id', $role_id);
-		$builder->orWhere('is_member', 1);
+		$builder->where('is_member', 1);
         if(!empty($search)) {
             $builder->groupStart()
 				->like('surname', $search)

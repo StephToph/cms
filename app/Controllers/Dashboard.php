@@ -319,14 +319,14 @@ class Dashboard extends BaseController {
 			$start_date = date('Y-m-01');
 			$end_date = date('Y-m-d');
 		}
-        
+        $membership = $this->Crud->filter_members($log_id, $start_date, $end_date);
+            
         if($role == 'developer' || $role == 'administrator'){
             $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
             $cells = $this->Crud->read('cells');
              $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
             $member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
             
-            $membership = $this->Crud->filter_members($log_id, $start_date, $end_date);
              $partnership = 0;
             if(!empty($partners)){
                 foreach($partners as $u){
