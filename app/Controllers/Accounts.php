@@ -1299,7 +1299,7 @@ class Accounts extends BaseController {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
 					} else {
-						if($this->Crud->check('name', $name, $table) > 0) {
+						if($this->Crud->check2('name', $name, 'church_id', $church_id, $table) > 0) {
 							echo $this->Crud->msg('warning', 'Record Already Exist');
 						} else {
 							$ins_rec = $this->Crud->create($table, $ins_data);
