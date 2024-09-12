@@ -1251,6 +1251,9 @@ class Accounts extends BaseController {
 								$data['e_location'] = $e->location;
 								$data['e_name'] = $e->name;
 								$data['e_phone'] = $e->phone;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 								$data['e_time'] = json_decode($e->time);
 							}
 						}
@@ -1264,6 +1267,8 @@ class Accounts extends BaseController {
 					$location = $this->request->getVar('location');
 					$times = $this->request->getVar('times');
 					$days = $this->request->getVar('days');
+					$church_id = $this->request->getVar('church_id');
+					$ministry_id = $this->request->getVar('ministry_id');
 					
 					$time = [];
 					for($i=0;$i < count($days);$i++ ){
@@ -1272,8 +1277,8 @@ class Accounts extends BaseController {
 						$time[$day] = $times[$i];
 					}
 					
-					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					// $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+					// $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 					
 
 					$ins_data['name'] = $name;
@@ -1373,7 +1378,8 @@ class Accounts extends BaseController {
 						$location = $q->location;
 						$time = $q->time;
 						$phone = $q->phone;
-						
+						$church_id = $q->church_id;
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 
 						$times = '<span class="text-danger">No Meeting Time</span>';
 						if(!empty($time)){
@@ -1386,6 +1392,7 @@ class Accounts extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_leadership(\'' . addslashes(ucwords($name)) . ' Cell\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leadership').'</span></a></li>
 								
 								
 							';
@@ -1396,6 +1403,7 @@ class Accounts extends BaseController {
 								<div class="nk-tb-col">
 									<div class="user-info">
 										<span class="tb-lead">' . ucwords($name) . ' </span>
+										<span class="tb-dark text-dark">&rarr; ' . ucwords($church) . ' </span>
 									</div>
 								</div>
 								<div class="nk-tb-col tb-col-md">
