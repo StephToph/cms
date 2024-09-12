@@ -1628,6 +1628,7 @@ class Crud extends Model {
 			$builder->where('church_id', $church_id);
 		} 
 		$builder->where('role_id', $role_id);
+		$builder->orWhere('is_member', 1);
         if(!empty($search)) {
             $builder->groupStart()
 				->like('surname', $search)
@@ -1748,6 +1749,32 @@ class Crud extends Model {
 	public function filter_dept($limit='', $offset='', $search='') {
         $db = db_connect();
         $builder = $db->table('dept');
+
+        // build query
+		$builder->orderBy('id', 'asc');
+		
+        if(!empty($search)) {
+            $builder->like('name', $search);
+        }
+
+		
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+	
+	public function filter_cell_role($limit='', $offset='', $search='') {
+        $db = db_connect();
+        $builder = $db->table('cell_role');
 
         // build query
 		$builder->orderBy('id', 'asc');
@@ -3427,7 +3454,7 @@ class Crud extends Model {
 
 		$data = [];
 		$status = false;
-		for ($row = 2; $row <= $highestRow; ++$row) {
+		for ($row = 1; $row <= $highestRow; ++$row) {
 			
 			$firstname = $sheet->getCellByColumnAndRow(1, $row)->getValue();
 			$othername = $sheet->getCellByColumnAndRow(2, $row)->getValue();
@@ -3447,27 +3474,38 @@ class Crud extends Model {
 			$employer_address = $sheet->getCellByColumnAndRow(16, $row)->getValue();
 			// echo $firstname.' '.$othername.'<br>';
 
-			$dobFormatted = $this->convertExcelDate($dobCellValue);
+			if($row == 1){
+				if (strtolower($firstname) == 'firstname' && strtolower($othername) == 'othername' && strtolower($surname) == 'surname' && strtolower($email) == 'email' && strtolower($phone) == 'phone' && strtolower($address) == 'address' && strtolower($marital_status) == 'marital-status'&& strtolower($marriage_anniversary) == 'marriage-anniversary'&& strtolower($title) == 'title'&& strtolower($gender) == 'gender'&& strtolower($chat_handle) == 'chat-handle'&& strtolower($job) == 'job'&& strtolower($foundation_school) == 'foundation-school'&& strtolower($baptism) == 'baptism'&& strtolower($employer_address) == 'employer-address'&& strtolower($dobCellValue) == 'dob') {
 
-			// Add the data to the array
-			$data[] = [
-				'firstname' => $firstname,
-				'othername' => $othername,
-				'surname' => $surname,
-				'email' => $email,
-				'phone' => $phone,
-				'address' => $address,
-				'dob' => $dobFormatted,
-				'marital_status' => $marital_status,
-				'marriage_anniversary' => $this->convertExcelDate($marriage_anniversary),
-				'title' => $title,
-				'gender' => $gender,
-				'chat_handle' => $chat_handle,
-				'job' => $job,
-				'foundation_school' => $foundation_school,
-				'baptism' => $baptism,
-				'employer_address' => $employer_address,
-			];
+					// echo $state.' '.$email.' '.$sub_sub_cate.' '.$phone.'<br>';
+					$status = true;
+					continue;
+				}
+			}
+
+			$dobFormatted = $this->convertExcelDate($dobCellValue);
+			
+			if ($status == true) {
+				// Add the data to the array
+				$data[] = [
+					'firstname' => $firstname,
+					'othername' => $othername,
+					'surname' => $surname,
+					'email' => $email,
+					'phone' => $phone,
+					'address' => $address,
+					'dob' => $dobFormatted,
+					'marital_status' => $marital_status,
+					'marriage_anniversary' => $this->convertExcelDate($marriage_anniversary),
+					'title' => $title,
+					'gender' => $gender,
+					'chat_handle' => $chat_handle,
+					'job' => $job,
+					'foundation_school' => $foundation_school,
+					'baptism' => $baptism,
+					'employer_address' => $employer_address,
+				];
+			}
 		
 		}
 

@@ -340,6 +340,309 @@ class Accounts extends BaseController {
 		}
 	}
 
+	/////// ADMINISTRATORS
+	public function leadership($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'accounts/leadership';
+
+        $log_id = $this->session->get('td_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+        $data['current_language'] = $this->session->get('current_language');
+		$table = 'user';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+		
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($_POST){
+						$del_id = $this->request->getPost('d_user_id');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'fullname');
+						if($this->Crud->delete('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+							$action = $by.' deleted Administrator ('.$code.')';
+							$this->Crud->activity('user', $del_id, $action);
+
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fullname'] = $e->fullname;
+								$data['e_phone'] = $e->phone;
+								$data['e_state_id'] = $e->state_id;
+								$data['e_lga_id'] = $e->lga_id;
+								$data['e_email'] = $e->email;
+								$data['e_role_id'] = $e->role_id;
+							}
+						}
+					}
+				} 
+				
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getPost('user_id');
+					$fullname = $this->request->getPost('name');
+					$phone = $this->request->getPost('phone');
+					$email = $this->request->getPost('email');
+					$state_id = $this->request->getPost('state_id');
+					$lga_id = $this->request->getPost('lga_id');
+					$urole_id = $this->request->getPost('role_id');
+					$password = $this->request->getPost('password');
+
+					$ins_data['fullname'] = $fullname;
+					$ins_data['email'] = $email;
+					$ins_data['phone'] = $phone;
+					$ins_data['country_id'] = 161;
+					$ins_data['state_id'] = 316;
+					$ins_data['lga_id'] = $lga_id;
+					$ins_data['role_id'] = $urole_id;
+					if($password) { $ins_data['password'] = md5($password); }
+					
+					// do create or update
+					if($user_id) {
+						$upd_rec = $this->Crud->updates('id', $user_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Updated'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+							$code = $this->Crud->read_field('id', $user_id, 'user', 'fullname');
+							$action = $by.' updated Administrator ('.$code.') Record';
+							$this->Crud->activity('user', $user_id, $action);
+
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', translate_phrase('No Changes'));	
+						}
+					} else {
+						if($this->Crud->check('email', $email, $table) > 0 || $this->Crud->check('phone', $phone, $table) > 0) {
+							echo $this->Crud->msg('warning', translate_phrase('Email and/or Phone Already Exist'));
+						} else {
+							$ins_data['activate'] = 1;
+							$ins_data['is_staff'] = 1;
+							$ins_data['reg_date'] = date(fdate);
+
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Record Created'));
+
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'user', 'fullname');
+								$action = $by.' created Administrator ('.$code.')';
+								$this->Crud->activity('user', $user_id, $action);
+
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+							}	
+						}
+					}
+					exit;	
+				}
+			}
+		}
+		
+
+		// record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			if(!empty($this->request->getVar('start_date'))){$start_date = $this->request->getVar('start_date');}else{$start_date = '';}
+			if(!empty($this->request->getVar('end_date'))){$end_date = $this->request->getVar('end_date');}else{$end_date = '';}
+
+			if(!empty($this->request->getPost('role_id'))) { $role_id = $this->request->getPost('role_id'); } else { $role_id = ''; }
+			if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
+			$search = $this->request->getPost('search');
+
+			if(empty($ref_status))$ref_status = 0;
+			$items = '
+				
+		
+				
+			';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
+
+				$all_rec = $this->Crud->filter_admins('', '', $log_id, $status, $search, $start_date, $end_date);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_admins($limit, $offset, $log_id, $status, $search, $start_date, $end_date);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$fullname = $q->fullname;
+						$email = $q->email;
+						$phone = $q->phone;
+						$address = $q->address;
+						$city = $this->Crud->read_field('id', $q->lga_id, 'city', 'name');
+						$country = $this->Crud->read_field('id', $q->country_id, 'country', 'name');
+						$img = $this->Crud->image($q->img_id, 'big');
+						$activate = $q->activate;
+						$u_role = $this->Crud->read_field('id', $q->role_id, 'access_role', 'name');
+						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
+
+						$referral = '';
+						
+						$approved = '';
+						if ($activate == 1) {
+							$a_color = 'success';
+							$approve_text = 'Account Activated';
+							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> ';
+						} else {
+							$a_color = 'danger';
+							$approve_text = 'Account Deactivated';
+							$approved = '<span class="text-danger"><i class="ri-check-circle-line"></i></span> ';
+						}
+
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							$all_btn = '
+								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $fullname . '" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								
+								
+							';
+						}
+
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-avatar ">
+											<img alt="" src="' . site_url($img) . '" height="40px"/>
+										</div>
+										<div class="user-info">
+											<span class="tb-lead">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<br>
+											<span></span>
+										</div>
+									</div>
+								</td>
+								<td><span class="tb-lead small"><span>' . $email . '</span></span> </td>
+								<td><span class="tb-lead small">' . $u_role . '</span></td>
+								<td><span class="tb-lead small">'.$phone.'</span></td>
+								<td><span class="tb-lead small">' . $all_btn . '</span></td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<tr><td colspan="8">
+					<div class="text-center text-muted col-sm-12">
+						<br/><br/>
+						<i class="icon ni ni-users " style="font-size:120px;"></i><br/>No Leadership Returned
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('Leadership').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+	}
+
 	//Customer
 	public function dept($param1='', $param2='', $param3='') {
 		// check session login
@@ -607,6 +910,262 @@ class Accounts extends BaseController {
 		} else { // view for main page
 			
 			$data['title'] = translate_phrase('Departments').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+    }
+
+	//Customer
+	public function cell_role($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'accounts/cell_role';
+
+        $log_id = $this->session->get('td_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+		
+		$table = 'cell_role';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+        $data['current_language'] = $this->session->get('current_language');
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$del_id = $this->request->getVar('d_dept_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'cell_role', 'name');
+						$action = $by.' deleted Cell Role ('.$code.') Record';
+
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							
+							$this->Crud->activity('user', $del_id, $action);
+							echo $this->Crud->msg('success', 'Cell Role Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_name'] = $e->name;
+							}
+						}
+					}
+				} 
+
+				if($this->request->getMethod() == 'post'){
+					$dept_id = $this->request->getVar('dept_id');
+					$name = $this->request->getVar('name');
+
+					$ins_data['name'] = $name;
+					
+					if($dept_id) {
+						$upd_rec = $this->Crud->updates('id', $dept_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $dept_id, 'cell_role', 'name');
+							$action = $by.' updated Cell Role ('.$code.') Record';
+							$this->Crud->activity('user', $dept_id, $action);
+
+							echo $this->Crud->msg('success', 'Cell Role Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+					} else {
+						if($this->Crud->check('name', $name, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Record Already Exist');
+						} else {
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'cell_role', 'name');
+								$action = $by.' created Cell Role ('.$code.') Record';
+								$this->Crud->activity('user', $ins_rec, $action);
+
+								echo $this->Crud->msg('success', 'Cell Role Created');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');	
+							}	
+						}
+					}
+
+					die;	
+				}
+			}
+		}
+
+        // record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$search = $this->request->getPost('search');
+			
+			$items = '
+				<div class="nk-tb-item nk-tb-head">
+					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
+					<div class="nk-tb-col nk-tb-col-tools">
+						<ul class="nk-tb-actions gx-1 my-n1">
+							
+						</ul>
+					</div>
+				</div><!-- .nk-tb-item -->
+		
+				
+			';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				
+				$all_rec = $this->Crud->filter_cell_role('', '', '', $log_id, $search);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_cell_role($limit, $offset, '', $log_id, $search);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$name = $q->name;
+						
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								
+								
+							';
+						}
+
+						$item .= '
+							<div class="nk-tb-item">
+								<div class="nk-tb-col">
+									<div class="user-info">
+										<span class="tb-lead">' . ucwords($name) . ' </span>
+									</div>
+								</div>
+								<div class="nk-tb-col nk-tb-col-tools">
+									<ul class="nk-tb-actions gx-1">
+										<li>
+											<div class="drodown">
+												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+												<div class="dropdown-menu dropdown-menu-end">
+													<ul class="link-list-opt no-bdr">
+														' . $all_btn . '
+													</ul>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</div>
+							</div><!-- .nk-tb-item -->
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-building" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Cell Role Returned').'
+					</div>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('Cell Roles').' - '.app_name;
 			$data['page_active'] = $mod;
 			return view($mod, $data);
 		}
@@ -2596,6 +3155,9 @@ class Accounts extends BaseController {
 								$data['e_dept_id'] = $e->dept_id;
 								$data['e_dept_role'] = $e->dept_role;
 								$data['e_parent_id'] = $e->parent_id;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+								$data['e_church_id'] = $e->church_id;
 								
 							}
 						}
@@ -2627,6 +3189,8 @@ class Accounts extends BaseController {
 					$employer_address = $this->request->getVar('employer_address');
 					$baptism = $this->request->getVar('baptism');
 					$foundation_school = $this->request->getVar('foundation_school');
+					$ministry_id = $this->request->getVar('ministry_id');
+					$church_id = $this->request->getVar('church_id');
 					
 					// echo $baptism;
 					// die;
@@ -2650,10 +3214,46 @@ class Accounts extends BaseController {
 					$ins_data['parent_id'] = $parent_id;
 					$ins_data['dept_id'] = $dept_id;
 					$ins_data['dept_role'] = $dept_role_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
 					$ins_data['cell_id'] = $cell_id;
 					$ins_data['cell_role'] = $cell_role_id;
+					$ins_data['is_member'] = 1;
 					if($password) { $ins_data['password'] = md5($password); }
-					
+					$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+					$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+					$cell_role = $this->Crud->read_field('id', $cell_role_id, 'access_role', 'name');
+					if($cell_role == 'Cell Leader' || $cell_role == 'Assistant Cell Leader'){
+						$role_id = $cell_role_id;
+						$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+						if(!empty($cells)){
+							foreach($cells as $cm){
+								if($cm->cell_role == $cell_role_id){
+									$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+								}
+							}
+						}
+					}
+					if($cell_role == 'Cell Executive'){
+						$role_id = $cell_role_id;
+						$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+						if(!empty($cells)){
+							$a = 0;
+							foreach($cells as $cm){
+								if($cm->cell_role == $cell_role_id){
+									$a++;
+									if($a > 5){
+										$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+									}
+									
+								}
+
+							}
+						}
+					}
+					$ins_data['role_id'] = $role_id;
+						
 					// do create or update
 					if($membership_id) {
 						$upd_rec = $this->Crud->updates('id', $membership_id, $table, $ins_data);
@@ -2670,8 +3270,6 @@ class Accounts extends BaseController {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
 					} else {
-						$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-						$ins_data['role_id'] = $role_id;
 						$ins_data['activate'] = 1;
 						$ins_data['reg_date'] = date(fdate);
 						$ins_rec = $this->Crud->create($table, $ins_data);
