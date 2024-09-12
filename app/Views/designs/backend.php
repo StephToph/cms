@@ -403,6 +403,7 @@
     <script src="<?=site_url(); ?>assets/js/scriptse5ca.js"></script>
     
     <script>
+      
          var site_url = '<?=site_url(); ?>';
         function lang_session(lang_id){
             if(lang_id !== ''){
