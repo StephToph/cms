@@ -2395,6 +2395,39 @@ class Crud extends Model {
     }
 
 
+
+	public function filter_cell_members($limit='', $offset='',$log_id, $status='all', $search='', $cell_id) {
+        $db = db_connect();
+        $builder = $db->table('user');
+		$builder->where('cell_id', $cell_id);
+        
+        // build query
+		$builder->orderBy('id', 'DESC');
+		if(!empty($search)) {
+            $builder->groupStart()
+				->like('surname', $search)
+				->orLike('email', $search)
+				->orLike('firstname', $search)
+				->orLike('othername', $search)
+				->orLike('phone', $search)
+				->groupEnd();
+        }
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
+
 	public function filter_church_pastor($limit='', $offset='',$log_id, $status='all', $search='', $role_id) {
         $db = db_connect();
         $builder = $db->table('user');

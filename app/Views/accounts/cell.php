@@ -99,9 +99,9 @@
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Add Pastor" pageTitle="Add Pastor"
+                                                    title="Add Member" pageTitle="Add Member"
                                                     class="btn btn-outline-primary btn-icon pop"
-                                                    pageName="<?= site_url('church/pastor/manage'); ?>"><em
+                                                    pageName="<?= site_url('accounts/cell/manage_member'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
 
@@ -114,7 +114,7 @@
                                             <a href="#" class="search-back btn btn-icon toggle-search"
                                                 data-target="search"><em class="icon ni ni-arrow-left"></em></a>
                                             <input type="text" class="form-control border-transparent form-focus-none"
-                                                placeholder="Search by name" id="pastor_search">
+                                                placeholder="Search by name" id="leadership_search">
                                         </div>
                                     </div>
                                 </div><!-- .card-search -->
@@ -133,8 +133,8 @@
                                                 <th></th>
                                             </tr>
                                         </thead>
-                                        <tbody id="load_pastor"></tbody>
-                                        <tfoot id="pastor_more"></tfoot>
+                                        <tbody id="load_leadership"></tbody>
+                                        <tfoot id="leadership_more"></tfoot>
                                     </table>
                                 </div>
                             </div><!-- .card-inner -->
@@ -161,7 +161,7 @@
 
     }
     function church_leadership(page, id) {
-        $('#leadership_title').html(page + "`s Leadership");
+        $('#leadership_title').html(page + "`s Members");
         $('#cell_resp').hide(500);
         $('#leadership_resp').show(500);
 
@@ -183,31 +183,31 @@
         }
 
         if (more == 'no') {
-            $('#load_pastor').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
+            $('#load_leadership').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         } else {
-            $('#pastor_more').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
+            $('#leadership_more').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
 
 
-        var search = $('#pastor_search').val();
+        var search = $('#leadership_search').val();
         //alert(status);
 
         $.ajax({
-            url: site_url + 'church/pastor/load' + methods,
+            url: site_url + 'accounts/cell/leadership_load' + methods,
             type: 'post',
             data: { search: search, id: id },
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
-                    $('#load_pastor').html(dt.item);
+                    $('#load_leadership').html(dt.item);
                 } else {
-                    $('#load_pastor').append(dt.item);
+                    $('#load_leadership').append(dt.item);
                 }
-                $('#pastor_counta').html(dt.count);
+                $('#leadership_counta').html(dt.count);
                 if (dt.offset > 0) {
-                    $('#pastor_more').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load_admin(' + dt.limit + ', ' + dt.offset + ', '+id+');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
+                    $('#leadership_more').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load_admin(' + dt.limit + ', ' + dt.offset + ', '+id+');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
                 } else {
-                    $('#pastor_more').html('');
+                    $('#leadership_more').html('');
                 }
             },
             complete: function () {

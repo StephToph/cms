@@ -1392,7 +1392,7 @@ class Accounts extends BaseController {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" onclick="church_leadership(\'' . addslashes(ucwords($name)) . ' Cell\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leadership').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_leadership(\'' . addslashes(ucwords($name)) . ' Cell\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Members').'</span></a></li>
 								
 								
 							';
@@ -1468,10 +1468,158 @@ class Accounts extends BaseController {
 			echo json_encode($resp);
 			die;
 		}
+		
+
+		// record listing
+		if($param1 == 'leadership_load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			
+			if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
+			$search = $this->request->getPost('search');
+			$church_id = $this->request->getPost('id');
+			$this->session->set('church_id', $church_id);
+			$this->session->set('cell_id', $church_id);
+			
+			if(empty($ref_status))$ref_status = 0;
+			$items = '
+					
+			';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$role_ids = $this->Crud->read_field('name', 'Pastor', 'access_role', 'id');
+
+				$all_rec = $this->Crud->filter_cell_members('', '', $log_id, $status, $search, $church_id);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_cell_members($limit, $offset, $log_id, $status, $search, $church_id);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$fullname = $q->firstname.' '.$q->surname;
+						$email = $q->email;
+						$phone = $q->phone;
+						$address = $q->address;
+						$img = $this->Crud->image($q->img_id, 'big');
+						$activate = $q->activate;
+						$u_role = $this->Crud->read_field('id', $q->role_id, 'access_role', 'name');
+						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
+
+						$referral = '';
+						
+						$approved = '';
+						if ($activate == 1) {
+							$a_color = 'success';
+							$approve_text = 'Account Activated';
+							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> ';
+						} else {
+							$a_color = 'danger';
+							$approve_text = 'Account Deactivated';
+							$approved = '<span class="text-danger"><i class="ri-check-circle-line"></i></span> ';
+						}
+
+						// add manage buttons
+						
+							$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								
+							';
+						
+
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-avatar ">
+											<img alt="" src="' . site_url($img) . '" height="40px"/>
+										</div>
+										<div class="user-info">
+											<span class="tb-lead small">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<br>
+											
+										</div>
+									</div>
+								</td>
+								<td><span class=" small">' . $email . '</span></td>
+								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
+								<td><span class=" small">' . $u_role . '</span></td>
+								<td><span class=" small">' . ucwords($address) . '</span></td>
+								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
+								<td>
+									<ul class="nk-tb-actions gx-1">
+										<li>
+											<div class="drodown">
+												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+												<div class="dropdown-menu dropdown-menu-end">
+													<ul class="link-list-opt no-bdr">
+														' . $all_btn . '
+													</ul>
+												</div>
+											</div>
+										</li>
+									</ul>
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-users" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Cell Member Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
 
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
-		} else { // view for main page
+		} elseif($param1 == 'manage_member'){ 
+			return view($mod.'_form', $data);
+		}else { // view for main page
 			
 			$data['title'] = translate_phrase('Cells').' - '.app_name;
 			$data['page_active'] = $mod;
