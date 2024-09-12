@@ -1611,6 +1611,37 @@ class Crud extends Model {
 	}
 
     /// filter user
+    public function filter_members($log_id, $start_date='', $end_date='') {
+        $db = db_connect();
+        $builder = $db->table('user');
+
+        // build query
+		$builder->orderBy('id', 'DESC');
+		
+		$role_id = $this->read_field('name', 'Member', 'access_role', 'id');
+		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			$builder->where('ministry_id', $ministry_id);
+			$builder->orWhere('church_id', $church_id);
+		} 
+		$builder->where('role_id', $role_id);
+		$builder->orWhere('is_member', 1);
+        
+
+		if(!empty($start_date) && !empty($end_date)){
+			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') >= '".$start_date."'",NULL,FALSE);
+			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') <= '".$end_date."'",NULL,FALSE); 
+		}
+        
+		
+		
+        return $builder->countAllResults();
+        $db->close();
+    }
+
     public function filter_membership($limit='', $offset='', $log_id, $search='') {
         $db = db_connect();
         $builder = $db->table('user');
