@@ -2011,18 +2011,25 @@ class Crud extends Model {
     }
 
 	
-	public function filter_cell($limit='', $offset='', $search='') {
+	public function filter_cell($limit='', $offset='', $search='', $log_id) {
         $db = db_connect();
         $builder = $db->table('cells');
 
         // build query
 		$builder->orderBy('id', 'asc');
-		
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			$builder->where('church_id', $ministry_id);
+		} 
         if(!empty($search)) {
-            $builder->like('name', $search);
-            $builder->orLike('location', $search, 'both');
+            $builder->groupStart()
+				->like('name', $search)
+				->orLike('locarion', $search)
+				->orLike('phone', $search)
+				->groupEnd();
         }
-
 		
         // limit query
         if($limit && $offset) {
