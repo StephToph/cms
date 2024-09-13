@@ -291,6 +291,7 @@ class Dashboard extends BaseController {
         $new_convert = 0;
         $partnership_part = 0;
         $offering = 0;
+        $cell_offering = 0;
         $partnership_list = '';
         $cell_data = '';
         $date_type = $this->request->getPost('date_type');
@@ -320,191 +321,194 @@ class Dashboard extends BaseController {
 			$end_date = date('Y-m-d');
 		}
         $membership = $this->Crud->filter_members($log_id, $start_date, $end_date);
-            
+        $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        
         if($role == 'developer' || $role == 'administrator'){
-            $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
-            $cells = $this->Crud->read('cells');
-             $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
-            $member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
             
-             $partnership = 0;
-            if(!empty($partners)){
-                foreach($partners as $u){
-                    $partnership += (float)$u->amount_paid;
-                }
-                $partnership_part = count($partners);
+            $cells = $this->Crud->read('cells');
+        } else {
+            if($ministry_id > 0 && $church_id <= 0){
+                
+                $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells');
+            } else {
+                $cells = $this->Crud->read_single('church_id', $church_id,'cells');
             }
+        }
 
-            if(!empty($cells)){
+        $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+           
+            $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+        $member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+        
+        $partnership = 0;
+        if(!empty($partners)){
+            foreach($partners as $u){
+                $partnership += (float)$u->amount_paid;
+            }
+            $partnership_part = count($partners);
+        }
+
+        if(!empty($cells)){
+            $cell_data .= '
+                    <div class="nk-tb-item nk-tb-head">
+                    <div class="nk-tb-col nk-tb-channel"><span>Cell</span></div>
+                    <div class="nk-tb-col nk-tb-channel"><span>Date</span></div>
+                        <div class="nk-tb-col nk-tb-sessions"><span>ATT</span>
+                        </div>
+                        <div class="nk-tb-col nk-tb-prev-sessions"><span>N.C</span></div>
+                        <div class="nk-tb-col nk-tb-change"><span>F.T</span></div>
+                        
+                    </div>
+            ';
+            foreach($cells as $u){
+                $c_id = $u->id;
+                if($role == 'cell leader' || $role == 'assistant cell leader' || $role == 'cell executive'){
+                    $c_id = $celss;
+                }
+                $cell_report = $this->Crud->read_single_order('cell_id', $c_id, 'cell_report', 'id', 'asc');
+                $date = '-';
+                $attendance = 0;$attends = 0;
+                $new_convert = 0;$converts = 0;
+                $first_timer = 0;
+                $cell_offering = 0;
+                
+                $timers = 0;
+                $ca = count($cell_report);$ca--;
+                $i = 1;
+
+                $attend_stat = ''; $convert_stat = ''; $timer_stat = '';
+                if(!empty($cell_report)){
+                    foreach($cell_report as $cs){
+                        if($i == $ca){
+                            $attendances = $cs->attendance;
+                            $new_converts = $cs->new_convert;
+                            $first_timers = $cs->first_timer;
+                        }
+                        $cell_offering += (float)$cs->offering;
+
+                        $i++;
+                    }
+                    
+                    $date = $cs->date;
+                    $attendance = $cs->attendance;
+                    $new_convert = $cs->new_convert;
+                    $first_timer = $cs->first_timer;
+                    $date = date('d F Y', strtotime($date));
+
+                    if(count($cell_report) >=2){
+                        if($attendances > 0){
+                            $attend = ((int)$attendance - (int)$attendances)/(int)$attendances;
+                            $attends = $attend * 100;
+                            if($attends > 0){
+                                $attend_stat = '<span class="change up"><em class="icon ni ni-arrow-long-up"></em></span>';
+                            } else {
+                                $attend_stat = '<span class="change down"><em class="icon ni ni-arrow-long-down"></em></span>';
+                            }
+                        }
+
+                        if($new_converts > 0){
+                            $convert = ((int)$new_convert - (int)$new_converts)/(int)$new_converts;
+                            $converts = $convert * 100;
+                            if($converts > 0){
+                                $convert_stat = '<span class="change up"><em class="icon ni ni-arrow-long-up"></em></span>';
+                            } else {
+                                $convert_stat = '<span class="change down"><em class="icon ni ni-arrow-long-down"></em></span>';
+                            }
+                        }
+
+                        if($first_timers > 0){
+                            $timer = ((int)$first_timer - (int)$first_timers)/(int)$first_timers;
+                            $timers = $timer * 100;
+                            if($timers > 0){
+                                $timer_stat = '<span class="change up"><em class="icon ni ni-arrow-long-up"></em></span>';
+                            } else {
+                                $timer_stat = '<span class="change down"><em class="icon ni ni-arrow-long-down"></em></span>';
+                            }
+                        }
+                    }
+
+                }
+                
                 $cell_data .= '
-                        <div class="nk-tb-item nk-tb-head">
-                        <div class="nk-tb-col nk-tb-channel"><span>Cell</span></div>
-                        <div class="nk-tb-col nk-tb-channel"><span>Date</span></div>
-                            <div class="nk-tb-col nk-tb-sessions"><span>ATT</span>
+                    
+                        <div class="nk-tb-item">
+                            <div class="nk-tb-col nk-tb-channel"><span class="tb-lead">'.ucwords($u->name).'</span></div>
+                            <div class="nk-tb-col nk-tb-channel"><span class="tb-lead">'.$date.'</span></div>
+                            <div class="nk-tb-col nk-tb-sessions"><span class="tb-sub tb-amount"><span>'.number_format((int)$attendance).'</span>'.$attend_stat.'</span></div>
+                            <div class="nk-tb-col nk-tb-prev-sessions"><span class="tb-sub tb-amount"><span>'.number_format((int)$new_convert).'</span>'.$convert_stat.'</span></div>
+                            <div class="nk-tb-col nk-tb-change"><span class="tb-sub"><span>'.number_format((int)$first_timer).'</span>'.$timer_stat.'</span>
                             </div>
-                            <div class="nk-tb-col nk-tb-prev-sessions"><span>N.C</span></div>
-                            <div class="nk-tb-col nk-tb-change"><span>F.T</span></div>
                             
                         </div>
                 ';
-                foreach($cells as $u){
-                    $cell_report = $this->Crud->read_single_order('cell_id', $u->id, 'cell_report', 'id', 'asc');
-                    $date = '-';
-                    $attendance = 0;$attends = 0;
-                    $new_convert = 0;$converts = 0;
-                    $first_timer = 0;$timers = 0;
-                    $ca = count($cell_report);$ca--;
-                    $i = 1;
 
-                    $attend_stat = ''; $convert_stat = ''; $timer_stat = '';
-                    if(!empty($cell_report)){
-                        foreach($cell_report as $cs){
-                            if($i == $ca){
-                                $attendances = $cs->attendance;
-                                $new_converts = $cs->new_convert;
-                                $first_timers = $cs->first_timer;
-                            }
-
-                            $i++;
-                        }
-                        
-                        $date = $cs->date;
-                        $attendance = $cs->attendance;
-                        $new_convert = $cs->new_convert;
-                        $first_timer = $cs->first_timer;
-                        $date = date('d F Y', strtotime($date));
-
-                        if(count($cell_report) >=2){
-                            if($attendances > 0){
-                                $attend = ((int)$attendance - (int)$attendances)/(int)$attendances;
-                                $attends = $attend * 100;
-                                if($attends > 0){
-                                    $attend_stat = '<span class="change up"><em class="icon ni ni-arrow-long-up"></em></span>';
-                                } else {
-                                    $attend_stat = '<span class="change down"><em class="icon ni ni-arrow-long-down"></em></span>';
-                                }
-                            }
-
-                            if($new_converts > 0){
-                                $convert = ((int)$new_convert - (int)$new_converts)/(int)$new_converts;
-                                $converts = $convert * 100;
-                                if($converts > 0){
-                                    $convert_stat = '<span class="change up"><em class="icon ni ni-arrow-long-up"></em></span>';
-                                } else {
-                                    $convert_stat = '<span class="change down"><em class="icon ni ni-arrow-long-down"></em></span>';
-                                }
-                            }
-
-                            if($first_timers > 0){
-                                $timer = ((int)$first_timer - (int)$first_timers)/(int)$first_timers;
-                                $timers = $timer * 100;
-                                if($timers > 0){
-                                    $timer_stat = '<span class="change up"><em class="icon ni ni-arrow-long-up"></em></span>';
-                                } else {
-                                    $timer_stat = '<span class="change down"><em class="icon ni ni-arrow-long-down"></em></span>';
-                                }
-                            }
-                        }
-
-                    }
-                    
-                    $cell_data .= '
-                        
-                            <div class="nk-tb-item">
-                                <div class="nk-tb-col nk-tb-channel"><span class="tb-lead">'.ucwords($u->name).'</span></div>
-                                <div class="nk-tb-col nk-tb-channel"><span class="tb-lead">'.$date.'</span></div>
-                                <div class="nk-tb-col nk-tb-sessions"><span class="tb-sub tb-amount"><span>'.number_format((int)$attendance).'</span>'.$attend_stat.'</span></div>
-                                <div class="nk-tb-col nk-tb-prev-sessions"><span class="tb-sub tb-amount"><span>'.number_format((int)$new_convert).'</span>'.$convert_stat.'</span></div>
-                                <div class="nk-tb-col nk-tb-change"><span class="tb-sub"><span>'.number_format((int)$first_timer).'</span>'.$timer_stat.'</span>
-                                </div>
-                                
-                            </div>
-                    ';
-
-                }
-            } else {
-                $cell_data .= '<div class="text-center text-muted">
+            }
+        } else {
+            $cell_data .= '<div class="text-center text-muted">
                 <br/><br/><br/><br/>
                 <em class="icon ni ni-property" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Cell Report Returned').'
             </div>';
-            }
+        }
 
-            if(!empty($service_report)){
-                foreach($service_report as $u){
-                    $offering += (float)$u->offering;
-                    $tithe += (float)$u->tithe;
-                    $convertsa = json_decode($u->tithers);
-					$converts =(array) $convertsa->list;
-					$tithe_part += count($converts);	
+        if(!empty($service_report)){
+            foreach($service_report as $u){
+                $offering += (float)$u->offering;
+                $tithe += (float)$u->tithe;
+                $convertsa = json_decode($u->tithers);
+                $converts =(array) $convertsa->list;
+                $tithe_part += count($converts);	
+            }
+        }
+
+        $parts = $this->Crud->read('partnership');
+        if(!empty($parts)){
+            $col = array('success', 'primary', 'danger', 'info', 'warning', 'azure', 'gray','blue', 'indigo', 'orange', 'teal', 'purple');
+            
+            foreach($parts as $p){
+                $paid = 0;
+                $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'partners_history');
+                if(!empty($partners)){
+                    foreach($partners as $u){
+                        $paid += (float)$u->amount_paid;
+                    }
+                    
                 }
-            }
-
-            $parts = $this->Crud->read('partnership');
-            if(!empty($parts)){
-                $col = array('success', 'primary', 'danger', 'info', 'warning', 'azure', 'gray','blue', 'indigo', 'orange', 'teal', 'purple');
                 
-                foreach($parts as $p){
-                    $paid = 0;
-                    $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'partners_history');
-                    if(!empty($partners)){
-                        foreach($partners as $u){
-                            $paid += (float)$u->amount_paid;
-                        }
-                       
-                    }
-                    
-                    
-                    if($partnership > 0){
-                        $paids = ((float)$paid * 100)/(float)$partnership;
-                    } else {
-                        $paids = 0;
-                    }
-                    // Select a random key
-                    $random_key = array_rand($col);
+                
+                if($partnership > 0){
+                    $paids = ((float)$paid * 100)/(float)$partnership;
+                } else {
+                    $paids = 0;
+                }
+                // Select a random key
+                $random_key = array_rand($col);
 
-                    // Get the value at the random key
-                    $cols = $col[$random_key];
+                // Get the value at the random key
+                $cols = $col[$random_key];
 
 
-                    
-                    $partnership_list .= '
-                        <div class="progress-wrap">
-                            <div class="progress-text">
-                                <div class="progress-label">'.ucwords($p->name).' <b>($'.number_format($paid,2).')</b></div>
-                                <div class="progress-amount">'.number_format($paids,1).'%</div>
-                            </div>
-                            <div class="progress ">
-                                <div class="progress-bar bg-'.$cols.' progress-bar-striped progress-bar-animated" data-progress="'.$paids.'"></div>
-                            </div>
+                
+                $partnership_list .= '
+                    <div class="progress-wrap">
+                        <div class="progress-text">
+                            <div class="progress-label">'.ucwords($p->name).' <b>($'.number_format($paid,2).')</b></div>
+                            <div class="progress-amount">'.number_format($paids,1).'%</div>
                         </div>
-                    ';
-                    // Remove the element from the array
-                    unset($col[$random_key]);
+                        <div class="progress ">
+                            <div class="progress-bar bg-'.$cols.' progress-bar-striped progress-bar-animated" data-progress="'.$paids.'"></div>
+                        </div>
+                    </div>
+                ';
+                // Remove the element from the array
+                unset($col[$random_key]);
 
-                    // Re-index the array if needed
-                    $col = array_values($col);
-                }
+                // Re-index the array if needed
+                $col = array_values($col);
             }
+        }
            
-        }
-        // print_r($service_report);
-        // echo $offering.' e';
-
-        if($role != 'developer' && $role != 'administrator'){
-            $trade_id = $this->Crud->read_field('id', $log_id, 'user', 'trade');
-            $duration = $this->Crud->read_field('id', $log_id, 'user', 'duration');
-            if(!empty($trade_id)){
-                $remittance = $this->Crud->read_field('id', $trade_id, 'trade', 'medium');
-                $paids = $this->Crud->read_single('user_id', $log_id, 'history');
-                if(!empty($paids)){
-                    foreach($paids as $p){
-                        $total_paid  += (float)$p->amount;
-                    }
-                }
-                
-            }
-        }
-
        
         $resp['tithe'] = curr.number_format($tithe,2);
         $resp['tithe_part'] = number_format($tithe_part);
