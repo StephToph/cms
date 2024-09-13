@@ -56,31 +56,54 @@
                                     <p class="text-danger">Always click the save record Button after update of attendance, first timers and new convert.</p>
                                     <?php echo form_open_multipart('accounts/creport/manage', array('id'=>'bb_ajax_form', 'class'=>'row mt-4')); ?>
                                         <input type="hidden" name="creport_id" id="report_id" value="<?php if(!empty($e_id)){echo $e_id;}?>">
+                                        
                                         <?php 
                                         $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
-                                        if($role == 'developer' || $role == 'administrator'){?>
-                                        <div class="col-sm-4 mb-3">
-                                            <div class="form-group">
-                                                <label for="name">*<?=translate_phrase('Cell'); ?></label>
-                                                <select data-search="on" class=" js-select2" id="cells_id" name="cell_id" onchange="updatePageName()">
-                                                    <option value="">Select</option>
-                                                    <?php
-                                                        $cell = $this->Crud->read_order('cells', 'name', 'asc');
-                                                        if(!empty($cell)){
-                                                            foreach($cell as $c){
-                                                                $sel = '';
-                                                                if(!empty($e_cell_id)){
-                                                                    if($e_cell_id == $c->id)$sel = 'selected';    
-                                                                }
-                                                                echo '<option value="'.$c->id.'" '.$sel.'>'.ucwords($c->name).'</option>';
-                                                            }
-                                                        }
-                                                    ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <?php } else{?>
+                                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                                        
+                                        if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){?>
+
                                             <input type="hidden" name="cell_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
+                                        <?php } else{?>
+                                            
+                                            <div class="col-md-6 col-lg-4 col-xxl-3">
+                                                <div class="form-group">
+                                                    <label class="form-labl">Cell</label>
+                                                    <div class="form-control-wrap">
+                                                        <select class="form-select js-select2" id="cell_id" name="cell_id"
+                                                            data-placeholder="Select Cell">
+                                                            <option value="">Select</option>
+                                                            <?php
+                                                                if($ministry_id == 0){
+                                                                    $parent  = $this->Crud->read_order('cells', 'name', 'asc');
+                                                                }
+                                                                if($ministry_id > 0 && $church_id <= 0){
+                                                                    $parent  = $this->Crud->read_single_order('ministry_id',  $ministry_id, 'cells', 'name', 'asc');
+
+                                                                }
+                                                                if($ministry_id > 0 && $church_id > 0){
+                                                                    $parent  = $this->Crud->read_single_order('church_id',  $church_id, 'cells', 'name', 'asc');
+
+                                                                }
+                                                                if(!empty($parent)){
+                                                                    foreach($parent as $p){
+                                                                        $church = $this->Crud->read_field('id', $p->church_id, 'church', 'name');
+                                                                        $sel = '';
+                                                                        if(!empty($e_cell_id)){
+                                                                            if($e_cell_id == $p->id){
+                                                                                $sel = 'selected';
+                                                                            }
+                                                                        }
+                                                                        echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name.' - '.$church).'</option>';
+                                                                    }
+                                                                }
+                                                            ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
                                         <?php } ?>
                                         <div class="col-sm-4 mb-3">
                                             <div class="form-group">

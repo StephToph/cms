@@ -63,7 +63,7 @@ $this->session = \Config\Services::session();
                                         $sel = 'selected';
                                     }
                                 }
-                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->surname.' '.$d->firstname) . '</option>';
+                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->surname.' '.$d->firstname.' - '.$d->phone) . '</option>';
                             }
                         }
                         ?>
