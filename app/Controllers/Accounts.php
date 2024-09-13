@@ -3201,6 +3201,7 @@ class Accounts extends BaseController {
 								$ins_data['othername'] = $othername;
 								$ins_data['surname'] = $surname;
 								$ins_data['email'] = $email;
+								$ins_data['is_member'] = 1;
 								$ins_data['phone'] = '0'.$phone;
 								$ins_data['gender'] = ucwords($gender);
 								$ins_data['address'] = $address;
@@ -3460,6 +3461,7 @@ class Accounts extends BaseController {
 					$ins_data['address'] = $address;
 					$ins_data['marriage_anniversary'] = $marriage_anniversary;
 					$ins_data['job_type'] = $job_type;
+					$ins_data['is_member'] = 1;
 					$ins_data['employer_address'] = $employer_address;
 					$ins_data['baptism'] = $baptism;
 					$ins_data['foundation_school'] = $foundation_school;
