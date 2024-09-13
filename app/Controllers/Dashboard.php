@@ -326,20 +326,28 @@ class Dashboard extends BaseController {
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
         
         if($role == 'developer' || $role == 'administrator'){
-            
+            $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+            $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+           
             $cells = $this->Crud->read('cells');
         } else {
             if($ministry_id > 0 && $church_id <= 0){
-                
+                $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
+                $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+           
                 $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells');
             } else {
                 $cells = $this->Crud->read_single('church_id', $church_id,'cells');
+                $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
+                $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'church_id', $church_id,'partners_history');
             }
         }
 
-        $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
-           
-            $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+        if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+            $membership = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'cell_id', $celss, 'user');
+        }
+
+        
         $member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
         
         $partnership = 0;
@@ -516,6 +524,7 @@ class Dashboard extends BaseController {
         $resp['first_timer'] = number_format($first_timer);
         $resp['new_convert'] = number_format($new_convert);
         $resp['offering'] = curr.number_format($offering,2);
+        $resp['cell_offering'] = curr.number_format($cell_offering,2);
         $resp['partnership'] = curr.number_format($partnership,2);
         $resp['partnership_part'] = number_format($partnership_part);
         $resp['partnership_list'] = ($partnership_list);

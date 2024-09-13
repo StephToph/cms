@@ -62,131 +62,229 @@
                 </div>
                 <div class="nk-block">
                     <div class="row g-gs">
-                        <div class="col-md-4">
-                            <div class="card card-bordered card-full">
-                                <div class="card-inner">
-                                    <div class="card-title-group align-start mb-0">
-                                        <div class="card-title">
-                                            <h6 class="title">Total Offering</h6>
-                                        </div>
-                                        <div class="card-tools">
-                                            <em class="card-hint icon ni ni-help-fill"
-                                                data-bs-toggle="tooltip" data-bs-placement="left"
-                                                title="Total Offering"></em>
+                        <?php if($role != 'cell leader' && $role != 'cell executive' & $role != 'assistant cell_leader'){?>
+                            <div class="col-md-3">
+                                <div class="card card-bordered card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Service Offering</h6>
                                             </div>
-                                    </div>
-                                    <div class="card-amount">
-                                        <span class="amount" id="offering"> 0.00 <span
-                                                class="currency currency-usd">USD</span></span>
+                                            <div class="card-tools">
+                                                <em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Service Offering"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount">
+                                            <span class="amount" id="offering"> 0.00 <span
+                                                    class="currency currency-usd"></span></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card card-bordered card-full">
-                                <div class="card-inner">
-                                    <div class="card-title-group align-start mb-0">
-                                        <div class="card-title">
-                                            <h6 class="title">Total Tithe</h6>
+                            <div class="col-md-3">
+                                <div class="card card-bordered card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Cell Offering</h6>
+                                            </div>
+                                            <div class="card-tools">
+                                                <em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Cell Offering"></em>
+                                                </div>
                                         </div>
-                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                data-bs-toggle="tooltip" data-bs-placement="left"
-                                                title="Total Tithe"></em></div>
+                                        <div class="card-amount">
+                                            <span class="amount" id="cell_offering"> 0.00 <span
+                                                    class="currency currency-usd"></span></span>
+                                        </div>
                                     </div>
-                                    <div class="card-amount"><span class="amount" id="tithe"> 0.00 
-                                        <span class="currency currency-usd">USD</span></span>
-                                    </div>
-                                    <div class="invest-data">
-                                        <div class="invest-data-amount g-2">
-                                            <div class="invest-data-history">
-                                                <div class="title">Participant</div>
-                                                <div class="amount" id="tithe_part">0</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card card-bordered card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Service Tithe</h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Service Tithe"></em></div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="tithe"> 0.00 
+                                            <span class="currency currency-usd">USD</span></span>
+                                        </div>
+                                        <div class="invest-data">
+                                            <div class="invest-data-amount g-2">
+                                                <div class="invest-data-history">
+                                                    <div class="title">Participant</div>
+                                                    <div class="amount" id="tithe_part">0</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card card-bordered  card-full">
-                                <div class="card-inner">
-                                    <div class="card-title-group align-start mb-0">
-                                        <div class="card-title">
-                                            <h6 class="title">Total Partnership</h6>
-                                        </div>
-                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                data-bs-toggle="tooltip" data-bs-placement="left"
-                                                title="Total Partnership"></em>
+                            <div class="col-md-3">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Partnership</h6>
                                             </div>
-                                    </div>
-                                    <div class="card-amount"><span class="amount" id="partnership"> 0.00 <span
-                                                class="currency currency-usd">USD</span></span></div>
-                                    <div class="invest-data">
-                                        <div class="invest-data-amount g-2">
-                                            <div class="invest-data-history">
-                                                <div class="title">Participant</div>
-                                                <div class="amount" id="partnership_part">0 </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Partnership"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="partnership"> 0.00 <span
+                                                    class="currency currency-usd">USD</span></span></div>
+                                        <div class="invest-data">
+                                            <div class="invest-data-amount g-2">
+                                                <div class="invest-data-history">
+                                                    <div class="title">Participant</div>
+                                                    <div class="amount" id="partnership_part">0 </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card card-bordered  card-full">
-                                <div class="card-inner">
-                                    <div class="card-title-group align-start mb-0">
-                                        <div class="card-title">
-                                            <h6 class="title">Total Membership</h6>
-                                        </div>
-                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                data-bs-toggle="tooltip" data-bs-placement="left"
-                                                title="Total Membership"></em>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Membership</h6>
                                             </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Membership"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="membership"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
                                     </div>
-                                    <div class="card-amount"><span class="amount" id="membership"> 0 <span
-                                                class="currency currency-usd"></span></span></div>
-                                    
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card card-bordered  card-full">
-                                <div class="card-inner">
-                                    <div class="card-title-group align-start mb-0">
-                                        <div class="card-title">
-                                            <h6 class="title">Total First Timer</h6>
-                                        </div>
-                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                data-bs-toggle="tooltip" data-bs-placement="left"
-                                                title="Total First Timer"></em>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total First Timer</h6>
                                             </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total First Timer"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
                                     </div>
-                                    <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
-                                                class="currency currency-usd"></span></span></div>
-                                    
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card card-bordered  card-full">
-                                <div class="card-inner">
-                                    <div class="card-title-group align-start mb-0">
-                                        <div class="card-title">
-                                            <h6 class="title">Total New Convert</h6>
-                                        </div>
-                                        <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                data-bs-toggle="tooltip" data-bs-placement="left"
-                                                title="Total New Convert"></em>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total New Convert</h6>
                                             </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total New Convert"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
                                     </div>
-                                    <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
-                                                class="currency currency-usd"></span></span></div>
-                                    
                                 </div>
                             </div>
-                        </div>
+                        <?php } else {?>
+                            <div class="col-md-3">
+                                <div class="card card-bordered card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Cell Offering</h6>
+                                            </div>
+                                            <div class="card-tools">
+                                                <em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Cell Offering"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount">
+                                            <span class="amount" id="cell_offering"> 0.00 <span
+                                                    class="currency currency-usd"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total Membership</h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total Membership"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="membership"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total First Timer</h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total First Timer"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title">Total New Convert</h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="Total New Convert"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+                        
                         <div class="col-md-12">
                             <div class="card card-bordered card-full">
                                 <div class="card-inner d-flex flex-column h-100">
@@ -733,6 +831,7 @@
                 $('#tithe_part').html(dt.tithe_part);
                 $('#offering_part').html(dt.offering_part);
                 $('#offering').html(dt.offering);
+                $('#cell_offering').html(dt.cell_offering);
                 $('#partnership_part').html(dt.partnership_part);
                 $('#partnership').html(dt.partnership);
                 $('#partnership_list').html(dt.partnership_list);
