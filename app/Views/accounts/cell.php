@@ -92,7 +92,7 @@
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Back to Churches" class="btn btn-outline-danger btn-icon"
+                                                    title="Back to Cells" class="btn btn-outline-danger btn-icon"
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->

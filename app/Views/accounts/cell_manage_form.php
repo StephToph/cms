@@ -43,32 +43,75 @@ $this->session = \Config\Services::session();
         <input type="hidden" name="member_id" value="<?php if (!empty($e_id)) {
             echo $e_id;
         } ?>" />
-        
-        <div class="col-sm-12 mb-3">
-            <div class="form-group">
-                <label for="name">*<?= translate_phrase('Church Members'); ?></label>
-                <select class="js-select2" data-search="on" multiple name="members[]" id="member_id">
-                    <option value="">Select Members</option>
-                    <?php
-                    $cell_id = $this->session->get('cell_id');
-                    $church_id = $this->Crud->read_field('id', $cell_id, 'cells', 'church_id');
-                    $ministry = $this->Crud->read_single_order('church_id', $church_id, 'user', 'surname', 'asc');
-                    if (!empty($ministry)) {
-                        foreach ($ministry as $d) {
-                            $sel = '';
-                            if (!empty($e_id)) {
-                                if ($e_id == $d->id) {
-                                    $sel = 'selected';
+        <?php  if ($param2 == '') { ?>
+
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?= translate_phrase('Church Members'); ?></label>
+                    <select class="js-select2" data-search="on" multiple name="members[]" id="member_id">
+                        <option value="">Select Members</option>
+                        <?php
+                        $cell_id = $this->session->get('cell_id');
+                        $church_id = $this->Crud->read_field('id', $cell_id, 'cells', 'church_id');
+                        $ministry = $this->Crud->read_single_order('church_id', $church_id, 'user', 'surname', 'asc');
+                        if (!empty($ministry)) {
+                            foreach ($ministry as $d) {
+                                if($d->cell_id > 0)continue;
+                                $sel = '';
+                                if (!empty($e_id)) {
+                                    if ($e_id == $d->id) {
+                                        $sel = 'selected';
+                                    }
                                 }
+                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->surname.' '.$d->firstname) . '</option>';
                             }
-                            echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->surname.' '.$d->firstname) . '</option>';
                         }
-                    }
-                    ?>
-                </select>
+                        ?>
+                    </select>
+                </div>
             </div>
-        </div>
         <input type="hidden" name="cell_id" value="<?=$cell_id;?>" />
+        <?php } else{?>
+            
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label class="form-label">Cell Role</label>
+                    <div class="form-control-wrap">
+                        <select class="form-select js-select2" id="cell_role_i" name="cell_role_id"
+                            data-placeholder="Select Cell Role">
+                            <option value="">Select</option>
+                            <?php
+                                $allowed = ['Cell Leader', 'Cell Executive', 'Assistant Cell Leader', 'Cell Member'];
+
+                                $parent  = $this->Crud->read_order('access_role', 'name', 'asc');
+                                if(!empty($parent)){
+                                    foreach($parent as $p){
+                                        if(!in_array($p->name, $allowed))continue;
+                                        $sel = '';
+                                        if(!empty($e_cell_role)){
+                                            if($e_cell_role == $p->id){
+                                                $sel = 'selected';
+                                            }
+                                        }
+                                        echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name).'</option>';
+                                    }
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Activate');?></label>
+                    <select class="form-control js-select2" data-toggle="select2" id="status" name="status" >
+                        <option value="1" <?php if(!empty($e_status)){if($e_status == 1){echo 'selected';}} ?>><?=translate_phrase('Activate');?></option>
+                        <option value="0" <?php if(empty($e_status)){if($e_status == 0){echo 'selected';}} ?>><?=translate_phrase('Disable');?></option>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 
 
