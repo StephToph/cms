@@ -234,9 +234,8 @@
                                                 <label for="name">*<?=translate_phrase('Offering'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" readonly name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="Enter Offering" pageSize="modal-lg" pageName="<?php echo  site_url('accounts/creport/manage/offering/'.$celss); ?>" id="offeringBtn">ADD</button>        
+                                                        <input type="text" name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
+                                                               
                                                         </div>    
                                                     </div>
                                                     <span class="text-danger"></span>
