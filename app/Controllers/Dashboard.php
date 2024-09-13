@@ -506,13 +506,13 @@ class Dashboard extends BaseController {
         }
 
        
-        $resp['tithe'] = '$'.number_format($tithe,2);
+        $resp['tithe'] = curr.number_format($tithe,2);
         $resp['tithe_part'] = number_format($tithe_part);
         $resp['membership'] = number_format($membership);
         $resp['first_timer'] = number_format($first_timer);
         $resp['new_convert'] = number_format($new_convert);
-        $resp['offering'] = '$'.number_format($offering,2);
-        $resp['partnership'] = '$'.number_format($partnership,2);
+        $resp['offering'] = curr.number_format($offering,2);
+        $resp['partnership'] = curr.number_format($partnership,2);
         $resp['partnership_part'] = number_format($partnership_part);
         $resp['partnership_list'] = ($partnership_list);
         $resp['cell_data'] = ($cell_data);

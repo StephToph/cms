@@ -114,6 +114,7 @@
                                                     <option value="wk2" >WK2 - Bible Study</option>
                                                     <option value="wk3" >WK3 - Bible Study</option>
                                                     <option value="wk4" >WK4 - Fellowship / Outreach</option>
+                                                    <option value="wk5" >WK5 - Fellowship</option>
                                                 </select>
                                             </div>
                                         </div>

@@ -268,10 +268,10 @@ $this->Crud = new Crud();
             <tbody>
                 <?php
                     // $param3.' '.$param4;
-                    $cell_id = $this->Crud->read_field('id', $param4, 'cell_report', 'cell_id');
+                    $cell_id = $param3;
                     $roles = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
 
-                    $user = $this->Crud->read2('cell_id', $param3,'role_id', $roles, 'user');
+                    $user = $this->Crud->read_single_order('cell_id', $param3, 'user', 'firstname', 'asc');
                     $attends = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'attendant'));
                     // print_r($attends);
                     if(!empty($user)){
@@ -292,7 +292,7 @@ $this->Crud = new Crud();
 											<img alt="" src="<?=site_url($img); ?>" height="40px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead"><?=ucwords($p->firstname.' '.$p->surname); ?></span>
+											<span class="tb-lead"><?=ucwords($p->firstname.' '.$p->surname).' '.$p->phone; ?></span>
 										</div>
 									</div>
                                 </td>
@@ -574,6 +574,7 @@ $this->Crud = new Crud();
         <?php }else{?>
             <?php 
                 $cell_id = $this->Crud->read_field('id', $param4, 'cell_report', 'cell_id');
+                $church_id = $this->Crud->read_field('id', $param4, 'cell_report', 'church_id');
                 $roles = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
 
                 $converts = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'timers'));
@@ -663,7 +664,7 @@ $this->Crud = new Crud();
                                 <option value="">Select Member</option>
                                 <?php 
                                     $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                    $mem = $this->Crud->read_single_order('role_id', $roles_id, 'user', 'firstname', 'asc');
+                                    $mem = $this->Crud->read_single_order('cell_id', $param3,  'user', 'firstname', 'asc');
                                         if(!empty($mem)){
                                             
                                             foreach($mem as $m){
