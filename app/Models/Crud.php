@@ -1624,13 +1624,15 @@ class Crud extends Model {
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
 		if($role != 'developer' && $role != 'administrator'){
+			if($role == 'ministry administrator'){
+				$builder->where('ministry_id', $ministry_id);
+			}else {
+				$builder->where('church_id', $church_id);
+			}
 			
-			$builder->where('church_id', $church_id);
 		} 
-		if($role == 'ministry administrator'){
-			$builder->where('ministry_id', $ministry_id);
-		}
-		$builder->where('role_id', $role_id);
+		
+		// $builder->where('role_id', $role_id);
 		$builder->where('is_member', 1);
         
 
@@ -1658,13 +1660,15 @@ class Crud extends Model {
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
 		if($role != 'developer' && $role != 'administrator'){
+			if($role == 'ministry administrator'){
+    			$builder->where('ministry_id', $ministry_id);
+    		} else {
+    		    $builder->where('church_id', $church_id);
+    		}
 			
-			$builder->where('church_id', $church_id);
 		} 
-		if($role == 'ministry administrator'){
-			$builder->where('ministry_id', $ministry_id);
-		}
-		$builder->where('role_id', $role_id);
+		
+// 		$builder->where('role_id', $role_id);
 		$builder->where('is_member', 1);
         if(!empty($search)) {
             $builder->groupStart()

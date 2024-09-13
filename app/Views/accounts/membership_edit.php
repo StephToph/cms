@@ -315,7 +315,17 @@
                                                 data-placeholder="Select Cell">
                                                 <option value="">Select</option>
                                                 <?php
-                                                    $parent  = $this->Crud->read_order('cells', 'name', 'asc');
+                                                    if($ministry_id == 0){
+                                                        $parent  = $this->Crud->read_order('cells', 'name', 'asc');
+                                                    }
+                                                    if($ministry_id > 0 && $church_id <= 0){
+                                                        $parent  = $this->Crud->read_single_order('ministry_id',  $ministry_id, 'cells', 'name', 'asc');
+
+                                                    }
+                                                    if($ministry_id > 0 && $church_id > 0){
+                                                        $parent  = $this->Crud->read_single_order('church_id',  $church_id, 'cells', 'name', 'asc');
+
+                                                    }
                                                     if(!empty($parent)){
                                                         foreach($parent as $p){
                                                             $sel = '';
