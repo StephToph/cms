@@ -2287,6 +2287,8 @@ class Accounts extends BaseController {
 			if(empty($offset)) {$offset = 0;}
 			
 			$search = $this->request->getPost('search');
+			if(!empty($this->request->getVar('meeting_type'))){$meeting_type = $this->request->getVar('meeting_type');}else{$meeting_type = '';}
+			if(!empty($this->request->getVar('cell_id'))){$cell_id = $this->request->getVar('cell_id');}else{$cell_id = '';}
 			if(!empty($this->request->getVar('start_date'))){$start_date = $this->request->getVar('start_date');}else{$start_date = '';}
 			if(!empty($this->request->getVar('end_date'))){$end_date = $this->request->getVar('end_date');}else{$end_date = '';}
 
@@ -2316,11 +2318,11 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date);
+				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date);
+				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type);
 				$data['count'] = $counts;
 				
 
