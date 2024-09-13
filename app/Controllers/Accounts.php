@@ -1483,6 +1483,7 @@ class Accounts extends BaseController {
 					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Name').'</span></div>
 					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.translate_phrase('Location').'</span></div>
 					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Phone').'</span></div>
+					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Members').'</span></div>
 					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('Day/Time').'</span></div>
 					<div class="nk-tb-col nk-tb-col-tools">
 						<ul class="nk-tb-actions gx-1 my-n1">
@@ -1518,7 +1519,7 @@ class Accounts extends BaseController {
 						$phone = $q->phone;
 						$church_id = $q->church_id;
 						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
-
+						$members = $this->Crud->check('cell_id', $id, 'user');
 						$times = '<span class="text-danger">No Meeting Time</span>';
 						if(!empty($time)){
 							$times = '<a href="javascript:;" class="text-primary pop" pageTitle="View Time " pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em> <span>'.translate_phrase('View Meeting Time').'</span></a>';
@@ -1549,6 +1550,9 @@ class Accounts extends BaseController {
 								</div>
 								<div class="nk-tb-col tb-col">
 									<span class="text-dark"><b>' . ucwords($phone) . '</b></span>
+								</div>
+								<div class="nk-tb-col tb-col">
+									<span class="text-dark"><b>' . ucwords($members) . '</b></span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
 									<span class="text-dark">' . ($times) . '</span>
