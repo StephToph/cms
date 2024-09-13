@@ -41,6 +41,70 @@
                                 
                             </div><!-- .card-inner -->
                             <div class="card-inner" id="show">
+                                <div class="row">
+                                    <div class="col-sm-5 mb-3 filter_resp" style="display:none;">
+                                        <div class="row">
+                                            <div class="col-6 col-sm-6">
+                                                <input type="date" class="form-control" name="start_date" id="start_date" oninput="loads()" style="border:1px solid #ddd;">
+                                                <label for="name" class="small text-muted"><?=translate_phrase('START DATE');?></label>
+                                            </div>
+                                            <div class="col-6 col-sm-6"> 
+                                                <input type="date" class="form-control" name="end_date" id="end_date" oninput="loads()" style="border:1px solid #ddd;">
+                                                <label for="name" class="small text-muted"><?=translate_phrase('END DATE');?></label>
+                                            </div>
+                                            <div class="col-md-12" style="color: transparent;"><span id="date_resul"></span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
+                                        <select data-search="on" class=" js-select2" id="meeting_type" onchange="load();">
+                                            <option value="all">All Meeting Type</option>
+                                            <option value="wk1" >WK1 - Prayer and Planning</option>
+                                            <option value="wk2" >WK2 - Bible Study</option>
+                                            <option value="wk3" >WK3 - Bible Study</option>
+                                            <option value="wk4" >WK4 - Fellowship / Outreach</option>
+                                        </select>
+                                    </div>
+                                    <?php 
+                                        $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+                                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                                        
+                                        if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){?>
+
+                                            <input type="hidden" id="cell_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
+                                        <?php } else{?>
+                                            <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
+                                                <select class="form-select js-select2" id="cell_id" onchange="load();"
+                                                    data-placeholder="All Cell">
+                                                    <option value="all">All Cell</option>
+                                                    <?php
+                                                        if($ministry_id == 0){
+                                                            $parent  = $this->Crud->read_order('cells', 'name', 'asc');
+                                                        }
+                                                        if($ministry_id > 0 && $church_id <= 0){
+                                                            $parent  = $this->Crud->read_single_order('ministry_id',  $ministry_id, 'cells', 'name', 'asc');
+
+                                                        }
+                                                        if($ministry_id > 0 && $church_id > 0){
+                                                            $parent  = $this->Crud->read_single_order('church_id',  $church_id, 'cells', 'name', 'asc');
+
+                                                        }
+                                                        if(!empty($parent)){
+                                                            foreach($parent as $p){
+                                                                $church = $this->Crud->read_field('id', $p->church_id, 'church', 'name');
+                                                                $sel = '';
+                                                            
+                                                                echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name.' - '.$church).'</option>';
+                                                            }
+                                                        }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                    <?php } ?>
+                                    <div class="col-sm-1 mb-3 " >
+                                        <a href="javascript:;" onclick="$('.filter_resp').toggle(500);" class="text-right btn btn-icon btn-block btn-outline-danger"><em class="icon ni ni-filter"></em></a>
+                                    </div>
+                                </div>
                                 <div class="nk-tb-list nk-tb-ulist" id="load_data">
                                 </div><!-- .nk-tb-list -->
                             
@@ -348,12 +412,16 @@
 
        
         var search = $('#search').val();
+        var cell_id = $('#cell_id').val();
+        var meeting_type = $('#meeting_type').val();
+        var start_date = $('#start_date').val();
+        var end_date = $('#end_date').val();
         //alert(status);
 
         $.ajax({
             url: site_url + 'accounts/creport/load' + methods,
             type: 'post',
-            data: { search: search },
+            data: { search: search,cell_id: cell_id,meeting_type: meeting_type,start_date: start_date,end_date: end_date},
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {

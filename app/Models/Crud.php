@@ -2092,7 +2092,7 @@ class Crud extends Model {
         $db->close();
     }
 
-	public function filter_cell_report($limit='', $offset='', $search='',  $log_id, $start_date='', $end_date='') {
+	public function filter_cell_report($limit='', $offset='', $search='',  $log_id, $start_date='', $end_date='', $cell_id='', $meeting_type='') {
 
         $db = db_connect();
         $builder = $db->table('cell_report');
@@ -2113,6 +2113,12 @@ class Crud extends Model {
 		} 
         if(!empty($search)) {
             $builder->like('meeting', $search);
+        }
+		if(!empty($meeting_type) && $meeting_type !='all') {
+            $builder->like('type', $meeting_type);
+        }
+		if(!empty($cell_id) && $cell_id != 'all') {
+            $builder->like('cell_id', $cell_id);
         }
 		
 		if(!empty($start_date) && !empty($end_date)){
