@@ -1328,6 +1328,108 @@ class Accounts extends BaseController {
 			}
 		}
 
+		// manage record
+		if($param1 == 'manage_member') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$del_id = $this->request->getVar('d_cell_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'cells', 'name');
+						$action = $by.' deleted Cell ('.$code.') Record';
+
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							
+							$this->Crud->activity('user', $del_id, $action);
+							echo $this->Crud->msg('success', 'Cell Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_location'] = $e->location;
+								$data['e_name'] = $e->name;
+								$data['e_phone'] = $e->phone;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+								$data['e_time'] = json_decode($e->time);
+							}
+						}
+					}
+				} 
+
+				if($this->request->getMethod() == 'post'){
+					$cell_id = $this->request->getVar('cell_id');
+					$member_id = $this->request->getVar('member_id');
+					$members = $this->request->getVar('members');
+					$status = $this->request->getVar('status');
+					$cell_role_id = $this->request->getVar('cell_role_id');
+					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+					
+					// do create or update
+					if($member_id) {
+						$upd_rec = $this->Crud->updates('id', $member_id, 'user', array('status'=>$status,'cell_role'=>$cell_role_id));
+						if($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $member_id, 'cells', 'name');
+							$action = $by.' updated Cell ('.$code.') Record';
+							$this->Crud->activity('user', $member_id, $action);
+
+							echo $this->Crud->msg('success', 'Record Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+					} else {
+						if(empty($members)){
+							echo $this->Crud->msg('warning', 'Select Members to assign to Cell');
+							die;
+						}
+
+						foreach($members as $mem_index => $member){
+							$this->Crud->updates('id', $member, 'user', array('cell_id'=>$cell_id, 'cell_role'=>$cell_member));
+						
+								///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$mems = $this->Crud->read_field('id', $member, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+							$action = $by.' Assigned '.$mems.' to Cell ('.$code.')';
+							$this->Crud->activity('user', $member, $action);
+						
+						}
+						echo $this->Crud->msg('success', 'Members Assigned to Cell Successfully');
+						echo '<script>
+								load_leadership("","",'.$cell_id.');
+								$("#modal").modal("hide");
+							</script>';
+					}
+
+					die;	
+				}
+			}
+		}
+
         // record listing
 		if($param1 == 'load') {
 			$limit = $param2;
@@ -1618,7 +1720,7 @@ class Accounts extends BaseController {
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} elseif($param1 == 'manage_member'){ 
-			return view($mod.'_form', $data);
+			return view($mod.'_manage_form', $data);
 		}else { // view for main page
 			
 			$data['title'] = translate_phrase('Cells').' - '.app_name;
