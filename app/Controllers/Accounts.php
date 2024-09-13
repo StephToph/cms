@@ -2115,12 +2115,16 @@ class Accounts extends BaseController {
 					$converts = $this->request->getVar('converts');
 					$offering_givers = $this->request->getVar('offering_givers');
 					$timers = $this->request->getVar('timers');
+					$ministry_id = $this->Crud->read_field('id', $cell_id, 'cells', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $cell_id, 'cells', 'church_id');
 					
 					// echo $date;die;
 					$dates = date('y-m-d', strtotime($date));
 
 					
 					$ins_data['cell_id'] = $cell_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
 					$ins_data['type'] = $type;
 					$ins_data['date'] = $dates;
 					$ins_data['attendance'] = $attendance;

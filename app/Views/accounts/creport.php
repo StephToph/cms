@@ -64,14 +64,14 @@
                                         
                                         if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){?>
 
-                                            <input type="hidden" name="cell_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
+                                            <input type="hidden" name="cell_id" id="cells_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
                                         <?php } else{?>
                                             
                                             <div class="col-md-6 col-lg-4 col-xxl-3">
                                                 <div class="form-group">
                                                     <label class="form-labl">Cell</label>
                                                     <div class="form-control-wrap">
-                                                        <select class="form-select js-select2" id="cell_id" name="cell_id"
+                                                        <select class="form-select js-select2" id="cells_id" name="cell_id" onchange="updatePageName();"
                                                             data-placeholder="Select Cell">
                                                             <option value="">Select</option>
                                                             <?php
@@ -330,6 +330,7 @@
         offeringBtn.setAttribute("pageName", updatedPageName);
     }
 
+    updatePageName();
     function load(x, y) {
         var more = 'no';
         var methods = '';
