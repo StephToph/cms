@@ -339,8 +339,8 @@ $this->Crud = new Crud();
         $member = 0;
         $guest = 0;
         
-        if($param3){
-            $converts = json_decode($this->Crud->read_field('id', $param3, 'cell_report', 'offering_givers'));
+        if($param4){
+            $converts = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'offering_givers'));
             if(!empty($converts)){
                 $total = $converts->total;
                 $member = $converts->member;
@@ -348,7 +348,7 @@ $this->Crud = new Crud();
                 $guest_list = (array)$converts->guest_list;
             }
           
-            $first = json_decode($this->Crud->read_field('id', $param3, 'cell_report', 'timers'));
+            $first = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'timers'));
             
         }
         ?>
@@ -737,7 +737,7 @@ $this->Crud = new Crud();
                                 <option value="">Select Member</option>
                                 <?php 
                                     $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                    $mem = $this->Crud->read_single_order('role_id', $roles_id, 'user', 'firstname', 'asc');
+                                    $mem = $this->Crud->read_single_order('cell_id', $param3,  'user', 'firstname', 'asc');
                                         if(!empty($mem)){
                                             foreach($mem as $m){
                                                 echo '<option value="'.$m->id.'">'.ucwords($m->firstname.' '.$m->surname).'</option>';
