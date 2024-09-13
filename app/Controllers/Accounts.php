@@ -2165,7 +2165,7 @@ class Accounts extends BaseController {
 						}
 					} else {
 						// echo $date;
-						if($this->Crud->check('date', $dates, $table) > 0) {
+						if($this->Crud->check2('cell_id', $cell_id, 'date', $dates, $table) > 0) {
 							echo $this->Crud->msg('warning', 'Record Already Exist');
 						} else {
 							$ins_data['attendant'] = $this->session->get('cell_attendance');
@@ -2212,7 +2212,7 @@ class Accounts extends BaseController {
 			$column_search = array('firstname', 'surname');
 			$order = array('firstname' => 'asc');
 			$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-			$where = array('role_id' => $member_id, 'cell_id' => $cell_id);
+			$where = array('cell_id' => $cell_id);
 			
 			// load data into table
 			$list = $this->Crud->datatable_load($table, $column_order, $column_search, $order, $where);
@@ -2342,6 +2342,7 @@ class Accounts extends BaseController {
 						if($type == 'wk2')$types = 'Wk2 - Bible Study';
 						if($type == 'wk3')$types = 'Wk3 - Bible Study';
 						if($type == 'wk4')$types = 'Wk4 - Fellowship / Outreach';
+						if($type == 'wk5')$types = 'Wk5 - Fellowship';
 						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 						$cell = '<span class="text-info"><em class="icon ni ni-curve-down-right"></em> <span>'.strtoupper($this->Crud->read_field('id', $cell_id, 'cells', 'name').' - '.$church).'</span></span>';
 						
