@@ -2115,12 +2115,16 @@ class Accounts extends BaseController {
 					$converts = $this->request->getVar('converts');
 					$offering_givers = $this->request->getVar('offering_givers');
 					$timers = $this->request->getVar('timers');
+					$ministry_id = $this->Crud->read_field('id', $cell_id, 'cells', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $cell_id, 'cells', 'church_id');
 					
 					// echo $date;die;
 					$dates = date('y-m-d', strtotime($date));
 
 					
 					$ins_data['cell_id'] = $cell_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
 					$ins_data['type'] = $type;
 					$ins_data['date'] = $dates;
 					$ins_data['attendance'] = $attendance;
@@ -2283,6 +2287,9 @@ class Accounts extends BaseController {
 			if(empty($offset)) {$offset = 0;}
 			
 			$search = $this->request->getPost('search');
+			if(!empty($this->request->getVar('start_date'))){$start_date = $this->request->getVar('start_date');}else{$start_date = '';}
+			if(!empty($this->request->getVar('end_date'))){$end_date = $this->request->getVar('end_date');}else{$end_date = '';}
+
 			
 			$items = '
 				<div class="nk-tb-item nk-tb-head">
@@ -2309,11 +2316,11 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_cell_report('', '', $search);
+				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_cell_report($limit, $offset, $search);
+				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date);
 				$data['count'] = $counts;
 				
 
@@ -2322,6 +2329,7 @@ class Accounts extends BaseController {
 						$id = $q->id;
 						$type = $q->type;
 						$cell_id = $q->cell_id;
+						$church_id = $q->church_id;
 						$attendance = $q->attendance;
 						$offering = $q->offering;
 						$new_convert = $q->new_convert;
@@ -2334,11 +2342,9 @@ class Accounts extends BaseController {
 						if($type == 'wk2')$types = 'Wk2 - Bible Study';
 						if($type == 'wk3')$types = 'Wk3 - Bible Study';
 						if($type == 'wk4')$types = 'Wk4 - Fellowship / Outreach';
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+						$cell = '<span class="text-info"><em class="icon ni ni-curve-down-right"></em> <span>'.strtoupper($this->Crud->read_field('id', $cell_id, 'cells', 'name').' - '.$church).'</span></span>';
 						
-						$cell='';
-						if($role == 'developer' || $role == 'administrator'){
-							$cell = '<span class="text-info"><em class="icon ni ni-curve-down-right"></em> <span>'.strtoupper($this->Crud->read_field('id', $cell_id, 'cells', 'name')).'</span></span>';
-						}
 						// add manage buttons
 						if ($role_u != 1) {
 							$all_btn = '';
