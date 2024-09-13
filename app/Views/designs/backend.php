@@ -495,4 +495,5 @@
         });
         </script>
     <?php } ?>
+    <div class="js-preloader">    <div class="loading-animation tri-ring"></div></div>
 </html>
