@@ -1362,17 +1362,13 @@ class Accounts extends BaseController {
 				// prepare for edit
 				if($param2 == 'edit') {
 					if($param3) {
-						$edit = $this->Crud->read_single('id', $param3, $table);
+						$edit = $this->Crud->read_single('id', $param3, 'user');
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_location'] = $e->location;
-								$data['e_name'] = $e->name;
-								$data['e_phone'] = $e->phone;
-								$data['e_ministry_id'] = $e->ministry_id;
-								$data['e_church_id'] = $e->church_id;
-								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
-								$data['e_time'] = json_decode($e->time);
+								$data['e_cell_role_id'] = $e->cell_role;
+								$data['e_status'] = $e->activate;
+								
 							}
 						}
 					}
@@ -1386,18 +1382,58 @@ class Accounts extends BaseController {
 					$cell_role_id = $this->request->getVar('cell_role_id');
 					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
 					
+					
 					// do create or update
 					if($member_id) {
-						$upd_rec = $this->Crud->updates('id', $member_id, 'user', array('status'=>$status,'cell_role'=>$cell_role_id));
+						$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+						$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+						$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+						$cell_role = $this->Crud->read_field('id', $cell_role_id, 'access_role', 'name');
+						if($cell_role == 'Cell Leader' || $cell_role == 'Assistant Cell Leader'){
+							$role_id = $cell_role_id;
+							$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+							if(!empty($cells)){
+								foreach($cells as $cm){
+									if($cm->cell_role == $cell_role_id){
+										$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+									}
+								}
+							}
+						}
+						if($cell_role == 'Cell Executive'){
+							$role_id = $cell_role_id;
+							$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+							if(!empty($cells)){
+								$a = 0;
+								foreach($cells as $cm){
+									if($cm->cell_role == $cell_role_id){
+										$a++;
+										if($a > 5){
+											$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+										}
+										
+									}
+
+								}
+							}
+						}
+						$ins_data['role_id'] = $role_id;
+						$ins_data['activate'] = $status;
+						$ins_data['cell_role'] = $cell_role_id;
+						
+						$upd_rec = $this->Crud->updates('id', $member_id, 'user', $ins_data);
 						if($upd_rec > 0) {
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$code = $this->Crud->read_field('id', $member_id, 'cells', 'name');
-							$action = $by.' updated Cell ('.$code.') Record';
+							$code = $this->Crud->read_field('id', $member_id, 'user', 'firstname');
+							$action = $by.' updated User ('.$code.') Record';
 							$this->Crud->activity('user', $member_id, $action);
 
 							echo $this->Crud->msg('success', 'Record Updated');
-							echo '<script>location.reload(false);</script>';
+							echo '<script>
+								load_leadership("","",'.$cell_id.');
+								$("#modal").modal("hide");
+							</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
@@ -1638,7 +1674,7 @@ class Accounts extends BaseController {
 						// add manage buttons
 						
 							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage_member/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								
 							';
 						

@@ -34,7 +34,9 @@
                                 <?php
                                     $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
                                     $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-
+                                    $roles_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+                                    $roles = $this->Crud->read_field('id', $roles_id, 'access_role', 'name');
+                                    
                                     if ($ministry_id > 0) { ?>
                                         <input type="hidden" name="ministry_id"  id="ministry_id"  value="<?php echo $ministry_id; ?>">
                                         <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
@@ -65,7 +67,7 @@
 
                                 <?php } ?>
 
-                                <?php if ($role != 'Church Leader') { ?>
+                                <?php if ($roles != 'Church Leader') { ?>
                                     <div class="col-md-6 col-lg-4 col-xxl-3">
                                         <div class="form-group">
                                             <label  class="form-label">Church Level</label>
