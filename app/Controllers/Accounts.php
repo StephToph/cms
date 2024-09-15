@@ -2276,6 +2276,27 @@ class Accounts extends BaseController {
 			echo json_encode($output);
 			exit;
 		}
+
+		if($param1 == 'load_cells'){
+			$level = $this->request->getPost('level');
+			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+
+			$level_status = false;
+			if($role == 'developer' ||  $role == 'administrator'){
+
+				$level_status = true;
+			} else {
+				
+
+
+			}
+
+			$resp['level_status'] = $level_status;
+			echo json_encode($resp);
+			die;
+		}
+
         // record listing
 		if($param1 == 'load') {
 			$limit = $param2;
