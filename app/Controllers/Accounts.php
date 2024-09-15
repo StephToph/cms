@@ -2567,6 +2567,10 @@ class Accounts extends BaseController {
 			if(!empty($this->request->getVar('cell_id'))){$cell_id = $this->request->getVar('cell_id');}else{$cell_id = '';}
 			if(!empty($this->request->getVar('start_date'))){$start_date = $this->request->getVar('start_date');}else{$start_date = '';}
 			if(!empty($this->request->getVar('end_date'))){$end_date = $this->request->getVar('end_date');}else{$end_date = '';}
+			if(!empty($this->request->getVar('region_id'))){$region_id = $this->request->getVar('region_id');}else{$region_id = '';}
+			if(!empty($this->request->getVar('zone_id'))){$zone_id = $this->request->getVar('zone_id');}else{$zone_id = '';}
+			if(!empty($this->request->getVar('group_id'))){$group_id = $this->request->getVar('group_id');}else{$group_id = '';}
+			if(!empty($this->request->getVar('church_id'))){$church_id = $this->request->getVar('church_id');}else{$church_id = '';}
 
 			
 			$items = '
@@ -2594,11 +2598,11 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type);
+				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type);
+				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id);
 				$data['count'] = $counts;
 				
 

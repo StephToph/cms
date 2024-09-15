@@ -86,16 +86,43 @@
 
 
                                     <?php } ?>
-                                    <div class="col-sm-2 mb-3 level_resp"  style="display:none;" id="level_resp">
-                                        <select class="js-select2" name="level" id="level" onchange="load_level();">
-                                            <option value="all">All Church Level</option>
-                                            <option value="region">Regional Level</option>
-                                            <option value="zone">Zonal Level</option>
-                                            <option value="group">Group Level</option>
-                                            <option value="church">Church Level</option>
-                                        </select>
-                                    </div>
+                                    <?php if($role != 'church leader'){?>
+                                        <div class="col-sm-2 mb-3 level_resp"  style="display:none;" id="level_resp">
+                                            <select class="js-select2" name="level" id="level" onchange="load_level();">
+                                                <option value="all">All Church Level</option>
 
+                                               <?php
+                                                    
+                                                    $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                                    $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                                                    if($log_church_type == 'region'){
+                                                        
+                                                ?>
+                                                
+                                                    <option value="zone" >Zonal Church</option>
+                                                    <option value="group" >Group Church</option>
+                                                    <option value="church" >Church Assembly</option>
+                                                <?php } elseif($log_church_type == 'zone'){?>
+                                                
+                                                    <option value="group" >Group Church</option>
+                                                    <option value="church" >Church Assembly</option>
+
+                                                <?php } elseif($log_church_type == 'group'){?>
+                                                
+                                                    <option value="church" >Church Assembly</option>
+
+                                                <?php } else{?>
+                                                    <option value="region">Regional Church</option>
+                                                    <option value="zone" >Zonal Church</option>
+                                                    <option value="group" >Group Church</option>
+                                                    <option value="church" >Church Assembly</option>
+                                                <?php } ?>
+                                                
+                                            </select>
+                                        </div>
+
+                                    <?php } ?>
                                     <div class="col-sm-3 mb-3 region_resp"  style="display:none;" id="region_resp">
                                         <select class="js-select2" name="region_id" id="region_id">
                                             <option value="all">All Region Church </option>
@@ -497,12 +524,16 @@
         var meeting_type = $('#meeting_type').val();
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
+        var region_id = $('#region_id').val();
+        var zone_id = $('#zone_id').val();
+        var group_id = $('#group_id').val();
+        var church_id = $('#church_id').val();
         //alert(status);
 
         $.ajax({
             url: site_url + 'accounts/creport/load' + methods,
             type: 'post',
-            data: { search: search,cell_id: cell_id,level: level,meeting_type: meeting_type,start_date: start_date,end_date: end_date},
+            data: { search: search,cell_id: cell_id,level: level,meeting_type: meeting_type,start_date: start_date,end_date: end_date,region_id: region_id,zone_id: zone_id,group_id: group_id,church_id: church_id},
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
@@ -677,6 +708,7 @@
             $('#zone_id').val('all').trigger('change');
             $('#group_id').val('all').trigger('change');
             $('#church_id').val('all').trigger('change');
+            load();
         });
 
         $('#zone_id').change(function() {
@@ -685,6 +717,7 @@
             // Clear subsequent dropdowns
             $('#group_id').val('all').trigger('change');
             $('#church_id').val('all').trigger('change');
+            load();
         });
 
         $('#group_id').change(function() {
@@ -692,6 +725,7 @@
             updateChurches(groupId);
             // Clear subsequent dropdown
             $('#church_id').val('all').trigger('change');
+            load();
         });
 
         $('#church_id').change(function() {
@@ -704,6 +738,7 @@
                     success: function(data) {
                         const dt = JSON.parse(data);
                         updateCells(dt.cells); // Update cells for the selected church
+                        load();
                     }
                 });
             } else {
