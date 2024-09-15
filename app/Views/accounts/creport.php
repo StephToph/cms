@@ -64,8 +64,30 @@
                                             <option value="wk4" >WK4 - Fellowship / Outreach</option>
                                         </select>
                                     </div>
+                                    <?php 
+                                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                                        if ($ministry_id <= 0) { ?>
+                                        <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
+                                            <div class="form-group">
+                                                <select id="ministry_id" name="ministry_id" class="js-select2 "  onchange="load_cells();">
+                                                    <option value="all">All Ministry</option>
+                                                    <?php
+                                                        $ministries = $this->Crud->read_order('ministry', 'name', 'asc');
+                                                        foreach ($ministries as $ministry) {
+                                                            $selected = '';
+                                                            echo '<option value="' . $ministry->id . '" ' . $selected . '>' . ucwords($ministry->name) . '</option>';
+                                                        }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    <?php } else {?>
+                                        <input type="hidden" id="ministry_id" value="<?=$ministry_id;?>">
+
+
+                                    <?php } ?>
                                     <div class="col-sm-2 mb-3 level_resp"  style="display:none;" id="level_resp">
-                                        <select class="js-select2" name="level" id="level" onchange="load();">
+                                        <select class="js-select2" name="level" id="level" onchange="load_level();">
                                             <option value="all">All Church Level</option>
                                             <option value="region">Regional Level</option>
                                             <option value="zone">Zonal Level</option>
@@ -73,8 +95,34 @@
                                             <option value="church">Church Level</option>
                                         </select>
                                     </div>
+
+                                    <div class="col-sm-3 mb-3 region_resp"  style="display:none;" id="region_resp">
+                                        <select class="js-select2" name="region_id" id="region_id">
+                                            <option value="all">All Region Church </option>
+                                           
+                                        </select>
+                                    </div>
                                     
-                                    <div class="col-sm-3 mb-3 cell_resp" style="display:none;" id="cell_resp">
+                                    <div class="col-sm-3 mb-3 zone_resp"  style="display:none;" id="zone_resp">
+                                        <select class="js-select2" name="zone_id" id="zone_id" >
+                                            <option value="all">All Zonal Church </option>
+                                           
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-3 mb-3 group_resp"  style="display:none;" id="group_resp">
+                                        <select class="js-select2" name="group_id" id="group_id" >
+                                            <option value="all">All Group Church </option>
+                                           
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-3 mb-3 church_resp"  style="display:none;" id="church_resp">
+                                        <select class="js-select2" name="church_id" id="church_id" >
+                                            <option value="all">All Church Assembly</option>
+                                           
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-sm-3 mb-3 filter_resp" style="display:none;" id="cell_resp">
                                         <select class="form-select js-select2" id="cell_id" onchange="load();"
                                             data-placeholder="All Cell">
                                             <option value="all">All Cell</option>
@@ -259,6 +307,7 @@
 <script>
     $(function() {
         load('', '');
+        
     });
     
     function filter_resp(){
@@ -275,7 +324,40 @@
 
     }
 
-   
+   function load_level(){
+        var level = $('#level').val();
+        if(level === 'all'){
+            $('.region_resp').hide(500);
+            $('.zone_resp').hide(500);
+            $('.group_resp').hide(500);
+            $('.church_resp').hide(500);
+        }
+        if(level === 'region'){
+            $('.region_resp').show(500);
+            $('.zone_resp').hide(500);
+            $('.group_resp').hide(500);
+            $('.church_resp').hide(500);
+        }
+        if(level === 'zone'){
+            $('.region_resp').hide(500);
+            $('.zone_resp').show(500);
+            $('.group_resp').hide(500);
+            $('.church_resp').hide(500);
+        }
+        if(level === 'group'){
+             $('.region_resp').hide(500);
+            $('.group_resp').show(500);
+            $('.zone_resp').hide(500);
+            $('.church_resp').hide(500);
+        }
+        if(level === 'church'){
+             $('.region_resp').hide(500);
+             $('.zone_resp').hide(500);
+             $('.group_resp').hide(500);
+            $('.church_resp').show(500);
+        }
+        load_cells();
+    }
 
     var initialInfo = {
         class: 'btn-outline-primary',
@@ -409,6 +491,7 @@
        
         var search = $('#search').val();
         var cell_id = $('#cell_id').val();
+        var level = $('#level').val();
         var meeting_type = $('#meeting_type').val();
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
@@ -417,7 +500,7 @@
         $.ajax({
             url: site_url + 'accounts/creport/load' + methods,
             type: 'post',
-            data: { search: search,cell_id: cell_id,meeting_type: meeting_type,start_date: start_date,end_date: end_date},
+            data: { search: search,cell_id: cell_id,level: level,meeting_type: meeting_type,start_date: start_date,end_date: end_date},
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
@@ -440,14 +523,59 @@
 
     function load_cells(){
         var level = $('#level').val();
+        var ministry_id = $('#ministry_id').val();
+        var region_id = $('#region_id').val();
+        var zone_id = $('#zone_id').val();
+        var group_id = $('#group_id').val();
+        var church_id = $('#church_id').val();
         $.ajax({
             url: site_url + 'accounts/creport/load_cells',
-            data: {level:level},
+            data: {level:level,ministry_id:ministry_id,region_id:region_id,zone_id:zone_id,group_id:group_id,church_id:church_id},
             type: 'post',
             success: function (data) {
                 var dt = JSON.parse(data);
                 
                 if(dt.level_status === true){
+                    var cellSelect = $('#cell_id');
+                    cellSelect.empty(); 
+                    cellSelect.append('<option value="all">All Cell</option>');
+                    
+                    // Add options for each cell
+                    dt.cells.forEach(function(cell) {
+                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                    });
+                    var cellSelect = $('#region_id');
+                    cellSelect.empty(); 
+                    cellSelect.append('<option value="all">All Region Churches</option>');
+                    
+                    // Add options for each cell
+                    dt.region_list.forEach(function(cell) {
+                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                    });
+                    var cellSelect = $('#zone_id');
+                    cellSelect.empty(); 
+                    cellSelect.append('<option value="all">All Zone Churches</option>');
+                    
+                    // Add options for each cell
+                    dt.zone_list.forEach(function(cell) {
+                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                    });
+                    var cellSelect = $('#group_id');
+                    cellSelect.empty(); 
+                    cellSelect.append('<option value="all">All Group Churches</option>');
+                    
+                    // Add options for each cell
+                    dt.group_list.forEach(function(cell) {
+                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                    });
+                    var cellSelect = $('#church_id');
+                    cellSelect.empty(); 
+                    cellSelect.append('<option value="all">All Church Assembly</option>');
+                    
+                    // Add options for each cell
+                    dt.church_list.forEach(function(cell) {
+                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                    });
                     $('#level_resp').show(500);
                 } else {
                     $('#level_resp').hide(500);
@@ -455,6 +583,134 @@
             }
         });
     }
+
+    $(document).ready(function() {
+        // Function to fetch and update zones
+        function updateZones(regionId) {
+            if (regionId !== 'all') {
+                $.ajax({
+                    url: site_url + 'accounts/creport/records/load_zones',
+                    data: { region_id: regionId },
+                    type: 'post',
+                    success: function(data) {
+                        const dt = JSON.parse(data);
+                        const zoneSelect = $('#zone_id');
+                        zoneSelect.empty().append('<option value="all">All Zonal Church</option>');
+                        dt.zones.forEach(zone => {
+                            zoneSelect.append(`<option value="${zone.id}">${zone.name}</option>`);
+                        });
+                        $('#zone_resp').show(500);
+                        updateCells(dt.cells); // Update cells for the selected region
+                    }
+                });
+            } else {
+                $('#zone_resp').hide(500);
+                updateCells([]); // Clear cells if no region is selected
+            }
+        }
+
+        // Function to fetch and update groups
+        function updateGroups(zoneId) {
+            if (zoneId !== 'all') {
+                $.ajax({
+                    url: site_url + 'accounts/creport/records/load_groups',
+                    data: { zone_id: zoneId },
+                    type: 'post',
+                    success: function(data) {
+                        const dt = JSON.parse(data);
+                        const groupSelect = $('#group_id');
+                        groupSelect.empty().append('<option value="all">All Group Church</option>');
+                        dt.groups.forEach(group => {
+                            groupSelect.append(`<option value="${group.id}">${group.name}</option>`);
+                        });
+                        $('#group_resp').show(500);
+                        updateCells(dt.cells); // Update cells for the selected zone
+                    }
+                });
+            } else {
+                $('#group_resp').hide(500);
+                updateCells([]); // Clear cells if no zone is selected
+            }
+        }
+
+        // Function to fetch and update churches
+        function updateChurches(groupId) {
+            if (groupId !== 'all') {
+                $.ajax({
+                    url: site_url + 'accounts/creport/records/load_churches',
+                    data: { group_id: groupId },
+                    type: 'post',
+                    success: function(data) {
+                        const dt = JSON.parse(data);
+                        const churchSelect = $('#church_id');
+                        churchSelect.empty().append('<option value="all">All Church Assembly</option>');
+                        dt.churches.forEach(church => {
+                            churchSelect.append(`<option value="${church.id}">${church.name}</option>`);
+                        });
+                        $('#church_resp').show(500);
+                        updateCells(dt.cells); // Update cells for the selected group
+                    }
+                });
+            } else {
+                $('#church_resp').hide(500);
+                updateCells([]); // Clear cells if no group is selected
+            }
+        }
+
+        // Function to fetch and update cells
+        function updateCells(cells = []) {
+            const cellSelect = $('#cell_id');
+            cellSelect.empty().append('<option value="all">All Cell</option>');
+            cells.forEach(cell => {
+                cellSelect.append(`<option value="${cell.id}">${cell.name}</option>`);
+            });
+            $('#cell_resp').show(500);
+        }
+
+        // Event handlers for dropdown changes
+        $('#region_id').change(function() {
+            const regionId = $(this).val();
+            updateZones(regionId);
+            // Clear subsequent dropdowns
+            $('#zone_id').val('all').trigger('change');
+            $('#group_id').val('all').trigger('change');
+            $('#church_id').val('all').trigger('change');
+        });
+
+        $('#zone_id').change(function() {
+            const zoneId = $(this).val();
+            updateGroups(zoneId);
+            // Clear subsequent dropdowns
+            $('#group_id').val('all').trigger('change');
+            $('#church_id').val('all').trigger('change');
+        });
+
+        $('#group_id').change(function() {
+            const groupId = $(this).val();
+            updateChurches(groupId);
+            // Clear subsequent dropdown
+            $('#church_id').val('all').trigger('change');
+        });
+
+        $('#church_id').change(function() {
+            const churchId = $(this).val();
+            if (churchId !== 'all') {
+                $.ajax({
+                    url: site_url + 'accounts/creport/records/load_cells',
+                    data: { church_id: churchId },
+                    type: 'post',
+                    success: function(data) {
+                        const dt = JSON.parse(data);
+                        updateCells(dt.cells); // Update cells for the selected church
+                    }
+                });
+            } else {
+                updateCells([]); // Clear cells if no church is selected
+            }
+        });
+    });
+
+
 </script>   
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
