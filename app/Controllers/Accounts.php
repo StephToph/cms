@@ -2421,8 +2421,6 @@ class Accounts extends BaseController {
 				$level_status = true;
 			}	
 			if($level != 'all'){
-				
-				
 				if($ministry_id != 'all'){
 					$church = $this->Crud->read_single_order('ministry_id', $ministry_id, 'church', 'name', 'asc');
 					if(!empty($church)){
@@ -2530,7 +2528,18 @@ class Accounts extends BaseController {
 					}
 
 				}
+			}
 
+			if($role == 'church leader'){
+				$cel = $this->Crud->read_single_order('church_id', $church_id, 'cells', 'name', 'asc');
+				if(!empty($cel)){
+					foreach($cel as $cl){
+						$c_list['id'] = $cl->id;
+						$c_list['name'] = $cl->name;
+						$cells[] = $c_list;
+					}
+				}
+					
 			}
 
 			$resp['cells'] = $cells;
