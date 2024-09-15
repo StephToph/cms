@@ -40,9 +40,9 @@
                                 </div><!-- .card-title-group -->
                                 
                             </div><!-- .card-inner -->
-                            <div class="card-inner" id="show">
+                            <div class="card-inner">
                                 <div class="row">
-                                    <div class="col-sm-5 mb-3 filter_resp" style="display:none;">
+                                    <div class="col-sm-4 mb-3 filter_resp" style="display:none;">
                                         <div class="row">
                                             <div class="col-6 col-sm-6">
                                                 <input type="date" class="form-control" name="start_date" id="start_date" oninput="loads()" style="border:1px solid #ddd;">
@@ -64,45 +64,26 @@
                                             <option value="wk4" >WK4 - Fellowship / Outreach</option>
                                         </select>
                                     </div>
-                                    <?php 
-                                        $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
-                                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-                                        
-                                        if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){?>
+                                    <div class="col-sm-2 mb-3 level_resp"  style="display:none;" id="level_resp">
+                                        <select class="js-select2" name="level" id="level" onchange="load();">
+                                            <option value="all">All Church Level</option>
+                                            <option value="region">Regional Level</option>
+                                            <option value="zone">Zonal Level</option>
+                                            <option value="group">Group Level</option>
+                                            <option value="church">Church Level</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="col-sm-3 mb-3 cell_resp" style="display:none;" id="cell_resp">
+                                        <select class="form-select js-select2" id="cell_id" onchange="load();"
+                                            data-placeholder="All Cell">
+                                            <option value="all">All Cell</option>
+                                            
+                                        </select>
+                                    </div>
 
-                                            <input type="hidden" id="cell_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
-                                        <?php } else{?>
-                                            <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
-                                                <select class="form-select js-select2" id="cell_id" onchange="load();"
-                                                    data-placeholder="All Cell">
-                                                    <option value="all">All Cell</option>
-                                                    <?php
-                                                        if($ministry_id == 0){
-                                                            $parent  = $this->Crud->read_order('cells', 'name', 'asc');
-                                                        }
-                                                        if($ministry_id > 0 && $church_id <= 0){
-                                                            $parent  = $this->Crud->read_single_order('ministry_id',  $ministry_id, 'cells', 'name', 'asc');
-
-                                                        }
-                                                        if($ministry_id > 0 && $church_id > 0){
-                                                            $parent  = $this->Crud->read_single_order('church_id',  $church_id, 'cells', 'name', 'asc');
-
-                                                        }
-                                                        if(!empty($parent)){
-                                                            foreach($parent as $p){
-                                                                $church = $this->Crud->read_field('id', $p->church_id, 'church', 'name');
-                                                                $sel = '';
-                                                            
-                                                                echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name.' - '.$church).'</option>';
-                                                            }
-                                                        }
-                                                    ?>
-                                                </select>
-                                            </div>
-                                    <?php } ?>
                                     <div class="col-sm-1 mb-3 " >
-                                        <a href="javascript:;" onclick="$('.filter_resp').toggle(500);" class="text-right btn btn-icon btn-block btn-outline-danger"><em class="icon ni ni-filter"></em></a>
+                                        <a href="javascript:;" id="filter_btn" onclick="filter_resp();" class="text-right btn btn-icon btn-block btn-outline-danger"><em class="icon ni ni-filter"></em></a>
                                     </div>
                                 </div>
                                 <div class="nk-tb-list nk-tb-ulist" id="load_data">
@@ -280,6 +261,22 @@
         load('', '');
     });
     
+    function filter_resp(){
+        load_cells();
+        $('.filter_resp').show(500);
+        $('#filter_btn').attr('onclick', 'filter_back()');
+
+    }
+    function filter_back(){
+        $('.filter_resp').hide(500);
+        $('.cell_resp').hide(500);
+        $('.level_resp').hide(500);
+        $('#filter_btn').attr('onclick', 'filter_resp()');
+
+    }
+
+   
+
     var initialInfo = {
         class: 'btn-outline-primary',
         onclick: 'add_report();',
@@ -303,6 +300,7 @@
         // Toggle between initial and new info
         currentInfo = (currentInfo === initialInfo) ? newInfo : initialInfo;
 
+        updatePageName();
         // Update button class, onclick function, and icon class
         $(this).removeClass().addClass('btn btn-icon ' + currentInfo.class);
         // $(this).attr('onclick', currentInfo.onclick);
@@ -394,7 +392,6 @@
         offeringBtn.setAttribute("pageName", updatedPageName);
     }
 
-    updatePageName();
     function load(x, y) {
         var more = 'no';
         var methods = '';
@@ -428,7 +425,7 @@
                 } else {
                     $('#load_data').append(dt.item);
                 }
-                $('#counta').html(dt.count);
+                
                 if (dt.offset > 0) {
                     $('#loadmore').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
                 } else {
@@ -437,6 +434,24 @@
             },
             complete: function () {
                 $.getScript(site_url + '/assets/js/jsmodal.js');
+            }
+        });
+    }
+
+    function load_cells(){
+        var level = $('#level').val();
+        $.ajax({
+            url: site_url + 'accounts/creport/load_cells',
+            data: {level:level},
+            type: 'post',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                
+                if(dt.level_status === true){
+                    $('#level_resp').show(500);
+                } else {
+                    $('#level_resp').hide(500);
+                }
             }
         });
     }
