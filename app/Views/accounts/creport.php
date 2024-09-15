@@ -86,14 +86,16 @@
 
 
                                     <?php } ?>
-                                    <?php if($role != 'church leader'){?>
+                                    <?php if($role != 'church leader'){
+                                        $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                        ?>
                                         <div class="col-sm-2 mb-3 level_resp"  style="display:none;" id="level_resp">
                                             <select class="js-select2" name="level" id="level" onchange="load_level();">
                                                 <option value="all">All Church Level</option>
+                                                <?php if($log_church_id > 0){?>
+                                                <option value="<?=$log_church_id; ?>">My Church</option>
 
-                                               <?php
-                                                    
-                                                    $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                               <?php }
                                                     $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
                                                     if($log_church_type == 'region'){
@@ -354,6 +356,10 @@
 
    function load_level(){
         var level = $('#level').val();
+        $('.region_resp').hide(500);
+        $('.zone_resp').hide(500);
+        $('.group_resp').hide(500);
+        $('.church_resp').hide(500);
         if(level === 'all'){
             $('.region_resp').hide(500);
             $('.zone_resp').hide(500);

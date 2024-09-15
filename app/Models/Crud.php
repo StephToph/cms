@@ -2091,7 +2091,7 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
-	public function filter_cell_report($limit='', $offset='', $search='', $log_id, $start_date='', $end_date='', $cell_id='', $meeting_type='', $region_id='', $zone_id='', $group_id='', $church_id='') {
+	public function filter_cell_report($limit='', $offset='', $search='', $log_id, $start_date='', $end_date='', $cell_id='', $meeting_type='', $region_id='', $zone_id='', $group_id='', $church_id='', $level = '') {
 
 		$db = db_connect();
 		$builder = $db->table('cell_report');
@@ -2111,6 +2111,10 @@ class Crud extends Model {
 			} else {
 				$builder->where('church_id', $church_id_user);
 			}
+		}
+
+		if($level != 'all' && is_int($level)){
+			$builder->where('church_id', $level);
 		}
 	
 		// Build the church IDs based on the hierarchy
