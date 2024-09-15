@@ -2281,17 +2281,92 @@ class Accounts extends BaseController {
 			$level = $this->request->getPost('level');
 			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
 			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			$type = $this->Crud->read_field('id', $church_id, 'church', 'type');
 
+			$cells = array();
 			$level_status = false;
-			if($role == 'developer' ||  $role == 'administrator'){
-
+			if($role != 'church leader' && $role != 'cell leader'&& $role != 'cell executive' && $role != 'assistant cell leader'){
 				$level_status = true;
-			} else {
-				
+			}	
+			if($level == 'all'){
+				if($role == 'regional manager'){
+					$church = $this->Crud->read_single_order('regional_id', $church_id, 'church', 'name', 'asc');
+					if(!empty($church)){
+						foreach($church as $ch){
+							$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
+							if(!empty($cell)){
+								foreach($cell as $ce){
+									$cellsa['id'] = $ce->id;
+									$cellsa['name'] = $ce->name;
+									
+									$cells[] = $cellsa;
+								}
+							}
+
+						}
+					}
+				} elseif($role == 'zonal  manager'){
+					$church = $this->Crud->read_single_order('zonal_id', $church_id, 'church', 'name', 'asc');
+					if(!empty($church)){
+						foreach($church as $ch){
+							$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
+							if(!empty($cell)){
+								foreach($cell as $ce){
+									$cellsa['id'] = $ce->id;
+									$cellsa['name'] = $ce->name;
+									
+									$cells[] = $cellsa;
+								}
+							}
+
+						}
+					}
+				}elseif($role == 'group  manager'){
+					$church = $this->Crud->read_single_order('group_id', $church_id, 'church', 'name', 'asc');
+					if(!empty($church)){
+						foreach($church as $ch){
+							$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
+							if(!empty($cell)){
+								foreach($cell as $ce){
+									$cellsa['id'] = $ce->id;
+									$cellsa['name'] = $ce->name;
+									
+									$cells[] = $cellsa;
+								}
+							}
+
+						}
+					}
+				} elseif($role == 'church leader'){
+					
+					$cell = $this->Crud->read_single_order('church_id', $church_id, 'cells', 'name', 'asc');
+					if(!empty($cell)){
+						foreach($cell as $ce){
+							$cellsa['id'] = $ce->id;
+							$cellsa['name'] = $ce->name;
+							
+							$cells[] = $cellsa;
+						}
+					}
+
+						
+				} else {
+					$cell = $this->Crud->read_single_order('church_id', $church_id, 'cells', 'name', 'asc');
+					if(!empty($cell)){
+						foreach($cell as $ce){
+							$cellsa['id'] = $ce->id;
+							$cellsa['name'] = $ce->name;
+							
+							$cells[] = $cellsa;
+						}
+					}
+				}
 
 
+				ksort($cells);
 			}
 
+			$resp['cells'] = $cells;
 			$resp['level_status'] = $level_status;
 			echo json_encode($resp);
 			die;

@@ -74,7 +74,7 @@
                                         </select>
                                     </div>
                                     
-                                    <div class="col-sm-3 mb-3 cell_resp" style="display:none;" id="cell_resp">
+                                    <div class="col-sm-3 mb-3 filter_resp" style="display:none;" id="cell_resp">
                                         <select class="form-select js-select2" id="cell_id" onchange="load();"
                                             data-placeholder="All Cell">
                                             <option value="all">All Cell</option>
@@ -448,6 +448,16 @@
                 var dt = JSON.parse(data);
                 
                 if(dt.level_status === true){
+                    var cellSelect = $('#cell_id');
+                    cellSelect.empty(); // Clear existing options
+                    
+                    // Add the default 'All Cell' option
+                    cellSelect.append('<option value="all">All Cell</option>');
+                    
+                    // Add options for each cell
+                    dt.cells.forEach(function(cell) {
+                    cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                });
                     $('#level_resp').show(500);
                 } else {
                     $('#level_resp').hide(500);
