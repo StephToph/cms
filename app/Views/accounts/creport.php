@@ -307,7 +307,9 @@
 <script>
     $(function() {
         load('', '');
-        
+        <?php if($role == 'church leader'){?>
+            load_cells();
+        <?php } ?>
     });
     
     function filter_resp(){
