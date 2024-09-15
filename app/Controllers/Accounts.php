@@ -2571,6 +2571,7 @@ class Accounts extends BaseController {
 			if(!empty($this->request->getVar('zone_id'))){$zone_id = $this->request->getVar('zone_id');}else{$zone_id = '';}
 			if(!empty($this->request->getVar('group_id'))){$group_id = $this->request->getVar('group_id');}else{$group_id = '';}
 			if(!empty($this->request->getVar('church_id'))){$church_id = $this->request->getVar('church_id');}else{$church_id = '';}
+			if(!empty($this->request->getVar('level'))){$level = $this->request->getVar('level');}else{$level = '';}
 
 			
 			$items = '
@@ -2598,11 +2599,11 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id);
+				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id, $level);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id);
+				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id, $level);
 				$data['count'] = $counts;
 				
 

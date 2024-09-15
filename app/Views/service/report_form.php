@@ -463,7 +463,7 @@ $this->Crud = new Crud();
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Member</label>
-                <input class="form-control" id="member" type="text" name="member"  readonly value="0">
+                <input class="form-control" id="member" type="text" name="member"  value="0">
             </div>
             <div class="col-sm-4 mb-3">
                 <label>First Timer</label>
@@ -471,29 +471,16 @@ $this->Crud = new Crud();
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Male</label>
-                <input class="form-control" id="male" type="text" name="male"  readonly value="<?=$timer_male; ?>">
+                <input class="form-control" id="male" type="text" name="male"  value="<?=$timer_male; ?>">
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Female</label>
-                <input class="form-control" id="female" type="text" name="female"  readonly value="<?=$timer_female; ?>">
+                <input class="form-control" id="female" type="text" name="female"  value="<?=$timer_female; ?>">
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Children</label>
-                <input class="form-control" id="children" type="text" name="children"  readonly value="<?=$timer_child; ?>">
+                <input class="form-control" id="children" type="text" name="children"  value="<?=$timer_child; ?>">
             </div>
-        </div>
-        <hr>
-        <div class="table-responsive">
-            <table id="dtable" class="table table-striped table-hover mt-5">
-                <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
         </div>
         <hr>
         <div class="row mt-5" >
@@ -1304,6 +1291,30 @@ $this->Crud = new Crud();
 <!-- Include jQuery library -->
 
 <script>
+    // Function to update the total field
+    function updateTotal() {
+        // Get values from the input fields
+        const memberValue = parseInt(document.getElementById('member').value) || 0;
+        const guestValue = parseInt(document.getElementById('guest').value) || 0;
+        const maleValue = parseInt(document.getElementById('male').value) || 0;
+        const femaleValue = parseInt(document.getElementById('female').value) || 0;
+        const childrenValue = parseInt(document.getElementById('children').value) || 0;
+
+        // Calculate the total
+        const total = memberValue + guestValue + maleValue + femaleValue + childrenValue;
+
+        // Update the total field
+        document.getElementById('total').value = total;
+    }
+
+    // Attach event listeners to input fields
+    window.onload = function() {
+        document.getElementById('member').oninput = updateTotal;
+        document.getElementById('guest').oninput = updateTotal;
+        document.getElementById('male').oninput = updateTotal;
+        document.getElementById('female').oninput = updateTotal;
+        document.getElementById('children').oninput = updateTotal;
+    };
      var rowIndex = 1;
     // Array to store selected values
     var selectedValues = [];
