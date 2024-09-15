@@ -2091,55 +2091,81 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
+	public function filter_cell_report($limit='', $offset='', $search='', $log_id, $start_date='', $end_date='', $cell_id='', $meeting_type='', $region_id='', $zone_id='', $group_id='', $church_id='') {
 
-	public function filter_cell_report($limit='', $offset='', $search='',  $log_id, $start_date='', $end_date='', $cell_id='', $meeting_type='') {
-
-        $db = db_connect();
-        $builder = $db->table('cell_report');
-
-        // build query
-		$builder->orderBy('id', 'desc');
+		$db = db_connect();
+		$builder = $db->table('cell_report');
+	
+		// Define an array to store IDs of the churches under the given hierarchy
+		$church_ids = [];
+		
+		// Check user role and apply appropriate filters
 		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
-		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-		if($role != 'developer' && $role != 'administrator'){
+	
+		if($role != 'developer' && $role != 'administrator') {
 			if($role == 'ministry administrator'){
 				$builder->where('ministry_id', $ministry_id);
-			}else {
-				$builder->where('church_id', $church_id);
+			} else {
+				$builder->where('church_id', $church_id_user);
 			}
-			
-		} 
-        if(!empty($search)) {
-            $builder->like('meeting', $search);
-        }
-		if(!empty($meeting_type) && $meeting_type !='all') {
-            $builder->like('type', $meeting_type);
-        }
-		if(!empty($cell_id) && $cell_id != 'all') {
-            $builder->like('cell_id', $cell_id);
-        }
-		
-		if(!empty($start_date) && !empty($end_date)){
-			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') >= '".$start_date."'",NULL,FALSE);
-			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') <= '".$end_date."'",NULL,FALSE); 
 		}
-		
-        // limit query
-        if($limit && $offset) {
+	
+		// Build the church IDs based on the hierarchy
+		if(!empty($region_id) && $region_id != 'all') {
+			$churches = $db->table('church')->where('regional_id', $region_id)->get()->getResult();
+			foreach ($churches as $church) {
+				$church_ids[] = $church->id;
+			}
+		} elseif(!empty($zone_id) && $zone_id != 'all') {
+			$churches = $db->table('church')->where('zonal_id', $zone_id)->get()->getResult();
+			foreach ($churches as $church) {
+				$church_ids[] = $church->id;
+			}
+		} elseif(!empty($group_id) && $group_id != 'all') {
+			$churches = $db->table('church')->where('group_id', $group_id)->get()->getResult();
+			foreach ($churches as $church) {
+				$church_ids[] = $church->id;
+			}
+		} elseif(!empty($church_id) && $church_id != 'all') {
+			$church_ids[] = $church_id;
+		}
+	
+		// Apply church_id filter if any
+		if (!empty($church_ids)) {
+			$builder->whereIn('church_id', $church_ids);
+		}
+	
+		// Additional filters
+		if(!empty($search)) {
+			$builder->like('meeting', $search);
+		}
+		if(!empty($meeting_type) && $meeting_type != 'all') {
+			$builder->like('type', $meeting_type);
+		}
+		if(!empty($cell_id) && $cell_id != 'all') {
+			$builder->like('cell_id', $cell_id);
+		}
+		if(!empty($start_date) && !empty($end_date)){
+			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') >= '".$start_date."'", NULL, FALSE);
+			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') <= '".$end_date."'", NULL, FALSE);
+		}
+	
+		// Limit query
+		if($limit && $offset) {
 			$query = $builder->get($limit, $offset);
 		} else if($limit) {
 			$query = $builder->get($limit);
 		} else {
-            $query = $builder->get();
-        }
-
-        // return query
-        return $query->getResult();
-        $db->close();
-    }
-
+			$query = $builder->get();
+		}
+	
+		// Return query results
+		return $query->getResult();
+		$db->close();
+	}
 	public function filter_service_report($limit='', $offset='', $search='') {
         $db = db_connect();
         $builder = $db->table('service_report');
