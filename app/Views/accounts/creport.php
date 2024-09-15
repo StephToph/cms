@@ -40,7 +40,7 @@
                                 </div><!-- .card-title-group -->
                                 
                             </div><!-- .card-inner -->
-                            <div class="card-inner">
+                            <div class="card-inner" id="show">
                                 <div class="row">
                                     <div class="col-sm-4 mb-3 filter_resp" style="display:none;">
                                         <div class="row">
@@ -168,7 +168,7 @@
                                 </div><!-- .nk-block-between -->
                             </div>
                             <div class="card-inner" id="form" style="display:none;">
-                               <div class="row">
+                                <div class="row">
                                     <div class="nk-block-head-sub mb-3" id="prev" style="display:none;">
                                         <a class="back-to" id="back_btn" href="javascript:;"><em class="icon ni ni-arrow-left"></em><span>Cell Reports</span></a>
                                     </div>
@@ -292,10 +292,9 @@
                                                     <div class="input-group">        
                                                         <input type="text" name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
                                                                
-                                                        </div>    
-                                                    </div>
-                                                    <span class="text-danger"></span>
+                                                    </div>    
                                                 </div>
+                                                <span class="text-danger"></span>
                                                 
                                             </div>
                                         </div>
