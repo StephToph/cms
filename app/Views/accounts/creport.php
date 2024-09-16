@@ -610,6 +610,7 @@
                         cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
                     });
                     $('#level_resp').show(500);
+                    load();
                 } else {
                     $('#level_resp').hide(500);
                 }
