@@ -789,7 +789,11 @@ $this->session = \Config\Services::session();
                                 <option value="">Select</option>
                                     <?php 
                                         $mem_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                        $mem = $this->Crud->read_single_order('role_id', $mem_id, 'user', 'firstname', 'asc');
+                                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                                        if(empty($church_id)){
+                                            $church_id = $this->session->get('service_church_id');
+                                        }
+                                        $mem = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
                                         if(!empty($mem)){
                                             foreach($mem as $mm){
                                                 $sel = '';
@@ -821,7 +825,11 @@ $this->session = \Config\Services::session();
                                 <option value="">Select</option>
                                     <?php 
                                         $mem_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                        $mem = $this->Crud->read_single_order('role_id', $mem_id, 'user', 'firstname', 'asc');
+                                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                                        if(empty($church_id)){
+                                            $church_id = $this->session->get('service_church_id');
+                                        }
+                                        $mem = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
                                         if(!empty($mem)){
                                             foreach($mem as $mm){
                                                 echo '<option value="'.$mm->id.'" >'.strtoupper($mm->firstname.' '.$mm->surname).'</option>';
@@ -1043,7 +1051,7 @@ $this->session = \Config\Services::session();
                             <label for="name"><?=translate_phrase('Gender'); ?></label>
                             <div class="form-control-wrap">
                                 <select
-                                    class="form-select js-select2" name="gender" required
+                                    class="form-select" name="gender" required
                                     data-placeholder="Select Gender">
                                     <option value="">Select Gender</option>
                                     <option value="Male" <?php if(!empty($e_gender)){if($e_gender == 'Male'){echo 'selected';}}?>>Male</option>
@@ -1056,7 +1064,7 @@ $this->session = \Config\Services::session();
                         <div class="form-group">
                             <label for="name"><?=translate_phrase('Family Position'); ?></label>
                             <div class="form-control-wrap">
-                                <select class="form-select js-select2" id="family_position" name="family_position"
+                                <select class="form-select" id="family_position" name="family_position"
                                     data-placeholder="Select Position" onchange="posit();">
                                     <option value="">Select</option>
                                     <option value="Child" <?php if(!empty($e_family_position)){if($e_family_position == 'Child'){echo 'selected';}} ?>>Child </option>
@@ -1075,7 +1083,7 @@ $this->session = \Config\Services::session();
                     <div class="col-sm-4 mb-3">
                         <div class="form-group">
                             <label for="name">*<?=translate_phrase('Invited By'); ?></label>
-                            <select class="form-select js-select2" name="invited_by[]" required>
+                            <select class="form-select" name="invited_by[]" required>
                                 <option value="">Select</option>
                                 <option <?php if(!empty($invited_by)){if($invited_by == 'Member'){echo 'selected';}} ?> value="Member">Member</option>
                                 <option <?php if(!empty($invited_by)){if($invited_by == 'Online'){echo 'selected';}} ?> value="Online">Online</option>
@@ -1093,7 +1101,7 @@ $this->session = \Config\Services::session();
                     <div class="col-sm-4 mb-3" name="member-div" style="display: none;">
                         <div class="form-group">
                             <label for="name"><?=translate_phrase('Member'); ?></label>
-                            <select class="form-select js-select2" data-search="on" name="member_id[]">
+                            <select class="form-select" data-search="on" name="member_id[]">
                                 <option value="">Select Member</option>
                                 <?php 
                                     $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
@@ -1144,7 +1152,7 @@ $this->session = \Config\Services::session();
                             <label for="name"><?=translate_phrase('Gender'); ?></label>
                             <div class="form-control-wrap">
                                 <select
-                                    class="form-select js-select2" name="gender[]" required
+                                    class="form-select" name="gender[]" required
                                     data-placeholder="Select Gender">
                                     <option value="">Select Gender</option>
                                     <option value="Male" <?php if(!empty($e_gender)){if($e_gender == 'Male'){echo 'selected';}}?>>Male</option>
@@ -1157,7 +1165,7 @@ $this->session = \Config\Services::session();
                         <div class="form-group">
                             <label for="name"><?=translate_phrase('Family Position'); ?></label>
                             <div class="form-control-wrap">
-                                <select class="form-select js-select2" id="family_position" name="family_position[]" data-placeholder="Select Position">
+                                <select class="form-select" id="family_position" name="family_position[]" data-placeholder="Select Position">
                                     <option value="">Select</option>
                                     <option value="Child" <?php if(!empty($e_family_position)){if($e_family_position == 'Child'){echo 'selected';}} ?>>Child </option>
                                     <option value="Parent" <?php if(!empty($e_family_position)){if($e_family_position == 'Parent'){echo 'selected';}} ?>>Parent </option>
@@ -1175,7 +1183,7 @@ $this->session = \Config\Services::session();
                     <div class="col-sm-4 mb-3">
                         <div class="form-group">
                             <label for="name">*<?=translate_phrase('Invited By'); ?></label>
-                            <select class="form-select js-select2" name="invited_by[]" required>
+                            <select class="form-select" name="invited_by[]" required>
                                 <option value="">Select</option>
                                 <option value="Member">Member</option>
                                 <option value="Online">Online</option>
@@ -1193,11 +1201,15 @@ $this->session = \Config\Services::session();
                     <div class="col-sm-4 mb-3" name="member-div" style="display: none;">
                         <div class="form-group">
                             <label for="name"><?=translate_phrase('Member'); ?></label>
-                            <select class="form-select js-select2" data-search="on" name="member_id[]">
+                            <select class="form-select" data-search="on" name="member_id[]">
                                 <option value="">Select Member</option>
                                 <?php 
+                                    $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                                    if(empty($church_id)){
+                                        $church_id = $this->session->get('service_church_id');
+                                    }
                                     $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                    $mem = $this->Crud->read_single_order('role_id', $roles_id, 'user', 'firstname', 'asc');
+                                    $mem = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
                                         if(!empty($mem)){
                                             foreach($mem as $m){
                                                 echo '<option value="'.$m->id.'">'.ucwords($m->firstname.' '.$m->surname).'</option>';
@@ -1212,14 +1224,14 @@ $this->session = \Config\Services::session();
 
             <?php } ?>
             <div class="col-sm-12 my-3 text-center">
-                <button id="addMores" class="btn btn-ico btn-outline-info" type="button"><i class="icon ni ni-plus-c"></i>  <?=translate_phrase('Add More');?></button>
+                <button id="addMores" class="btn btn-ico btn-outline-info" type="button"><i class="icon ni ni-plus-c"></i>  <span><?=translate_phrase('Add More');?></span></button>
             </div>
 
 
             <div class="row" >
                 <div class="col-sm-12 text-center mt-3">
                     <button class="btn btn-primary bb_fo_btn" type="submit">
-                        <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
+                        <i class="icon ni ni-save"></i> <span><?=translate_phrase('Save Record');?></span>
                     </button>
                 </div>
             </div>
