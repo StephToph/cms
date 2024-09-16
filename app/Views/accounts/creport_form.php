@@ -642,7 +642,7 @@ $this->Crud = new Crud();
                     <div class="col-sm-4 mb-3">
                         <div class="form-group">
                             <label for="name">*<?=translate_phrase('Invited By'); ?></label>
-                            <select class="form-select js-select2" name="invited_by[]" required>
+                            <select class="form-select " name="invited_by[]" required>
                                 <option value="">Select</option>
                                 <option <?php if(!empty($invited_by)){if($invited_by == 'Member'){echo 'selected';}} ?> value="Member">Member</option>
                                 <option <?php if(!empty($invited_by)){if($invited_by == 'Online'){echo 'selected';}} ?> value="Online">Online</option>
@@ -660,7 +660,7 @@ $this->Crud = new Crud();
                     <div class="col-sm-4 mb-3" name="member-div" style="display: none;">
                         <div class="form-group">
                             <label for="name"><?=translate_phrase('Member'); ?></label>
-                            <select class="form-select js-select2" data-search="on" name="member_id[]">
+                            <select class="form-select" data-search="on" name="member_id[]">
                                 <option value="">Select Member</option>
                                 <?php 
                                     $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
@@ -715,7 +715,7 @@ $this->Crud = new Crud();
                     <div class="col-sm-4 mb-3">
                         <div class="form-group">
                             <label for="name">*<?=translate_phrase('Invited By'); ?></label>
-                            <select class="form-select js-select2" name="invited_by[]" required>
+                            <select class="form-select" name="invited_by[]" required>
                                 <option value="">Select</option>
                                 <option value="Member">Member</option>
                                 <option value="Online">Online</option>
@@ -733,7 +733,7 @@ $this->Crud = new Crud();
                     <div class="col-sm-4 mb-3" name="member-div" style="display: none;">
                         <div class="form-group">
                             <label for="name"><?=translate_phrase('Member'); ?></label>
-                            <select class="form-select js-select2" data-search="on" name="member_id[]">
+                            <select class="form-select" data-search="on" name="member_id[]">
                                 <option value="">Select Member</option>
                                 <?php 
                                     $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
