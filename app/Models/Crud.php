@@ -2108,14 +2108,18 @@ class Crud extends Model {
 		if($role != 'developer' && $role != 'administrator') {
 			if($role == 'ministry administrator'){
 				$builder->where('ministry_id', $ministry_id);
-			} else {
-				$builder->where('church_id', $church_id_user);
-			}
+			} 
 		}
 
-		if($level != 'all' && is_int($level)){
-			$builder->where('church_id', $level);
-		}
+        if ($level != 'all' && !empty($level)) {
+            // Convert $level to an integer
+            $levelInt = (int)$level;
+        
+            // Check if $levelInt is a non-zero integer (i.e., valid church_id)
+            if ($levelInt > 0) {
+                $builder->where('church_id', $levelInt);
+            }
+        }
 	
 		// Build the church IDs based on the hierarchy
 		if(!empty($region_id) && $region_id != 'all') {

@@ -2299,7 +2299,7 @@ class Accounts extends BaseController {
 						if(!empty($cel)){
 							foreach($cel as $cl){
 								$c_list['id'] = $cl->id;
-								$c_list['name'] = $cl->name;
+								$c_list['name'] = ucwords($cl->name.' - '.$ch->name.'('.$ch->type.')');
 								$cell_list[] = $c_list;
 							}
 						}
@@ -2333,7 +2333,7 @@ class Accounts extends BaseController {
 						if(!empty($cel)){
 							foreach($cel as $cl){
 								$c_list['id'] = $cl->id;
-								$c_list['name'] = $cl->name;
+								$c_list['name'] = ucwords($cl->name.' - '.$ch->name.'('.$ch->type.')');
 								$cell_list[] = $c_list;
 							}
 						}
@@ -2367,7 +2367,7 @@ class Accounts extends BaseController {
 						if(!empty($cel)){
 							foreach($cel as $cl){
 								$c_list['id'] = $cl->id;
-								$c_list['name'] = $cl->name;
+								$c_list['name'] = ucwords($cl->name.' - '.$ch->name.'('.$ch->type.')');
 								$cell_list[] = $c_list;
 							}
 						}
@@ -2385,12 +2385,14 @@ class Accounts extends BaseController {
 				$region_id = $this->request->getPost('church_id');
 				$region_list = array();
 				$cell_list = array();
+				$church_type = $this->Crud->read_field('id', $region_id, 'church', 'type');
+				$church_name = $this->Crud->read_field('id', $region_id, 'church', 'name');
 				
 				$cel = $this->Crud->read_single_order('church_id', $region_id, 'cells', 'name', 'asc');
 				if(!empty($cel)){
 					foreach($cel as $cl){
 						$c_list['id'] = $cl->id;
-						$c_list['name'] = $cl->name;
+						$c_list['name'] = ucwords($cl->name.' - '.$church_name.'('.$church_type.')');
 						$cell_list[] = $c_list;
 					}
 				}
@@ -2481,7 +2483,7 @@ class Accounts extends BaseController {
 							if(!empty($cell)){
 								foreach($cell as $ce){
 									$cellsa['id'] = $ce->id;
-									$cellsa['name'] = $ce->name;
+									$cellsa['name'] = ucwords($ce->name.' - '.$ch->name.'('.$ch->type.')');
 									
 									$cells[] = $cellsa;
 								}
@@ -2531,11 +2533,14 @@ class Accounts extends BaseController {
 			}
 
 			if($role == 'church leader'){
+				$church_type = $this->Crud->read_field('id', $region_id, 'church', 'type');
+				$church_name = $this->Crud->read_field('id', $region_id, 'church', 'name');
+				
 				$cel = $this->Crud->read_single_order('church_id', $church_id, 'cells', 'name', 'asc');
 				if(!empty($cel)){
 					foreach($cel as $cl){
 						$c_list['id'] = $cl->id;
-						$c_list['name'] = $cl->name;
+						$c_list['name'] = ucwords($cl->name.' - '.$church_name.'('.$church_type.')');
 						$cells[] = $c_list;
 					}
 				}
