@@ -473,10 +473,7 @@
                 var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
                 timerBtn.setAttribute("pageName", updatedPageName);
                 $('#bb_ajax_msg').html('');
-                
-                var urls = site_url + 'accounts/creport/manage/offering';
-                var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
-                offeringBtn.setAttribute("pageName", updatedPageName);
+               
             }
         });
 
@@ -503,9 +500,7 @@
         var updatedPageName = urls + "/" + selectedValue;
         timerBtn.setAttribute("pageName", updatedPageName);
                 
-        var urls = site_url + 'accounts/creport/manage/offering';
-        var updatedPageName = urls + "/" + selectedValue;
-        offeringBtn.setAttribute("pageName", updatedPageName);
+       
     }
 
     function load(x, y) {

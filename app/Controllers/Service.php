@@ -841,6 +841,8 @@ class Service extends BaseController {
 					$attendant = $this->request->getVar('attendant');
 					$converts = $this->request->getVar('converts');
 					$timers = $this->request->getVar('timers');
+					$ministry_id = $this->request->getVar('ministry_id');
+					$church_id = $this->request->getVar('church_id');
 					
 					// echo $date;die;
 					$dates = date('y-m-d', strtotime($date));
@@ -860,6 +862,8 @@ class Service extends BaseController {
 					$ins_data['timers'] = $timers;
 					$ins_data['tithe'] = $tithe;
 					$ins_data['partners'] = $partners;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
 					$ins_data['offering_givers'] = $offering_givers;
 			
 					
@@ -1045,6 +1049,33 @@ class Service extends BaseController {
 
 
 		}
+
+		if($param1 == 'church_select'){
+			$church_id = $this->request->getPost('church_id');
+			if($church_id){
+				$this->session->set('service_church_id', $church_id);
+			}
+		}
+
+		if($param1 == 'load_churches'){
+			$level = $this->request->getPost('level');
+			$ministry_id = $this->request->getPost('ministry_id');
+			$church_list = array();
+			
+			$church = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', $level, 'church', 'name', 'asc');
+			if(!empty($church)){
+				foreach($church as $ch){
+					$list['id'] = $ch->id;
+					$list['name'] = ucwords($ch->name.' - '.$ch->type);
+					$church_list[] = $list;
+				}
+			}
+
+
+			$resp['churches'] = $church_list;
+			echo json_encode($resp);
+			die;
+		}
 		
 		//Get Role
 		if($param1 == 'gets'){
@@ -1200,8 +1231,12 @@ class Service extends BaseController {
 			$column_order = array('firstname', 'surname');
 			$column_search = array('firstname', 'surname');
 			$order = array('firstname' => 'asc');
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			if(empty($church_id)){
+				$church_id = $this->session->get('service_church_id');
+			}
 			$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-			$where = array('role_id' => $member_id);
+			$where = array('is_member' => 1,'church_id' => $church_id);
 			
 			// load data into table
 			$list = $this->Crud->datatable_load($table, $column_order, $column_search, $order, $where);
@@ -1218,6 +1253,7 @@ class Service extends BaseController {
 				$value = '0';
 				if($param2){
 					$convertsa = json_decode($this->Crud->read_field('id', $param2, 'service_report', 'tithers'));
+
 					$converts =(array) $convertsa->list;
 					if(!empty($converts)){
 						foreach($converts as $co => $val){
@@ -1227,6 +1263,22 @@ class Service extends BaseController {
 						}
 					
 					}	
+				} else {
+					$session_tithe = $this->session->get('service_tithe');
+					if(!empty($session_tithe)){
+						$convertsa = json_decode($session_tithe);
+						$converts =(array) $convertsa->list;
+						if(!empty($converts)){
+							foreach($converts as $co => $val){
+								if($id == $co){
+									$value = $val;
+								}
+							}
+						
+						}	
+					}
+					
+					
 				}
 				
 				$all_btn = '

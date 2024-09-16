@@ -56,7 +56,78 @@
                                     <p class="text-danger">Always click the save record Button after update of attendance, first timers and new convert.</p>
                                     <?php echo form_open_multipart('service/report/manage', array('id'=>'bb_ajax_form', 'class'=>'row mt-4')); ?>
                                         <input type="hidden" name="report_id" id="report_id" value="<?php if(!empty($e_id)){echo $e_id;}?>">
-                                        
+                                        <?php 
+                                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                                        if ($ministry_id <= 0) { ?>
+                                            <div class="col-sm-4 mb-3">
+                                                <div class="form-group">
+                                                    <label class="name">Ministry </label> 
+                                                    <select id="ministry_id" name="ministry_id" class="js-select2 " onchange="load_level();">
+                                                        <option value=" ">Select Ministry</option>
+                                                        <?php
+                                                            $ministries = $this->Crud->read_order('ministry', 'name', 'asc');
+                                                            foreach ($ministries as $ministry) {
+                                                                $selected = '';
+                                                                echo '<option value="' . $ministry->id . '" ' . $selected . '>' . ucwords($ministry->name) . '</option>';
+                                                            }
+                                                        ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        <?php } else {?>
+                                            <input type="hidden" id="ministry_id" value="<?=$ministry_id;?>">
+
+
+                                        <?php } ?>
+                                        <?php if($role != 'church leader'){
+                                            $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                            ?>
+                                            <div class="col-sm-4 mb-3" >
+                                                <label class="name">Church Level</label> 
+                                                <select class="js-select2" name="level" id="level" onchange="load_level();">
+                                                    <option value=" ">Select Church Level</option>
+                                                    <?php if($log_church_id > 0){?>
+                                                    <option value="<?=$log_church_id; ?>">My Church</option>
+
+                                                <?php }
+                                                        $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                                                        if($log_church_type == 'region'){
+                                                            
+                                                    ?>
+                                                    
+                                                        <option value="zone" >Zonal Church</option>
+                                                        <option value="group" >Group Church</option>
+                                                        <option value="church" >Church Assembly</option>
+                                                    <?php } elseif($log_church_type == 'zone'){?>
+                                                    
+                                                        <option value="group" >Group Church</option>
+                                                        <option value="church" >Church Assembly</option>
+
+                                                    <?php } elseif($log_church_type == 'group'){?>
+                                                    
+                                                        <option value="church" >Church Assembly</option>
+
+                                                    <?php } else{?>
+                                                        <option value="region">Regional Church</option>
+                                                        <option value="zone" >Zonal Church</option>
+                                                        <option value="group" >Group Church</option>
+                                                        <option value="church" >Church Assembly</option>
+                                                    <?php } ?>
+                                                    
+                                                </select>
+                                            </div>
+
+                                            <div class="col-sm-4 mb-3" id="church_div" style="display:none;">
+                                                <div class="form-group">
+                                                    <label>Church</label>
+                                                    <select class="js-select2" data-search="on" name="church_id" id="church_id" onchange="session_church();">
+                                                        <option value=" ">Select Church</option>
+
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        <?php } ?>
                                         <div class="col-sm-4 mb-3">
                                             <div class="form-group">
                                                 <label for="name">*<?=translate_phrase('Service Type'); ?></label>
@@ -127,10 +198,8 @@
                                                 <label for="name">*<?=translate_phrase('Offering'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" readonly name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="Enter Offering" pageSize="modal-lg" pageName="<?php echo  site_url('service/report/manage/offering'); ?>" id="offeringBtn">ADD</button>        
-                                                        </div>    
+                                                        <input type="text" name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
+                                                           
                                                     </div>
                                                     <span class="text-danger"></span>
                                                 </div>
@@ -206,6 +275,50 @@
         load('', '');
     });
     
+    function load_level(){
+        var ministry_id = $('#ministry_id').val();
+        var level = $('#level').val();
+        
+        if(ministry_id !== ' ' && ministry_id !== 0 && level !== ' '){
+            $.ajax({
+                url: site_url + 'service/report/load_churches',
+                data: {level:level,ministry_id:ministry_id},
+                type: 'post',
+                success: function (data) {
+                    var dt = JSON.parse(data);
+                    var cellSelect = $('#church_id');
+                    cellSelect.empty(); 
+                    cellSelect.append('<option value="">Select Church</option>');
+                    
+                    // Add options for each cell
+                    dt.churches.forEach(function(cell) {
+                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                    });
+                        
+                }
+            });
+            $('#church_div').show(500);
+                   
+        }  else {
+            $('#church_div').hide(500);
+        }
+    }
+
+    
+    function session_church(){
+        var church_id = $('#church_id').val();
+        
+        if(church_id !== ' '){
+            $.ajax({
+                url: site_url + 'service/report/church_select',
+                data: {church_id:church_id},
+                type: 'post',
+                success: function (data) {
+                }
+            }); 
+        } 
+    }
+
     var initialInfo = {
         class: 'btn-outline-primary',
         onclick: 'add_report();',
@@ -234,7 +347,6 @@
         var timerBtn = document.getElementById("timerBtn");
         var partnerBtn = document.getElementById("partnerBtn");
         var titheBtn = document.getElementById("titheBtn");
-        var offeringBtn = document.getElementById("offeringBtn");
         // Update button class, onclick function, and icon class
         $(this).removeClass().addClass('btn btn-icon ' + currentInfo.class);
         // $(this).attr('onclick', currentInfo.onclick);
@@ -260,9 +372,7 @@
         var updatedPageName = urls;
         titheBtn.setAttribute("pageName", updatedPageName);
 
-        var urls = site_url + 'service/report/manage/offering';
-        var updatedPageName = urls;
-        offeringBtn.setAttribute("pageName", updatedPageName);
+       
     });
 
     $('#back_btn').click(function() {
@@ -280,7 +390,6 @@
         var timerBtn = document.getElementById("timerBtn");
         var partnerBtn = document.getElementById("partnerBtn");
         var titheBtn = document.getElementById("titheBtn");
-        var offeringBtn = document.getElementById("offeringBtn");
         $('#bb_ajax_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         $('#show').hide(500);
         $('#form').show(500);
@@ -333,10 +442,6 @@
                 var updatedPageName = urls + "/" + dt.e_id;
                 titheBtn.setAttribute("pageName", updatedPageName);
 
-                
-                var urls = site_url + 'service/report/manage/offering';
-                var updatedPageName = urls + "/" + dt.e_id;
-                offeringBtn.setAttribute("pageName", updatedPageName);
                 $('#bb_ajax_msg').html('');
             }
         });
@@ -350,7 +455,6 @@
         var timerBtn = document.getElementById("timerBtn");
         var partnerBtn = document.getElementById("partnerBtn");
         var titheBtn = document.getElementById("titheBtn");
-        var offeringBtn = document.getElementById("offeringBtn");
         
         var selectedValue = selectElement.value;
        
@@ -374,9 +478,6 @@
         var updatedPageName = urls + "/" + selectedValue;
         titheBtn.setAttribute("pageName", updatedPageName);
         
-        var urls = site_url + 'service/report/manage/offering';
-        var updatedPageName = urls + "/" + selectedValue;
-        offeringBtn.setAttribute("pageName", updatedPageName);
         
     }
 

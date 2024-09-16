@@ -2,6 +2,8 @@
 <?php
 use App\Models\Crud;
 $this->Crud = new Crud();
+
+$this->session = \Config\Services::session();
 ?>
 <?php echo form_open_multipart($form_link, array('id'=>'bb_ajax_form2', 'class'=>'')); ?>
     <!-- delete view -->
@@ -497,6 +499,12 @@ $this->Crud = new Crud();
      
     <?php if($param2 == 'tithe'){
         $converts = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
+        if(empty($param3)){
+            $session_tithe = $this->session->get('service_tithe');
+            if(!empty($session_tithe)){
+                $converts = json_decode($session_tithe);
+            }
+        }
         $total =0 ;
         $member = 0;
         $guest = 0;
@@ -575,79 +583,14 @@ $this->Crud = new Crud();
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Member</label>
-                <input class="form-control" id="member_offering" type="text" name="member_offering"  readonly value="<?=($member); ?>">
+                <input class="form-control" id="member_offering" type="text" name="member_offering"  value="<?=($member); ?>" oninput="get_offering();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')">
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Guest</label>
-                <input class="form-control" id="guest_offering" type="text" name="guest_offering" readonly oninput="get_offering();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" value="<?=($guest); ?>">
+                <input class="form-control" id="guest_offering" type="text" name="guest_offering" oninput="get_offering();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" value="<?=($guest); ?>">
             </div>
         </div>
-        <?php if(!empty($first)){?>
-            <hr>
-            <div class="table-responsive">
-                <table id="dtables" class="table table-striped table-hover mt-5">
-                    <thead>
-                        <tr>
-                            <th>First Timer</th>
-                            <th width="200px">Offering</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                           if($param3 && !empty((array)$first)){
-                                foreach($first as $mm => $val){
-                                    $vals = 0;
-                                    if(!empty($guest_list)){
-                                        foreach($guest_list as $guest => $amount){
-                                            if($guest == strtoupper($val->fullname)){
-                                                $vals = $amount;
-                                                // echo $vals.' ';
-                                            }
-                                        }
-                                    }
-                                   
-                                    ?>
-                                    
-                                <tr>
-                                    <td><span class="text-muted"><?=ucwords($val->fullname); ?></span> <input type="hidden" name="guests[]" value="<?=strtoupper($val->fullname); ?>"></td>
-                                
-                                    <td>
-                                        <input type="text" class="form-control guest_offerings" name="guest_offerings[]" id="offering_<?php echo $val->fullname; ?>" value="<?=$vals; ?>" oninput="guest_offerings();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')">
-
-                                    </td>
-                                </tr>
-                           <?php } } else{
-                            if(!empty((array)$first)){
-                                foreach($first as $mm => $val){
-                                    
-                            ?>
-                            <tr>
-                                <td><span class="text-muted"><?=ucwords($val->fullname); ?></span><input type="hidden" name="guests[]" value="<?=strtoupper($val->fullname); ?>"></td>
-                            
-                                <td>
-                                    <input type="text" class="form-control guest_offerings" name="guest_offerings[]" id="offering_<?php echo $mm; ?>" value="0" oninput="guest_offerings();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')">
-
-                                </td>
-                            </tr>
-
-                        <?php } } }?>
-                    </tbody>
-                </table>
-            </div>
-        <?php } ?>
-        <hr>
-        <div class="table-responsive">
-            <table id="dtable" class="table table-striped table-hover mt-5">
-                <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th width="200px">Offering</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
+       
         <hr>
         <div class="row mt-5" >
             <div class="col-sm-12 text-center mt-5">
@@ -1291,30 +1234,23 @@ $this->Crud = new Crud();
 <!-- Include jQuery library -->
 
 <script>
-    // Function to update the total field
-    function updateTotal() {
+   function updateTotals() {
         // Get values from the input fields
-        const memberValue = parseInt(document.getElementById('member').value) || 0;
-        const guestValue = parseInt(document.getElementById('guest').value) || 0;
-        const maleValue = parseInt(document.getElementById('male').value) || 0;
-        const femaleValue = parseInt(document.getElementById('female').value) || 0;
-        const childrenValue = parseInt(document.getElementById('children').value) || 0;
+        var memberValue = parseInt($('#member').val()) || 0;
+        var guestValue = parseInt($('#guest').val()) || 0;
+        var maleValue = parseInt($('#male').val()) || 0;
+        var femaleValue = parseInt($('#female').val()) || 0;
+        var childrenValue = parseInt($('#children').val()) || 0;
 
         // Calculate the total
-        const total = memberValue + guestValue + maleValue + femaleValue + childrenValue;
+        var total = memberValue + guestValue + maleValue + femaleValue + childrenValue;
 
         // Update the total field
-        document.getElementById('total').value = total;
+        $('#total').val(total);
     }
 
     // Attach event listeners to input fields
-    window.onload = function() {
-        document.getElementById('member').oninput = updateTotal;
-        document.getElementById('guest').oninput = updateTotal;
-        document.getElementById('male').oninput = updateTotal;
-        document.getElementById('female').oninput = updateTotal;
-        document.getElementById('children').oninput = updateTotal;
-    };
+    $('#member, #guest, #male, #female, #children').on('input', updateTotals);
      var rowIndex = 1;
     // Array to store selected values
     var selectedValues = [];
@@ -1628,7 +1564,7 @@ $this->Crud = new Crud();
                 total += parseFloat(inputs[i].value);
             }
         }
-        console.log(total);
+        // console.log(total);
         document.getElementById('total_part').value = total;
     }
 
