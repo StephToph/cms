@@ -2421,121 +2421,124 @@ class Accounts extends BaseController {
 			$church_list = array();
 			if($role != 'church leader' && $role != 'cell leader'&& $role != 'cell executive' && $role != 'assistant cell leader'){
 				$level_status = true;
-			}	
-			if($level != 'all'){
-				if($ministry_id != 'all'){
-					$church = $this->Crud->read_single_order('ministry_id', $ministry_id, 'church', 'name', 'asc');
-					if(!empty($church)){
-						foreach($church as $ch){
-							$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
-							if(!empty($cell)){
-								foreach($cell as $ce){
-									$cellsa['id'] = $ce->id;
-									$cellsa['name'] = $ce->name;
-									
-									$cells[] = $cellsa;
-								}
-							}
-
-						}
-					}
-					$regions = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'region', 'church', 'name', 'asc');
-					if(!empty($regions)){
-						foreach($regions as $r){
-							$region['id'] = $r->id;
-							$region['name'] = ($r->name);
-
-							$region_list[] = $region;
-						}
-					}
-					$zones = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'zone', 'church', 'name', 'asc');
-					if(!empty($zones)){
-						foreach($zones as $r){
-							$zone['id'] = $r->id;
-							$zone['name'] = ($r->name);
-
-							$zone_list[] = $zone;
-						}
-					}
-					$groups = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'group', 'church', 'name', 'asc');
-					if(!empty($groups)){
-						foreach($groups as $r){
-							$group['id'] = $r->id;
-							$group['name'] = ($r->name);
-
-							$group_list[] = $group;
-						}
-					}
-					$churches = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'church', 'church', 'name', 'asc');
-					if(!empty($churches)){
-						foreach($churches as $r){
-							$church['id'] = $r->id;
-							$church['name'] = ($r->name);
-
-							$church_list[] = $church;
-						}
-					}
-				} else{
-					$church = $this->Crud->read_order('church', 'name', 'asc');
-					if(!empty($church)){
-						foreach($church as $ch){
-							$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
-							if(!empty($cell)){
-								foreach($cell as $ce){
-									$cellsa['id'] = $ce->id;
-									$cellsa['name'] = ucwords($ce->name.' - '.$ch->name.'('.$ch->type.')');
-									
-									$cells[] = $cellsa;
-								}
-							}
-
-						}
-					}
-					$regions = $this->Crud->read_single_order('type', 'region', 'church', 'name', 'asc');
-					if(!empty($regions)){
-						foreach($regions as $r){
-							$region['id'] = $r->id;
-							$region['name'] = ($r->name);
-
-							$region_list[] = $region;
-						}
-					}
-					$zones = $this->Crud->read_single_order( 'type', 'zone', 'church', 'name', 'asc');
-					if(!empty($zones)){
-						foreach($zones as $r){
-							$zone['id'] = $r->id;
-							$zone['name'] = ($r->name);
-
-							$zone_list[] = $zone;
-						}
-					}
-					
-					$groups = $this->Crud->read_single_order('type', 'group', 'church', 'name', 'asc');
-					if(!empty($groups)){
-						foreach($groups as $r){
-							$group['id'] = $r->id;
-							$group['name'] = ($r->name);
-
-							$group_list[] = $group;
-						}
-					}
-					$churches = $this->Crud->read_single_order( 'type', 'church', 'church', 'name', 'asc');
-					if(!empty($churches)){
-						foreach($churches as $r){
-							$church['id'] = $r->id;
-							$church['name'] = ($r->name);
-
-							$church_list[] = $church;
-						}
-					}
-
-				}
 			}
 
-			if($role == 'church leader'){
-				$church_type = $this->Crud->read_field('id', $region_id, 'church', 'type');
-				$church_name = $this->Crud->read_field('id', $region_id, 'church', 'name');
+			if($ministry_id != 'all'){
+				$church = $this->Crud->read_single_order('ministry_id', $ministry_id, 'church', 'name', 'asc');
+				if(!empty($church)){
+					foreach($church as $ch){
+						$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
+						if(!empty($cell)){
+							foreach($cell as $ce){
+								$cellsa['id'] = $ce->id;
+								$cellsa['name'] = $ce->name;
+								
+								$cells[] = $cellsa;
+							}
+						}
+
+					}
+				}
+				$regions = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'region', 'church', 'name', 'asc');
+				if(!empty($regions)){
+					foreach($regions as $r){
+						$region['id'] = $r->id;
+						$region['name'] = ($r->name);
+
+						$region_list[] = $region;
+					}
+				}
+				$zones = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'zone', 'church', 'name', 'asc');
+				if(!empty($zones)){
+					foreach($zones as $r){
+						$zone['id'] = $r->id;
+						$zone['name'] = ($r->name);
+
+						$zone_list[] = $zone;
+					}
+				}
+				$groups = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'group', 'church', 'name', 'asc');
+				if(!empty($groups)){
+					foreach($groups as $r){
+						$group['id'] = $r->id;
+						$group['name'] = ($r->name);
+
+						$group_list[] = $group;
+					}
+				}
+				$churches = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', 'church', 'church', 'name', 'asc');
+				if(!empty($churches)){
+					foreach($churches as $r){
+						$church['id'] = $r->id;
+						$church['name'] = ($r->name);
+
+						$church_list[] = $church;
+					}
+				}
+			} else{
+				$church = $this->Crud->read_order('church', 'name', 'asc');
+				if(!empty($church)){
+					foreach($church as $ch){
+						$cell = $this->Crud->read_single('church_id', $ch->id, 'cells');
+						if(!empty($cell)){
+							$cells = [];
+							foreach($cell as $ce){
+								$cellsa['id'] = $ce->id;
+								$cellsa['name'] = ucwords($ce->name.' - '.$ch->name.'('.$ch->type.')');
+								
+								$cells[] = $cellsa;
+							}
+						}
+
+					}
+				}
+				$regions = $this->Crud->read_single_order('type', 'region', 'church', 'name', 'asc');
+				if(!empty($regions)){
+					foreach($regions as $r){
+						$region['id'] = $r->id;
+						$region['name'] = ($r->name);
+
+						$region_list[] = $region;
+					}
+				}
+				$zones = $this->Crud->read_single_order( 'type', 'zone', 'church', 'name', 'asc');
+				if(!empty($zones)){
+					foreach($zones as $r){
+						$zone['id'] = $r->id;
+						$zone['name'] = ($r->name);
+
+						$zone_list[] = $zone;
+					}
+				}
 				
+				$groups = $this->Crud->read_single_order('type', 'group', 'church', 'name', 'asc');
+				if(!empty($groups)){
+					foreach($groups as $r){
+						$group['id'] = $r->id;
+						$group['name'] = ($r->name);
+
+						$group_list[] = $group;
+					}
+				}
+				$churches = $this->Crud->read_single_order( 'type', 'church', 'church', 'name', 'asc');
+				if(!empty($churches)){
+					foreach($churches as $r){
+						$church['id'] = $r->id;
+						$church['name'] = ($r->name);
+
+						$church_list[] = $church;
+					}
+				}
+
+			}
+			
+
+			if($role == 'church leader'){
+				$level_status = true;
+				$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+				$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+				$church_name = $this->Crud->read_field('id', $church_id, 'church', 'name');
+				$cells = [];
 				$cel = $this->Crud->read_single_order('church_id', $church_id, 'cells', 'name', 'asc');
 				if(!empty($cel)){
 					foreach($cel as $cl){
