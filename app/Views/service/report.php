@@ -34,7 +34,11 @@
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add Report"  id="add_btn" class="btn btn-icon btn-outline-primary"><em class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
-                                           
+                                            <li>
+                                                <div class="nk-block-head-sub mb-3" id="attendance_prev" style="display:none;">
+                                                    <a class="btn btn-outline-danger" id="back_btn" href="javascript:;"><em class="icon ni ni-arrow-left"></em><span>Service Reports</span></a>
+                                                </div>
+                                            </li>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
@@ -215,6 +219,47 @@
                                         <div class="col-sm-12 my-3"><div id="bb_ajax_msg"></div></div>
                                     </div>
                                </div>
+                            </div>
+                            <div class="card-inner" id="attendance_view" style="display:none;">
+                                <div class="row">
+                                    
+                                    <span class="text-danger mb-2">Enter Attendance</span>
+                                    <div class="col-sm-4 mb-3 ">
+                                        <label>Total</label>
+                                        <input class="form-control" id="total_attendance" type="text" name="total"  readonly value="0">
+                                    </div>
+                                    <div class="col-sm-4 mb-3">
+                                        <label>Member</label>
+                                        <input class="form-control" id="member_attendance" type="text" name="member"  value="0" placeholder="0">
+                                    </div>
+                                    <div class="col-sm-4 mb-3">
+                                        <label>First Timer</label>
+                                        <input class="form-control" id="guest_attendance" type="text" name="guest"  value="" placeholder="0">
+                                    </div>
+                                    <div class="col-sm-4 mb-3">
+                                        <label>Male</label>
+                                        <input class="form-control" id="male_attendance" type="text" name="male"  value="" placeholder="0">
+                                    </div>
+                                    <div class="col-sm-4 mb-3">
+                                        <label>Female</label>
+                                        <input class="form-control" id="female_attendance" type="text" name="female"  value="" placeholder="0">
+                                    </div>
+                                    <div class="col-sm-4 mb-3">
+                                        <label>Children</label>
+                                        <input class="form-control" id="children_attendance" type="text" name="children"  value="" placeholder="0">
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row mt-5" >
+                                    <div class="col-sm-12 text-center mt-5">
+                                        <button class="btn btn-primary bb_fo_btn" type="submit">
+                                            <i class="icon ni ni-save"></i> <span><?=translate_phrase('Save Record');?></span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12"><div id="bb_ajax_msg2"></div></div>
+                                </div>
                             </div><!-- .card-inner -->
                         </div><!-- .card-inner-group -->
                     </div><!-- .card -->
@@ -376,6 +421,9 @@
     $('#back_btn').click(function() {
         $('#show').show(500);
         $('#form').hide(500);
+        $('#attendance_view').hide(500);
+        $('#attendance_prev').hide(500);
+        $('#add_btn').show(500);
         
         $('#prev').hide(500);
 
@@ -431,6 +479,50 @@
 
     }
 
+
+
+    function attendance_report(id){
+        $('#bb_ajax_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#attendance_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/attendance/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#total_attendance').val(dt.total_attendance);
+                $("#member_attendance").val(dt.member_attendance);
+                $("#guest_attendance").val(dt.guest_attendance);
+                $('#male_attendance').val(dt.male_attendance);
+                $('#female_attendance').val(dt.female_attendance);
+                $('#children_attendance').val(dt.children_attendance);
+
+                $('#bb_ajax_msg').html('');
+            }
+        });
+       
+    }
+    function updateTotals() {
+        // Get values from the input fields
+        var memberValue = parseInt($('#member_attendance').val()) || 0;
+        var guestValue = parseInt($('#guest_attendance').val()) || 0;
+        var maleValue = parseInt($('#male_attendance').val()) || 0;
+        var femaleValue = parseInt($('#female_attendance').val()) || 0;
+        var childrenValue = parseInt($('#children_attendance').val()) || 0;
+
+        // Calculate the total
+        var total = memberValue + guestValue + maleValue + femaleValue + childrenValue;
+
+        // Update the total field
+        $('#total_attendance').val(total);
+    }
+
+    // Attach event listeners to input fields
+    $('#member_attendance, #guest_attendance, #male_attendance, #female_attendance, #children_attendance').on('input', updateTotals);
+    
     function updatePageName() {
         var selectElement = document.getElementById("cells_id");
         var markButton = document.getElementById("markButton");

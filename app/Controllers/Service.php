@@ -363,33 +363,45 @@ class Service extends BaseController {
 				}
 			
 			} elseif($param2 == 'attendance'){
-				$timer_count = $this->session->get('service_timer_count');
-				
-				$timer_total = 0;$timer_male = 0;$timer_female =0;$timer_child = 0;
-				$timer_counts = json_decode($timer_count);
-				$counts = (array)$timer_counts;
-				if(!empty($counts)){
-					$timer_total = $counts['total'];
-					$timer_male = $counts['male'];
-					$timer_child = $counts['child'];
-					$timer_female = $counts['female'];
-				}
-
-				$data['timer_count'] = $timer_total;
-				$data['timer_male'] = $timer_male;
-				$data['timer_female'] = $timer_female;
-				$data['timer_child'] = $timer_child;
-				$data['table_rec'] = 'service/report/list'; // ajax table
-				$data['order_sort'] = '0, "asc"'; // default ordering (0, 'asc')
-				$data['no_sort'] = '1'; // sort disable columns (1,3,5)
-		
 				if($param3) {
-					$edit = $this->Crud->read2('type_id', $param3, 'type', 'cell', 'attendance');
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
 					if(!empty($edit)) {
-						foreach($edit as $e) {
-							$data['d_id'] = $e->id;
-							$data['d_attendant'] = $e->attendant;
+						foreach($edit as $e){
+							$attendant = $e->attendant;
+							$attendants = json_decode($attendant);
+							$total =0;$guest=0;$member=0;
+							$male=0;$female=0;$children=0;
+							if(!empty($attendants)){
+								foreach($attendants as $at => $ats){
+									if($at == 'total'){
+										$total = $ats;
+									}
+									if($at == 'guest'){
+										$guest = $ats;
+									}
+									if($at == 'member'){
+										$member = $ats;
+									}
+									if($at == 'male'){
+										$male = $ats;
+									}
+									if($at == 'female'){
+										$female = $ats;
+									}
+									if($at == 'children'){
+										$children = $ats;
+									}
+								}
+							}
 						}
+						$resp['total_attendance'] = $total;
+						$resp['guest_attendance'] = $guest;
+						$resp['member_attendance'] = $member;
+						$resp['male_attendance'] = $male;
+						$resp['female_attendance'] = $female;
+						$resp['children_attendance'] = $children;
+						echo json_encode($resp);
+						die;
 					}
 					
 				}
@@ -1518,11 +1530,11 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-secondary pop" pageTitle="Attendance Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-warning pop" pageTitle="Tithe Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-money"></em><span>'.translate_phrase('Tithe Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-info pop" pageTitle="New Convert Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('New Convert Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-dark pop" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('First Timer Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-indigo pop" pageTitle="Partnership Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Partnership Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
+								<li><a href="javascript:;" class="text-warning pop" pageTitle="Tithe Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-info pop" pageTitle="New Convert Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-dark pop" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-indigo pop" pageTitle="Partnership Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
 								
 								
 							';
