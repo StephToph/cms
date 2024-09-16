@@ -319,6 +319,9 @@ class Service extends BaseController {
 						$edata['e_partners'] = $e->partners;
 						$edata['e_timers'] = $e->timers;
 						$edata['e_converts'] = $e->converts;
+						$edata['e_ministry_id'] = $e->ministry_id;
+						$edata['e_church_id'] = $e->church_id;
+						$edata['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 					}
 				}
 			}
@@ -1057,6 +1060,61 @@ class Service extends BaseController {
 			}
 		}
 
+		if($param1 == 'records'){
+			if($param2 == 'get_ministry'){
+				$e_ministry_id = $this->request->getPost('ministry_id');
+				$ministry = $this->Crud->read_order('ministry', 'name', 'asc');
+				if(!empty($ministry)){
+					$data = [];
+					foreach($ministry as $min){
+						$selected = '';
+						if(!empty($e_ministry_id)){
+							if($min->id == $e_ministry_id){
+								$selected = 'selected';
+							}
+						}
+						$data[] = array('id' => $min->id, 'name' => $min->name, 'selected' => $selected);
+					}
+				}
+				echo json_encode($data);
+				die;
+			}
+
+			if($param2 == 'get_church_level'){
+				$e_level = $this->request->getPost('level');
+				$log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+				$data = [];
+				$selected = '';
+				if($log_church_id > 0){
+					$data[] = array('id' => $log_church_id, 'name' => 'My Church', 'selected' => $selected);
+				}
+				$log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+				if($log_church_type == 'region'){
+					$data[] = array('id' => 'zone', 'name' => 'Zonal Church', 'selected' => $selected);
+					$data[] = array('id' => 'group', 'name' => 'Group Church', 'selected' => $selected);
+					$data[] = array('id' => 'church', 'name' => 'Church Assembly', 'selected' => $selected);
+					
+				} elseif($log_church_type == 'zone'){
+					$data[] = array('id' => 'group', 'name' => 'Group Church', 'selected' => $selected);
+					$data[] = array('id' => 'church', 'name' => 'Church Assembly', 'selected' => $selected);
+					
+				} elseif($log_church_type == 'group'){
+					$data[] = array('id' => 'church', 'name' => 'Church Assembly', 'selected' => $selected);
+					
+				} else{
+					$data[] = array('id' => 'region', 'name' => 'Regional Church', 'selected' => $selected);
+					$data[] = array('id' => 'zone', 'name' => 'Zonal Church', 'selected' => $selected);
+					$data[] = array('id' => 'group', 'name' => 'Group Church', 'selected' => $selected);
+					$data[] = array('id' => 'church', 'name' => 'Church Assembly', 'selected' => $selected);
+					
+				}
+					
+				echo json_encode($data);
+				die;
+			}
+		}
+
 		if($param1 == 'load_churches'){
 			$level = $this->request->getPost('level');
 			$ministry_id = $this->request->getPost('ministry_id');
@@ -1460,6 +1518,11 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								<li><a href="javascript:;" class="text-secondary pop" pageTitle="Attendance Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-warning pop" pageTitle="Tithe Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-money"></em><span>'.translate_phrase('Tithe Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-info pop" pageTitle="New Convert Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('New Convert Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-dark pop" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('First Timer Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-indigo pop" pageTitle="Partnership Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Partnership Details').'</span></a></li>
 								
 								
 							';

@@ -50,7 +50,7 @@
                             <div class="card-inner" id="form" style="display:none;">
                                <div class="row">
                                     <div class="nk-block-head-sub mb-3" id="prev" style="display:none;">
-                                        <a class="back-to" id="back_btn" href="javascript:;"><em class="icon ni ni-arrow-left"></em><span>Service Reports</span></a>
+                                        <a class="back-to btn btn-outline-primary" id="back_btn" href="javascript:;"><em class="icon ni ni-arrow-left"></em><span>Service Reports</span></a>
                                     </div>
                                     <h5>Enter the Details for the Service Meeting Below</h5>
                                     <p class="text-danger">Always click the save record Button after update of attendance, first timers and new convert.</p>
@@ -64,13 +64,7 @@
                                                     <label class="name">Ministry </label> 
                                                     <select id="ministry_id" name="ministry_id" class="js-select2 " onchange="load_level();">
                                                         <option value=" ">Select Ministry</option>
-                                                        <?php
-                                                            $ministries = $this->Crud->read_order('ministry', 'name', 'asc');
-                                                            foreach ($ministries as $ministry) {
-                                                                $selected = '';
-                                                                echo '<option value="' . $ministry->id . '" ' . $selected . '>' . ucwords($ministry->name) . '</option>';
-                                                            }
-                                                        ?>
+                                                        
                                                     </select>
                                                 </div>
                                             </div>
@@ -86,34 +80,6 @@
                                                 <label class="name">Church Level</label> 
                                                 <select class="js-select2" name="level" id="level" onchange="load_level();">
                                                     <option value=" ">Select Church Level</option>
-                                                    <?php if($log_church_id > 0){?>
-                                                    <option value="<?=$log_church_id; ?>">My Church</option>
-
-                                                <?php }
-                                                        $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
-
-                                                        if($log_church_type == 'region'){
-                                                            
-                                                    ?>
-                                                    
-                                                        <option value="zone" >Zonal Church</option>
-                                                        <option value="group" >Group Church</option>
-                                                        <option value="church" >Church Assembly</option>
-                                                    <?php } elseif($log_church_type == 'zone'){?>
-                                                    
-                                                        <option value="group" >Group Church</option>
-                                                        <option value="church" >Church Assembly</option>
-
-                                                    <?php } elseif($log_church_type == 'group'){?>
-                                                    
-                                                        <option value="church" >Church Assembly</option>
-
-                                                    <?php } else{?>
-                                                        <option value="region">Regional Church</option>
-                                                        <option value="zone" >Zonal Church</option>
-                                                        <option value="group" >Group Church</option>
-                                                        <option value="church" >Church Assembly</option>
-                                                    <?php } ?>
                                                     
                                                 </select>
                                             </div>
@@ -157,10 +123,8 @@
                                                 <label for="name"><?=translate_phrase('First Timer'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" id="first_timer" name="first_timer" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" readonly value="0">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="First Timer" pageSize="modal-xl" pageName="<?=site_url('service/report/manage/first_timer'); ?>" id="timerBtn">ADD</button>        
-                                                        </div>    
+                                                        <input type="text" id="first_timer" name="first_timer" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" value="0">        
+                                                          
                                                     </div>
                                                 </div>
                                             </div>
@@ -171,10 +135,8 @@
                                                 <label for="name">*<?=translate_phrase('Attendance'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" readonly name="attendance" id="attendance" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="Mark Meeting Attendance" pageSize="modal-lg" pageName="<?php echo  site_url('service/report/manage/attendance'); ?>" id="markButton">MARK</button>        
-                                                        </div>    
+                                                        <input type="text"  name="attendance" id="attendance" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
+                                                         
                                                     </div>
                                                     <span class="text-danger"></span>
                                                 </div>
@@ -185,10 +147,8 @@
                                                 <label for="name"><?=translate_phrase('New Convert'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" id="new_convert" class="form-control" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" name="new_convert" placeholder="">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="New Convert" pageSize="modal-xl" pageName="<?=site_url('service/report/manage/new_convert'); ?>" id="convertBtn">ADD</button>        
-                                                        </div>    
+                                                        <input type="text" id="new_convert" class="form-control" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" name="new_convert" placeholder="0">        
+                                                                
                                                     </div>
                                                 </div>
                                             </div>
@@ -209,13 +169,11 @@
                                         
                                         <div class="col-sm-4 mb-3">
                                             <div class="form-group">
-                                                <label for="name">*<?=translate_phrase('Tithe'); ?></label>
+                                                <label for="name">*<?=translate_phrase('Tithe'); ?></label> 
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" readonly name="tithe" id="tithe" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="Enter Tithe" pageSize="modal-lg" pageName="<?php echo  site_url('service/report/manage/tithe'); ?>" id="titheBtn">ADD</button>        
-                                                        </div>    
+                                                        <input type="text"  name="tithe" id="tithe" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
+                                                           
                                                     </div>
                                                     <span class="text-danger"></span>
                                                 </div>
@@ -226,10 +184,8 @@
                                                 <label for="name">*<?=translate_phrase('Partnership'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" readonly name="partnership" id="partnership" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="Add Partnership" pageSize="modal-xl" pageName="<?php echo  site_url('service/report/manage/partnership'); ?>" id="partnerBtn">ADD</button>        
-                                                        </div>    
+                                                        <input type="text"  name="partnership" id="partnership" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
+                                                       
                                                     </div>
                                                     <span class="text-danger"></span>
                                                 </div>
@@ -275,7 +231,7 @@
         load('', '');
     });
     
-    function load_level(){
+    function load_level(eChurchId){
         var ministry_id = $('#ministry_id').val();
         var level = $('#level').val();
         
@@ -292,7 +248,11 @@
                     
                     // Add options for each cell
                     dt.churches.forEach(function(cell) {
-                        cellSelect.append('<option value="' + cell.id + '">' + cell.name + '</option>');
+                        var selected = '';
+                        if (cell.id === eChurchId) {
+                            selected = 'selected';
+                        }
+                        cellSelect.append('<option value="' + cell.id + '" ' + selected + '>' + cell.name + '</option>');
                     });
                         
                 }
@@ -304,6 +264,65 @@
         }
     }
 
+    function load_ministry(eMinistryId){
+        $.ajax({
+            type: 'POST',
+            url: '<?=site_url('service/report/records/get_ministry')?>', // replace with your controller and function
+            data: {ministry_id: eMinistryId},
+            dataType: 'json',
+            success: function(data) {
+                $('#ministry_id').empty();
+                if (data.length === 0) {
+                    $('#ministry_id').append('<option value="">No Ministry found</option>'); // display a message if no regions are found
+                } else {
+                    $('#ministry_id').append('<option value=" ">Select Ministry</option>'); 
+                            
+                    $.each(data, function(index, ministry) {
+                        var selected = '';
+                        if (ministry.id === eMinistryId) {
+                            selected = 'selected';
+                        }
+                        $('#ministry_id').append('<option value="' + ministry.id + '" ' + selected + '>' + ministry.name + '</option>');
+                    });
+                }
+            }
+        });
+    }
+
+    
+
+    function load_church_level(eLevel, eChurchId){
+        $.ajax({
+            type: 'POST',
+            url: '<?=site_url('service/report/records/get_church_level')?>', // replace with your controller and function
+            data: {level: eLevel},
+            dataType: 'json',
+            success: function(data) {
+                $('#level').empty();
+                if (data.length === 0) {
+                    $('#level').append('<option value="">No Level found</option>'); // display a message if no regions are found
+                } else {
+                     $('#level').append('<option value=" ">Select Level</option>'); 
+                            
+                    $.each(data, function(index, level) {
+                        var selected = '';
+                        if (level.id === eLevel) {
+                            selected = 'selected';
+                            
+                        }
+                        $('#level').append('<option value="' + level.id + '" ' + selected + '>' + level.name + '</option>');
+                    });
+                    if (eLevel !== 'all' && typeof eLevel !== 'number') {
+                        $('#church_div').show(500);
+                        load_level(eChurchId);
+                    } else{
+                        $('#church_div').hide(500);
+                    }
+                }
+            }
+        });
+    }
+    
     
     function session_church(){
         var church_id = $('#church_id').val();
@@ -340,7 +359,7 @@
         $('#prev').hide(500);
         // Toggle between initial and new info
         currentInfo = (currentInfo === initialInfo) ? newInfo : initialInfo;
-       
+        load_ministry();load_church_level();
         $(this).attr('title', (currentInfo === initialInfo) ? 'Add Report' : 'Back to Reports');
         var markButton = document.getElementById("markButton");
         var convertBtn = document.getElementById("convertBtn");
@@ -351,27 +370,6 @@
         $(this).removeClass().addClass('btn btn-icon ' + currentInfo.class);
         // $(this).attr('onclick', currentInfo.onclick);
         $(this).find('em').removeClass().addClass('icon ni ' + currentInfo.iconClass);
-
-        var url = site_url + 'service/report/manage/attendance';
-        var updatedPageName = url;
-        markButton.setAttribute("pageName", updatedPageName);
-
-        var urls = site_url + 'service/report/manage/new_convert';
-        var updatedPageName = urls;
-        convertBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'service/report/manage/first_timer';
-        var updatedPageName = urls;
-        timerBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'service/report/manage/partnership';
-        var updatedPageName = urls;
-        partnerBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'service/report/manage/tithe';
-        var updatedPageName = urls;
-        titheBtn.setAttribute("pageName", updatedPageName);
-
        
     });
 
@@ -421,28 +419,13 @@
                 $('#tither').val(dt.e_tithers);
                 $('#partners').val(dt.e_partners);
                 $('#converts').val(dt.e_converts);
+                $('#ministry_id').val(dt.e_ministry_id);
+                $('#level').val(dt.e_level);
+                $('#church_id').val(dt.e_church_id);
                 
-                var url = site_url + 'service/report/manage/attendance';
-                var updatedPageName = url + "/" + dt.e_id;
-                markButton.setAttribute("pageName", updatedPageName);
 
-                var urls = site_url + 'service/report/manage/new_convert';
-                var updatedPageName = urls + "/" + dt.e_id;
-                convertBtn.setAttribute("pageName", updatedPageName);
-                
-                var urls = site_url + 'service/report/manage/first_timer';
-                var updatedPageName = urls + "/" + dt.e_id;
-                timerBtn.setAttribute("pageName", updatedPageName);
-                
-                var urls = site_url + 'service/report/manage/partnership';
-                var updatedPageName = urls + "/" + dt.e_id;
-                partnerBtn.setAttribute("pageName", updatedPageName);
-                
-                var urls = site_url + 'service/report/manage/tithe';
-                var updatedPageName = urls + "/" + dt.e_id;
-                titheBtn.setAttribute("pageName", updatedPageName);
-
-                $('#bb_ajax_msg').html('');
+                $('#bb_ajax_msg').html('');load_ministry(dt.e_ministry_id);
+                load_church_level(dt.e_level,dt.e_church_id);
             }
         });
 
@@ -455,30 +438,7 @@
         var timerBtn = document.getElementById("timerBtn");
         var partnerBtn = document.getElementById("partnerBtn");
         var titheBtn = document.getElementById("titheBtn");
-        
-        var selectedValue = selectElement.value;
-       
-        var url = site_url + 'accounts/creport/manage/attendance';
-        var updatedPageName = url + "/" + selectedValue;
-        markButton.setAttribute("pageName", updatedPageName);
-
-        var urls = site_url + 'accounts/creport/manage/new_convert';
-        var updatedPageName = urls + "/" + selectedValue;
-        convertBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'accounts/creport/manage/first_timer';
-        var updatedPageName = urls + "/" + selectedValue;
-        timerBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'service/report/manage/partnership';
-        var updatedPageName = urls + "/" + selectedValue;
-        partnerBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'service/report/manage/tithe';
-        var updatedPageName = urls + "/" + selectedValue;
-        titheBtn.setAttribute("pageName", updatedPageName);
-        
-        
+         
     }
 
     function load(x, y) {
