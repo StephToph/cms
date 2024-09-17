@@ -394,6 +394,7 @@ class Service extends BaseController {
 								}
 							}
 						}
+						$resp['attendance_id'] = $param3;
 						$resp['total_attendance'] = $total;
 						$resp['guest_attendance'] = $guest;
 						$resp['member_attendance'] = $member;
@@ -407,32 +408,53 @@ class Service extends BaseController {
 				}
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
-					$guest = $this->request->getPost('guest');
+					$attendance_id = $this->request->getPost('attendance_id');
 					$total = $this->request->getPost('total');
-					
-					$mark = $this->session->get('service_attendance');
+					$member = $this->request->getPost('member');
+					$guest = $this->request->getPost('guest');
+					$male = $this->request->getPost('male');
+					$female = $this->request->getPost('female');
+					$children = $this->request->getPost('children');
 
+					$attendant['total'] = $total;
+					$attendant['member'] = $member;
+					$attendant['guest'] = $guest;
+					$attendant['male'] = $male;
+					$attendant['female'] = $female;
+					$attendant['children'] = $children;
 					
-					// Decode the JSON string
-					$data = json_decode($mark, true);
-
-					// Change the values of "total" and "guest"
-					$data['total'] = $total; // Change the value of "total"
-					$data['guest'] = $guest; // Change the value of "guest"
+					$in_data['attendant'] = json_encode($attendant); 
+					$in_data['attendance'] = $total; 
 					
 					if(empty($data)){
 						echo $this->Crud->msg('danger', 'Mark Service Attendance');
 					
 					} else{
-						echo $this->Crud->msg('success', 'Service Attendance Submitted');
-						// echo json_encode($data);
-						echo '<script> setTimeout(function() {
-							var jsonData = ' . json_encode($data) . ';
-							var jsonString = JSON.stringify(jsonData);
-							$("#attendant").val(jsonString);
-							$("#attendance").val('.$total.');
-							$("#modal").modal("hide");
-						}, 2000); </script>';
+						if($this->Crud->updates('id', $attendance_id, 'service_report', $in_data) > 0){
+							echo $this->Crud->msg('success', 'Service Attendance Submitted');
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$action = $by.' updated Service Report for '.$service_date;
+							$this->Crud->activity('service', $attendance_id, $action);
+
+							// echo json_encode($data);
+							echo '<script> setTimeout(function() {
+								$("#show").show(500);
+									$("#form").hide(500);
+									$("#attendance_view").hide(500);
+									$("#attendance_prev").hide(500);
+									$("#add_btn").show(500);
+									
+									$("#prev").hide(500);
+									load();
+									$("#attendance_msg").html("");
+							}, 2000); </script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes to Service Attendance');
+						
+						}
+						
 					}
 					die;
 				}

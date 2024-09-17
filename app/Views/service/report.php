@@ -221,45 +221,47 @@
                                </div>
                             </div>
                             <div class="card-inner" id="attendance_view" style="display:none;">
-                                <div class="row">
-                                    
-                                    <span class="text-danger mb-2">Enter Attendance</span>
-                                    <div class="col-sm-4 mb-3 ">
-                                        <label>Total</label>
-                                        <input class="form-control" id="total_attendance" type="text" name="total"  readonly value="0">
+                                <form  id="attendanceForm">
+                                    <div class="row">
+                                        <input type="hidden" name="attendance_id" id="attendance_id">
+                                        <span class="text-danger mb-2">Enter Attendance</span>
+                                        <div class="col-sm-4 mb-3 ">
+                                            <label>Total</label>
+                                            <input class="form-control" id="total_attendance" type="text" name="total"  readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Member</label>
+                                            <input class="form-control" id="member_attendance" type="text" name="member"  value="0" placeholder="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>First Timer</label>
+                                            <input class="form-control" id="guest_attendance" type="text" name="guest"  value="" placeholder="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Male</label>
+                                            <input class="form-control" id="male_attendance" type="text" name="male"  value="" placeholder="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Female</label>
+                                            <input class="form-control" id="female_attendance" type="text" name="female"  value="" placeholder="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Children</label>
+                                            <input class="form-control" id="children_attendance" type="text" name="children"  value="" placeholder="0">
+                                        </div>
                                     </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <label>Member</label>
-                                        <input class="form-control" id="member_attendance" type="text" name="member"  value="0" placeholder="0">
+                                    <hr>
+                                    <div class="row mt-5" >
+                                        <div class="col-sm-12 text-center mt-5">
+                                            <button class="btn btn-primary bb_fo_btn" type="submit">
+                                                <i class="icon ni ni-save"></i> <span><?=translate_phrase('Save Record');?></span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <label>First Timer</label>
-                                        <input class="form-control" id="guest_attendance" type="text" name="guest"  value="" placeholder="0">
+                                    <div class="row">
+                                        <div class="col-sm-12 my-2"><div id="attendance_msg"></div></div>
                                     </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <label>Male</label>
-                                        <input class="form-control" id="male_attendance" type="text" name="male"  value="" placeholder="0">
-                                    </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <label>Female</label>
-                                        <input class="form-control" id="female_attendance" type="text" name="female"  value="" placeholder="0">
-                                    </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <label>Children</label>
-                                        <input class="form-control" id="children_attendance" type="text" name="children"  value="" placeholder="0">
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="row mt-5" >
-                                    <div class="col-sm-12 text-center mt-5">
-                                        <button class="btn btn-primary bb_fo_btn" type="submit">
-                                            <i class="icon ni ni-save"></i> <span><?=translate_phrase('Save Record');?></span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-sm-12"><div id="bb_ajax_msg2"></div></div>
-                                </div>
+                                </form>
                             </div><!-- .card-inner -->
                         </div><!-- .card-inner-group -->
                     </div><!-- .card -->
@@ -493,6 +495,7 @@
             type: 'get',
             success: function (data) {
                 var dt = JSON.parse(data);
+                $('#attendance_id').val(dt.attendance_id)
                 $('#total_attendance').val(dt.total_attendance);
                 $("#member_attendance").val(dt.member_attendance);
                 $("#guest_attendance").val(dt.guest_attendance);
@@ -574,6 +577,32 @@
             }
         });
     }
+
+    $(document).ready(function() {
+    // Attach a submit event handler to the form
+        $('#attendanceForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#attendance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/attendance', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#attendance_msg').html(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle an error response
+                    $('#attendance_msg').html('<div class="alert alert-danger">An error occurred while saving the record.</div>');
+                }
+            });
+        });
+    });
+
 </script>   
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
