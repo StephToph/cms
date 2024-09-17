@@ -394,6 +394,7 @@ class Service extends BaseController {
 								}
 							}
 						}
+						$resp['attendance_id'] = $param3;
 						$resp['total_attendance'] = $total;
 						$resp['guest_attendance'] = $guest;
 						$resp['member_attendance'] = $member;
@@ -407,32 +408,53 @@ class Service extends BaseController {
 				}
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
-					$guest = $this->request->getPost('guest');
+					$attendance_id = $this->request->getPost('attendance_id');
 					$total = $this->request->getPost('total');
-					
-					$mark = $this->session->get('service_attendance');
+					$member = $this->request->getPost('member');
+					$guest = $this->request->getPost('guest');
+					$male = $this->request->getPost('male');
+					$female = $this->request->getPost('female');
+					$children = $this->request->getPost('children');
 
+					$attendant['total'] = $total;
+					$attendant['member'] = $member;
+					$attendant['guest'] = $guest;
+					$attendant['male'] = $male;
+					$attendant['female'] = $female;
+					$attendant['children'] = $children;
 					
-					// Decode the JSON string
-					$data = json_decode($mark, true);
-
-					// Change the values of "total" and "guest"
-					$data['total'] = $total; // Change the value of "total"
-					$data['guest'] = $guest; // Change the value of "guest"
+					$in_data['attendant'] = json_encode($attendant); 
+					$in_data['attendance'] = $total; 
 					
 					if(empty($data)){
 						echo $this->Crud->msg('danger', 'Mark Service Attendance');
 					
 					} else{
-						echo $this->Crud->msg('success', 'Service Attendance Submitted');
-						// echo json_encode($data);
-						echo '<script> setTimeout(function() {
-							var jsonData = ' . json_encode($data) . ';
-							var jsonString = JSON.stringify(jsonData);
-							$("#attendant").val(jsonString);
-							$("#attendance").val('.$total.');
-							$("#modal").modal("hide");
-						}, 2000); </script>';
+						if($this->Crud->updates('id', $attendance_id, 'service_report', $in_data) > 0){
+							echo $this->Crud->msg('success', 'Service Attendance Submitted');
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$action = $by.' updated Service Report for '.$service_date;
+							$this->Crud->activity('service', $attendance_id, $action);
+
+							// echo json_encode($data);
+							echo '<script> setTimeout(function() {
+								$("#show").show(500);
+									$("#form").hide(500);
+									$("#attendance_view").hide(500);
+									$("#attendance_prev").hide(500);
+									$("#add_btn").show(500);
+									
+									$("#prev").hide(500);
+									load();
+									$("#attendance_msg").html("");
+							}, 2000); </script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes to Service Attendance');
+						
+						}
+						
 					}
 					die;
 				}
@@ -549,28 +571,51 @@ class Service extends BaseController {
 				}
 
 			} elseif($param2 == 'tithe'){
-				if($param3){
-					$data['table_rec'] = 'service/report/tithe_list/'.$param3; // ajax table
-				
-				} else {
-					$data['table_rec'] = 'service/report/tithe_list'; // ajax table
-				
-				}
-				$data['order_sort'] = '0, "asc"'; // default ordering (0, 'asc')
-				$data['no_sort'] = '1'; // sort disable columns (1,3,5)
-		
 				if($param3) {
-					$edit = $this->Crud->read2('type_id', $param3, 'type', 'cell', 'attendance');
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$this->session->set('service_church_id', $church_id);
+							
 					if(!empty($edit)) {
+						$total_tithe = 0;
+						$member_tithe = 0;
+						$guest_tithe = 0;
+						$tithe_list = 0;
+						
 						foreach($edit as $e) {
-							$data['d_id'] = $e->id;
-							$data['d_attendant'] = $e->attendant;
+							$tithers = json_decode($e->tithers);
+							if(!empty($tithers)){
+								foreach($tithers as $ti => $tv){
+									if($ti == 'total'){
+										$total_tithe = $tv;
+									}
+									if($ti == 'member'){
+										$member_tithe = $tv;
+									}
+									if($ti == 'guest'){
+										$guest_tithe = $tv;
+									}
+									if($ti == 'list'){
+										$tithe_list = $tv;
+									}
+								}
+							}
 						}
+
+						$resp['tithe_id'] = $param3;
+						$resp['tithe_list'] = $tithe_list;
+						$resp['total_tithe'] = $total_tithe;
+						$resp['member_tithe'] = $member_tithe;
+						$resp['guest_tithe'] = $guest_tithe;
+						
+						echo json_encode($resp);
+						die;
 					}
 					
 				}
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
+					$tithe_id = $this->request->getPost('tithe_id');
 					$guest_tithe = $this->request->getPost('guest_tithe');
 					$total_tithe = $this->request->getPost('total_tithe');
 					$member_tithe = $this->request->getPost('member_tithe');
@@ -599,19 +644,35 @@ class Service extends BaseController {
 					$tithe_list['guest'] = $guest_tithe;
 					$tithe_list['list'] = $tither;
 					 
-					// print_r($tithe_list);
-					$this->session->set('service_tithe', json_encode($tithe_list));
 					
-					echo $this->Crud->msg('success', 'Service Tithe Report Submitted');
-					// echo json_encode($mark);
-					echo '<script> setTimeout(function() {
-						var jsonData = ' . json_encode($tithe_list) . ';
-						var jsonString = JSON.stringify(jsonData);
-						$("#tither").val(jsonString);
-						$("#tithe").val('.number_format($total_tithe,2).');
-						$("#modal").modal("hide");
-					}, 2000); </script>';
+					$tithers =  json_encode($tithe_list);
+					$ins['tithers'] = $tithers;
+					$ins['tithe'] = $total_tithe;
+
+					if($this->Crud->updates('id', $tithe_id, 'service_report', $ins) > 0){
+						echo $this->Crud->msg('success', 'Service Tithe Report Submitted');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+						$action = $by.' updated Service Tithe Report for '.$service_date;
+						$this->Crud->activity('service', $tithe_id, $action);
+
+						// echo json_encode($data);
+						echo '<script> setTimeout(function() {
+							$("#show").show(500);
+								$("#form").hide(500);
+								$("#tithe_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								
+								$("#prev").hide(500);
+								load();
+								$("#tithe_msg").html("");
+						}, 2000); </script>';
+					} else {
+						echo $this->Crud->msg('info', 'No Changes');
 					
+					}
 					die;
 				}
 
@@ -1298,18 +1359,10 @@ class Service extends BaseController {
 		if($param1 == 'tithe_list') {
 			// DataTable parameters
 			$table = 'user';
-			$column_order = array('firstname', 'surname');
-			$column_search = array('firstname', 'surname');
-			$order = array('firstname' => 'asc');
-			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-			if(empty($church_id)){
-				$church_id = $this->session->get('service_church_id');
-			}
-			$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-			$where = array('is_member' => 1,'church_id' => $church_id);
 			
+			$church_id = $this->session->get('service_church_id');
 			// load data into table
-			$list = $this->Crud->datatable_load($table, $column_order, $column_search, $order, $where);
+			$list = $this->Crud->read2_order('is_member', 1,'church_id', $church_id, $table, 'firstname', 'asc');
 			$data = array();
 			// $no = $_POST['start'];
 			
@@ -1375,15 +1428,9 @@ class Service extends BaseController {
 				$count += 1;
 			}
 	
-			$output = array(
-				"draw" => intval($_POST['draw']),
-				"recordsTotal" => $this->Crud->datatable_count($table, $where),
-				"recordsFiltered" => $this->Crud->datatable_filtered($table, $column_order, $column_search, $order, $where),
-				"data" => $data,
-			);
 			
 			//output to json format
-			echo json_encode($output);
+			echo json_encode($data);
 			exit;
 		}
 
@@ -1531,9 +1578,9 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
-								<li><a href="javascript:;" class="text-warning pop" pageTitle="Tithe Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-info pop" pageTitle="New Convert Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-dark pop" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-info" pageTitle="New Convert Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-dark" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-indigo pop" pageTitle="Partnership Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
 								
 								
@@ -1552,13 +1599,13 @@ class Service extends BaseController {
 									<span class="text-dark">' . ucwords($types) . '</span>
 								</div>
 								<div class="nk-tb-col">
-									<span class="text-dark">$' . number_format((float)$offering,2) . '</span>
+									<span class="text-dark">' .curr. number_format((float)$offering,2) . '</span>
 								</div>
 								<div class="nk-tb-col">
-									<span class="text-dark">$' . number_format((float)$tithe,2) . '</span>
+									<span class="text-dark">' .curr. number_format((float)$tithe,2) . '</span>
 								</div>
 								<div class="nk-tb-col">
-									<span class="text-dark">$' . number_format((float)$partnership,2) . '</span>
+									<span class="text-dark">' .curr. number_format((float)$partnership,2) . '</span>
 								</div>
 								<div class="nk-tb-col tb-col">
 									<span class="text-dark"><span>' . ucwords($attendance) . '</b></span>
