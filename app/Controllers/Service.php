@@ -765,53 +765,85 @@ class Service extends BaseController {
 				}
 
 			} elseif($param2 == 'new_convert'){
-				
-					$edit = $this->Crud->read2('type_id', $param3, 'type', 'cell', 'attendance');
+				if($param3){
+					$resp = [];
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$converts = [];
+					$id = 0;
 					if(!empty($edit)) {
 						foreach($edit as $e) {
-							$data['d_id'] = $e->id;
-							$data['d_attendant'] = $e->attendant;
-						}
-					}
-					//When Adding Save in Session
-					if($this->request->getMethod() == 'post'){
-						$first_name = $this->request->getPost('first_name');
-						$surname = $this->request->getPost('surname');
-						$email = $this->request->getPost('email');
-						$phone = $this->request->getPost('phone');
-						$dob = $this->request->getPost('dob');
-
-						$converts = [];
-						if(!empty($first_name) || !empty($surname)){
-							for($i=0;$i<count($first_name);$i++){
-								$converts['fullname'] = $first_name[$i].' '.$surname[$i];
-								$converts['email'] = $email[$i];
-								$converts['phone'] = $phone[$i];
-								$converts['dob'] = $dob[$i];
-								
-								$convert[] = $converts;
+							$converts = $e->converts;
+							if(empty($converts)){
+								$converts = "[]";
 							}
+							$id = $e->id;
 						}
-						// echo json_encode($convert);
-						if(empty($convert)){
-							echo $this->Crud->msg('danger', 'Enter the New Convert Details');
-							
-						} else{
-							$this->session->set('service_convert', json_encode($convert));
-							echo $this->Crud->msg('success', 'New Convert List Submitted');
-							// echo json_encode($mark);
-							
-							echo '<script> setTimeout(function() {
-								var jsonData = ' . json_encode($convert) . ';
-								var jsonString = JSON.stringify(jsonData);
-								$("#converts").val(jsonString);
-								$("#new_convert").val('.count($first_name).');
-								$("#modal").modal("hide");
-							}, 2000); </script>';
-						}
-						die;
+						
 					}
-				
+
+					$resp['convert_list'] =  $converts;
+					$resp['id'] = $id;
+
+					echo json_encode($resp);
+					die;
+				}
+				//When Adding Save in Session
+				if($this->request->getMethod() == 'post'){
+					$first_name = $this->request->getPost('first_name');
+					$new_convert_id = $this->request->getPost('new_convert_id');
+					$surname = $this->request->getPost('surname');
+					$email = $this->request->getPost('email');
+					$phone = $this->request->getPost('phone');
+					$dob = $this->request->getPost('dob');
+
+					$converts = [];
+					if(!empty($first_name) || !empty($surname)){
+						for($i=0;$i<count($first_name);$i++){
+							$converts['fullname'] = $first_name[$i].' '.$surname[$i];
+							$converts['email'] = $email[$i];
+							$converts['phone'] = $phone[$i];
+							$converts['dob'] = $dob[$i];
+							
+							$convert[] = $converts;
+						}
+					}
+					// echo json_encode($convert);
+					if(empty($convert)){
+						echo $this->Crud->msg('danger', 'Enter the New Convert Details');
+						
+					} else{
+						$ins['converts'] = json_encode($convert);
+						$ins['new_convert'] = count($first_name);
+
+						if($this->Crud->updates('id', $new_convert_id, 'service_report', $ins) > 0){
+							
+							echo $this->Crud->msg('success', 'New Convert List Submitted');
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$action = $by.' updated Service New Convert Report for '.$service_date;
+							$this->Crud->activity('service', $new_convert_id, $action);
+
+							// echo json_encode($data);
+							echo '<script> setTimeout(function() {
+								$("#show").show(500);
+									$("#form").hide(500);
+									$("#new_convert_view").hide(500);
+									$("#attendance_prev").hide(500);
+									$("#add_btn").show(500);
+									
+									$("#prev").hide(500);
+									load();
+									$("#new_convert_msg").html("");
+							}, 2000); </script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');
+						}
+
+					}
+					die;
+				}
+			
 
 			}elseif($param2 == 'first_timer'){
 				//When Adding Save in Session
@@ -1579,7 +1611,7 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-info" pageTitle="New Convert Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-indigo pop" pageTitle="Partnership Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
 								

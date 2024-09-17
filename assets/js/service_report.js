@@ -150,9 +150,12 @@
         $('#form').hide(500);
         $('#attendance_view').hide(500);
         $('#tithe_view').hide(500);
+        $('#new_convert_view').hide(500);
         $('#attendance_prev').hide(500);
         $('#add_btn').show(500);
-        
+         // Reset row count and clear rows
+         rowCount = 0;
+         $('#rowsContainer').empty();
         $('#prev').hide(500);
 
     });
@@ -269,6 +272,115 @@
        
     }
 
+    
+
+    let rowCount = 0;
+
+    function createRow(record = null) {
+        // Increment the row count
+        rowCount++;
+
+        // Create a new row
+        let newRow = $('<div>', { class: 'row border new_converts mb-4' });
+
+        // Add fields to the new row
+        newRow.append(`
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="first_name_${rowCount}">*First Name</label>
+                    <input class="form-control" type="text" id="first_name_${rowCount}" name="first_name[]" ${record ? 'value="' + (record.fullname.split(' ')[0] || '') + '"' : ''} required>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="surname_${rowCount}">*Surname</label>
+                    <input class="form-control" type="text" id="surname_${rowCount}" name="surname[]" ${record ? 'value="' + (record.fullname.split(' ')[1] || '') + '"' : ''} required>
+                </div>
+            </div>
+            <div class="col-sm-4 mb-3">
+                <div class="form-group">
+                    <label for="email_${rowCount}">*Email</label>
+                    <input class="form-control" type="email" id="email_${rowCount}" name="email[]" ${record ? 'value="' + (record.email || '') + '"' : ''}>
+                </div>
+            </div>
+            <div class="col-sm-4 mb-3">
+                <div class="form-group">
+                    <label for="phone_${rowCount}">*Phone</label>
+                    <input class="form-control" type="text" id="phone_${rowCount}" name="phone[]" ${record ? 'value="' + (record.phone || '') + '"' : ''} required>
+                </div>
+            </div>
+            <div class="col-sm-4 mb-3">
+                <div class="form-group">
+                    <label for="dob_${rowCount}">*Birthday</label>
+                    <input class="form-control" type="date" id="dob_${rowCount}" name="dob[]" ${record ? 'value="' + (record.dob || '') + '"' : ''}>
+                </div>
+            </div>
+            
+        `);
+
+        if (rowCount > 1) {
+            newRow.append(`
+                <div class="col-sm-9 my-2 text-right">.</div>
+                <div class="col-sm-3 my-2 text-right">
+                    <button type="button" class="btn btn-block btn-danger btn-sm deleteRow"><em class="icon ni ni-trash"></em> <span>Delete</span></button>
+                </div>
+            `);
+        }
+        return newRow;
+    }
+
+    // Handle "Add More" button click
+    $('#addMores').on('click', function() {
+        $('#rowsContainer').append(createRow());
+    });
+
+    // Handle delete button click
+    $('#rowsContainer').on('click', '.deleteRow', function() {
+        $(this).closest('.row').remove();
+        rowCount--;
+
+        // Disable delete button if only one row remains
+        if ($('#rowsContainer .row').length === 1) {
+            $('#rowsContainer .deleteRow').prop('disabled', true);
+        }
+    });
+
+    // Function to add rows with existing records
+    function addRowsWithRecords(records) {
+        records.forEach(record => {
+            $('#rowsContainer').append(createRow(record));
+        });
+    }
+
+    function new_convert_report(id){
+        $('#new_convert_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#new_convert_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/new_convert/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#new_convert_id').val(dt.id)
+
+                // Parse the convert_list JSON string
+                var existingRecords = JSON.parse(dt.convert_list);
+                
+                
+                if(existingRecords.length > 0){
+                    addRowsWithRecords(existingRecords);
+                }
+                
+                $('#new_convert_msg').html('');
+            }
+        });
+       
+    }
+  
+
     function get_tithe(){
         var member = $('#member_tithe').val();
         var guest = $('#guest_tithe').val();
@@ -376,6 +488,25 @@
                 }
             });
         });
+
+        $('#new_convert_Form').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#new_convert_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/new_convert', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#new_convert_msg').html(response);
+                }
+            });
+        });
+
     });
 
     
@@ -519,3 +650,6 @@
           })
           .catch((error) => console.error(error));
       }
+    
+      
+      
