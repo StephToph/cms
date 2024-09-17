@@ -320,6 +320,30 @@
                                         <div class="col-sm-12"><div id="tithe_msg"></div></div>
                                     </div>
                                 </form>
+                            </div>
+                            <div class="card-inner" id="new_convert_view" style="display:none;">
+                                <form  id="new_convert_Form">
+                                    <input type="hidden" name="new_convert_id" id="new_convert_id">
+                                       
+                                    <div id="rowsContainer">
+                                        <!-- Rows will be dynamically added here -->
+                                    </div>
+                                    <div class="col-sm-12 my-4 text-center">
+                                        <button id="addMores" class="btn btn-block btn-ico btn-outline-info" type="button"><i class="icon ni ni-plus-c"></i>  <span><?=translate_phrase('Add More');?></span></button>
+                                    </div>
+
+
+                                    <div class="row" >
+                                        <div class="col-sm-12 text-center my-5">
+                                            <button class="btn btn-primary bb_fo_btn" type="submit">
+                                                <i class="icon ni ni-save"></i> <span><?=translate_phrase('Save Record');?></span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12"><div id="new_convert_msg"></div></div>
+                                    </div>
+                                </form>
                             </div><!-- .card-inner -->
                         </div><!-- .card-inner-group -->
                     </div><!-- .card -->
