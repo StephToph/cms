@@ -505,8 +505,12 @@ class Service extends BaseController {
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
 					
+					$total_part = $this->request->getPost('total_part');
+					$member_part = $this->request->getPost('member_part');
+					$guest_part = $this->request->getPost('guest_part');
 					$first_timer = $this->request->getPost('first_timer');
-					$member = $this->request->getPost('members');
+					$members = $this->request->getPost('members');
+					
 					$partner = [];
 					$partss = $this->Crud->read_order('partnership', 'name', 'asc');
 
@@ -1399,14 +1403,24 @@ class Service extends BaseController {
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
 
-					$church_members = [];
-					
+					$church_memberss = [];
+					$partnerships = [];
+					$count = 0;
 					if(!empty($church)){
 						foreach($church as $c){
-							$church_members[] = $c->id;
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
 						}
 					}
 					$partnership = $this->Crud->read_order('partnership', 'name', 'asc');
+					if(!empty($partnership)){
+						foreach($partnership as $p){
+							$partnerships[] = $p->id;
+						}
+					}
 					$table = '';
 					if (!empty($partners)) {
 						foreach ($partners as $time => $val) {
@@ -1416,13 +1430,14 @@ class Service extends BaseController {
 								if (!empty($member)) {
 									foreach ($member as $g => $gpal) {
 										if (in_array($g, $church_members)) {
+											
 											$church_members = array_diff($church_members, [$g]);
 											$fullname = $this->Crud->read_field('id', $g, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $g, 'user', 'surname');
 											$phone = $this->Crud->read_field('id', $g, 'user', 'phone');
 					
 											$table .= '<tr class="original-rows">
 												<td>
-													<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($g) . '">
+													<input type="hidden" readonly class="form-control members" name="members['.$g.']" value="' . htmlspecialchars($g) . '">
 													<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
 												</td>';
 					
@@ -1447,6 +1462,7 @@ class Service extends BaseController {
 											}
 					
 											$table .= '</tr>'; // Close the table row
+											$count++;
 										}
 									}
 								}
@@ -1455,7 +1471,8 @@ class Service extends BaseController {
 					}
 					
 								
-					$data['members'] = json_encode($church_members);
+					$data['partnerships'] = ($partnerships);
+					$data['members'] = ($church_memberss);
 					$data['members_part'] = $table;
 
 

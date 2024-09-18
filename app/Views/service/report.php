@@ -415,7 +415,7 @@
                                                                 // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
                                                                 
                                                                 echo ' <th width="200px">'.strtoupper($name).'</th>';
-                                                                echo '<input type="hidden" name="'.($index-1).'_parts[]" value="'.$pp->id.'">';
+                                                               
 
                                                             }
                                                         }
@@ -429,7 +429,7 @@
                                         <table class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
-                                                    <th >Member</th>
+                                                    <th width="250px;">Member</th>
                                                     <?php 
                                                         $parts = $this->Crud->read_order('partnership', 'name', 'asc');
                                                         if(!empty($parts)){

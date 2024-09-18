@@ -465,13 +465,13 @@
                 
                 $('#guest_part_view').show(500);
                 // Iterate over firstTimers and append rows to the table
-                firstTimers.forEach(function(timer) {
+                firstTimers.forEach(function(timer, index) {
                     var row = '<tr class="original-row">';
                     // Check if fullname is defined and convert to uppercase
                     var fullname = timer.id ? timer.id.toUpperCase() : '';
                     var phone = timer.phone ? timer.phone : '';
                   
-                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer[]" value="' + fullname + ' - ' + phone + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
+                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer['+index+']" value="' + fullname + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
                     
                     if(fullname){
                         $.ajax({
@@ -483,7 +483,7 @@
                                
                                 if (partners) {
                                     partners.forEach(function(partner) {
-                                        row += '<td><input type="text" style="width:100px;"  class="form-control firsts_amount" name="' + partner.id + '_first[]" oninput="bindInputEvents();" value="' + partner.amount + '"> </td>'; // Contribution amount
+                                        row += '<td><input type="text" style="width:100px;"  class="form-control firsts_amount" name="' + partner.id + '_first['+index+']" oninput="bindInputEvents();" value="' + partner.amount + '"> </td>'; // Contribution amount
                                     });
                                 }
                                 
@@ -508,7 +508,9 @@
             }
         });
     }
-
+    let churchMembers = [];
+    let partnerships = [];
+               
     function populateMember(id) {
         $.ajax({
             url: site_url + 'service/report/records/get_members_partnership/'+id, // Adjust the URL according to your API
@@ -519,13 +521,50 @@
                 // Clear existing entries
                 $('#member_partner_list').empty();
                 // console.log(mems.members_part);
-                $('#member_partner_list').html(mems.members_part).fadeIn(200);
-            
-                
+                $('#member_partner_list').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                partnerships = mems.partnerships;
+
                 $('.js-select2 ').select2();
             }
         });
     }
+
+    $('#mem_btn').click(function() {
+        // Create a new row
+        const newRow = $('<tr></tr>');
+
+        // Create a select element for church members
+        const memberSelect = $('<select  class="js-select2 members" name="members[]" id="members" required></select>');
+        
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } 
+        
+        newRow.append($('<td width="250px;"></td>').append(memberSelect));
+
+        // Add input textboxes for each partnership
+        partnerships.forEach(function(partnership) {
+            newRow.append(`
+                <td>
+                    <input type="text" style="width:100px;" class="form-control members_amount" oninput=" bindInputEvents();" name="${partnership}_member[]" placeholder="0">
+                </td>
+            `);
+        });
+        // Append the new row to the table body
+        $('#member_partner_list').append(newRow);
+
+        
+        $('.js-select2').select2();
+    });
+    
     
     function bindInputEvents() {
         $('.members_amount').on('input', calculateSum);
@@ -931,6 +970,24 @@
                     first_timer_count = 0;
 
                     $('#containers').empty();
+                }
+            });
+        });
+
+        $('#partnershipForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#partnership_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/partnership', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#partnership_msg').html(response);
                 }
             });
         });
