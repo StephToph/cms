@@ -395,10 +395,8 @@
                                                         
                                     <hr>
                                     <div class="table-responsive">
-                                        <?php
-                                            if(!empty($first)){
-                                        ?>
-                                            <table class="table table-striped table-hover mt-5" id="dataTable">
+                                        <div id="guest_part_view" style="display:none;">
+                                            <table class="table table-striped table-hover mt-5">
                                                 <thead>
                                                     <tr>
                                                         <th >First Timer</th>
@@ -424,82 +422,15 @@
                                                         <th></th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
-                                                    <?php if($param3){
-                                                        foreach($first as $f => $val){
-                                                            if($f == 'guest'){
-                                                                $selval = [];
-                                                                if(!empty($val)){
-                                                                    foreach($val as $pp => $pval){
-                                                                        $selval[] = $pp;
-                                                                        $parts_val = (array)$pval;
-                                                                
-                                                                    }  
-                                                                }
-                                                        ?>
-                                                        <tr class="original-row">
-                                                            <td>
-                                                                <select class="js-select2 firsts"  data-search="on" name="first_timer[]" id="firsts" data-placeholder="Select First Timer" selected required>
-                                                                    
-                                                                    <?php 
-                                                                        if(!empty((array)$selval)){
-                                                                            foreach($selval as $mm => $val){
-                                                                                echo '<option value="'.$val.'">'.strtoupper($val).'</option>';
-                                                                            }
-                                                                        } 
-                                                                    ?>
-                                                                </select>
-                                                            </td>
-                                                            <?php 
-
-                                                                if(!empty($parts)){
-                                                                    $vall = 0;
-                                                                    foreach($parts as $pp => $val){
-                                                                        if(!empty($parts_val)){
-                                                                            if(!empty($parts_val[$pp])){$vall = $parts_val[$pp];}else{$vall = 0;}
-                                                                        }
-                                                                        echo '<td><input type="text" style="width:100px;" class="form-control firsts_amount" name="'.($pp-1).'_first[]" oninput="bindInputEvents();" value="'.$vall.'"></td>';
-                                                                    }
-                                                                }
-                                                            ?>
-                                                            <td></td>
-                                                        </tr>
-                                                    <?php } 
-                                                        }
-                                                    }
-                                                    else{?>
-
-                                                        
-                                                        <tr class="original-row">
-                                                            <td>
-                                                                <select class="js-select2 firsts"  data-search="on" name="first_timer[]" id="firsts" data-placeholder="Select First Timer" required>
-                                                                    <option value="">Select</option>
-                                                                    <?php 
-                                                                        if(!empty((array)$first)){
-                                                                            foreach($first as $mm => $val){
-                                                                                echo '<option value="'.$val->fullname.'">'.strtoupper($val->fullname).'</option>';
-                                                                            }
-                                                                        } 
-                                                                    ?>
-                                                                </select>
-                                                            </td>
-                                                            <?php 
-                                                                if(!empty($parts)){
-                                                                    foreach($parts as $pp => $val){
-                                                                        echo '<td><input type="text" style="width:100px;" class="form-control firsts_amount" name="'.$pp.'_first[]" oninput="bindInputEvents();" value="0"></td>';
-                                                                    }
-                                                                }
-                                                            ?>
-                                                            <td></td>
-                                                        </tr>
-                                                    <?php } ?>
+                                                <tbody id="guest_partner_list">
+                                                    
                                                 </tbody>
                                             </table>
                                             <div class="col-12 my-3 text-center">
                                                 <p id="first_resp"></p>
                                                 <button type="button" class="btn btn-info" id="more_btn">Add More</button>
                                             </div>
-                                        <?php } ?>
+                                        </div>
                                         <table class="table table-striped table-hover mt-5" id="member_table">
                                             <thead>
                                                 <tr>

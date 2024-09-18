@@ -460,19 +460,47 @@ class Service extends BaseController {
 				}
 
 			} elseif($param2 == 'partnership'){
-				$timer_count = $this->session->get('service_timers');
-				// $first = json_decode($timer_count);
-				// echo $timer_count;
-				$data['first'] = $timer_count;
 				if($param3) {
-					$edit = $this->Crud->read2('type_id', $param3, 'type', 'cell', 'attendance');
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$total_part = 0;
+					$member_part = 0;
+					$guest_part = 0;
+					$id = 0;
+					$guest_partners = [];
+					$member_partners = [];
 					if(!empty($edit)) {
 						foreach($edit as $e) {
-							$data['d_id'] = $e->id;
-							$data['d_attendant'] = $e->attendant;
+							$id = $e->id;
+							$partners = ($e->partners);
+							if(empty($partners)){
+								$partners = "[]";
+							} else{
+								$parts = json_decode($partners);
+								$total_part = $parts->total_part;
+								$member_part = $parts->member_part;
+								$guest_part = $parts->guest_part;
+								if(!empty($parts->partnership)){
+									foreach($parts->partnership as $p => $pval) {
+										if($p == 'guest'){
+											$guest_partners = $pval;
+										}
+										if($p == 'member'){
+											$member_partners = $pval;
+										}
+									}
+								}
+							}
 						}
 					}
 					
+					$resp['id'] = $id;
+					$resp['guest_partners'] = json_encode($guest_partners);
+					$resp['member_partners'] = json_encode($member_partners);
+					$resp['total_part'] = $total_part;
+					$resp['member_part'] = $member_part;
+					$resp['guest_part'] = $guest_part;
+					echo json_encode($resp);
+					die;
 				}
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
@@ -768,7 +796,7 @@ class Service extends BaseController {
 				if($param3){
 					$resp = [];
 					$edit = $this->Crud->read_single('id', $param3, 'service_report');
-					$converts = [];
+					$partners = [];
 					$id = 0;
 					if(!empty($edit)) {
 						foreach($edit as $e) {
@@ -1289,6 +1317,80 @@ class Service extends BaseController {
 					
 				
 			}
+
+			if($param2 == 'getFirstTimers'){
+				
+				if($param3){
+					$data = [];
+					
+					$timers = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'timers'));
+					
+					if(!empty($timers)){
+						foreach($timers as $time => $val){
+							$name = $val->fullname;
+							$phone = $val->phone;
+							
+							$data[] = array('id' => $name, 'phone' => $phone);
+						}
+					}
+					
+					
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
+			if($param2 == 'get_service_partnership'){
+				
+				if($param3){
+					$data = [];
+					$name = $this->request->getPost('name');
+					$partners = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'partners'));
+					$partnership = $this->Crud->read_order('partnership', 'name', 'asc');
+					if(!empty($partnership)){
+						foreach($partnership as $p){
+							$amount = 0;
+							if(!empty($partners)){
+								foreach($partners as $time => $val){
+									if($time == 'partnership'){
+										$guest= $val->guest;
+										if(!empty($guest)){
+											foreach($guest as $g => $gpal){
+												// echo strtoupper($g).' '.ucwords($name);
+												if(strtoupper($g) == $name){
+													
+													$gpals = (array)$gpal;
+													foreach($gpals as $gp => $gpl){
+														if($p->id == $gp){
+															$amount = $gpl;
+														}
+													}
+													
+												}
+											}
+										}
+										
+									}
+									
+								}
+							}
+							$data[] = $amount;
+
+
+						}
+					}
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
+			
 		}
 
 		if($param1 == 'load_churches'){

@@ -431,20 +431,91 @@
             success: function (data) {
                 var dt = JSON.parse(data);
                 $('#partnership_id').val(dt.id)
+                $('#total_part').val(dt.total_part)
+                $('#member_part').val(dt.member_part)
+                $('#guest_part').val(dt.guest_part)
 
-                // Parse the convert_list JSON string
-                var existingRecords = JSON.parse(dt.timer_list);
-                console.log(existingRecords);
-                
-                if(existingRecords.length > 0){
-                    timerRecords(existingRecords);
-                }
+                var member_part = JSON.parse(dt.member_partners);
+                var guest_part = JSON.parse(dt.guest_partners);
+                fetchAndPopulateFirstTimers(dt.id);
                 
                 $('#partnership_msg').html('');
             }
         });
        
     }
+    
+    function fetchAndPopulateFirstTimers(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/getFirstTimers/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var firstTimers = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#guest_partner_list').empty();
+            
+                // Check if there are any first timers
+                if (firstTimers.length === 0) {
+                    
+                    $('#guest_part_view').hide();
+                    $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">No first timers available</td></tr>');
+                    return;
+                }
+                
+                $('#guest_part_view').show();
+                // Iterate over firstTimers and append rows to the table
+                firstTimers.forEach(function(timer) {
+                    var row = '<tr class="original-row">';
+                    // Check if fullname is defined and convert to uppercase
+                    var fullname = timer.id ? timer.id.toUpperCase() : '';
+                    var phone = timer.phone ? timer.phone : '';
+                    
+                    row += '<td width="250px"><input type="text" readonly class="form-control firsts" name="first_timer[]" value="' + fullname + ' - ' + phone + '"></td>';
+                    row += '<td class="partnership-info"></td>'; // Column for partnership info
+                    row += '</tr>';
+                
+                    $('#guest_partner_list').append(row);
+                    
+                    // Call the function to fetch partnership details for the first timer
+                    getPartnershipDetails(fullname, row, id);
+                });
+                $('.js-select2 ').select2();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching first timers:', error);
+                $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">Failed to load first timers.</td></tr>');
+            }
+        });
+    }
+    
+
+
+    function getPartnershipDetails(fullname, row, service_id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_service_partnership/'+service_id,
+            method: 'post',
+            data: { name: fullname },
+            success: function(data) {
+                if (data) {
+                    // Assuming `data.contribution` contains the relevant partnership info
+                    var partnershipInfo = data.contribution.partnershipName; // Replace with your actual data structure
+                    var amount = data.contribution.amount; // Replace with your actual data structure
+                    
+                    // Update the partnership info cell in the corresponding row
+                    $(row).find('.partnership-info').html(partnershipInfo + ' - Amount: ' + amount);
+                } else {
+                    $(row).find('.partnership-info').html('No contributions found');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error: ' + status + error);
+                $(row).find('.partnership-info').html('Error retrieving data');
+            }
+        });
+    }
+    
+    
     
     function timerRecords(records) {
         records.forEach(record => {
