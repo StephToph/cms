@@ -159,7 +159,9 @@
         $('#add_btn').show(500);
          // Reset row count and clear rows
          rowCount = 0;first_timer_count=0;
-         $('#rowsContainer').empty();
+         
+        $('#partnership_view').hide(500);
+        $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
 
     });
@@ -344,7 +346,7 @@
 
     // Handle delete button click
     $('#rowsContainer').on('click', '.deleteRow', function() {
-        $(this).closest('.row').remove();
+        $(this).closest('.row').remove(500);
         rowCount--;
 
         // Disable delete button if only one row remains
@@ -411,6 +413,34 @@
                 }
                 
                 $('#first_timer_msg').html('');
+            }
+        });
+       
+    }
+
+    function partnership_report(id){
+        $('#partnership_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#partnership_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/partnership/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#partnership_id').val(dt.id)
+
+                // Parse the convert_list JSON string
+                var existingRecords = JSON.parse(dt.timer_list);
+                console.log(existingRecords);
+                
+                if(existingRecords.length > 0){
+                    timerRecords(existingRecords);
+                }
+                
+                $('#partnership_msg').html('');
             }
         });
        
@@ -595,17 +625,16 @@
         }
     }
     
-     
+    function deleteSection(rowId) {
+        $(`#row-${rowId}`).remove(500); // Remove the row from the DOM
+        first_timer_count--; // Decrement the row count
+    }
     
-    
-
-     // Click event to handle delete button
-     container.on('click', '.btn-delete', function() {
-         const rowId = $(this).data('row');
-         $(`#row-${rowId}`).remove(500);
-         // Adjust row count if necessary
-         first_timer_count = $('.row.border.mb-3.p-2').length;
-     });
+    // Event listener to handle delete button clicks using jQuery
+    $(document).on('click', '.btn-delete', function() {
+        const rowId = $(this).data('row'); // Get the row ID from data attribute
+        deleteSection(rowId);
+    });
 
     function get_tithe(){
         var member = $('#member_tithe').val();
