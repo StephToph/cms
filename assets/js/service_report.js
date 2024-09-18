@@ -159,7 +159,9 @@
         $('#add_btn').show(500);
          // Reset row count and clear rows
          rowCount = 0;first_timer_count=0;
-         
+         $('#guest_part_view').hide(500);
+         $('#guest_partner_list').empty();
+            
         $('#partnership_view').hide(500);
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
@@ -435,8 +437,6 @@
                 $('#member_part').val(dt.member_part)
                 $('#guest_part').val(dt.guest_part)
 
-                var member_part = JSON.parse(dt.member_partners);
-                var guest_part = JSON.parse(dt.guest_partners);
                 fetchAndPopulateFirstTimers(dt.id);
                 
                 $('#partnership_msg').html('');
@@ -458,27 +458,47 @@
                 // Check if there are any first timers
                 if (firstTimers.length === 0) {
                     
-                    $('#guest_part_view').hide();
+                    $('#guest_part_view').hide(500);
                     $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">No first timers available</td></tr>');
                     return;
                 }
                 
-                $('#guest_part_view').show();
+                $('#guest_part_view').show(500);
                 // Iterate over firstTimers and append rows to the table
                 firstTimers.forEach(function(timer) {
                     var row = '<tr class="original-row">';
                     // Check if fullname is defined and convert to uppercase
                     var fullname = timer.id ? timer.id.toUpperCase() : '';
                     var phone = timer.phone ? timer.phone : '';
+                  
+                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer[]" value="' + fullname + ' - ' + phone + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
                     
-                    row += '<td width="250px"><input type="text" readonly class="form-control firsts" name="first_timer[]" value="' + fullname + ' - ' + phone + '"></td>';
-                    row += '<td class="partnership-info"></td>'; // Column for partnership info
-                    row += '</tr>';
-                
-                    $('#guest_partner_list').append(row);
+                    if(fullname){
+                        $.ajax({
+                            url: site_url + 'service/report/records/get_service_partnership/'+id,
+                            method: 'post',
+                            data: { name: fullname },
+                            success: function(data) {
+                                var partners = JSON.parse(data); // Assuming the response is JSON formatted
+                               
+                                if (partners) {
+                                    partners.forEach(function(partner) {
+                                        row += '<td><input type="text" style="width:100px;"  class="form-control firsts_amount" name="' + partner.id + '_first[]" oninput="bindInputEvents();" value="' + partner.amount + '"> </td>'; // Contribution amount
+                                    });
+                                }
+                                
+                                row += '</tr>';
+                                 // Now append the row to the table after the AJAX call is successful
+                                $('#guest_partner_list').append(row);
+                            }
+                        });
+                    } else{
+                        row += '</tr>';
+                         // Now append the row to the table after the AJAX call is successful
+                        $('#guest_partner_list').append(row);
+                    }
+
                     
-                    // Call the function to fetch partnership details for the first timer
-                    getPartnershipDetails(fullname, row, id);
                 });
                 $('.js-select2 ').select2();
             },
@@ -489,32 +509,71 @@
         });
     }
     
-
-
-    function getPartnershipDetails(fullname, row, service_id) {
-        $.ajax({
-            url: site_url + 'service/report/records/get_service_partnership/'+service_id,
-            method: 'post',
-            data: { name: fullname },
-            success: function(data) {
-                if (data) {
-                    // Assuming `data.contribution` contains the relevant partnership info
-                    var partnershipInfo = data.contribution.partnershipName; // Replace with your actual data structure
-                    var amount = data.contribution.amount; // Replace with your actual data structure
-                    
-                    // Update the partnership info cell in the corresponding row
-                    $(row).find('.partnership-info').html(partnershipInfo + ' - Amount: ' + amount);
-                } else {
-                    $(row).find('.partnership-info').html('No contributions found');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error: ' + status + error);
-                $(row).find('.partnership-info').html('Error retrieving data');
-            }
-        });
+    function bindInputEvents() {
+        $('.members_amount').on('input', calculateSum);
+        $('.members_amount').on('input', restrictNumericInput);
+        $('.firsts_amount').on('input', calculateFirst);
+        $('.firsts_amount').on('input', restrictNumericInput);
     }
-    
+
+    // Function to allow only numeric input with up to two decimal places
+    function restrictNumericInput() {
+        // Replace any non-numeric characters (except decimal point) with an empty string
+        $(this).val($(this).val().replace(/[^0-9.]/g, ''));
+
+        // Allow only one decimal point
+        var val = $(this).val();
+        var parts = val.split('.');
+        if (parts.length > 2) {
+            parts.pop();
+            $(this).val(parts.join('.'));
+        }
+    }
+
+    function calculateSum() {
+        var sum = 0;
+        // Loop through all elements with the class 'members'
+        $('.members_amount').each(function() {
+            // Parse the value as a float and add it to the sum
+            sum += parseFloat($(this).val()) || 0; // If parsing fails, default to 0
+        });
+
+        // Round the sum to 2 decimal places
+        var roundedSum = Math.round(sum * 100) / 100;
+
+        // Display the rounded sum in the 'member_part' text box
+        $('#member_part').val(roundedSum.toFixed(2));
+        total_part();
+    }
+
+    function calculateFirst() {
+        var sum = 0;
+        // Loop through all elements with the class 'members'
+        $('.firsts_amount').each(function() {
+            // Parse the value as a float and add it to the sum
+            sum += parseFloat($(this).val()) || 0; // If parsing fails, default to 0
+        });
+
+        // Round the sum to 2 decimal places
+        var roundedSum = Math.round(sum * 100) / 100;
+
+        // Display the rounded sum in the 'member_part' text box
+        $('#guest_part').val(roundedSum.toFixed(2));
+        total_part();
+    }
+
+    function total_part(){
+        var member = $('#member_part').val();
+        var guest = $('#guest_part').val();
+        
+        var total = parseInt(member) + parseInt(guest);
+        $('#total_part').val(total.toFixed(2));
+    }
+
+    // Bind the calculateSum function to the input event of elements with class 'members'
+    $('.firsts_amount').on('input', calculateFirst);
+
+
     
     
     function timerRecords(records) {

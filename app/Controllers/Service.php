@@ -1353,6 +1353,7 @@ class Service extends BaseController {
 					if(!empty($partnership)){
 						foreach($partnership as $p){
 							$amount = 0;
+							$pid = $p->id;
 							if(!empty($partners)){
 								foreach($partners as $time => $val){
 									if($time == 'partnership'){
@@ -1377,7 +1378,7 @@ class Service extends BaseController {
 									
 								}
 							}
-							$data[] = $amount;
+							$data[] = array('id' => $pid,'amount'=> $amount);
 
 
 						}
