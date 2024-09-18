@@ -459,7 +459,7 @@ class Service extends BaseController {
 					die;
 				}
 
-			}  elseif($param2 == 'partnership'){
+			} elseif($param2 == 'partnership'){
 				$timer_count = $this->session->get('service_timers');
 				// $first = json_decode($timer_count);
 				// echo $timer_count;
@@ -845,9 +845,32 @@ class Service extends BaseController {
 				}
 			
 
-			}elseif($param2 == 'first_timer'){
+			} elseif($param2 == 'first_timer'){
+				if($param3){
+					$resp = [];
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$timers = [];
+					$id = 0;
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$timers = $e->timers;
+							if(empty($timers)){
+								$timers = "[]";
+							}
+							$id = $e->id;
+						}
+						
+					}
+
+					$resp['timer_list'] =  $timers;
+					$resp['id'] = $id;
+
+					echo json_encode($resp);
+					die;
+				}
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
+					$new_convert_id = $this->request->getPost('new_convert_id');
 					$first_name = $this->request->getPost('first_name');
 					$surname = $this->request->getPost('surname');
 					$email = $this->request->getPost('email');
@@ -858,7 +881,7 @@ class Service extends BaseController {
 					$invited_by = $this->request->getPost('invited_by');
 					$channel = $this->request->getPost('channel');
 					$member_id = $this->request->getPost('member_id');
-
+					
 					$converts = [];
 					$timers = [];
 					$male = 0;$female = 0;$children = 0;
@@ -886,19 +909,38 @@ class Service extends BaseController {
 						}
 					}
 					
-					$timers['male'] = $male;
-					$timers['female'] = $female;
-					$timers['child'] = $children;
-					$timers['total'] = count($first_name);
+					$timers['timers'] = json_encode($convert);
+					$timers['first_timer'] = count($convert);
 					
 					if(empty($convert)){
 						echo $this->Crud->msg('danger', 'Enter the First Timer Details');
 						
 					} else{
-						$this->session->set('service_timers', json_encode($convert));
-						$this->session->set('service_timer_count', json_encode($timers));
-						
-						echo $this->Crud->msg('success', 'First Timer List Submitted');
+						if($this->Crud->updates('id', $new_convert_id, 'service_report', $timers) > 0){
+							echo $this->Crud->msg('success', 'First Timer List Submitted');
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$action = $by.' updated Service First Timer Report for '.$service_date;
+							$this->Crud->activity('service', $new_convert_id, $action);
+
+							// echo json_encode($data);
+							echo '<script> setTimeout(function() {
+								$("#show").show(500);
+									$("#form").hide(500);
+									$("#first_timer_view").hide(500);
+									$("#attendance_prev").hide(500);
+									$("#add_btn").show(500);
+									
+									$("#prev").hide(500);
+									load();
+									$("#first_timer_msg").html("");
+							}, 2000); </script>';
+						} else {
+							
+							echo $this->Crud->msg('info', 'No Changes');
+
+						}
 						// echo json_encode($convert);
 						echo '<script> setTimeout(function() {
 							var jsonData = ' . json_encode($convert) . ';
@@ -1217,6 +1259,35 @@ class Service extends BaseController {
 					
 				echo json_encode($data);
 				die;
+			}
+
+			if($param2 == 'get_church'){
+				
+				if($param3){
+					$data = [];
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$timers = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'timers'));
+					$members = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+					if(!empty($members)){
+						foreach($members as $member){
+							$selected = '';
+							if(!empty($timers)){
+								foreach($timers as $time => $val){
+									if($val->channel == $member->id){
+										$selected = 'selected';
+									}
+								}
+							}
+							$data[] = array('id' => $member->id, 'name' => $member->firstname.' '.$member->surname, 'selected' => $selected);
+					
+
+						}
+					}
+					echo json_encode($data);
+					die;
+				}
+					
+				
 			}
 		}
 
@@ -1612,7 +1683,7 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-dark" pageTitle="First Timer Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-indigo pop" pageTitle="Partnership Details" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
 								
 								

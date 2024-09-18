@@ -1,7 +1,10 @@
 
     $(function() {
         load('', '');
+        $('.js-select2').select2();
     });
+
+    
     
     function load_level(eChurchId){
         var ministry_id = $('#ministry_id').val();
@@ -151,15 +154,17 @@
         $('#attendance_view').hide(500);
         $('#tithe_view').hide(500);
         $('#new_convert_view').hide(500);
+        $('#first_timer_view').hide(500);
         $('#attendance_prev').hide(500);
         $('#add_btn').show(500);
          // Reset row count and clear rows
-         rowCount = 0;
+         rowCount = 0;first_timer_count=0;
          $('#rowsContainer').empty();
         $('#prev').hide(500);
 
     });
 
+   
     function edit_report(id){
         var selectElement = document.getElementById("cells_id");
         var markButton = document.getElementById("markButton");
@@ -334,6 +339,9 @@
         $('#rowsContainer').append(createRow());
     });
 
+    
+
+
     // Handle delete button click
     $('#rowsContainer').on('click', '.deleteRow', function() {
         $(this).closest('.row').remove();
@@ -380,6 +388,224 @@
        
     }
   
+    function first_timer_report(id){
+        $('#first_timer_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#first_timer_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/first_timer/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#first_timer_id').val(dt.id)
+
+                // Parse the convert_list JSON string
+                var existingRecords = JSON.parse(dt.timer_list);
+                console.log(existingRecords);
+                
+                if(existingRecords.length > 0){
+                    timerRecords(existingRecords);
+                }
+                
+                $('#first_timer_msg').html('');
+            }
+        });
+       
+    }
+    
+    function timerRecords(records) {
+        records.forEach(record => {
+            $('#containers').append(createNewSection(record));
+            $('select[name="invited_by[]"]').on('change', handleInvitedByChange);
+              // Execute the function immediately to handle any initial state
+               // Select the most recently added select element
+            const $selectElement = $('select[name="invited_by[]"]').last();
+
+            // Attach the event handler for the change event
+            $selectElement.on('change', handleInvitedByChange);
+
+            handleInvitedByChange.call($selectElement[0]);
+        });
+    }
+     // Initialize row count
+     let first_timer_count = 0;
+
+     // Container where new form sections will be appended
+     const container = $('#containers'); // Adjust this selector to your actual container
+ 
+     // Function to create a new form section with values
+     function createNewSection(values) {
+         // Increment row count
+         first_timer_count++;
+ 
+         // Determine whether to show the delete button
+        const showDeleteButton = first_timer_count > 1;
+        var surname = '';
+        var firstName = '';
+        // Check if user object exists and has a non-empty fullname
+        if (values && values.fullname) {
+            // Destructure and split the fullname in one line
+            [surname, ...firstNameParts] = values.fullname.split(' ');
+            firstName = firstNameParts.join(' '); // Join the rest back to a string
+        }
+     
+         // Create new form section HTML with values
+         return `
+             <div class="row border mb-3 p-2" id="row-${first_timer_count}">
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="first_name_${first_timer_count}">*First Name</label>
+                         <input class="form-control" type="text" id="first_name_${first_timer_count}" name="first_name[]" value="${firstName}" required>
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="surname_${first_timer_count}">*Surname</label>
+                         <input class="form-control" type="text" id="surname_${first_timer_count}" name="surname[]" value="${surname}" required>
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="email_${first_timer_count}">Email</label>
+                         <input class="form-control" type="email" id="email_${first_timer_count}" name="email[]" value="${values.email || ''}">
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="phone_${first_timer_count}">*Phone</label>
+                         <input class="form-control" type="text" id="phone_${first_timer_count}" name="phone[]" value="${values.phone || ''}" required>
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="gender_${first_timer_count}">Gender</label>
+                         <div class="form-control-wrap">
+                             <select class="form-select js-select2" id="gender_${first_timer_count}" name="gender[]" required>
+                                 <option value="">Select Gender</option>
+                                 <option value="Male" ${values.gender === 'Male' ? 'selected' : ''}>Male</option>
+                                 <option value="Female" ${values.gender === 'Female' ? 'selected' : ''}>Female</option>
+                             </select>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="family_position_${first_timer_count}">Family Position</label>
+                         <div class="form-control-wrap">
+                             <select class="form-select js-select2" id="family_position_${first_timer_count}" name="family_position[]">
+                                 <option value="">Select</option>
+                                 <option value="Child" ${values.family_position === 'Child' ? 'selected' : ''}>Child</option>
+                                 <option value="Parent" ${values.family_position === 'Parent' ? 'selected' : ''}>Parent</option>
+                                 <option value="Other" ${values.family_position === 'Other' ? 'selected' : ''}>Other</option>
+                             </select>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="dob_${first_timer_count}">Date of Birth</label>
+                         <input class="form-control" type="date" id="dob_${first_timer_count}" name="dob[]" value="${values.dob || ''}">
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3">
+                     <div class="form-group">
+                         <label for="invited_by_${first_timer_count}">*Invited By</label>
+                         <select class="form-select invited_bys js-select2" id="invited_by_${first_timer_count}" name="invited_by[]" required>
+                             <option value="">Select</option>
+                             <option value="Member" ${values.invited_by === 'Member' ? 'selected' : ''}>Member</option>
+                             <option value="Online" ${values.invited_by === 'Online' ? 'selected' : ''}>Online</option>
+                             <option value="Others" ${values.invited_by === 'Others' ? 'selected' : ''}>Others</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3 channel-div" id="channel-div-${first_timer_count}" style="${values.invited_by === 'Others' ? '' : 'display: none;'}">
+                     <div class="form-group">
+                         <label for="channel_${first_timer_count}">Other Channel</label>
+                         <input class="form-control" type="text" id="channel_${first_timer_count}" name="channel[]" value="${values.channel || ''}">
+                     </div>
+                 </div>
+                 <div class="col-sm-4 mb-3 member-div" id="member-div-${first_timer_count}" style="${values.invited_by === 'Member' ? '' : 'display: none;'}">
+                     <div class="form-group">
+                         <label for="member_${first_timer_count}">Member</label>
+                         <select class="form-select js-select2 member_id" id="member_${first_timer_count}" name="member_id[]">
+                             <option value="">Select Member</option>
+                             <!-- Add PHP or dynamic content here if needed -->
+                         </select>
+                     </div>
+                 </div>
+                 <div class="col-sm-12 mb-3 text-center">
+                     ${showDeleteButton ? `<button type="button" class="btn btn-danger btn-delete" data-row="${first_timer_count}">Delete</button>` : ''}
+                 </div>
+             </div>
+         `;
+     }
+ 
+     // Click event to add more form sections
+     $('#add_first_timer').on('click', function() {
+         // Create a new empty section
+         container.append(createNewSection({}));
+        $('.js-select2').select2();
+         
+        $('select[name="invited_by[]"]').on('change', handleInvitedByChange);
+    
+    
+     });
+
+     function handleInvitedByChange(event) {
+        
+        const invitedByValue = $(this).val();
+        console.log(invitedByValue);
+        const parent = $(this).closest('.row'); // Change '.parent-class' to the actual parent class
+        const channelDiv = parent.find('.channel-div');
+        const memberDiv = parent.find('.member-div');
+        const memberSelect = parent.find('.member_id');
+        var service_id = $('#first_timer_id').val();
+
+        if (invitedByValue === 'Member') {
+            memberDiv.show(500);
+            channelDiv.hide(500);
+             // AJAX call to fetch members
+            $.ajax({
+                url: site_url + 'service/report/records/get_church/'+service_id, // Update with your API endpoint
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    // Clear previous options
+                    memberSelect.empty().append('<option value="">Select Member</option>');
+
+                    // Populate the member dropdown
+                    $.each(data, function(index, member) {
+                        const selected = member.selected === "selected" ? ' selected' : '';
+                        memberSelect.append(`<option value="${member.id}"${selected}>${member.name}</option>`);
+                    });
+
+                    // Re-initialize the select2 (if using select2)
+                    memberSelect.select2();
+                }
+            });
+        } else if (invitedByValue === 'Others' ||  invitedByValue === 'Online') {
+            channelDiv.show(500);
+            memberDiv.hide(500);
+        } else {
+            channelDiv.hide(500);
+            memberDiv.hide(500);
+        }
+    }
+    
+     
+    
+    
+
+     // Click event to handle delete button
+     container.on('click', '.btn-delete', function() {
+         const rowId = $(this).data('row');
+         $(`#row-${rowId}`).remove(500);
+         // Adjust row count if necessary
+         first_timer_count = $('.row.border.mb-3.p-2').length;
+     });
 
     function get_tithe(){
         var member = $('#member_tithe').val();
@@ -452,6 +678,8 @@
     }
 
     $(document).ready(function() {
+        
+    
     // Attach a submit event handler to the form
         $('#attendanceForm').submit(function(event) {
             event.preventDefault(); // Prevent the default form submission
@@ -503,6 +731,29 @@
                 success: function(response) {
                     // Handle a successful response
                     $('#new_convert_msg').html(response);
+                    rowCount = 0;
+                    $('#rowsContainer').empty();
+                }
+            });
+        });
+
+        $('#first_timer_Form').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#first_timer_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/first_timer', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#first_timer_msg').html(response);
+                    first_timer_count = 0;
+
+                    $('#containers').empty();
                 }
             });
         });
@@ -651,5 +902,4 @@
           .catch((error) => console.error(error));
       }
     
-      
-      
+    
