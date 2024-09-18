@@ -344,7 +344,7 @@
 
     // Handle delete button click
     $('#rowsContainer').on('click', '.deleteRow', function() {
-        $(this).closest('.row').remove();
+        $(this).closest('.row').remove(500);
         rowCount--;
 
         // Disable delete button if only one row remains
@@ -595,17 +595,16 @@
         }
     }
     
-     
+    function deleteSection(rowId) {
+        $(`#row-${rowId}`).remove(500); // Remove the row from the DOM
+        first_timer_count--; // Decrement the row count
+    }
     
-    
-
-     // Click event to handle delete button
-     container.on('click', '.btn-delete', function() {
-         const rowId = $(this).data('row');
-         $(`#row-${rowId}`).remove(500);
-         // Adjust row count if necessary
-         first_timer_count = $('.row.border.mb-3.p-2').length;
-     });
+    // Event listener to handle delete button clicks using jQuery
+    $(document).on('click', '.btn-delete', function() {
+        const rowId = $(this).data('row'); // Get the row ID from data attribute
+        deleteSection(rowId);
+    });
 
     function get_tithe(){
         var member = $('#member_tithe').val();
