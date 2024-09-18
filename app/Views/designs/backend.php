@@ -50,6 +50,13 @@
 
 
 <body class="nk-body bg-lighter npc-general has-sidebar ">
+    <style>
+        td, th {
+            white-space: nowrap;           /* Prevent text from wrapping to the next line */
+            overflow: hidden;              /* Hide any overflow content */
+            text-overflow: ellipsis;       /* Display ellipsis (...) for overflowed content */
+        }
+    </style>
     <div class="nk-app-root">
         <div class="nk-main ">
             <div class="nk-sidebar nk-sidebar-fixed is-dark" data-content="sidebarMenu">

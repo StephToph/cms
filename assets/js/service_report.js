@@ -438,7 +438,7 @@
                 $('#guest_part').val(dt.guest_part)
 
                 fetchAndPopulateFirstTimers(dt.id);
-                
+                populateMember(dt.id)
                 $('#partnership_msg').html('');
             }
         });
@@ -505,6 +505,24 @@
             error: function (xhr, status, error) {
                 console.error('Error fetching first timers:', error);
                 $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">Failed to load first timers.</td></tr>');
+            }
+        });
+    }
+
+    function populateMember(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_partnership/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#member_partner_list').empty();
+                // console.log(mems.members_part);
+                $('#member_partner_list').html(mems.members_part).fadeIn(200);
+            
+                
+                $('.js-select2 ').select2();
             }
         });
     }

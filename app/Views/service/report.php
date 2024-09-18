@@ -12,13 +12,7 @@
 
 <?=$this->section('content');?>
 <div class="nk-content" >
-    <style>
-        td, th {
-            white-space: nowrap;           /* Prevent text from wrapping to the next line */
-            overflow: hidden;              /* Hide any overflow content */
-            text-overflow: ellipsis;       /* Display ellipsis (...) for overflowed content */
-        }
-    </style>
+   
     <div class="container-fluid mt-3">
         <div class="nk-content-inner">
             <div class="nk-content-body">
@@ -432,7 +426,7 @@
                                         </table>
                                     </div>
                                     <div class="table-responsive">
-                                        <table class="table table-striped table-hover mt-5" id="member_table">
+                                        <table class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
                                                     <th >Member</th>

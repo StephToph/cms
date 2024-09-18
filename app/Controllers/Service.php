@@ -1391,6 +1391,82 @@ class Service extends BaseController {
 				
 			}
 
+			if($param2 == 'get_members_partnership'){
+				if($param3){
+					$data = [];
+					$name = $this->request->getPost('name');
+					$partners = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'partners'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_members = [];
+					
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members[] = $c->id;
+						}
+					}
+					$partnership = $this->Crud->read_order('partnership', 'name', 'asc');
+					$table = '';
+					if (!empty($partners)) {
+						foreach ($partners as $time => $val) {
+							if ($time === 'partnership') {
+								$member = $val->member;
+					
+								if (!empty($member)) {
+									foreach ($member as $g => $gpal) {
+										if (in_array($g, $church_members)) {
+											$church_members = array_diff($church_members, [$g]);
+											$fullname = $this->Crud->read_field('id', $g, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $g, 'user', 'surname');
+											$phone = $this->Crud->read_field('id', $g, 'user', 'phone');
+					
+											$table .= '<tr class="original-rows">
+												<td>
+													<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($g) . '">
+													<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
+												</td>';
+					
+											$gpals = (array)$gpal;
+					
+											if (!empty($partnership)) {
+												foreach ($partnership as $p) {
+													// Initialize the amount to 0
+													$amount = 0;
+					
+													// Check if the partnership ID exists in the gpals
+													if (array_key_exists($p->id, $gpals)) {
+														$amount = $gpals[$p->id]; // Get the corresponding amount
+													}
+					
+													$table .= '
+														<td>
+															<input type="text" style="width:100px;" class="form-control members_amount" oninput="bindInputEvents();" name="' . htmlspecialchars($p->id) . '_member[]" value="' . htmlspecialchars($amount) . '">
+														</td>
+													';
+												}
+											}
+					
+											$table .= '</tr>'; // Close the table row
+										}
+									}
+								}
+							}
+						}
+					}
+					
+								
+					$data['members'] = json_encode($church_members);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
 			
 		}
 
