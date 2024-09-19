@@ -93,7 +93,7 @@ class Dashboard extends BaseController {
 
                 //timer Records
                 $timer_data = [];
-                $service_query = $this->Crud->read_order('service_report', 'id', 'desc', 10);
+                $service_query = $this->Crud->read_order('service_report', 'id', 'desc');
 				
 				if (!empty($service_query)) {
 					foreach($service_query as $q) {
@@ -106,7 +106,7 @@ class Dashboard extends BaseController {
 
                     }
                 }
-                $cell_query = $this->Crud->read_order('cell_report', 'id', 'desc');
+                $cell_query = $this->Crud->read_order('cell_report', 'id', 'desc', 10);
 				
 				if (!empty($cell_query)) {
 					foreach($cell_query as $q) {
