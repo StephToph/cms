@@ -12,6 +12,7 @@
 
 <?=$this->section('content');?>
 <div class="nk-content" >
+   
     <div class="container-fluid mt-3">
         <div class="nk-content-inner">
             <div class="nk-content-body">
@@ -394,116 +395,41 @@
                                     </div>
                                                         
                                     <hr>
-                                    <div class="table-responsive">
-                                        <?php
-                                            if(!empty($first)){
-                                        ?>
-                                            <table class="table table-striped table-hover mt-5" id="dataTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th >First Timer</th>
-                                                        <?php  
-                                                            $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                                            if(!empty($parts)){
-                                                                foreach($parts as $index => $pp){
-                                                                    $name = $pp->name;
-                                                                    if(strtoupper($pp->name) == 'BIBLE SPONSOR')$name = 'Bible';
-                                                                    if(strtoupper($pp->name) == 'CHILDREN MINISTRY')$name = 'Children';
-                                                                    if(strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')$name = 'H.S.M';
-                                                                    if(strtoupper($pp->name) == 'HEALING STREAM')$name = 'H.S';
-                                                                    if(strtoupper($pp->name) == 'LOVEWORLD LWUSA')$name = 'lwusa';
-                                                                    if(strtoupper($pp->name) == 'MINISTRY PROGRAM')$name = 'Ministry';
-                                                                    // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
-                                                                    
-                                                                    echo ' <th >'.strtoupper($name).'</th>';
-                                                                    echo '<input type="hidden" name="'.($index-1).'_parts[]" value="'.$pp->id.'">';
-
-                                                                }
-                                                            }
-                                                        ?>
-                                                        <th></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if($param3){
-                                                        foreach($first as $f => $val){
-                                                            if($f == 'guest'){
-                                                                $selval = [];
-                                                                if(!empty($val)){
-                                                                    foreach($val as $pp => $pval){
-                                                                        $selval[] = $pp;
-                                                                        $parts_val = (array)$pval;
-                                                                
-                                                                    }  
-                                                                }
-                                                        ?>
-                                                        <tr class="original-row">
-                                                            <td>
-                                                                <select class="js-select2 firsts"  data-search="on" name="first_timer[]" id="firsts" data-placeholder="Select First Timer" selected required>
-                                                                    
-                                                                    <?php 
-                                                                        if(!empty((array)$selval)){
-                                                                            foreach($selval as $mm => $val){
-                                                                                echo '<option value="'.$val.'">'.strtoupper($val).'</option>';
-                                                                            }
-                                                                        } 
-                                                                    ?>
-                                                                </select>
-                                                            </td>
-                                                            <?php 
-
-                                                                if(!empty($parts)){
-                                                                    $vall = 0;
-                                                                    foreach($parts as $pp => $val){
-                                                                        if(!empty($parts_val)){
-                                                                            if(!empty($parts_val[$pp])){$vall = $parts_val[$pp];}else{$vall = 0;}
-                                                                        }
-                                                                        echo '<td><input type="text" style="width:100px;" class="form-control firsts_amount" name="'.($pp-1).'_first[]" oninput="bindInputEvents();" value="'.$vall.'"></td>';
-                                                                    }
-                                                                }
-                                                            ?>
-                                                            <td></td>
-                                                        </tr>
-                                                    <?php } 
-                                                        }
-                                                    }
-                                                    else{?>
-
-                                                        
-                                                        <tr class="original-row">
-                                                            <td>
-                                                                <select class="js-select2 firsts"  data-search="on" name="first_timer[]" id="firsts" data-placeholder="Select First Timer" required>
-                                                                    <option value="">Select</option>
-                                                                    <?php 
-                                                                        if(!empty((array)$first)){
-                                                                            foreach($first as $mm => $val){
-                                                                                echo '<option value="'.$val->fullname.'">'.strtoupper($val->fullname).'</option>';
-                                                                            }
-                                                                        } 
-                                                                    ?>
-                                                                </select>
-                                                            </td>
-                                                            <?php 
-                                                                if(!empty($parts)){
-                                                                    foreach($parts as $pp => $val){
-                                                                        echo '<td><input type="text" style="width:100px;" class="form-control firsts_amount" name="'.$pp.'_first[]" oninput="bindInputEvents();" value="0"></td>';
-                                                                    }
-                                                                }
-                                                            ?>
-                                                            <td></td>
-                                                        </tr>
-                                                    <?php } ?>
-                                                </tbody>
-                                            </table>
-                                            <div class="col-12 my-3 text-center">
-                                                <p id="first_resp"></p>
-                                                <button type="button" class="btn btn-info" id="more_btn">Add More</button>
-                                            </div>
-                                        <?php } ?>
-                                        <table class="table table-striped table-hover mt-5" id="member_table">
+                                    
+                                    <div id="guest_part_view" class="table-responsive" style="display:none;">
+                                        <table class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
-                                                    <th >Member</th>
+                                                    <th>First Timer</th>
+                                                    <?php  
+                                                        $parts = $this->Crud->read_order('partnership', 'name', 'asc');
+                                                        if(!empty($parts)){
+                                                            foreach($parts as $index => $pp){
+                                                                $name = $pp->name;
+                                                                if(strtoupper($pp->name) == 'BIBLE SPONSOR')$name = 'Bible';
+                                                                if(strtoupper($pp->name) == 'CHILDREN MINISTRY')$name = 'Children';
+                                                                if(strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')$name = 'H.S.M';
+                                                                if(strtoupper($pp->name) == 'HEALING STREAM')$name = 'H.S';
+                                                                if(strtoupper($pp->name) == 'LOVEWORLD LWUSA')$name = 'lwusa';
+                                                                if(strtoupper($pp->name) == 'MINISTRY PROGRAM')$name = 'Ministry';
+                                                                // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
+                                                                
+                                                                echo ' <th width="200px">'.strtoupper($name).'</th>';
+                                                               
+
+                                                            }
+                                                        }
+                                                    ?>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="guest_partner_list"> </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover mt-5">
+                                            <thead>
+                                                <tr>
+                                                    <th width="250px;">Member</th>
                                                     <?php 
                                                         $parts = $this->Crud->read_order('partnership', 'name', 'asc');
                                                         if(!empty($parts)){
@@ -524,85 +450,8 @@
                                                 <th></th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <?php if($param3){
-                                                    if(!empty($first)){
-                                                    foreach($first as $f => $val){
-                                                        if($f == 'member'){
-                                                            $selval = [];
-                                                            if(!empty($val)){
-                                                                foreach($val as $pp => $pval){
-                                                                    $selval[] = $pp;
-                                                                    $parts_val = (array)$pval;
-                                                                
-                                                                }  
-                                                            }
-                                                    ?>
-                                                    <tr class="original-rows">
-                                                        <td>
-                                                            <select class="js-select2 members" name="members[]" id="members" required>
-                                                            <option value="">Select</option>
-                                                                <?php 
-                                                                    $mem_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                                                    $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-                                                                    if(empty($church_id)){
-                                                                        $church_id = $this->session->get('service_church_id');
-                                                                    }
-                                                                    $mem = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
-                                                                    if(!empty($mem)){
-                                                                        foreach($mem as $mm){
-                                                                            $sel = '';
-                                                                            if(in_array($mm->id,$selval))$sel = 'selected';
-                                                                            echo '<option value="'.$mm->id.'" '.$sel.'>'.strtoupper($mm->firstname.' '.$mm->surname).'</option>';
-                                                                        }
-                                                                    } 
-                                                                ?>
-                                                            </select>
-                                                        </td>
-                                                        <?php 
-                                                            if(!empty($parts)){
-                                                                $vall = 0;
-                                                                foreach($parts as $pp => $val){
-                                                                    if(!empty($parts_val)){
-                                                                        if(!empty($parts_val[$pp])){$vall = $parts_val[$pp];}else{$vall = 0;}
-                                                                    }
-                                                                    echo '<td><input type="text" style="width:100px;" class="form-control members_amount" name="'.($pp-1).'_member[]" oninput="bindInputEvents();" value="'.$vall.'"></td>';
-                                                                }
-                                                            }
-                                                        ?>
-                                                        <td></td>
-                                                    </tr>
-                                                <?php } } }
-                                                    } else{?>
-                                                    <tr class="original-rows">
-                                                        <td>
-                                                            <select class="js-select2 members" name="members[]" id="members" required>
-                                                            <option value="">Select</option>
-                                                                <?php 
-                                                                    $mem_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                                                    $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-                                                                    if(empty($church_id)){
-                                                                        $church_id = $this->session->get('service_church_id');
-                                                                    }
-                                                                    $mem = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
-                                                                    if(!empty($mem)){
-                                                                        foreach($mem as $mm){
-                                                                            echo '<option value="'.$mm->id.'" >'.strtoupper($mm->firstname.' '.$mm->surname).'</option>';
-                                                                        }
-                                                                    } 
-                                                                ?>
-                                                            </select>
-                                                        </td>
-                                                        <?php 
-                                                        if(!empty($parts)){
-                                                                foreach($parts as $pp => $val){
-                                                                    echo ' <td ><input type="text" style="width:100px;" class="form-control  members_amount" oninput=" bindInputEvents();" name="'.($pp-1).'_member[]" value="0" ></td>';
-                                                                }
-                                                            }
-                                                        ?>
-                                                        <td></td>
-                                                    </tr>
-                                                <?php } ?>
+                                            <tbody id="member_partner_list">
+                                                
                                             </tbody>
                                         </table>
                                         <div class="col-12 my-3 text-center">

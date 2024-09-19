@@ -159,7 +159,9 @@
         $('#add_btn').show(500);
          // Reset row count and clear rows
          rowCount = 0;first_timer_count=0;
-         
+         $('#guest_part_view').hide(500);
+         $('#guest_partner_list').empty();
+            
         $('#partnership_view').hide(500);
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
@@ -431,20 +433,205 @@
             success: function (data) {
                 var dt = JSON.parse(data);
                 $('#partnership_id').val(dt.id)
+                $('#total_part').val(dt.total_part)
+                $('#member_part').val(dt.member_part)
+                $('#guest_part').val(dt.guest_part)
 
-                // Parse the convert_list JSON string
-                var existingRecords = JSON.parse(dt.timer_list);
-                console.log(existingRecords);
-                
-                if(existingRecords.length > 0){
-                    timerRecords(existingRecords);
-                }
-                
+                fetchAndPopulateFirstTimers(dt.id);
+                populateMember(dt.id)
                 $('#partnership_msg').html('');
             }
         });
        
     }
+    
+    function fetchAndPopulateFirstTimers(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/getFirstTimers/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var firstTimers = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#guest_partner_list').empty();
+            
+                // Check if there are any first timers
+                if (firstTimers.length === 0) {
+                    
+                    $('#guest_part_view').hide(500);
+                    $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">No first timers available</td></tr>');
+                    return;
+                }
+                
+                $('#guest_part_view').show(500);
+                // Iterate over firstTimers and append rows to the table
+                firstTimers.forEach(function(timer, index) {
+                    var row = '<tr class="original-row">';
+                    // Check if fullname is defined and convert to uppercase
+                    var fullname = timer.id ? timer.id.toUpperCase() : '';
+                    var phone = timer.phone ? timer.phone : '';
+                  
+                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer['+index+']" value="' + fullname + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
+                    
+                    if(fullname){
+                        $.ajax({
+                            url: site_url + 'service/report/records/get_service_partnership/'+id,
+                            method: 'post',
+                            data: { name: fullname },
+                            success: function(data) {
+                                var partners = JSON.parse(data); // Assuming the response is JSON formatted
+                               
+                                if (partners) {
+                                    partners.forEach(function(partner) {
+                                        row += '<td><input type="text" style="width:100px;"  class="form-control firsts_amount" name="' + partner.id + '_first['+index+']" oninput="bindInputEvents();" value="' + partner.amount + '"> </td>'; // Contribution amount
+                                    });
+                                }
+                                
+                                row += '</tr>';
+                                 // Now append the row to the table after the AJAX call is successful
+                                $('#guest_partner_list').append(row);
+                            }
+                        });
+                    } else{
+                        row += '</tr>';
+                         // Now append the row to the table after the AJAX call is successful
+                        $('#guest_partner_list').append(row);
+                    }
+
+                    
+                });
+                $('.js-select2 ').select2();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching first timers:', error);
+                $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">Failed to load first timers.</td></tr>');
+            }
+        });
+    }
+    let churchMembers = [];
+    let partnerships = [];
+               
+    function populateMember(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_partnership/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#member_partner_list').empty();
+                // console.log(mems.members_part);
+                $('#member_partner_list').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                partnerships = mems.partnerships;
+
+                $('.js-select2 ').select2();
+            }
+        });
+    }
+
+    $('#mem_btn').click(function() {
+        // Create a new row
+        const newRow = $('<tr></tr>');
+
+        // Create a select element for church members
+        const memberSelect = $('<select  class="js-select2 members" name="members[]" id="members" required></select>');
+        
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } 
+        
+        newRow.append($('<td width="250px;"></td>').append(memberSelect));
+
+        // Add input textboxes for each partnership
+        partnerships.forEach(function(partnership) {
+            newRow.append(`
+                <td>
+                    <input type="text" style="width:100px;" class="form-control members_amount" oninput=" bindInputEvents();" name="${partnership}_member[]" placeholder="0">
+                </td>
+            `);
+        });
+        // Append the new row to the table body
+        $('#member_partner_list').append(newRow);
+
+        
+        $('.js-select2').select2();
+    });
+    
+    
+    function bindInputEvents() {
+        $('.members_amount').on('input', calculateSum);
+        $('.members_amount').on('input', restrictNumericInput);
+        $('.firsts_amount').on('input', calculateFirst);
+        $('.firsts_amount').on('input', restrictNumericInput);
+    }
+
+    // Function to allow only numeric input with up to two decimal places
+    function restrictNumericInput() {
+        // Replace any non-numeric characters (except decimal point) with an empty string
+        $(this).val($(this).val().replace(/[^0-9.]/g, ''));
+
+        // Allow only one decimal point
+        var val = $(this).val();
+        var parts = val.split('.');
+        if (parts.length > 2) {
+            parts.pop();
+            $(this).val(parts.join('.'));
+        }
+    }
+
+    function calculateSum() {
+        var sum = 0;
+        // Loop through all elements with the class 'members'
+        $('.members_amount').each(function() {
+            // Parse the value as a float and add it to the sum
+            sum += parseFloat($(this).val()) || 0; // If parsing fails, default to 0
+        });
+
+        // Round the sum to 2 decimal places
+        var roundedSum = Math.round(sum * 100) / 100;
+
+        // Display the rounded sum in the 'member_part' text box
+        $('#member_part').val(roundedSum.toFixed(2));
+        total_part();
+    }
+
+    function calculateFirst() {
+        var sum = 0;
+        // Loop through all elements with the class 'members'
+        $('.firsts_amount').each(function() {
+            // Parse the value as a float and add it to the sum
+            sum += parseFloat($(this).val()) || 0; // If parsing fails, default to 0
+        });
+
+        // Round the sum to 2 decimal places
+        var roundedSum = Math.round(sum * 100) / 100;
+
+        // Display the rounded sum in the 'member_part' text box
+        $('#guest_part').val(roundedSum.toFixed(2));
+        total_part();
+    }
+
+    function total_part(){
+        var member = $('#member_part').val();
+        var guest = $('#guest_part').val();
+        
+        var total = parseInt(member) + parseInt(guest);
+        $('#total_part').val(total.toFixed(2));
+    }
+
+    // Bind the calculateSum function to the input event of elements with class 'members'
+    $('.firsts_amount').on('input', calculateFirst);
+
+
+    
     
     function timerRecords(records) {
         records.forEach(record => {
@@ -783,6 +970,24 @@
                     first_timer_count = 0;
 
                     $('#containers').empty();
+                }
+            });
+        });
+
+        $('#partnershipForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#partnership_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/partnership', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#partnership_msg').html(response);
                 }
             });
         });
