@@ -287,29 +287,30 @@
                                     </div>
                                     <hr>
                                     <div class="table-responsive">
+                                        <div class="row">
+                                            <div class="col-sm-8">
+                                                        .
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <input type="text" class="form-control" placeholder="Search By Name or Phone Number" id="tithe_search">
+                                            </div>
+                                        </div>
                                         <table id="tithe_table" class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
                                                     <th>Member</th>
+                                                    <th>Phone</th>
                                                     <th width="200px">Tithe</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
+                                            <tbody id="tithe_table_resp">
                                             </tbody>
                                         </table>
-                                        <nav style="display:none;" id="tithe_pagination">    
-                                            <ul class="pagination justify-content-center my-3" id="tithe_table-pagination">        
-                                                <li class="page-item" >
-                                                    <a class="page-link" id="tithe_table-prev-button" href="javascript:;" tabindex="-1" aria-disabled="true">Prev</a>
-                                                </li>        
-                                                <li class="page-item">
-                                                    <span class="page-link" id="tithe_table-page-info">Page 1 of 1</span>
-                                                </li>     
-                                                <li class="page-item">
-                                                    <a class="page-link" id="tithe_table-next-button" href="javascript:;">Next</a>
-                                                </li>    
-                                            </ul>
-                                        </nav>
+                                        <div class="row" style="display:none;" id="tithe_pagination">  
+                                            <div class="col-sm-12" id="tithe_btns">
+                                                
+                                            </div>  
+                                        </div>
                                     </div>
                                     <hr>
                                     <div class="row mt-5" >
