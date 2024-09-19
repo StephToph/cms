@@ -505,6 +505,7 @@ class Service extends BaseController {
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
 					
+					$partnership_id = $this->request->getPost('partnership_id');
 					$total_part = $this->request->getPost('total_part');
 					$member_part = $this->request->getPost('member_part');
 					$guest_part = $this->request->getPost('guest_part');
@@ -521,7 +522,7 @@ class Service extends BaseController {
 							if(!empty($partss)){
 								foreach($partss as $index => $pp){
 									
-									$amount = $this->request->getPost($index.'_first'); //Guest Partners
+									$amount = $this->request->getPost($pp->id.'_first'); //Guest Partners
 									if($amount[$i] <= 0)continue;
 									$parts[$pp->id] = $amount[$i];
 									
@@ -536,12 +537,12 @@ class Service extends BaseController {
 					$partnerships['guest'] = $partner;
 					
 					$pmember = [];$par = [];
-					if(count($member) == 0){
+					if(count($members) == 0){
 						echo $this->Crud->msg('danger', 'Select a Member and Enter the Partnership Amount');
 						die;
 					} else {
-						for($i=0;$i<count($member);$i++){
-							$name = $member[$i];
+						for($i=0;$i<count($members);$i++){
+							$name = $members[$i];
 							
 							if(!empty($partss)){
 								foreach($partss as $index => $pp){
@@ -561,7 +562,7 @@ class Service extends BaseController {
 						}
 					}
 					$partnerships['member'] = $pmember;
-					
+					// print_r($partnerships);
 					
 					$partnership = json_encode($partnerships);
 					$guest_part = $this->request->getPost('guest_part');
@@ -573,31 +574,34 @@ class Service extends BaseController {
 					$partners['total_part'] = $total_part;
 					$partners['member_part'] = $member_part;
 					
-					$this->session->set('service_partnership', json_encode($partners));
 					
-					$mark = $this->session->get('service_attendance');
+					$ins['partners'] = json_encode($partners);
+					$ins['partnership'] = $total_part;
 
-					// Decode the JSON string
-					$data = json_decode($mark, true);
+					if($this->Crud->updates('id',  $partnership_id, 'service_report', $ins) > 0){
 
-					// Change the values of "total" and "guest"
-					$data['total'] = $total_part; // Change the value of "total"
-					$data['guest'] = $guest_part; // Change the value of "total"
-					$data['member'] = $member_part; // Change the value of "guest"
-					
-					if(empty($partnership)){
-						echo $this->Crud->msg('danger', 'Enter Partnerships');
-					
-					} else{
-						echo $this->Crud->msg('success', 'Partnership List Submitted');
+						echo $this->Crud->msg('success', 'Partnership Report Submitted');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+						$action = $by.' updated Service Partnership Report for '.$service_date;
+						$this->Crud->activity('service', $partnership_id, $action);
+
 						// echo json_encode($data);
 						echo '<script> setTimeout(function() {
-							var jsonData = ' . json_encode($partners) . ';
-							var jsonString = JSON.stringify(jsonData);
-							$("#partners").val(jsonString);
-							$("#partnership").val('.($total_part).');
-							$("#modal").modal("hide");
+							$("#show").show(500);
+								$("#form").hide(500);
+								$("#partnership_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								
+								$("#prev").hide(500);
+								load();
+								$("#tithe_msg").html("");
 						}, 2000); </script>';
+					} else{
+						echo $this->Crud->msg('info', 'No Changes');
+						
 					}
 					die;
 				}
@@ -1425,19 +1429,32 @@ class Service extends BaseController {
 					if (!empty($partners)) {
 						foreach ($partners as $time => $val) {
 							if ($time === 'partnership') {
+
 								$member = $val->member;
-					
 								if (!empty($member)) {
 									foreach ($member as $g => $gpal) {
-										if (in_array($g, $church_members)) {
+										$memberIds = array_column($church_memberss, 'id'); // Extract the IDs from the church members array
+										// print_r($church_memberss);
+										if (in_array($g, $memberIds)) {
 											
-											$church_members = array_diff($church_members, [$g]);
+											// Removing member with ID $g
+											foreach ($church_memberss as $key => $member) {
+												if ($member['id'] === $g) {
+													unset($church_memberss[$key]); // Remove the member
+													break; // Exit the loop after removal
+												}
+											}
+
+											// Resetting array keys to ensure proper indexing (optional)
+											$church_memberss = array_values($church_memberss);
+
+											
 											$fullname = $this->Crud->read_field('id', $g, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $g, 'user', 'surname');
 											$phone = $this->Crud->read_field('id', $g, 'user', 'phone');
 					
 											$table .= '<tr class="original-rows">
 												<td>
-													<input type="hidden" readonly class="form-control members" name="members['.$g.']" value="' . htmlspecialchars($g) . '">
+													<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($g) . '">
 													<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
 												</td>';
 					
