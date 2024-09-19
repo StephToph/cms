@@ -1448,7 +1448,7 @@ class Service extends BaseController {
 											// Resetting array keys to ensure proper indexing (optional)
 											$church_memberss = array_values($church_memberss);
 
-											
+
 											$fullname = $this->Crud->read_field('id', $g, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $g, 'user', 'surname');
 											$phone = $this->Crud->read_field('id', $g, 'user', 'phone');
 					
@@ -1673,25 +1673,38 @@ class Service extends BaseController {
 		}
 		
 		if($param1 == 'tithe_list') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 200;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$search = $this->request->getPost('search');
+			$service_id = $this->request->getPost('service_id');
+			$church_id = $this->Crud->read_field('id', $service_id, 'service_report', 'church_id');
 			// DataTable parameters
 			$table = 'user';
-			
-			$church_id = $this->session->get('service_church_id');
+		
 			// load data into table
-			$list = $this->Crud->read2_order('is_member', 1,'church_id', $church_id, $table, 'firstname', 'asc');
-			$data = array();
-			// $no = $_POST['start'];
-			
-			$count = 1;
-			foreach ($list as $item) {
-				$id = $item->id;
-				$name = $item->firstname;
-				$surname = $item->surname;
-				$img = $this->Crud->image($item->img_id, 'big');
+			$list = $this->Crud->read2_order('is_member', 1,'church_id', $church_id, $table, 'firstname', 'asc', $limit, $offset);
+			if(!empty($search)){
+				$list = $this->Crud->read2_order_like('is_member', 1,'church_id', $church_id, $table, 'firstname', 'asc', 'firstname', $search, $limit, $offset);
+			}
+			$counts = 1;
+			foreach ($list as $itema) {
+				$id = $itema->id;
+				$name = $itema->firstname.' '.$itema->surname;
+				$surname = $itema->surname;
+				$phone = $itema->phone;
+				$church = $this->Crud->read_field('id', $itema->church_id, 'church', 'name');
+
+				$img = $this->Crud->image($itema->img_id, 'big');
 				// add manage buttons
 				$value = '0';
-				if($param2){
-					$convertsa = json_decode($this->Crud->read_field('id', $param2, 'service_report', 'tithers'));
+				if($service_id){
+					$convertsa = json_decode($this->Crud->read_field('id', $service_id, 'service_report', 'tithers'));
 
 					$converts =(array) $convertsa->list;
 					if(!empty($converts)){
@@ -1722,32 +1735,59 @@ class Service extends BaseController {
 				
 				$all_btn = '
 					<div class="text-center">
-						<input type="text" class="form-control tithes" name="tithe[]" id="tithe_'.$item->id.'" value="'.$value.'" oninput="calculateTotal();this.value = this.value.replace(/[^\d.]/g,\'\');this.value = this.value.replace(/(\..*)\./g,\'$1\')">
+						<input type="text" class="form-control tithes" name="tithe[]" id="tithe_'.$itema->id.'" value="'.$value.'" oninput="calculateTotal();this.value = this.value.replace(/[^\d.]/g,\'\');this.value = this.value.replace(/(\..*)\./g,\'$1\')">
 					</div>
 				';
 
 				
-				
-				$row = array();
-				$row[] = '<div class="user-card">
-							<div class="user-avatar ">
-								<img alt="" src="'.site_url($img).'" height="40px"/>
+				$item .= '
+					<tr>
+						<td>
+
+							<div class="user-card">
+								<div class="user-avatar ">
+									<img alt="" src="'.site_url($img).'" height="40px"/>
+								</div>
+								<div class="user-info">
+									<span class="tb-lead small">'.ucwords($name).'</span><br>
+									<span class="small text-info"><em class="icon ni ni-curve-down-right"></em>'.ucwords($church).'</span>
+								</div>
+								<input type="hidden" name="members[]" value="'.$itema->id.'">
 							</div>
-							<div class="user-info">
-								<span class="tb-lead">'.ucwords($item->firstname.' '.$item->surname).'</span>
-							</div>
-							<input type="hidden" name="members[]" value="'.$item->id.'">
-						</div>';
-				$row[] = $all_btn;
-	
-				$data[] = $row;
-				$count += 1;
+						</td>
+						<td><span class="small">'.$phone.'</span></td>
+						<td>'.$all_btn.'</td>
+					</tr>	
+				';
+						
+				$counts += 1;
 			}
 	
-			
-			//output to json format
-			echo json_encode($data);
-			exit;
+			if(empty($item)) {
+				$resp['item'] = '
+					
+				';
+			} else {
+				$resp['item'] = $item;
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+
 		}
 
 		if($param1 == 'offering_list') {

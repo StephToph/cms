@@ -161,7 +161,7 @@
          rowCount = 0;first_timer_count=0;
          $('#guest_part_view').hide(500);
          $('#guest_partner_list').empty();
-            
+        $('#tithe_table').empty();
         $('#partnership_view').hide(500);
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
@@ -267,13 +267,7 @@
                 $("#guest_tithe").val(dt.guest_tithe);
                 $("#tithe_list").val(dt.tithe_list);
 
-                var tableSelector = '#tithe_table'; // Replace with your table's CSS selector
-                var ajaxUrl = site_url + 'service/report/tithe_list'; // Replace with your AJAX URL
-               
-                generateTable(tableSelector, ajaxUrl, [
-                    { title: 'Member' },
-                    { title: 'Tithe' },
-                  ]);
+                generateTable('', '', id);
                   $('#tithe_pagination').show(500);
                 $('#tithe_msg').html('');
             }
@@ -1021,119 +1015,47 @@
     }
 
     
-    function generateTable(tableSelector, url, columns) {
-        // Configuration
-        const tableBodySelector = `${tableSelector} tbody`;
-        const paginationContainerSelector = `${tableSelector}-pagination`;
-        const prevButtonSelector = `${tableSelector}-prev-button`;
-        const nextButtonSelector = `${tableSelector}-next-button`;
-        const pageInfoSelector = `${tableSelector}-page-info`;
-        const rowsPerPage = 50; // Number of rows to display per page
-        $(tableBodySelector).html('<div class="col-sm-12 text-center"><i class="icon ni ni-loader" aria-hidden="true"></i> Processing... please wait</div>');
-        // Variables to store data and state
-        let tableData = [];
-        let currentPage = 1;
-        let totalPages = 1;
-      
-        // Function to generate table headers
-        function generateTableHeaders(columns) {
-          const tableHeader = document.querySelector(`${tableSelector} thead tr`);
-          columns.forEach((column) => {
-            const th = document.createElement('th');
-            th.textContent = column;
-            tableHeader.appendChild(th);
-          });
+    function generateTable(x, y, id) {
+        var more = 'no';
+        var methods = '';
+        if (parseInt(x) > 0 && parseInt(y) > 0) {
+            more = 'yes';
+            methods = '/' + x + '/' + y;
         }
-      
-        function generateTableData(data) {
-            const tableBody = document.querySelector(tableBodySelector);
-            $(tableBody).html('<div class="col-sm-12 text-center"><i class="icon ni ni-loader" aria-hidden="true"></i> Processing... please wait</div>');
-        
-            tableBody.innerHTML = ''; // Clear existing rows
-            
-            data.forEach((row) => {
-                const tr = document.createElement('tr');
-                row.forEach((cell) => {
-                    const td = document.createElement('td');
-                    td.innerHTML = cell; // Use innerHTML to insert HTML content
-                    tr.appendChild(td);
-                });
-                tableBody.appendChild(tr);
-            });
+        var searchBox = $('#tithe_search');
+        searchBox.on('input', function() {
+            var search = $(this).val();
+            generateTable(x, y, id);
+        });
+
+        if (more == 'no') {
+            $('#tithe_table_resp').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        } else {
+            $('#tithe_btns').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         }
-        
-      
-        // Function to handle pagination
-        function handlePagination() {
-          const prevButton = document.querySelector(prevButtonSelector);
-          const nextButton = document.querySelector(nextButtonSelector);
-          const pageInfo = document.querySelector(pageInfoSelector);
-      
-          prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-              currentPage--;
-              loadTableData();
+
+       
+        var search = $('#tithe_search').val();
+        //alert(status);
+
+        $.ajax({
+            url: site_url + 'service/report/tithe_list' + methods,
+            type: 'post',
+            data: { search: search,service_id:id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                if (more == 'no') {
+                    $('#tithe_table_resp').html(dt.item);
+                } else {
+                    $('#tithe_table_resp').append(dt.item);
+                }
+                
+                if (dt.offset > 0) {
+                    $('#tithe_btns').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="generateTable(' + dt.limit + ', ' + dt.offset + ', '+id+');"><em class="icon ni ni-redo fa-spin"></em> Load  More</a>');
+                } else {
+                    $('#tithe_btns').html('');
+                }
+              
             }
-          });
-      
-          nextButton.addEventListener('click', () => {
-            if (currentPage < totalPages) {
-              currentPage++;
-              loadTableData();
-            }
-          });
-      
-          function updatePaginationInfo() {
-            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-          }
-         
-          updatePaginationInfo();
-        }
-      
-        // Function to load table data from AJAX source
-        function loadTableData() {
-          fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              page: currentPage,
-              rowsPerPage: rowsPerPage,
-            }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              tableData = data;
-              totalPages = Math.ceil(data.length / rowsPerPage);
-              const paginatedData = tableData.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-              generateTableData(paginatedData);
-              handlePagination();
-             
-            })
-            .catch((error) => console.error(error));
-        }
-      
-        // Initialize table
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            page: 1,
-            rowsPerPage: rowsPerPage,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            tableData = data;
-            totalPages = Math.ceil(data.length / rowsPerPage);
-            const paginatedData = tableData.slice(0, rowsPerPage);
-            generateTableData(paginatedData);
-            handlePagination();
-          })
-          .catch((error) => console.error(error));
-      }
-    
-    
+        });
+    }
