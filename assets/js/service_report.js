@@ -161,7 +161,7 @@
          rowCount = 0;first_timer_count=0;
          $('#guest_part_view').hide(500);
          $('#guest_partner_list').empty();
-        $('#tithe_table').empty();
+        $('#tithe_table_resp').empty();
         $('#partnership_view').hide(500);
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
@@ -266,8 +266,8 @@
                 $("#member_tithe").val(dt.member_tithe);
                 $("#guest_tithe").val(dt.guest_tithe);
                 $("#tithe_list").val(dt.tithe_list);
-
-                generateTable('', '', id);
+                populateTithe(id)
+               
                   $('#tithe_pagination').show(500);
                 $('#tithe_msg').html('');
             }
@@ -529,6 +529,30 @@
         });
     }
 
+              
+    function populateTithe(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_tithe/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#tithe_table_resp').empty();
+                // console.log(mems.members_part);
+                $('#tithe_table_resp').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                
+                $('.js-select2 ').select2();
+            }
+        });
+    }
+
     $('#mem_btn').click(function() {
         // Create a new row
         const newRow = $('<tr></tr>');
@@ -541,7 +565,9 @@
                 memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
             });
         } 
-        
+        // Initialize Select2 for this individual element
+        memberSelect.select2();
+
         newRow.append($('<td width="250px;"></td>').append(memberSelect));
 
         // Add input textboxes for each partnership
@@ -556,7 +582,41 @@
         $('#member_partner_list').append(newRow);
 
         
-        $('.js-select2').select2();
+    });
+    
+    
+    let titheRowIndex = 0;
+
+    $('#tithe_btn').click(function() {
+        titheRowIndex++; // Increment the row index for each new row
+    
+        const titheNewRow = $('<tr></tr>');
+        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${titheRowIndex}" required></select>`);
+        
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } else {
+            console.warn("No church members available.");
+        }
+    
+        // Append the select element to the row
+        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
+    
+        // Add the input field
+        titheNewRow.append(`
+            <td>
+                <input type="text" class="form-control tithes" name="tithe[]" value="0" oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, '');">
+
+            </td>
+        `);
+    
+        // Append the new row to the table body
+        $('#tithe_table_resp').append(titheNewRow);
+    
+        // Initialize Select2 for the new select element
+        titheMemberSelect.select2();
     });
     
     
