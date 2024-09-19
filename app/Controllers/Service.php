@@ -1398,7 +1398,7 @@ class Service extends BaseController {
 					
 				
 			}
-
+			
 			if($param2 == 'get_members_partnership'){
 				if($param3){
 					$data = [];
@@ -1489,6 +1489,73 @@ class Service extends BaseController {
 					
 								
 					$data['partnerships'] = ($partnerships);
+					$data['members'] = ($church_memberss);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
+			if($param2 == 'get_members_tithe'){
+				if($param3){
+					$data = [];
+					$tithers = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_memberss = [];
+					$count = 0;
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
+						}
+					}
+					
+
+					
+					$table = '';
+					$tithers = (array)$tithers->list;
+
+					$tither_ids = array_keys($tithers);
+
+					// Filter out church members who are also tithers
+					$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
+						return !in_array($member['id'], $tither_ids);
+					});
+
+					$church_memberss = array_values($church_memberss);
+
+					// print_r($tithers);
+					if(!empty($tithers)){
+						foreach($tithers as $tither => $tithe){
+							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
+							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
+	
+							$table .= '<tr>
+								<td>
+									<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($tither) . '">
+									<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
+								</td>
+
+								<td>
+									<input type="text" class="form-control tithes" name="tithe[]" 
+										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($tithe) . '">
+								</td>
+							</tr>';
+
+						}
+					}
+								
 					$data['members'] = ($church_memberss);
 					$data['members_part'] = $table;
 

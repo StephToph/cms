@@ -287,29 +287,20 @@
                                     </div>
                                     <hr>
                                     <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-8">
-                                                        .
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <input type="text" class="form-control" placeholder="Search By Name or Phone Number" id="tithe_search">
-                                            </div>
-                                        </div>
+                                        
                                         <table id="tithe_table" class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
                                                     <th>Member</th>
-                                                    <th>Phone</th>
                                                     <th width="200px">Tithe</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tithe_table_resp">
                                             </tbody>
                                         </table>
-                                        <div class="row" style="display:none;" id="tithe_pagination">  
-                                            <div class="col-sm-12" id="tithe_btns">
-                                                
-                                            </div>  
+                                        
+                                        <div class="col-12 my-3 text-center">
+                                            <button type="button" class="btn btn-info" id="tithe_btn">Add More</button>
                                         </div>
                                     </div>
                                     <hr>
