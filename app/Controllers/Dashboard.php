@@ -465,7 +465,12 @@ class Dashboard extends BaseController {
                 $offering += (float)$u->offering;
                 $tithe += (float)$u->tithe;
                 $convertsa = json_decode($u->tithers);
-                $converts =(array) $convertsa->list;
+                if(!empty($converts))$converts = [];
+                
+                if(!empty($convertsa)){
+                    $converts = (array)$convertsa->list;
+                }
+                
                 $tithe_part += count($converts);	
             }
         }
