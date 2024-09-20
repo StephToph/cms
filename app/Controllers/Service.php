@@ -1569,6 +1569,66 @@ class Service extends BaseController {
 			}
 
 			
+			if($param2 == 'get_members_attendance'){
+				if($param3){
+					$data = [];
+					$attendant = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'attendant'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_memberss = [];
+					$count = 0;
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
+						}
+					}
+					
+
+					
+					$table = '';
+					if(isset($attendant->attendant) && !empty($attendant->attendant)){
+						$attendants = $attendant->attendant;
+						foreach($attendants as $at => $attend){
+							$table .= '
+								<div class="col-sm-3 mb-3">
+									<div id="accordion-2" class="accordion accordion-s3">
+										<div class="accordion-item"> <a href="#" class="accordion-head"
+												data-bs-toggle="collapse" data-bs-target="#accordion-item-2-1">
+												<h6 class="title">What is Dashlite?</h6> <span
+													class="accordion-icon"></span>
+											</a>
+											<div class="accordion-body collapse" id="accordion-item-2-1"
+												data-bs-parent="#accordion-2">
+												<div class="accordion-inner">
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+														sed do eiusmod tempor incididunt ut labore et dolore.</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							';
+						}
+					}
+								
+					$data['members'] = ($church_memberss);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
+			
 		}
 
 		if($param1 == 'load_churches'){
@@ -2000,7 +2060,7 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-indigo" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
+								<li><a href="javascript:;" class="text-indigo" onclick="mark_attendance('.$id.')"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>

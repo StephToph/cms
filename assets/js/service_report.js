@@ -152,6 +152,7 @@
         $('#show').show(500);
         $('#form').hide(500);
         $('#attendance_view').hide(500);
+        $('#mark_attendance_view').hide(500);
         $('#tithe_view').hide(500);
         $('#new_convert_view').hide(500);
         $('#first_timer_view').hide(500);
@@ -217,6 +218,20 @@
             }
         });
 
+    }
+
+
+
+    function mark_attendance(id){
+        $('#mark_attendance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#mark_attendance_view').show(500);
+        $('#attendance_prev').show(500);
+        $('#mark_attendance_id').val(id);
+
+        populateAttendance(id);
+        
     }
 
 
@@ -549,6 +564,45 @@
                 }
                 
                 $('.js-select2 ').select2();
+            }
+        });
+    }
+
+              
+    function populateAttendance(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_attendance/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // console.log(mems.members_part);
+                $('#member_attendance_list').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                
+                    // Clear the select element before adding new options
+                    $('#present_members').empty();
+                
+                    // Populate the select element with options
+                    churchMembers.forEach(member => {
+                        $('#present_members').append(
+                            $('<option>', {
+                                value: member.member_id, // or any unique identifier
+                                text: `${member.fullname} - ${member.phone}` // display name
+                            })
+                        );
+                    });
+                    $('#present_members').select2({
+                        placeholder: "Select Members", // Placeholder text
+                        allowClear: true // Allows clearing selection
+                    });
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                
+                
             }
         });
     }
