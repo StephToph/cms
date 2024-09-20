@@ -2000,11 +2000,13 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
+								<li><a href="javascript:;" class="text-indigo" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
+								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-indigo" onclick="partnership_report('.$id.')"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger" onclick="partnership_report('.$id.')"><em class="icon ni ni-img"></em><span>'.translate_phrase('Media').'</span></a></li>
 								
 								
 							';
