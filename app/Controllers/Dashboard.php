@@ -620,18 +620,21 @@ class Dashboard extends BaseController {
                 $attendance = $u->attendant;
                 $attendant = json_decode($attendance);
                 $attendant = (array)$attendant;
-
-                // echo $attendant['male'];
-                $male = $attendant['male'];
-                $female = $attendant['female'];
-                $children = $attendant['children'];
                 
-                $ft = $u->first_timer;
-
-                $male_per = ((int)$male * 100)/(int)$attend;
-                $female_per = ((int)$female * 100)/(int)$attend;
-                $children_per = ((int)$children * 100)/(int)$attend;
-                $ft_per = ((int)$ft * 100)/(int)$attend;
+                if(!empty($attendant)){
+                    // echo $attendant['male'];
+                    $male = $attendant['male'];
+                    $female = $attendant['female'];
+                    $children = $attendant['children'];
+                    
+                    $ft = $u->first_timer;
+    
+                    $male_per = ((int)$male * 100)/(int)$attend;
+                    $female_per = ((int)$female * 100)/(int)$attend;
+                    $children_per = ((int)$children * 100)/(int)$attend;
+                    $ft_per = ((int)$ft * 100)/(int)$attend;
+                }
+                
 
                 // $female = 110;$children = 11;
             }
@@ -689,64 +692,70 @@ class Dashboard extends BaseController {
 
         // Get the last day of the current year
         $endDate = strtotime("last day of December $current_year");
-        if($role == 'developer' || $role == 'administrator'){
-            $sunday_id = $this->Crud->read_field('name', 'Sunday Service', 'service_type', 'id');
-            $sunday = $this->Crud->date_range1($start_date, 'date', $end_date,'date', 'type', $sunday_id, 'service_report');
-            $wednesday_id = $this->Crud->read_field('name', 'Wednesday Service', 'service_type', 'id');
-            $wednesday = $this->Crud->date_range1($start_date, 'date', $end_date, 'date','type', $wednesday_id, 'service_report');
+        $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $sunday_id = $this->Crud->read_field('name', 'Sunday Service', 'service_type', 'id');
+        $wednesday_id = $this->Crud->read_field('name', 'Wednesday Service', 'service_type', 'id');
             
-            // print_r($wednesday);
-            while ($startDate <= $endDate) {
-                if(!empty($sunday)){
-                    foreach($sunday as $s){ 
-                        if($finance_type == 'offering')$amount = (float)$s->offering;
-                        if($finance_type == 'tithe')$amount = (float)$s->tithe;
-                        if($finance_type == 'partnership')$amount = (float)$s->partnership;
-                        if($s->date == date('Y-m-d', $startDate)){
-                            $finance_sunday[] = $amount;
-                        }else{
-                            $finance_sunday[] = 0;
-                        }
-    
-                    }
-                    
-                }else{
-                    $finance_sunday[] = 0;
-                }
+        if($role == 'developer' || $role == 'administrator'){
+            $sunday = $this->Crud->date_range1($start_date, 'date', $end_date,'date', 'type', $sunday_id, 'service_report');
+            $wednesday = $this->Crud->date_range1($start_date, 'date', $end_date, 'date','type', $wednesday_id, 'service_report');
+              
+        } else {
+            if($role == 'ministry administrator'){
+                $sunday = $this->Crud->date_range2($start_date, 'date', $end_date,'date', 'type', $sunday_id, 'ministry_id', $ministry_id, 'service_report');
+                $wednesday = $this->Crud->date_range2($start_date, 'date', $end_date, 'date','type', $wednesday_id, 'ministry_id', $ministry_id, 'service_report');
+                 
+            } else {
 
-                if(!empty($wednesday)){
-                    foreach($wednesday as $s){ 
-                        if($finance_type == 'offering')$amount = (float)$s->offering;
-                        if($finance_type == 'tithe')$amount = (float)$s->tithe;
-                        if($finance_type == 'partnership')$amount = (float)$s->partnership;
-                        if($s->date == date('Y-m-d', strtotime('next Wednesday', $startDate))){
-                            $finance_wednesday[] = $amount;
-                        }else{
-                            $finance_wednesday[] = 0;
+                $sunday = $this->Crud->date_range2($start_date, 'date', $end_date,'date', 'type', $sunday_id, 'church_id', $church_id, 'service_report');
+                $wednesday = $this->Crud->date_range2($start_date, 'date', $end_date, 'date','type', $wednesday_id, 'church_id', $church_id, 'service_report');
+                 
+            }
+        }
+        // print_r($wednesday);
+        while ($startDate <= $endDate) {
+            // Initialize amounts for the week
+            $amountSunday = 0;
+            $amountWednesday = 0;
+        
+            // Process Sundays
+            if (!empty($sunday)) {
+                foreach ($sunday as $s) {
+                    if ($s->date == date('Y-m-d', $startDate)) {
+                        if ($finance_type == 'offering') {
+                            $amountSunday = (float)$s->offering;
+                        } elseif ($finance_type == 'tithe') {
+                            $amountSunday = (float)$s->tithe;
+                        } elseif ($finance_type == 'partnership') {
+                            $amountSunday = (float)$s->partnership;
                         }
                     }
-                } else{
-                    $finance_wednesday[] = 0;
                 }
-                $startDate = strtotime('+1 week', $startDate);
             }
-           
+            $finance_sunday[] = $amountSunday; // Add amount for Sunday
+        
+            // Process Wednesdays
+            if (!empty($wednesday)) {
+                foreach ($wednesday as $s) {
+                    if ($s->date == date('Y-m-d', strtotime('next Wednesday', $startDate))) {
+                        if ($finance_type == 'offering') {
+                            $amountWednesday = (float)$s->offering;
+                        } elseif ($finance_type == 'tithe') {
+                            $amountWednesday = (float)$s->tithe;
+                        } elseif ($finance_type == 'partnership') {
+                            $amountWednesday = (float)$s->partnership;
+                        }
+                    }
+                }
+            }
+            $finance_wednesday[] = $amountWednesday; // Add amount for Wednesday
+        
+            // Move to the next week
+            $startDate = strtotime('+1 week', $startDate);
         }
         
-        if($role != 'developer' && $role != 'administrator'){
-            $trade_id = $this->Crud->read_field('id', $log_id, 'user', 'trade');
-            $duration = $this->Crud->read_field('id', $log_id, 'user', 'duration');
-            if(!empty($trade_id)){
-                $remittance = $this->Crud->read_field('id', $trade_id, 'trade', 'medium');
-                $paids = $this->Crud->read_single('user_id', $log_id, 'history');
-                if(!empty($paids)){
-                    foreach($paids as $p){
-                        $total_paid  += (float)$p->amount;
-                    }
-                }
-                
-            }
-        }
         
         $resp['finance_sunday'] = json_encode($finance_sunday);
         $resp['finance_wednesday'] = json_encode($finance_wednesday);

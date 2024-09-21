@@ -1628,7 +1628,7 @@ class Service extends BaseController {
 			if($param2 == 'get_members_tithe'){
 				if($param3){
 					$data = [];
-					$tithers = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
+					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
 
@@ -1647,19 +1647,24 @@ class Service extends BaseController {
 
 					
 					$table = '';
-					$tithers = (array)$tithers->list;
+					$tithers = [];
+					if(!empty($tithersa) && isset($tithersa->list)){
+						$tithers = (array)$tithersa->list;
+					}
+					
 
-					$tither_ids = array_keys($tithers);
+					
+					// print_r($tithers);
+					if(!empty($tithers)){
+						$tither_ids = array_keys($tithers);
 
-					// Filter out church members who are also tithers
-					$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
-						return !in_array($member['id'], $tither_ids);
-					});
+						// Filter out church members who are also tithers
+						$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
+							return !in_array($member['id'], $tither_ids);
+						});
 
 					$church_memberss = array_values($church_memberss);
 
-					// print_r($tithers);
-					if(!empty($tithers)){
 						foreach($tithers as $tither => $tithe){
 							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
 							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
@@ -1700,6 +1705,7 @@ class Service extends BaseController {
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
 
+					
 					$church_memberss = [];
 					$count = 0;
 					if(!empty($church)){
