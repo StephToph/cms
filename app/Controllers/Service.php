@@ -434,7 +434,7 @@ class Service extends BaseController {
 							echo $this->Crud->msg('success', 'Service Attendance Submitted');
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$service_date = $this->Crud->read_field('id', $attendance_id, 'service_report', 'date');
 							$action = $by.' updated Service Report for '.$service_date;
 							$this->Crud->activity('service', $attendance_id, $action);
 
@@ -456,6 +456,126 @@ class Service extends BaseController {
 						}
 						
 					}
+					die;
+				}
+
+			} elseif($param2 == 'mark_attendance'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					if(!empty($edit)) {
+						foreach($edit as $e){
+							$attendant = $e->attendant;
+							$attendants = json_decode($attendant);
+							$total =0;$guest=0;$member=0;
+							$male=0;$female=0;$children=0;
+							if(!empty($attendants)){
+								foreach($attendants as $at => $ats){
+									if($at == 'total'){
+										$total = $ats;
+									}
+									if($at == 'guest'){
+										$guest = $ats;
+									}
+									if($at == 'member'){
+										$member = $ats;
+									}
+									if($at == 'male'){
+										$male = $ats;
+									}
+									if($at == 'female'){
+										$female = $ats;
+									}
+									if($at == 'children'){
+										$children = $ats;
+									}
+								}
+							}
+						}
+						$resp['attendance_id'] = $param3;
+						$resp['total_attendance'] = $total;
+						$resp['guest_attendance'] = $guest;
+						$resp['member_attendance'] = $member;
+						$resp['male_attendance'] = $male;
+						$resp['female_attendance'] = $female;
+						$resp['children_attendance'] = $children;
+						echo json_encode($resp);
+						die;
+					}
+					
+				}
+				//When Adding Save in Session
+				if($this->request->getMethod() == 'post'){
+					$attendance_id = $this->request->getPost('attendance_id');
+					$present_members = $this->request->getPost('present_member_id');
+					$absent_members = $this->request->getPost('absent_members');
+					$reasons = $this->request->getPost('reasons');
+
+					$attendant = json_decode($this->Crud->read_field('id', $attendance_id, 'service_report', 'attendant'));
+					if (isset($attendant->attendant) && !empty($attendant->attendant)) {
+						$indexToRemove = 'attendant'; // Change this to the actual index you want to delete
+					
+						if (isset($attendant[$indexToRemove])) {
+							unset($attendant[$indexToRemove]);
+						}
+					}
+
+					if(empty($present_members)){
+						echo $this->Crud->msg('danger', 'Select Members Present in Service');
+						die;
+					}
+					
+					$present = [];
+					foreach($present_members as $pre => $pmembers){
+						$presents['id'] = $pmembers;
+						$presents['status'] = 'present';
+						$presents['reason'] = '';
+						$present[] = $presents;
+					}
+
+					$attendant->present = $present;
+
+					$absent = [];
+					if(!empty($absent_members)){
+						foreach($absent_members as $ab => $amembers){
+							$absents['id'] = $amembers;
+							$absents['status'] = 'absent';
+							$absents['reason'] = $reasons[$ab];
+							$absent[] = $absents;
+						}
+					}
+					$attendant->absent = $absent;
+
+
+					
+					$in_data['attendant'] = json_encode($attendant); 
+					
+					
+					if($this->Crud->updates('id', $attendance_id, 'service_report', $in_data) > 0){
+						echo $this->Crud->msg('success', 'Service Attendance Submitted');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $attendance_id, 'service_report', 'date');
+						$action = $by.' updated Service Attendane Report for '.$service_date;
+						$this->Crud->activity('service', $attendance_id, $action);
+
+						// echo json_encode($data);
+						echo '<script> setTimeout(function() {
+							$("#show").show(500);
+								$("#form").hide(500);
+								$("#mark_attendance_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								
+								$("#prev").hide(500);
+								load();
+								$("#mark_attendance_msg").html("");
+						}, 2000); </script>';
+					} else {
+						echo $this->Crud->msg('info', 'No Changes to Service Attendance');
+					
+					}
+					
+					
 					die;
 				}
 
@@ -583,7 +703,7 @@ class Service extends BaseController {
 						echo $this->Crud->msg('success', 'Partnership Report Submitted');
 						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-						$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+						$service_date = $this->Crud->read_field('id', $partnership_id, 'service_report', 'date');
 						$action = $by.' updated Service Partnership Report for '.$service_date;
 						$this->Crud->activity('service', $partnership_id, $action);
 
@@ -689,7 +809,7 @@ class Service extends BaseController {
 						echo $this->Crud->msg('success', 'Service Tithe Report Submitted');
 						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-						$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+						$service_date = $this->Crud->read_field('id', $tithe_id, 'service_report', 'date');
 						$action = $by.' updated Service Tithe Report for '.$service_date;
 						$this->Crud->activity('service', $tithe_id, $action);
 
@@ -856,7 +976,7 @@ class Service extends BaseController {
 							echo $this->Crud->msg('success', 'New Convert List Submitted');
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$service_date = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'date');
 							$action = $by.' updated Service New Convert Report for '.$service_date;
 							$this->Crud->activity('service', $new_convert_id, $action);
 
@@ -956,7 +1076,7 @@ class Service extends BaseController {
 							echo $this->Crud->msg('success', 'First Timer List Submitted');
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$service_date = $this->Crud->read_field('id', $log_id, 'service_report', 'date');
+							$service_date = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'date');
 							$action = $by.' updated Service First Timer Report for '.$service_date;
 							$this->Crud->activity('service', $new_convert_id, $action);
 
@@ -1029,7 +1149,11 @@ class Service extends BaseController {
 					$timers = $this->request->getVar('timers');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
-					
+					if(empty($church_id) || empty($ministry_id)){
+						$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+						$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+						
+					}
 					// echo $date;die;
 					$dates = date('y-m-d', strtotime($date));
 
@@ -1569,6 +1693,66 @@ class Service extends BaseController {
 			}
 
 			
+			if($param2 == 'get_members_attendance'){
+				if($param3){
+					$data = [];
+					$attendant = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'attendant'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_memberss = [];
+					$count = 0;
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
+						}
+					}
+					
+
+					
+					$table = '';
+					if(isset($attendant->attendant) && !empty($attendant->attendant)){
+						$attendants = $attendant->attendant;
+						foreach($attendants as $at => $attend){
+							$table .= '
+								<div class="col-sm-3 mb-3">
+									<div id="accordion-2" class="accordion accordion-s3">
+										<div class="accordion-item"> <a href="#" class="accordion-head"
+												data-bs-toggle="collapse" data-bs-target="#accordion-item-2-1">
+												<h6 class="title">What is Dashlite?</h6> <span
+													class="accordion-icon"></span>
+											</a>
+											<div class="accordion-body collapse" id="accordion-item-2-1"
+												data-bs-parent="#accordion-2">
+												<div class="accordion-inner">
+													<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+														sed do eiusmod tempor incididunt ut labore et dolore.</p>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							';
+						}
+					}
+								
+					$data['members'] = ($church_memberss);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
+			
 		}
 
 		if($param1 == 'load_churches'){
@@ -2000,7 +2184,7 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-indigo" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
+								<li><a href="javascript:;" class="text-indigo" onclick="mark_attendance('.$id.')"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
