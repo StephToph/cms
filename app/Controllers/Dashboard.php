@@ -460,20 +460,35 @@ class Dashboard extends BaseController {
             </div>';
         }
 
-        if(!empty($service_report)){
-            foreach($service_report as $u){
+        if (!empty($service_report)) {
+            foreach ($service_report as $u) {
                 $offering += (float)$u->offering;
                 $tithe += (float)$u->tithe;
-                $convertsa = json_decode($u->tithers);
-                if(!empty($converts))$converts = [];
                 
-                if(!empty($convertsa)){
-                    $converts = (array)$convertsa->list;
+                // Decode tithers JSON
+                $convertsa = json_decode($u->tithers);
+                
+                // Ensure $converts is initialized as an array
+                $converts = [];
+                
+                if (!empty($convertsa) && is_object($convertsa) && isset($convertsa->list)) {
+                    // Check if the list is an array before assigning
+                    if (is_array($convertsa->list)) {
+                        $converts = $convertsa->list;
+                    } else {
+                        // If it's not an array, you can decide how to handle it (e.g., log an error, etc.)
+                        // For example, if it's a single item, you could convert it to an array:
+                        $converts = [$convertsa->list];
+                    }
                 }
                 
-                $tithe_part += count($converts);	
+                // Only count if $converts is an array
+                if (is_array($converts)) {
+                    $tithe_part += count($converts);
+                }
             }
         }
+        
 
         $parts = $this->Crud->read('partnership');
         if(!empty($parts)){
