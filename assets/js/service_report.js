@@ -231,7 +231,7 @@
         $('#mark_attendance_id').val(id);
 
         populateAttendance(id);
-        
+        $('#mark_attendance_msg').html('');
     }
 
 
@@ -586,12 +586,7 @@
                 
                     // Populate the select element with options
                     churchMembers.forEach(member => {
-                        $('#present_members').append(
-                            $('<option>', {
-                                value: member.member_id, // or any unique identifier
-                                text: `${member.fullname} - ${member.phone}` // display name
-                            })
-                        );
+                        $('#present_members').append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
                     });
                     $('#present_members').select2({
                         placeholder: "Select Members", // Placeholder text
@@ -606,6 +601,39 @@
             }
         });
     }
+
+    let absentRowIndex = 0;
+
+    $('#absent_add_btn').click(function() {
+        absentRowIndex++;
+        // Create a new row
+        const absent_newRow = $('<tr></tr>');
+
+        // Create a select element for church members
+        const absent_memberSelect = $(`<select  class="js-select2" name="absent_members[]" id="members_${absentRowIndex}" required></select>`);
+        
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                absent_memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } 
+        // Initialize Select2 for this individual element
+      
+        absent_newRow.append($('<td width="250px;"></td>').append(absent_memberSelect));
+
+        absent_newRow.append(`
+            <td>
+                <input type="text" class="form-control" name="reasons[]">
+                
+            </td>
+        `);
+        
+        // Append the new row to the table body
+        $('#absent_attendance_list').append(absent_newRow);
+        absent_memberSelect.select2();
+
+        
+    });
 
     $('#mem_btn').click(function() {
         // Create a new row
@@ -1096,6 +1124,24 @@
                 success: function(response) {
                     // Handle a successful response
                     $('#partnership_msg').html(response);
+                }
+            });
+        });
+
+        $('#mark_attendanceForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#mark_attendance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/mark_attendance', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#mark_attendance_msg').html(response);
                 }
             });
         });

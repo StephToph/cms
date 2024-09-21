@@ -269,15 +269,30 @@ $this->session = \Config\Services::session();
 
                                         <div class="col-sm-12">
                                             <label for="name"><?= translate_phrase('Present Member'); ?></label>
-                                            <select class="js-select2" id="present_members" data-search="on" multiple name="present_member_id[]">
+                                            <select class="js-select2" id="present_members" data-search="on" multiple name="present_member_id[]" required>
                                                 <option value="">Select Members</option>
 
                                             </select>
                                         </div>
                                     </div>
                                     <hr>
-                                    <div id="absent_list">
-
+                                                
+                                    
+                                    <div class="table-responsive" >
+                                        <table class="table table-striped table-hover mt-5">
+                                            <thead>
+                                                <tr>
+                                                    <th>Member</th>
+                                                    <th>Reason for Absence</th>
+                                                    
+                                                </tr>
+                                            </thead>
+                                            <tbody id="absent_attendance_list"> </tbody>
+                                            
+                                        </table>
+                                        <div class="col-12 my-3 text-center">
+                                            <button type="button" class="btn btn-primary" id="absent_add_btn">Add More</button>
+                                        </div>
                                     </div>
                                     <hr>
                                     <div class="row mt-5">
