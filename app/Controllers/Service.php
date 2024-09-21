@@ -416,14 +416,33 @@ class Service extends BaseController {
 					$female = $this->request->getPost('female');
 					$children = $this->request->getPost('children');
 
-					$attendant['total'] = $total;
-					$attendant['member'] = $member;
-					$attendant['guest'] = $guest;
-					$attendant['male'] = $male;
-					$attendant['female'] = $female;
-					$attendant['children'] = $children;
-					
-					$in_data['attendant'] = json_encode($attendant); 
+					// Fetch the existing attendant data and decode it
+					$existing_attendant = json_decode($this->Crud->read_field('id', $attendance_id, 'service_report', 'attendant'), true);
+
+					// Check if the existing attendant data is not empty
+					if (!empty($existing_attendant)) {
+						// If it's not empty, merge the new attendant data with the existing data
+						$existing_attendant['total'] = $total;
+						$existing_attendant['member'] = $member;
+						$existing_attendant['guest'] = $guest;
+						$existing_attendant['male'] = $male;
+						$existing_attendant['female'] = $female;
+						$existing_attendant['children'] = $children;
+					} else {
+						// If it's empty, create a new attendant array
+						$existing_attendant = [
+							'total' => $total,
+							'member' => $member,
+							'guest' => $guest,
+							'male' => $male,
+							'female' => $female,
+							'children' => $children,
+						];
+					}
+
+					// Encode the attendant data back to JSON
+					$in_data['attendant'] = json_encode($existing_attendant);
+ 
 					$in_data['attendance'] = $total; 
 					
 					if(empty($data)){
@@ -510,6 +529,12 @@ class Service extends BaseController {
 					$absent_members = $this->request->getPost('absent_members');
 					$reasons = $this->request->getPost('reasons');
 
+					if(empty($present_members)){
+						echo $this->Crud->msg('danger', 'Select Members Present in Service');
+						die;
+					}
+
+
 					$attendant = json_decode($this->Crud->read_field('id', $attendance_id, 'service_report', 'attendant'));
 					if (isset($attendant->attendant) && !empty($attendant->attendant)) {
 						$indexToRemove = 'attendant'; // Change this to the actual index you want to delete
@@ -518,12 +543,8 @@ class Service extends BaseController {
 							unset($attendant[$indexToRemove]);
 						}
 					}
-
-					if(empty($present_members)){
-						echo $this->Crud->msg('danger', 'Select Members Present in Service');
-						die;
-					}
 					
+					$ats = [];
 					$present = [];
 					foreach($present_members as $pre => $pmembers){
 						$presents['id'] = $pmembers;
@@ -532,7 +553,7 @@ class Service extends BaseController {
 						$present[] = $presents;
 					}
 
-					$attendant->present = $present;
+					$ats['present'] = $present;
 
 					$absent = [];
 					if(!empty($absent_members)){
@@ -543,10 +564,16 @@ class Service extends BaseController {
 							$absent[] = $absents;
 						}
 					}
-					$attendant->absent = $absent;
+					$ats['absent'] = $absent;
 
-
+					if(empty($attendant)){
+						$attendant['list'] = $ats;
+					} else{
+						$attendant->list = $ats;
+					}
 					
+					// print_r($attendant);
+					// die;
 					$in_data['attendant'] = json_encode($attendant); 
 					
 					
@@ -1628,7 +1655,7 @@ class Service extends BaseController {
 			if($param2 == 'get_members_tithe'){
 				if($param3){
 					$data = [];
-					$tithers = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
+					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
 
@@ -1647,19 +1674,24 @@ class Service extends BaseController {
 
 					
 					$table = '';
-					$tithers = (array)$tithers->list;
+					$tithers = [];
+					if(!empty($tithersa) && isset($tithersa->list)){
+						$tithers = (array)$tithersa->list;
+					}
+					
 
-					$tither_ids = array_keys($tithers);
+					
+					// print_r($tithers);
+					if(!empty($tithers)){
+						$tither_ids = array_keys($tithers);
 
-					// Filter out church members who are also tithers
-					$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
-						return !in_array($member['id'], $tither_ids);
-					});
+						// Filter out church members who are also tithers
+						$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
+							return !in_array($member['id'], $tither_ids);
+						});
 
 					$church_memberss = array_values($church_memberss);
 
-					// print_r($tithers);
-					if(!empty($tithers)){
 						foreach($tithers as $tither => $tithe){
 							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
 							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
@@ -1700,6 +1732,7 @@ class Service extends BaseController {
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
 
+
 					$church_memberss = [];
 					$count = 0;
 					if(!empty($church)){
@@ -1713,30 +1746,100 @@ class Service extends BaseController {
 					}
 					
 
+					// Extract IDs from the attendant list
+					$attendant_ids = [];
+					if (isset($attendant->list) && !empty($attendant->list)) {
+						foreach ($attendant->list as $at => $attend) {
+							if (!empty($attend)) {
+								foreach ($attend as $at_val) {
+									$attendant_ids[] = $at_val->id; // Collecting all IDs
+								}
+							}
+						}
+					}
+
+					// Remove church members whose IDs are in the attendant list
+					foreach ($church_memberss as $key => $member) {
+						if (in_array($member['id'], $attendant_ids)) {
+							unset($church_memberss[$key]); // Remove the member
+						}
+					}
+
 					
 					$table = '';
-					if(isset($attendant->attendant) && !empty($attendant->attendant)){
-						$attendants = $attendant->attendant;
+
+					if(isset($attendant->list) && !empty($attendant->list)){
+						$attendants = $attendant->list;
+						// print_r($attendants);
+
 						foreach($attendants as $at => $attend){
-							$table .= '
-								<div class="col-sm-3 mb-3">
-									<div id="accordion-2" class="accordion accordion-s3">
-										<div class="accordion-item"> <a href="#" class="accordion-head"
-												data-bs-toggle="collapse" data-bs-target="#accordion-item-2-1">
-												<h6 class="title">What is Dashlite?</h6> <span
-													class="accordion-icon"></span>
-											</a>
-											<div class="accordion-body collapse" id="accordion-item-2-1"
-												data-bs-parent="#accordion-2">
-												<div class="accordion-inner">
-													<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-														sed do eiusmod tempor incididunt ut labore et dolore.</p>
+							if($at == 'present'){
+								if(!empty($attend)){
+									foreach($attend as $at_index => $at_val){
+										$id = $at_val->id;
+										$name = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname'); 
+										$reason = $at_val->reason;
+										$to = 'data-bs-toggle="collapse" ';
+										$ico = '<span class="accordion-icon"></span>';
+										if(empty($reason)){
+											$reason = '';$to ='';$ico = '';
+										}
+										$table .= '
+											<div class="col-sm-4 mb-3">
+												<div id="accordion-'.$id.'" class="accordion accordion-s3">
+													<div class="accordion-item"> <a href="javascript:;" class="accordion-head collapsed" '.$to.'
+															data-bs-target="#accordion-item-'.$id.'-1">
+															<h6 class="title">'.ucwords($name).' <span class="badge bg-success">Present</span></h6>'.$ico.' 
+														</a>
+														<div class="accordion-body collapse" id="accordion-item-'.$id.'-1"
+															data-bs-parent="#accordion-'.$id.'">
+															<div class="accordion-inner">
+																<p>'.ucwords($reason).'</p>
+															</div>
+														</div>
+													</div>
 												</div>
 											</div>
-										</div>
-									</div>
-								</div>
-							';
+										';
+
+									}
+								}
+								
+							}
+
+							if($at == 'absent'){
+								if(!empty($attend)){
+									foreach($attend as $at_index => $at_val){
+										$id = $at_val->id;
+										$name = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname'); 
+										$reason = $at_val->reason;
+										$to = 'data-bs-toggle="collapse" ';
+										$ico = '<span class="accordion-icon"></span>';
+										if(empty($reason)){
+											$reason = '';$to ='';$ico = '';
+										}
+										$table .= '
+											<div class="col-sm-4 mb-3">
+												<div id="accordion-'.$id.'" class="accordion accordion-s3">
+													<div class="accordion-item"> <a href="javascript:;" class="accordion-head collapsed" '.$to.'
+															data-bs-target="#accordion-item-'.$id.'-1">
+															<h6 class="title">'.ucwords($name).' <span class="badge bg-danger">Absent</span></h6>'.$ico.' 
+														</a>
+														<div class="accordion-body collapse" id="accordion-item-'.$id.'-1"
+															data-bs-parent="#accordion-'.$id.'">
+															<div class="accordion-inner">
+																<p>'.ucwords($reason).'</p>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										';
+
+									}
+								}
+							}
+							
 						}
 					}
 								

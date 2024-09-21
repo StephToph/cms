@@ -163,7 +163,7 @@
          $('#guest_part_view').hide(500);
          $('#guest_partner_list').empty();
         $('#tithe_table_resp').empty();
-        $('#partnership_view').hide(500);
+        $('#partnership_view').hide(500);$('#absent_attendance_list').empty();
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
 

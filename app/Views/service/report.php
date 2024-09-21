@@ -256,9 +256,8 @@ $this->session = \Config\Services::session();
                             <div class="card-inner" id="mark_attendance_view" style="display:none;">
                                 <form id="mark_attendanceForm">
                                     <div class="row my-3">
-                                        <h5>Present Members</h5>
+                                        <h5>Members Attendance</h5>
                                         <div id="member_attendance_list" class="col-sm-12 row"></div>
-                                        
                                         
                                     </div>
                                     
