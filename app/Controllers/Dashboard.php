@@ -579,9 +579,22 @@ class Dashboard extends BaseController {
         
         $male = 0;$female = 0;$children=0;$ft=0;$nc=0;
         $male_per = 0;$female_per = 0;$children_per=0;$ft_per=0;$nc_per=0;
+        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        
         if($role == 'developer' || $role == 'administrator'){
-            $service = $this->Crud->read_order('service_report','id', 'asc');
-            
+            $service = $this->Crud->read('service_report');
+        } else {
+            if($role == 'ministry administrator'){
+                $service = $this->Crud->read_single('ministry_id', $ministry_id, 'service_report');
+            } else {
+                
+                $service = $this->Crud->read_single('church_id', $church_id, 'service_report');
+            }
+        }
+
+       
+        
             if(!empty($service)){
                 foreach($service as $u){
                    
@@ -629,24 +642,11 @@ class Dashboard extends BaseController {
 
             ';
            
-        }
+       
         // print_r($service);
         // echo $offering.' e';
 
-        if($role != 'developer' && $role != 'administrator'){
-            $trade_id = $this->Crud->read_field('id', $log_id, 'user', 'trade');
-            $duration = $this->Crud->read_field('id', $log_id, 'user', 'duration');
-            if(!empty($trade_id)){
-                $remittance = $this->Crud->read_field('id', $trade_id, 'trade', 'medium');
-                $paids = $this->Crud->read_single('user_id', $log_id, 'history');
-                if(!empty($paids)){
-                    foreach($paids as $p){
-                        $total_paid  += (float)$p->amount;
-                    }
-                }
-                
-            }
-        }
+        
         $service_data = array((int)$male, (int)$female, (int)$children, (int)$ft);
         $resp['service_date'] = ($service_date);
         $resp['service_key'] = ($service_key);
