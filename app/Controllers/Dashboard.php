@@ -460,20 +460,35 @@ class Dashboard extends BaseController {
             </div>';
         }
 
-        if(!empty($service_report)){
-            foreach($service_report as $u){
+        if (!empty($service_report)) {
+            foreach ($service_report as $u) {
                 $offering += (float)$u->offering;
                 $tithe += (float)$u->tithe;
-                $convertsa = json_decode($u->tithers);
-                if(!empty($converts))$converts = [];
                 
-                if(!empty($convertsa)){
-                    $converts = (array)$convertsa->list;
+                // Decode tithers JSON
+                $convertsa = json_decode($u->tithers);
+                
+                // Ensure $converts is initialized as an array
+                $converts = [];
+                
+                if (!empty($convertsa) && is_object($convertsa) && isset($convertsa->list)) {
+                    // Check if the list is an array before assigning
+                    if (is_array($convertsa->list)) {
+                        $converts = $convertsa->list;
+                    } else {
+                        // If it's not an array, you can decide how to handle it (e.g., log an error, etc.)
+                        // For example, if it's a single item, you could convert it to an array:
+                        $converts = [$convertsa->list];
+                    }
                 }
                 
-                $tithe_part += count($converts);	
+                // Only count if $converts is an array
+                if (is_array($converts)) {
+                    $tithe_part += count($converts);
+                }
             }
         }
+        
 
         $parts = $this->Crud->read('partnership');
         if(!empty($parts)){
@@ -579,9 +594,22 @@ class Dashboard extends BaseController {
         
         $male = 0;$female = 0;$children=0;$ft=0;$nc=0;
         $male_per = 0;$female_per = 0;$children_per=0;$ft_per=0;$nc_per=0;
+        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        
         if($role == 'developer' || $role == 'administrator'){
-            $service = $this->Crud->read_order('service_report','id', 'asc');
-            
+            $service = $this->Crud->read('service_report');
+        } else {
+            if($role == 'ministry administrator'){
+                $service = $this->Crud->read_single('ministry_id', $ministry_id, 'service_report');
+            } else {
+                
+                $service = $this->Crud->read_single('church_id', $church_id, 'service_report');
+            }
+        }
+
+       
+        
             if(!empty($service)){
                 foreach($service as $u){
                    
@@ -629,24 +657,11 @@ class Dashboard extends BaseController {
 
             ';
            
-        }
+       
         // print_r($service);
         // echo $offering.' e';
 
-        if($role != 'developer' && $role != 'administrator'){
-            $trade_id = $this->Crud->read_field('id', $log_id, 'user', 'trade');
-            $duration = $this->Crud->read_field('id', $log_id, 'user', 'duration');
-            if(!empty($trade_id)){
-                $remittance = $this->Crud->read_field('id', $trade_id, 'trade', 'medium');
-                $paids = $this->Crud->read_single('user_id', $log_id, 'history');
-                if(!empty($paids)){
-                    foreach($paids as $p){
-                        $total_paid  += (float)$p->amount;
-                    }
-                }
-                
-            }
-        }
+        
         $service_data = array((int)$male, (int)$female, (int)$children, (int)$ft);
         $resp['service_date'] = ($service_date);
         $resp['service_key'] = ($service_key);
