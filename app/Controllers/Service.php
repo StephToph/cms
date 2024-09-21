@@ -1149,7 +1149,11 @@ class Service extends BaseController {
 					$timers = $this->request->getVar('timers');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
-					
+					if(empty($church_id) || empty($ministry_id)){
+						$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+						$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+						
+					}
 					// echo $date;die;
 					$dates = date('y-m-d', strtotime($date));
 
