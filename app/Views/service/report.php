@@ -602,11 +602,7 @@ $this->session = \Config\Services::session();
                                 <form id="mediaForm" action="<?= site_url('upload') ?>">
                                     <input type="hidden" name="media_id" id="media_id">
 
-                                    <div id="gallery_view" class="nk-block" style="display:none;">
-                                        
-                                        <hr>
-                                    </div>
-                                   
+                                  
                                     <div class="row">
                                         <span class="text-danger my-2">Enter Service Images</span>
                                         <div class="col-sm-12">
@@ -625,7 +621,12 @@ $this->session = \Config\Services::session();
                                         <div class="col-sm-12">
                                             <div id="media_msg"></div>
                                         </div>
+                                    </div><hr>
+                                    <div id="gallery_view" class="nk-block" style="display:none;">
+                                        
+                                       
                                     </div>
+                                   
                                 </form>
                             </div><!-- .card-inner -->
                         </div><!-- .card-inner-group -->
