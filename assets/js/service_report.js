@@ -309,10 +309,7 @@
                 acceptedFiles: "image/*", // Accept only images
                 init: function() {
                     this.on("success", function(file, response) {
-                        console.log("File uploaded successfully:", response);
-                    });
-                    this.on("error", function(file, response) {
-                        console.error("Upload error:", response);
+                        $('#media_msg').html(response);
                     });
                 }
             });
@@ -353,6 +350,22 @@
             }
         });
        
+    }
+
+    function delete_media(id,service){
+        $('#media_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+       
+        $.ajax({
+            url: site_url + 'service/report/records/delete_media/' + id,
+            type: 'get',
+            success: function (data) {
+                $('#media_msg').html(data);
+               media_report(service);
+
+            }
+                
+
+        });
     }
 
     let rowCount = 0;

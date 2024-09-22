@@ -800,15 +800,7 @@ class Service extends BaseController {
 	
 							// echo json_encode($data);
 							echo '<script> setTimeout(function() {
-								$("#show").show(500);
-									$("#form").hide(500);
-									$("#media_view").hide(500);
-									$("#attendance_prev").hide(500);
-									$("#add_btn").show(500);
-									
-									$("#prev").hide(500);
-									load();
-									$("#media_msg").html("");
+								media_report('.$service_id.')
 							}, 2000); </script>';
 						} else{
 							echo $this->Crud->msg('info', 'No Changes');
@@ -1933,7 +1925,7 @@ class Service extends BaseController {
 								
 								<div class="col-sm-6 col-lg-4 col-xxl-3">
 									<div class="gallery card card-bordered"><a class="gallery-image popup-image"
-											href="'.site_url($m->path).'"><img class="w-100 rounded-top"
+											href="'.site_url($m->path).'"><img class="w-100 rounded-top" height="200px"
 												src="'.site_url($m->path).'" alt=""></a>
 										<div
 											class="gallery-body card-inner align-center justify-between flex-wrap g-2">
@@ -1941,6 +1933,9 @@ class Service extends BaseController {
 												<div class="user-avatar">CA</div>
 												<div class="user-info"><span class="lead-text">CHURCH ADMIN</span></div>
 											</div>
+											<div>
+											 	<button type="button" onclick="delete_media('.$m->id.', '.$param3.')" class="btn btn-outline-danger btn-icon"><em  class="icon ni ni-trash"></em></button>
+                                            </div>
 										</div>
 									</div>
 								</div>
@@ -1952,6 +1947,15 @@ class Service extends BaseController {
 					$medias .= '</div>';
 
 					echo $medias;
+					die;
+				}
+					
+				
+			}
+			
+			if($param2 == 'delete_media'){
+				if($param3){
+					$this->Crud->deletes('id', $param3, 'service_media');
 					die;
 				}
 					
