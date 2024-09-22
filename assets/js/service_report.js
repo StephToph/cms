@@ -166,6 +166,7 @@
         $('#partnership_view').hide(500);$('#absent_attendance_list').empty();
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
+        $('#media_view').hide(500);
 
     });
 
@@ -289,8 +290,70 @@
         });
        
     }
-
     
+        Dropzone.autoDiscover = false; // Prevent auto-discovery
+
+        function initDropzone() {
+            var uploadZoneElement = document.getElementById('upload-zone');
+            var uploadUrl = uploadZoneElement.getAttribute('data-url'); // Read URL from data attribute
+        
+            // Check if URL is correctly read
+            if (!uploadUrl) {
+                console.error("No URL provided for Dropzone.");
+                return; // Stop if URL is missing
+            }
+        
+            var uploadZone = new Dropzone(uploadZoneElement, {
+                url: uploadUrl, // Use the URL from data attribute
+                maxFilesize: parseFloat(uploadZoneElement.getAttribute('data-max-file-size')), // Max file size in MB
+                acceptedFiles: "image/*", // Accept only images
+                init: function() {
+                    this.on("success", function(file, response) {
+                        console.log("File uploaded successfully:", response);
+                    });
+                    this.on("error", function(file, response) {
+                        console.error("Upload error:", response);
+                    });
+                }
+            });
+        }
+        
+
+
+    // Call the function to initialize Dropzone
+   
+    function media_report(id){
+        $('#media_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#media_view').show(500);
+        $('#attendance_prev').show(500);
+
+        var uploadUrl = site_url + "service/report/manage/media/"+id; // PHP URL
+        console.log(uploadUrl);
+        $('#upload-zone').attr('data-url', uploadUrl);
+        
+        // Destroy existing Dropzone instance if it exists
+        if (Dropzone.instances.length > 0) {
+            Dropzone.instances.forEach(function(dropzone) {
+                dropzone.destroy();
+            });
+        }
+
+        initDropzone();
+
+        $.ajax({
+            url: site_url + 'service/report/records/service_media/' + id,
+            type: 'get',
+            success: function (data) {
+                $('#gallery_view').html(data);
+                $('#gallery_view').show(500);
+                
+                $('#media_msg').html('');
+            }
+        });
+       
+    }
 
     let rowCount = 0;
 

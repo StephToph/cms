@@ -11,6 +11,8 @@ $this->session = \Config\Services::session();
 <?= $this->endSection(); ?>
 
 <?= $this->section('content'); ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
+   
 <div class="nk-content">
 
     <div class="container-fluid mt-3">
@@ -595,6 +597,36 @@ $this->session = \Config\Services::session();
                                         </div>
                                     </div>
                                 </form>
+                            </div>
+                            <div class="card-inner" id="media_view" style="display:none;">
+                                <form id="mediaForm" action="<?= site_url('upload') ?>">
+                                    <input type="hidden" name="media_id" id="media_id">
+
+                                    <div id="gallery_view" class="nk-block" style="display:none;">
+                                        
+                                        <hr>
+                                    </div>
+                                   
+                                    <div class="row">
+                                        <span class="text-danger my-2">Enter Service Images</span>
+                                        <div class="col-sm-12">
+                                            <label class="form-label">Dropzone FileSize Limit (4mb)</label>
+                                            <div class="upload-zone" id="upload-zone" data-url="<?=site_url('service/report/manage/media'); ?>" data-max-file-size="4">
+                                                <div class="dz-message" data-dz-message>
+                                                    <span class="dz-message-text">Drag and drop file</span>
+                                                    <span class="dz-message-or">or</span>
+                                                    <button type="button" class="btn btn-primary">SELECT</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="media_msg"></div>
+                                        </div>
+                                    </div>
+                                </form>
                             </div><!-- .card-inner -->
                         </div><!-- .card-inner-group -->
                     </div><!-- .card -->
@@ -606,7 +638,9 @@ $this->session = \Config\Services::session();
 
 <script>var site_url = '<?php echo site_url(); ?>';</script>
 <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 
+   
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script src="<?php echo site_url(); ?>assets/js/service_report.js?v=<?= time(); ?>"></script>
 <?= $this->endSection(); ?>
