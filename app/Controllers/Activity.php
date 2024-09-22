@@ -103,7 +103,7 @@ class Activity extends BaseController {
 									<a href="javascript:;" class="project-title">
 										<div class=""><em class="icon ni ni-'.$icon.' text-muted" style="font-size:30px;"></em></div>
 										<div class="project-info">
-											<h6 class="title"> '.translate_phrase($action).'<small> on '.$reg_date.'</small></h6>
+											<h6 class="title"> '.($action).'<small> on '.$reg_date.'</small></h6>
 										</div>
 									</a>
 								</td>

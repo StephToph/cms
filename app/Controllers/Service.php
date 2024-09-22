@@ -753,6 +753,74 @@ class Service extends BaseController {
 					die;
 				}
 
+			} elseif($param2 == 'media'){
+				if($param3) {
+					//When Adding Save in Session
+					if($this->request->getMethod() == 'post'){
+						$service_id = $param3;
+						$church_id = $this->Crud->read_field('id', $service_id, 'service_report',  'church_id');
+
+							//// Image upload
+						if (file_exists($this->request->getFile('file'))) {
+							
+							$path = 'assets/uploads/gallery/church/'.$church_id.'/';
+							$file = $this->request->getFile('file');
+							if (!is_dir($path)) {
+								// Create the directory
+								if (mkdir($path, 0755, true)) {
+								}
+							} 
+							$getImg = $this->Crud->file_upload($path, $file);
+
+							if (!empty($getImg->path)) $img_id = $getImg->path;
+						}
+
+
+						if(empty($img_id)){
+							echo $this->Crud->msg('warning', 'Select a File');
+							die;
+						}
+						
+						
+							
+						$ins_data['type_id'] = $service_id;
+						$ins_data['type'] = 'service';
+						$ins_data['user_id'] = $log_id;
+						$ins_data['path'] = $img_id;
+						$ins_data['reg_date'] = date(fdate);
+
+						if($this->Crud->create('service_media', $ins_data) > 0){
+
+							echo $this->Crud->msg('success', 'Service Media Uploaded');
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$service_date = $this->Crud->read_field('id', $service_id, 'service_report', 'date');
+							$action = $by.' Uploaded a Media for Service '.$service_date;
+							$this->Crud->activity('service', $service_id, $action);
+	
+							// echo json_encode($data);
+							echo '<script> setTimeout(function() {
+								$("#show").show(500);
+									$("#form").hide(500);
+									$("#media_view").hide(500);
+									$("#attendance_prev").hide(500);
+									$("#add_btn").show(500);
+									
+									$("#prev").hide(500);
+									load();
+									$("#media_msg").html("");
+							}, 2000); </script>';
+						} else{
+							echo $this->Crud->msg('info', 'No Changes');
+							
+						}
+						die;
+					}
+					
+				}
+				
+			
+
 			} elseif($param2 == 'tithe'){
 				if($param3) {
 					$edit = $this->Crud->read_single('id', $param3, 'service_report');
@@ -1855,6 +1923,40 @@ class Service extends BaseController {
 				
 			}
 
+			if($param2 == 'service_media'){
+				if($param3){
+					$media = $this->Crud->read2('type_id', $param3, 'type', 'service', 'service_media');
+					$medias = '<div class="row g-gs">';
+					if(!empty($media)){
+						foreach($media as $m){
+							$medias .= '
+								
+								<div class="col-sm-6 col-lg-4 col-xxl-3">
+									<div class="gallery card card-bordered"><a class="gallery-image popup-image"
+											href="'.site_url($m->path).'"><img class="w-100 rounded-top"
+												src="'.site_url($m->path).'" alt=""></a>
+										<div
+											class="gallery-body card-inner align-center justify-between flex-wrap g-2">
+											<div class="user-card">
+												<div class="user-avatar">CA</div>
+												<div class="user-info"><span class="lead-text">CHURCH ADMIN</span></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							
+							';
+						}
+					}
+
+					$medias .= '</div>';
+
+					echo $medias;
+					die;
+				}
+					
+				
+			}
 			
 		}
 
@@ -2293,7 +2395,7 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-indigo" onclick="partnership_report('.$id.')"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger" onclick="partnership_report('.$id.')"><em class="icon ni ni-img"></em><span>'.translate_phrase('Media').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger" onclick="media_report('.$id.')"><em class="icon ni ni-img"></em><span>'.translate_phrase('Media').'</span></a></li>
 								
 								
 							';
