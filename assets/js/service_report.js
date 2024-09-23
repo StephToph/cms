@@ -1299,7 +1299,7 @@
             if (e.which === 188) { // Comma key
                 e.preventDefault();
                 const tag = $(this).val().trim();
-                addTag(tag,media_id);
+                // addTag(tag,media_id);
                 if (isValidUrlStructure(tag)) {
                     checkUrl(tag, media_id);
                 } else {
