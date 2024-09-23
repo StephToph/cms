@@ -14,7 +14,34 @@ $this->session = \Config\Services::session();
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.css">
    
 <div class="nk-content">
-
+    <style>
+        .tags-input {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            padding: 0.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .tag {
+            background-color: #007bff;
+            color: white;
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        .tag .remove {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            color: white;
+        }
+        .error {
+            color: red;
+            margin-top: 0.5rem;
+        }
+    </style>
     <div class="container-fluid mt-3">
         <div class="nk-content-inner">
             <div class="nk-content-body">
@@ -614,6 +641,13 @@ $this->session = \Config\Services::session();
                                                     <button type="button" class="btn btn-primary">SELECT</button>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="container mt-4">
+                                            <h5>Video Url</h5>
+                                            <div class="tags-input" id="tags-input">
+                                                <input type="text" id="tag-input" placeholder="Add tags (separated by commas)" class="form-control" />
+                                            </div>
+                                            <div class="error" id="error-message"></div>
                                         </div>
                                     </div>
                                     <hr>

@@ -325,9 +325,9 @@
         $('#add_btn').hide(500);
         $('#media_view').show(500);
         $('#attendance_prev').show(500);
-
+        
         var uploadUrl = site_url + "service/report/manage/media/"+id; // PHP URL
-        console.log(uploadUrl);
+        
         $('#upload-zone').attr('data-url', uploadUrl);
         
         // Destroy existing Dropzone instance if it exists
@@ -337,15 +337,17 @@
             });
         }
 
+        $('#media_id').val(id);
         initDropzone();
 
         $.ajax({
             url: site_url + 'service/report/records/service_media/' + id,
             type: 'get',
             success: function (data) {
-                $('#gallery_view').html(data);
+                var dt = JSON.parse(data);
+                $('#gallery_view').html(dt.medias);
                 $('#gallery_view').show(500);
-                
+                $('#tags-input').prepend(dt.url);
                 $('#media_msg').html('');
             }
         });
@@ -427,9 +429,6 @@
     $('#addMores').on('click', function() {
         $('#rowsContainer').append(createRow());
     });
-
-    
-
 
     // Handle delete button click
     $('#rowsContainer').on('click', '.deleteRow', function() {
@@ -842,9 +841,6 @@
     // Bind the calculateSum function to the input event of elements with class 'members'
     $('.firsts_amount').on('input', calculateFirst);
 
-
-    
-    
     function timerRecords(records) {
         records.forEach(record => {
             $('#containers').append(createNewSection(record));
@@ -866,7 +862,7 @@
      const container = $('#containers'); // Adjust this selector to your actual container
  
      // Function to create a new form section with values
-     function createNewSection(values) {
+    function createNewSection(values) {
          // Increment row count
          first_timer_count++;
  
@@ -970,10 +966,10 @@
                  </div>
              </div>
          `;
-     }
+    }
  
-     // Click event to add more form sections
-     $('#add_first_timer').on('click', function() {
+    // Click event to add more form sections
+    $('#add_first_timer').on('click', function() {
          // Create a new empty section
          container.append(createNewSection({}));
         $('.js-select2').select2();
@@ -1023,6 +1019,7 @@
             memberDiv.hide(500);
         }
     }
+    
     
     function deleteSection(rowId) {
         $(`#row-${rowId}`).remove(500); // Remove the row from the DOM
@@ -1295,3 +1292,125 @@
             }
         });
     }
+    
+    $(document).ready(function () {
+        $('#tag-input').on('keydown', function (e) {
+            var media_id = $('#media_id').val();
+            if (e.which === 188) { // Comma key
+                e.preventDefault();
+                const tag = $(this).val().trim();
+                addTag(tag,media_id);
+                if (isValidUrlStructure(tag)) {
+                    checkUrl(tag, media_id);
+                } else {
+                    $('#error-message').text('Invalid URL structure');
+                }
+            }
+        });
+
+        function isValidUrlStructure(url) {
+            const pattern = new RegExp('^(https?:\\/\\/)?' + // protocol
+                '((([a-z0-9]+([-.][a-z0-9]+)*)\\.)+[a-z]{2,}|' + // domain name
+                'localhost|' + // localhost
+                '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|' + // IP
+                '\\[?[a-f0-9]*:[a-f0-9:%.~+!$&\'()*+,;=]+\\]?)' + // IPv6
+                '(\\:\\d+)?(\\/[-a-z0-9%_.~+;=]*)*' + // port and path
+                '(\\?[;&a-z0-9%_.~+=-]*)?' + // query string
+                '(\\#[-a-z0-9_]*)?$', 'i'); // fragment locator
+            return pattern.test(url);
+        }
+
+
+        function checkUrl(tag, media_id) {
+            $.ajax({
+                url: tag,
+                type: 'HEAD',
+                success: function (data, status, xhr) {
+                    if (xhr.status === 202) {
+                        addTag(tag, media_id);
+                        $('#tag-input').val(''); // Clear the input field
+                        $('#error-message').text(''); // Clear any error message
+                    } else {
+                        $('#error-message').text('URL must return a 202 status code');
+                    }
+                },
+                error: function () {
+                    $('#error-message').text('Invalid link or URL does not exist');
+                }
+            });
+        }
+
+        function addTag(tag, media_id) {
+            const tagElement = $('<span class="tag"></span>');
+            const linkElement = $('<a></a>')
+                .attr('href', tag)
+                .attr('target', '_blank') // Open in a new tab
+                .text(tag)
+                .css('color', 'white'); // Style link color
+
+            $.ajax({
+                url: site_url + 'service/report/records/add_url/'+media_id, // Replace with your server URL
+                type: 'POST',
+                data: {url:tag},
+                success: function(response) {
+                    // media_report(media_id);
+                }
+            });
+                
+            const removeBtn = $('<span class="remove">×</span>').click(function () {
+                // Get the link text (URL) from the anchor tag
+                const linkText = $(this).siblings('a').text(); // Gets the text of the anchor tag
+                console.log(linkText);
+                $.ajax({
+                    url: site_url + 'service/report/records/delete_url/'+media_id, // Update the endpoint as necessary
+                    type: 'POST',
+                    data: { url: linkText }, // Send the link text as data
+                    success: function(response) {
+                        
+                    }
+                });
+                
+                // Remove the tag from the UI
+                $(this).parent().remove();
+                
+            });
+            
+            tagElement.append(linkElement).append(removeBtn);
+            $('#tags-input').prepend(tagElement);
+        }
+
+        
+    });
+
+        // Function to remove URL
+    function removeUrl(linkText, media) {
+        $.ajax({
+            url: site_url + 'service/report/records/delete_url/' + media, // Update the endpoint as necessary
+            type: 'POST',
+            data: { url: linkText }, // Send the link text as data
+            success: function(response) {
+                // Handle success response if needed
+                console.log('URL successfully deleted:', response);
+            },
+            error: function(xhr, status, error) {
+                // Handle error if needed
+                console.error('Error deleting URL:', error);
+                alert('Failed to delete URL. Please try again.');
+            }
+        });
+    }
+
+    // Event delegation for dynamically added .remove_url buttons
+    $(document).on('click', '.remove_url', function () {
+        // Get the link text (URL) from the anchor tag
+        const linkText = $(this).prev('.tag').find('a').text();
+        const media = $('#media_id').val(); // Assuming this is how you get media ID
+        console.log(linkText);
+        
+        // Call the function to remove the URL
+        removeUrl(linkText, media);
+        
+        // Remove the tag and the button from the UI
+        $(this).prev('.tag').remove();
+        $(this).remove();
+    });

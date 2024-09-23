@@ -334,6 +334,7 @@ class Service extends BaseController {
 			$mem_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
 			$mem = $this->Crud->read_single_order('role_id', $mem_id, 'user', 'firstname', 'asc');
 			$data['mem'] = $mem;
+
 			// prepare for delete
 			if($param2 == 'delete') {
 				if($param3) {
@@ -1917,6 +1918,9 @@ class Service extends BaseController {
 
 			if($param2 == 'service_media'){
 				if($param3){
+					$data = [];
+					$url = '';
+					$urls = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'video_url'));
 					$media = $this->Crud->read2('type_id', $param3, 'type', 'service', 'service_media');
 					$medias = '<div class="row g-gs">';
 					if(!empty($media)){
@@ -1944,9 +1948,25 @@ class Service extends BaseController {
 						}
 					}
 
+					
 					$medias .= '</div>';
 
-					echo $medias;
+					if(!empty($urls)){
+						foreach($urls as $link => $linka){
+							$url .=  '
+								<span class="tag">
+									<a href="'.$linka.'" target="_blank" style="color: white;">'.$linka.'</a><span class="remove_url remove">×</span>
+								</span>
+							';
+						}
+					}
+
+					$data['medias'] = ($medias);
+					$data['url'] = $url;
+
+
+
+					echo json_encode($data);
 					die;
 				}
 					
@@ -1958,8 +1978,62 @@ class Service extends BaseController {
 					$this->Crud->deletes('id', $param3, 'service_media');
 					die;
 				}
-					
+			}
+
+			
+			if($param2 == 'add_url'){
+				if ($param3) {
+					// Retrieve the existing URLs from the database
+					$existing = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'video_url'), true) ?: [];
 				
+					// Get the new URL from the request
+					$url = $this->request->getPost('url');
+				
+					// Ensure the URL is not empty before adding
+					if (!empty($url)) {
+						// Add the new URL to the existing array if it doesn't already exist
+						if (!in_array($url, $existing)) {
+							$existing[] = $url; 
+						}
+					}
+				
+					// Prepare the updated data for the database
+					$ins['video_url'] = json_encode($existing);
+					
+					// Update the record in the database
+					$this->Crud->updates('id', $param3, 'service_report', $ins);
+					die;
+				}
+				
+				
+			}
+
+			if ($param2 == 'delete_url') {
+				if ($param3) {
+					// Retrieve the existing URLs from the database
+					$existing = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'video_url'), true) ?: [];
+			
+					// Get the URL to delete from the request
+					$urlToDelete = $this->request->getPost('url');
+			
+					// Ensure the URL to delete is not empty
+					if (!empty($urlToDelete)) {
+						// Remove the URL from the existing array if it exists
+						$existing = array_filter($existing, function($url) use ($urlToDelete) {
+							return $url !== $urlToDelete; // Keep URLs that are not equal to the one to delete
+						});
+					}
+			
+					// Prepare the updated data for the database
+					$ins['video_url'] = json_encode(array_values($existing)); // Re-index the array
+			
+					// Update the record in the database
+					$this->Crud->updates('id', $param3, 'service_report', $ins);
+					
+					// Optionally return a response
+					echo json_encode(['success' => true, 'message' => 'URL successfully deleted']);
+					die;
+				}
 			}
 			
 		}
