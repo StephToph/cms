@@ -2877,24 +2877,22 @@ class Accounts extends BaseController {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
 					} else {
-						if(empty($this->Crud->read_field('id', $member_id, 'user', 'partnership'))){
-							echo $this->Crud->msg('danger', 'This Member does not  have a Partnership Record');
-						}else{
-							$ins_data['reg_date'] = date(fdate);
-							$ins_rec = $this->Crud->create($table, $ins_data);
-							if($ins_rec > 0) {
-								///// store activities
-								$by = $this->Crud->read_field('id', $member_id, 'user', 'firstname');
-								$code = $this->Crud->read_field('id', $partnership_id, 'partnership', 'name');
-								$action = $by.' paid ('.$code.') Partnership';
-								$this->Crud->activity('user', $ins_rec, $action);
+						
+						$ins_data['reg_date'] = date(fdate);
+						$ins_rec = $this->Crud->create($table, $ins_data);
+						if($ins_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $member_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $partnership_id, 'partnership', 'name');
+							$action = $by.' paid ('.$code.') Partnership';
+							$this->Crud->activity('user', $ins_rec, $action);
 
-								echo $this->Crud->msg('success', 'Giving Paid Successful');
-								echo '<script>location.reload(false);</script>';
-							} else {
-								echo $this->Crud->msg('danger', 'Please try later');	
-							}
+							echo $this->Crud->msg('success', 'Giving Paid Successful');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');	
 						}
+					
 							
 					}
 
