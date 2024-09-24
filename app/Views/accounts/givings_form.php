@@ -214,7 +214,7 @@ $this->Crud = new Crud();
                                 <option value="">Select</option>
                                 <?php
                                     $role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-                                    $part = $this->Crud->read_single_order('role_id', 4, 'user', 'surname', 'asc');
+                                    $part = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'surname', 'asc');
                                     if(!empty($part)){
                                         foreach($part as $p){
                                             $sel = '';
@@ -223,7 +223,7 @@ $this->Crud = new Crud();
                                                     $sel = 'selected';
                                                 }
                                             }
-                                            echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->firstname.' '.$p->surname).'</option>';
+                                            echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->firstname.' '.$p->surname.' - '.$p->phone).'</option>';
                                         }
                                     }
                                 ?>
