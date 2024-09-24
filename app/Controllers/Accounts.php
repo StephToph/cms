@@ -2814,6 +2814,9 @@ class Accounts extends BaseController {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
 								$data['e_member_id'] = $e->member_id;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_partnership_id'] = $e->partnership_id;
 								$data['e_amount_paid'] = $e->amount_paid;
 								$data['e_date_paid'] = $e->date_paid;
@@ -2832,6 +2835,11 @@ class Accounts extends BaseController {
 					$status = $this->request->getVar('status');
 					$date_paid = $this->request->getVar('date_paid');
 					$img_id = $this->request->getVar('img');
+
+					$church_id = $this->Crud->read_field('id', $member_id, 'user', 'church_id');
+					$ministry_id = $this->Crud->read_field('id', $member_id, 'user', 'ministry_id');
+					
+
 					
 					 //// Image upload
 					 if(file_exists($this->request->getFile('pics'))) {
@@ -2859,6 +2867,8 @@ class Accounts extends BaseController {
 					$ins_data['status'] = $status;
 					$ins_data['date_paid'] = $date_paid;
 					$ins_data['file'] = $img_id;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['ministry_id'] = $ministry_id;
 					
 					// do create or update
 					if($giving_id) {
@@ -2906,7 +2916,7 @@ class Accounts extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}
@@ -2949,12 +2959,14 @@ class Accounts extends BaseController {
 					foreach ($query as $q) {
 						$id = $q->id;
 						$member_id = $q->member_id;
+						$church_id = $q->church_id;
 						$partnership_id = $q->partnership_id;
 						$amount_paid = $q->amount_paid;
 						$status = $q->status;
 						$reg_date = date('d M Y', strtotime($q->date_paid));
 						$member = $this->Crud->read_field('id', $member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $member_id, 'user', 'surname');
 						$partnership = $this->Crud->read_field('id', $partnership_id, 'partnership', 'name');
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 						
 						$st = '<span class="text-warning">Pending</span>';
 						if($status > 0){
@@ -2981,13 +2993,14 @@ class Accounts extends BaseController {
 									</div>
 								</div>
 								<div class="nk-tb-col tb-col-md">
-									<span class="text-dark">' . ucwords($member) . '</span>
+									<span class="text-dark">' . ucwords($member) . '</span><br>
+									<span class="text-info"><em class="icon ni ni-curve-down-right"></em>'.ucwords($church).'</span>
 								</div>
 								<div class="nk-tb-col tb-col">
 									<span class="text-dark">' . ucwords($partnership) . '</span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
-									<span class="text-dark">$' . number_format($amount_paid,2) . '</span>
+									<span class="text-dark">'.curr . number_format($amount_paid,2) . '</span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
 									<span class="text-dark">' . ($st) . '</span>
