@@ -2255,11 +2255,21 @@ class Crud extends Model {
         $db = db_connect();
         $builder = $db->table('partners_history');
 
-		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
-		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-		if($role != 'developer' && $role != 'administrator'){
-			$builder->where('member_id', $log_id);
-		} 
+		 // Retrieve user details
+		 $role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		 $ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		 $church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
+		 $role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+	 
+		 // Apply filters based on user role
+		 if ($role != 'developer' && $role != 'administrator') {
+			 if ($role == 'ministry administrator') {
+				 $builder->where('ministry_id', $ministry_id);
+			 } else {
+				 $builder->where('church_id', $church_id_user);
+			 }
+		 }
+
         // build query
 		$builder->orderBy('id', 'desc');
 		
