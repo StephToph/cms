@@ -1024,6 +1024,38 @@ class Ministry extends BaseController {
 			]);
 		}
 
+		//Get Members From the Church
+		if($param1 == 'get_members'){
+			$church_id = $this->request->getPost('church_id');
+			if ($church_id) {
+				$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+				
+
+				$churches = [];
+						
+				if (!empty($church)) {
+					foreach ($church as $c) {
+						
+						$churches[] = [
+							'id' => $c->id,
+							'name' => $c->firstname.' '.$c->surname,
+							'phone' => $c->phone
+						];
+					}
+				}
+
+				return $this->response->setJSON([
+					'success' => true,
+					'data' => $churches
+				]);
+			}
+			
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Invalid Ministry ID'
+			]);
+		}
+
 		// record listing
 		if ($param1 == 'load') {
 			$limit = $param2;
