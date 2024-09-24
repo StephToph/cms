@@ -27,56 +27,58 @@ $this->Crud = new Crud();
         
     <?php if($param2 == 'view'){?>
         <b><?=ucwords($this->Crud->read_field('id', $param3, 'partnership', 'name')).'`s Partnership History '; ?></b><br>
-        <table id="dtable" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Members</th>
-                    <th>Amount Paid</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                    $start_date = $p_start_date;
-                    $end_date = $p_end_date;
-                    
-                    if(!empty($start_date) && !empty($end_date)){
-                        $pays = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'partners_history');
-
-                    } else{
-                        $pays = $this->Crud->read_single('partnership_id', $param3, 'partners_history');
-
-                    }
-                   
-                    $total = 0;
-                    if(!empty($pays)){
-                        foreach($pays as $p){
-                            $time = $p->date_paid;
-                            $member_id = $p->member_id;
-                            $amount_paid = $p->amount_paid;
-                            $status = $p->status;
-                            $st = '<span class="text-warning">Pending</span>';
-                            if($status > 0)$st = '<span class="text-success">Confirmed</span>';
+        <div class="row table-responsive">
+            <table id="dtable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Members</th>
+                        <th>Amount Paid</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                        $start_date = $p_start_date;
+                        $end_date = $p_end_date;
                         
-                            ?>
-                                <tr>
-                                    <td><?=date('d M Y h:iA', strtotime($time)); ?></td>
-                                    <td><?=ucwords($this->Crud->read_field('id', $member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $member_id, 'user', 'surname')); ?></td>
-                                    <td><?='$'.number_format($amount_paid,2); ?></td>
-                                    <td><?=''.($st); ?></td>
-                                </tr>
-                    <?php
-                                }
+                        if(!empty($start_date) && !empty($end_date)){
+                            $pays = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'partners_history');
+
+                        } else{
+                            $pays = $this->Crud->read_single('partnership_id', $param3, 'partners_history');
+
+                        }
+                    
+                        $total = 0;
+                        if(!empty($pays)){
+                            foreach($pays as $p){
+                                $time = $p->date_paid;
+                                $member_id = $p->member_id;
+                                $amount_paid = $p->amount_paid;
+                                $status = $p->status;
+                                $st = '<span class="text-warning">Pending</span>';
+                                if($status > 0)$st = '<span class="text-success">Confirmed</span>';
                             
+                                ?>
+                                    <tr>
+                                        <td><?=date('d M Y', strtotime($time)); ?></td>
+                                        <td><?=ucwords($this->Crud->read_field('id', $member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $member_id, 'user', 'surname')); ?></td>
+                                        <td><?='$'.number_format($amount_paid,2); ?></td>
+                                        <td><?=''.($st); ?></td>
+                                    </tr>
+                        <?php
+                                    }
+                                
+                            
+                        } else{
+                            echo '<tr><td colspan="3" class="text-center">No Records</td></tr>';
+                        }
                         
-                    } else{
-                        echo '<tr><td colspan="3" class="text-center">No Records</td></tr>';
-                    }
-                    
-                ?>
-            </tbody>
-        </table>
+                    ?>
+                </tbody>
+            </table>
+        </div>
 
     <?php } ?>
 
