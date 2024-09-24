@@ -644,10 +644,11 @@ $this->session = \Config\Services::session();
                                         </div>
                                         <div class="container mt-4">
                                             <h5>Video Url</h5>
-                                            <div class="tags-input" id="tags-input">
+                                            <div class="tags-input" id="tags-input" style="border: 0px;">
                                                 <input type="text" id="tag-input" placeholder="Add tags (separated by commas)" class="form-control" />
                                             </div>
                                             <div class="error" id="error-message"></div>
+                                            <div id="url-input" class="tags-input"></div>
                                         </div>
                                     </div>
                                     <hr>

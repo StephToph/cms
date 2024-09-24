@@ -1953,10 +1953,13 @@ class Service extends BaseController {
 
 					if(!empty($urls)){
 						foreach($urls as $link => $linka){
+							
 							$url .=  '
 								<span class="tag">
 									<a href="'.$linka.'" target="_blank" style="color: white;">'.$linka.'</a><span class="remove_url remove">×</span>
+									<input type="hidden" value="'.$linka.'" class="video_link">
 								</span>
+								
 							';
 						}
 					}

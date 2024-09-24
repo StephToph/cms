@@ -325,7 +325,8 @@
         $('#add_btn').hide(500);
         $('#media_view').show(500);
         $('#attendance_prev').show(500);
-        
+        $('#url-input').html('');
+        $('#error-message').html('');
         var uploadUrl = site_url + "service/report/manage/media/"+id; // PHP URL
         
         $('#upload-zone').attr('data-url', uploadUrl);
@@ -347,7 +348,7 @@
                 var dt = JSON.parse(data);
                 $('#gallery_view').html(dt.medias);
                 $('#gallery_view').show(500);
-                $('#tags-input').prepend(dt.url);
+                $('#url-input').prepend(dt.url);
                 $('#media_msg').html('');
             }
         });
@@ -1376,7 +1377,7 @@
             });
             
             tagElement.append(linkElement).append(removeBtn);
-            $('#tags-input').prepend(tagElement);
+            $('#url-input').prepend(tagElement);
         }
 
         
@@ -1399,18 +1400,14 @@
             }
         });
     }
-
-    // Event delegation for dynamically added .remove_url buttons
-    $(document).on('click', '.remove_url', function () {
-        // Get the link text (URL) from the anchor tag
-        const linkText = $(this).prev('.tag').find('a').text();
+    $(document).on('click', '.remove_url', function() {
+        const link = $(this).closest('.tag').find('.video_link').val();
         const media = $('#media_id').val(); // Assuming this is how you get media ID
-        console.log(linkText);
+        console.log(link);
         
         // Call the function to remove the URL
-        removeUrl(linkText, media);
+        removeUrl(link, media);
         
         // Remove the tag and the button from the UI
-        $(this).prev('.tag').remove();
-        $(this).remove();
+        $(this).closest('.tag').remove(); // Adjust to remove the entire tag
     });
