@@ -69,10 +69,10 @@ $this->Crud = new Crud();
                 $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
                 $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 
-                if ($ministry_id > 0 && $church_id > 0) { ?>
+                if ($ministry_id > 0) { ?>
                     <input type="hidden" name="ministry_id" id="ministry_id" value="<?php echo $ministry_id; ?>">
                     <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
-                <?php } else { ?>
+                <?php } else { if(empty($ministry_id)){?>
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
                             <label class="">Ministry</label>
@@ -97,7 +97,7 @@ $this->Crud = new Crud();
                         </div>
                     </div>
 
-                <?php } ?>
+                <?php }} ?>
 
                 <?php if ($church_id == 0) { ?>
                     <div class="col-sm-12 mb-3">
