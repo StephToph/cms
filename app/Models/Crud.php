@@ -2251,7 +2251,7 @@ class Crud extends Model {
         $db->close();
     }
 
-	public function filter_givings($limit='', $offset='', $search='', $log_id) {
+	public function filter_givings($limit='', $offset='', $search='', $log_id, $start_date = '', $end_date = '', $partnership_id = '') {
         $db = db_connect();
         $builder = $db->table('partners_history');
 
@@ -2271,13 +2271,20 @@ class Crud extends Model {
 		 }
 
         // build query
-		$builder->orderBy('id', 'desc');
+		$builder->orderBy('date_paid', 'desc');
 		
         if(!empty($search)) {
             $builder->like('name', $search);
         }
 
-		
+		if(!empty($partnership_id) && $partnership_id != 'all') {
+            $builder->like('partnership_id', $partnership_id);
+        }
+		if (!empty($start_date) && !empty($end_date)) {
+            $builder->where("DATE(date_paid) >=", $start_date);
+            $builder->where("DATE(date_paid) <=", $end_date);
+        }
+    
         // limit query
         if($limit && $offset) {
 			$query = $builder->get($limit, $offset);
