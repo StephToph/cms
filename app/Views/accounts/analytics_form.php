@@ -41,13 +41,37 @@ $this->Crud = new Crud();
                     <?php 
                         $start_date = $p_start_date;
                         $end_date = $p_end_date;
+
+                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
                         
                         if(!empty($start_date) && !empty($end_date)){
-                            $pays = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'partners_history');
+                            if(!empty($ministry_id)){
+                                if($church_id > 0){
+                                    $pays = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'church_id', $church_id, 'partners_history');
+                                } else {
+                                    $pays = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'ministry_id', $ministry_id, 'partners_history');
+                                }
+                            } else{
+                                $pays = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'partners_history');
+                            }
+                           
 
                         } else{
-                            $pays = $this->Crud->read_single('partnership_id', $param3, 'partners_history');
+                            if(!empty($ministry_id)){
+                                if($church_id > 0){
+                                    $pays = $this->Crud->read2('partnership_id', $param3, 'church_id', $church_id, 'partners_history');
 
+                                }  else{
+                                    $pays = $this->Crud->read2('partnership_id', $param3,  'ministry_id', $ministry_id,'partners_history');
+
+                                }
+                            } else{
+                                $pays = $this->Crud->read_single('partnership_id', $param3, 'partners_history');
+
+                            }
+                           
+                           
                         }
                     
                         $total = 0;
