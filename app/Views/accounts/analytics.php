@@ -18,8 +18,9 @@
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title"><?=translate_phrase('Partnership Analytics');?></h3>
                         </div>
+                        
                         <div class="nk-block-head-content">
-                            <button type="button" onclick="$('#filter_resp').toggle(500);" class="btn btn-primary">Filter</button>
+                            <button type="button" onclick="$('#filter_resp').toggle(500);" class="btn btn-primary"><em class="icon ni ni-filter"></em> <span>Filter</span></button>
                         </div>
                         
                     </div><!-- .nk-block-between -->

@@ -2922,6 +2922,9 @@ class Accounts extends BaseController {
 			if(empty($offset)) {$offset = 0;}
 			
 			$search = $this->request->getPost('search');
+			if(!empty($this->request->getPost('start_date'))) { $start_date = $this->request->getPost('start_date'); } else { $start_date = ''; }
+			if(!empty($this->request->getPost('end_date'))) { $end_date = $this->request->getPost('end_date'); } else { $end_date = ''; }
+			if(!empty($this->request->getPost('partnership'))) { $partnership_id = $this->request->getPost('partnership'); } else { $partnership_id = ''; }
 			
 			$items = '
 				<div class="nk-tb-item nk-tb-head">
@@ -2947,11 +2950,11 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_givings('', '', $search, $log_id);
+				$all_rec = $this->Crud->filter_givings('', '', $search, $log_id, $start_date, $end_date, $partnership_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_givings($limit, $offset, $search, $log_id);
+				$query = $this->Crud->filter_givings($limit, $offset, $search, $log_id, $start_date, $end_date, $partnership_id);
 				$data['count'] = $counts;
 				
 
