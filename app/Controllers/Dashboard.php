@@ -464,7 +464,8 @@ class Dashboard extends BaseController {
             foreach ($service_report as $u) {
                 $offering += (float)$u->offering;
                 $tithe += (float)$u->tithe;
-                
+                $first_timer += $u->first_timer;
+                $new_convert += $u->new_convert;
                 // Decode tithers JSON
                 $convertsa = json_decode($u->tithers);
                 
@@ -493,15 +494,27 @@ class Dashboard extends BaseController {
         $parts = $this->Crud->read('partnership');
         if(!empty($parts)){
             $col = array('success', 'primary', 'danger', 'info', 'warning', 'azure', 'gray','blue', 'indigo', 'orange', 'teal', 'purple');
-            
+            $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+            $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        
             foreach($parts as $p){
                 $paid = 0;
-                $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'partners_history');
+                if($role !=  'administrator' && $role != 'developer'){
+                    if($church_id > 0){
+                        $partners = $this->Crud->date_range3($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'church_id', $church_id, 'partners_history');
+               
+                    } else {
+                        $partners = $this->Crud->date_range3($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'ministry_id', $ministry_id, 'partners_history');
+               
+                    }
+                } else {
+                    $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'partners_history');
+                }
+
                 if(!empty($partners)){
                     foreach($partners as $u){
                         $paid += (float)$u->amount_paid;
                     }
-                    
                 }
                 
                 
@@ -516,12 +529,10 @@ class Dashboard extends BaseController {
                 // Get the value at the random key
                 $cols = $col[$random_key];
 
-
-                
                 $partnership_list .= '
                     <div class="progress-wrap">
                         <div class="progress-text">
-                            <div class="progress-label">'.ucwords($p->name).' <b>($'.number_format($paid,2).')</b></div>
+                            <div class="progress-label">'.ucwords($p->name).' <b>('.curr.number_format($paid,2).')</b></div>
                             <div class="progress-amount">'.number_format($paids,1).'%</div>
                         </div>
                         <div class="progress ">
