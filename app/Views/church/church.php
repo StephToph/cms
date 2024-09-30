@@ -54,7 +54,7 @@
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
                             <div class="">
-                                <div class="table-responsiv">
+                                <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
@@ -131,7 +131,7 @@
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
                             <div class="card-inner ">
-                                <div class="table-responsiv">
+                                <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
@@ -210,7 +210,7 @@
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
                             <div class="card-inner ">
-                                <div class="table-responsiv">
+                                <div class="table-responsive">
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>

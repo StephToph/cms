@@ -1479,18 +1479,16 @@ class Accounts extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.translate_phrase('Location').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Phone').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Members').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('Day/Time').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
+				<tr>
+					<td><span class="sub-text text-dark">'.translate_phrase('Name').'</span></td>
+					<td><span class="sub-text text-dark">'.translate_phrase('Location').'</span></td>
+					<td><span class="sub-text text-dark">'.translate_phrase('Phone').'</span></td>
+					<td><span class="sub-text text-dark">'.translate_phrase('Members').'</span></td>
+					<td><span class="sub-text text-dark">'.('Day/Time').'</span></td>
+					<td>
+						
+					</td>
+				</tr><!-- .nk-tb-item -->
 		
 				
 			';
@@ -1538,40 +1536,36 @@ class Accounts extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
+							<tr>
+								<td>
 									<div class="user-info">
-										<span class="tb-lead">' . ucwords($name) . ' </span>
-										<span class="tb-dark text-dark">&rarr; ' . ucwords($church) . ' </span>
+										<span class="tb-lead small">' . ucwords($name) . ' </span><br>
+										<span class="tb-dark small text-dark">&rarr; ' . ucwords($church) . ' </span>
 									</div>
-								</div>
-								<div class="nk-tb-col tb-col-md">
-									<span class="text-dark">' . ucwords($location) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><b>' . ucwords($phone) . '</b></span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><b>' . ucwords($members) . '</b></span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
-									<span class="text-dark">' . ($times) . '</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+								<td>
+									<span class="small text-dark">' . ucwords($location) . '</span>
+								</td>
+								<td>
+									<span class="small text-dark"><b>' . ucwords($phone) . '</b></span>
+								</td>
+								<td>
+									<span class="small text-dark"><b>' . ucwords($members) . '</b></span>
+								</td>
+								<td>
+									<span class="small text-dark">' . ($times) . '</span>
+								</td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr><!-- .nk-tb-item -->
 						';
 						$a++;
 					}
@@ -1581,10 +1575,10 @@ class Accounts extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<i class="ni ni-tranx" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Cell Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -2927,18 +2921,15 @@ class Accounts extends BaseController {
 			if(!empty($this->request->getPost('partnership'))) { $partnership_id = $this->request->getPost('partnership'); } else { $partnership_id = ''; }
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark"><b>'.('Date').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Member').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark"><b>'.translate_phrase('Partnership').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Amount').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Status').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
+				<tr>
+					<td><span class="sub-text text-dark"><b>'.('Date').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Member').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Partnership').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Amount').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Status').'</b></span></td>
+					<td>
+					</td>
+				</tr><!-- .nk-tb-item -->
 		
 				
 			';
@@ -2989,40 +2980,36 @@ class Accounts extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
+							<tr>
+								<td>
 									<div class="user-info">
 										<span class="tb-lead">' . ucwords($reg_date) . ' </span>
 									</div>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">' . ucwords($member) . '</span><br>
 									<span class="text-info"><em class="icon ni ni-curve-down-right"></em>'.ucwords($church).'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">' . ucwords($partnership) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">'.curr . number_format($amount_paid,2) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">' . ($st) . '</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr><!-- .nk-tb-item -->
 						';
 						$a++;
 					}
@@ -3032,10 +3019,10 @@ class Accounts extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<i class="ni ni-cc-secure" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Givings Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -3991,20 +3978,18 @@ class Accounts extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark"><b>'.translate_phrase('Title').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Name').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Member ID').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark"><b>'.('Phone').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Email').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark"><b>'.translate_phrase('Kingschat Handle').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Cell').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('DOB').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
+				<tr>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Title').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Name').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Member ID').'</b></span></td>
+					<td ><span class="sub-text text-dark"><b>'.('Phone').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Email').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Kingschat Handle').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Cell').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('DOB').'</b></span></td>
+					<td >
+						
+					</td>
 				</div><!-- .nk-tb-item -->
 		
 				
@@ -4066,48 +4051,44 @@ class Accounts extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col tb-col-md">
+							<tr>
+								<td>
 									<span class="text-dark">' . ucwords(strtolower($title)) . '</span>
-								</div>
-								<div class="nk-tb-col">
+								</td>
+								<td>
 									<div class="user-info">
 										<span class="tb-lead"><b>' . ucwords(strtolower($name)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
 									</div>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">' . ($user_no) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">' . ($phone) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">' . ($email) .'</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">' . strtolower($chat_handle) . '</span>
 								</div>
-								<div class="nk-tb-col tb-col-md">
+								<td>
 									<span class="text-dark">' . ($cell) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
+								</td>
+								<td>
 									<span class="text-dark">' . ($dob) . '</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr><!-- .nk-tb-item -->
 						';
 						$a++;
 					}
@@ -4117,10 +4098,10 @@ class Accounts extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<tr><td colspan="10"><div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<i class="ni ni-user" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Membership Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -4265,17 +4246,15 @@ class Accounts extends BaseController {
 				$member_id = $this->request->getPost('member_id');
 				
 				$items = '
-					<div class="nk-tb-item nk-tb-head">
-						<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Partnership').'</b></span></div>
-						<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Pledge').'</b></span></div>
-						<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Given').'</b></span></div>
-						<div class="nk-tb-col"><span class="sub-text text-dark"><b>'.translate_phrase('Balance').'</b></span></div>
-						<div class="nk-tb-col nk-tb-col-tools">
-							<ul class="nk-tb-actions gx-1 my-n1">
-								
-							</ul>
-						</div>
-					</div><!-- .nk-tb-item -->
+					<tr>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Partnership').'</b></span></td>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Pledge').'</b></span></td>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Given').'</b></span></td>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Balance').'</b></span></td>
+						<td>
+							
+						</td>
+					</tr><!-- .nk-tb-item -->
 			
 					
 				';
@@ -4333,29 +4312,21 @@ class Accounts extends BaseController {
 							
 
 							$item .= '
-								<div class="nk-tb-item">
-									<div class="nk-tb-col">
-										<div class="user-info">
-											<span class="tb-lead text-primary">' . ucwords($name) . '</span>
-										</div>
-									</div>
-									<div class="nk-tb-col">
-										<div class="user-info">
-											<span class="tb-lead">$' . number_format($goal,2) . ' </span>
-										</div>
-									</div>
-									<div class="nk-tb-col">
-										<div class="user-info">
-											<span class="tb-lead">$' . number_format($given,2) . '</span>
-										</div>
-									</div>
-									<div class="nk-tb-col">
-										<div class="user-info">
-											<span class="tb-lead">$' .number_format($balance,2) . '</span>
-										</div>
-									</div>
-									<div class="nk-tb-col nk-tb-col-tools">' . $all_btn . '</div>
-								</div><!-- .nk-tb-item -->
+								<tr>
+									<td>
+										<span class="tb-lead text-primary">' . ucwords($name) . '</span>
+									</td>
+									<td>
+										<span class="tb-lead">' .curr. number_format($goal,2) . ' </span>
+									</td>
+									<td>
+										<span class="tb-lead">' .curr. number_format($given,2) . '</span>
+									</td>
+									<td>
+										<span class="tb-lead">' .curr.number_format($balance,2) . '</span>
+									</td>
+									<td >' . $all_btn . '</td>
+								</tr><!-- .nk-tb-item -->
 							';
 							$a++;
 						}
@@ -4365,10 +4336,10 @@ class Accounts extends BaseController {
 				
 				if(empty($item)) {
 					$resp['item'] = $items.'
-						<div class="text-center text-muted">
+						<tr><td colspan="9"><div class="text-center text-muted">
 							<br/><br/><br/><br/>
 							<i class="ni ni-user" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Membership Returned').'
-						</div>
+						</div></td></tr>
 					';
 				} else {
 					$resp['item'] = $items . $item;

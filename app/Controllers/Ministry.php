@@ -320,17 +320,14 @@ class Ministry extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Name').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Contact').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Address').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Date').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
+				<tr>
+					<td><span class="sub-text">'.translate_phrase('Name').'</span></td>
+					<td><span class="sub-text">'.translate_phrase('Contact').'</span></td>
+					<td><span class="sub-text">'.translate_phrase('Address').'</span></td>
+					<td><span class="sub-text">'.translate_phrase('Date').'</span></td>
+					<td><span class="sub-text">Actions</span>
+					</td>
+				</tr><!-- .nk-tb-item -->
 		
 				
 			';
@@ -361,7 +358,7 @@ class Ministry extends BaseController {
 						$reg_date = date('d/m/Y', strtotime($q->reg_date));
 
 						if (!empty($logo)) {
-							$img = '<img height="40px" width="50px"  src="' . site_url($logo) . '">';
+							$img = '<img height="40px" width="60px"  src="' . site_url($logo) . '">';
 						} else {
 							$img = $this->Crud->image_name($name);
 						}
@@ -379,8 +376,8 @@ class Ministry extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
+							<tr>
+								<td>
 									<div class="user-card">
 								      	<div class="user-avatar">            
 									  		'.$img.'      
@@ -389,32 +386,28 @@ class Ministry extends BaseController {
 											<span class="tb-lead">' . ucwords($name) . '</span>        
 										</div>    
 									</div>  
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">'.$email.'</span><br>
 									<span class="text-dark">'.$phone.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">'.$address.'</span>
-								</div>
-								<div class="nk-tb-col tb-col">
+								</td>
+								<td>
 									<span class="text-dark">'.$reg_date.'</span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr><!-- .nk-tb-item -->
 						';
 						$a++;
 					}
@@ -424,10 +417,10 @@ class Ministry extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/>
 						<i class="ni ni-server" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Ministry Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -2439,8 +2432,6 @@ class Ministry extends BaseController {
 								<td>'.ucwords($events).'</td>
 								<td>'.number_format($responses).'</td>
 								<td>
-									<ul class="nk-tb-actions ">
-										<li>
 											<div class="drodown">
 												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
 												<div class="dropdown-menu dropdown-menu-end">
@@ -2449,8 +2440,6 @@ class Ministry extends BaseController {
 													</ul>
 												</div>
 											</div>
-										</li>
-									</ul>
 								</td>
 							</tr>
 						';
@@ -2553,18 +2542,14 @@ class Ministry extends BaseController {
 								</td>
 								<td><span class="small text-dark">'.ucwords($reg_date).'</span></td>
 								<td>
-									<ul class="nk-tb-actions ">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 						';

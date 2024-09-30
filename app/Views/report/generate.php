@@ -51,12 +51,12 @@ if($ministry_id > 0){
             <div class="nk-wrap nk-wrap-nosidebar">
                 <div class="nk-content" >
                     <div class="nk-block ">
-                        <div class="table-responsive">
+                        <div class="table-responsive"  id="content">
                             <table class="table mb-0">
                                 <thead>
                                     <tr class="bg-warning" >
                                         <td width="100px" style="background-color: #007bff;">
-                                            <img src="<?= site_url($logo); ?>" alt="Logo">
+                                            <img width="150px" src="<?= site_url($logo); ?>" alt="Logo">
                                         </td>
                                         <td style="background-color: #007bff;">
                                             <h3 class="text-white text-center mb-2"><?= strtoupper($ministry); ?></h3>
@@ -203,10 +203,11 @@ if($ministry_id > 0){
                                 } ?>
                             </div>
                                 
-                            <hr class="light-grey-hr">
-                            <i>This document should be treated as confidencial</i> | <a href="javascript:;" onClick="printdoc();"><b>Print Report</b></a>  | <a href="javascript:;" onClick="printdoc();"><b>Save as PDF</b></a>  | <a href="javascript:;" onClick="printdoc();"><b>Save as Image</b></a> | <a class="text-primary" href="<?php echo base_url('report/list'); ?>" data-toggle="tooltip" title="Go Back"><i class=" icon ni ni-arrow-left-circle fa-1x"></i></a>
                             
                         </div>
+                        <hr class="light-grey-hr">
+                        <i>This document should be treated as confidencial</i> | <a href="javascript:;"  onclick="printDiv('content')"><b>Print Report</b></a>  | <a href="javascript:;" onClick="printdoc();"><b>Save as PDF</b></a>  | <a href="javascript:;" onClick="printdoc();"><b>Save as Image</b></a> | <a class="text-primary" href="<?php echo base_url('report/list'); ?>" data-toggle="tooltip" title="Go Back"><i class=" icon ni ni-arrow-left-circle fa-1x"></i></a>
+                            
                     </div>
                 </div>
             </div>
@@ -215,7 +216,19 @@ if($ministry_id > 0){
 	
     <script src="<?=site_url(); ?>assets/js/bundle.js"></script>
     <script src="<?=site_url(); ?>assets/js/scriptse5ca.js"></script>
-	
+	<script>
+        function printDiv(divId) {
+            var content = document.getElementById(divId).innerHTML;
+            var myWindow = window.open('', '', 'width=600,height=400');
+            myWindow.document.write('<html><head><title>Print</title>');
+            myWindow.document.write('</head><body>');
+            myWindow.document.write(content);
+            myWindow.document.write('</body></html>');
+            myWindow.document.close();
+            myWindow.print();
+        }
+    </script>
+
     <div class="js-preloader">  <div class="loading-animation duo-pulse"></div></div>
 </body>
 
