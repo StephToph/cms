@@ -352,13 +352,36 @@ class Report extends BaseController {
 				if(empty($query)){
 					echo $this->Crud->msg('danger', 'No Result Found');
 				} else {
+					$this->session->set('date_type', $date_type);
+					$this->session->set('church_id', $church_id);
+					$this->session->set('church_type', $church_type);
+					$this->session->set('report_title', 'Church Report ');
+					$this->session->set('query', $query);
+					
 					echo "
-						<a class='btn btn-info  btn-block' href='".base_url('report/generate/get_report')."' data-bs-toggle='tooltip' data-bs-placement='top' title='Click to View' target='_blank'><em class='icon ni ni-eye'></em><span>CLICK TO VIEW REPORT</span></a>
+						<a class='btn btn-info  btn-block' href='".site_url('report/generate/get_report')."' data-bs-toggle='tooltip' data-bs-placement='top' title='Click to View' target='_blank'><em class='icon ni ni-eye'></em><span>CLICK TO VIEW REPORT</span></a>
 					";
 				}
 
 				die;
 			}
+		}
+
+		if($param1 == 'get_report'){
+			$query = $this->session->get('query');
+			$report_title = $this->session->get('report_title');
+			$date_type = $this->session->get('date_type');
+			$church_id = $this->session->get('church_id');
+			$church_type = $this->session->get('church_type');
+
+			$date_type = str_replace('_',' ', $date_type);
+			$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+			$title = $report_title.' for .'.$church.' - Dates { '.$date_type.'}';
+			$data['query']  = $query;
+			$data['church_id']  = $church_id;
+			$data['title'] = ucwords($title);
+
+			return view('report/generate', $data);
 		}
     }
 	
