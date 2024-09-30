@@ -167,9 +167,9 @@ if($ministry_id > 0){
                                                             <td class="text-capitalize"><?=$this->Crud->read_field('id', $rec->type, 'service_type', 'name'); ?></td>
                                                             <td><?=number_format($rec->attendance); ?></td>
                                                             <td><?=number_format($absent); ?></td>
-                                                            <td ><?=curr.number_format($rec->offering,2); ?></td>
-                                                            <td><?=curr.number_format($rec->tithe); ?></td>
-                                                            <td><?=curr.number_format($rec->partnership); ?></td>
+                                                            <td ><?=curr.number_format((float)$rec->offering,2); ?></td>
+                                                            <td><?=curr.number_format((float)$rec->tithe,2); ?></td>
+                                                            <td><?=curr.number_format((float)$rec->partnership,2); ?></td>
                                                             <td><?=number_format($rec->new_convert); ?></td>
                                                             <td><?=number_format($rec->first_timer); ?></td>
                                                     
