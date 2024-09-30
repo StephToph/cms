@@ -376,7 +376,16 @@ class Report extends BaseController {
 
 			$date_type = str_replace('_',' ', $date_type);
 			$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
-			$title = $report_title.' for .'.$church.' - Dates { '.$date_type.'}';
+
+			if($church_type == 'individual'){
+				$title = $report_title.' for Only '.$church.' Church - Dates { '.$date_type.'}';
+			}
+			
+			if($church_type == 'general'){
+				$title = $report_title.' for all Churches under '.$church.' - Dates { '.$date_type.'}';
+			}
+			
+			$data['report_title']  = $report_title;
 			$data['query']  = $query;
 			$data['church_id']  = $church_id;
 			$data['title'] = ucwords($title);
