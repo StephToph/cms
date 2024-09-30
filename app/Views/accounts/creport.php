@@ -354,7 +354,7 @@
 
     }
 
-   function load_level(){
+    function load_level(){
         var level = $('#level').val();
         $('.region_resp').hide(500);
         $('.zone_resp').hide(500);

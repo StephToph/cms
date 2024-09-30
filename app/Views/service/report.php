@@ -136,8 +136,7 @@ $this->session = \Config\Services::session();
                                         <div class="col-sm-4 mb-3" id="church_div" style="display:none;">
                                             <div class="form-group">
                                                 <label>Church</label>
-                                                <select class="js-select2" data-search="on" name="church_id" id="church_id"
-                                                    onchange="session_church();">
+                                                <select class="js-select2" data-search="on" name="church_id" id="church_id" onchange="session_church();">
                                                     <option value=" ">Select Church</option>
 
                                                 </select>
