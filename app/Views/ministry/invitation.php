@@ -52,7 +52,7 @@
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
-                            <div class="table-responsive-lg">
+                            <div class="table-responsive">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
@@ -109,7 +109,7 @@
                                 </div><!-- .card-title-group -->
                                 
                             </div><!-- .card-inner -->
-                            <div class="table-responsive-lg">
+                            <div class="table-responsive">
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>

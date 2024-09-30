@@ -248,18 +248,14 @@ class Church extends BaseController {
 								<td><span class="small text-dark ">'.$address.'</span></td>
 								<td><span class="small text-dark ">'.$reg_date.'</span></td>
 								<td>
-									<ul class="nk-tb-actions">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 							
@@ -561,18 +557,14 @@ class Church extends BaseController {
 							<td><span class="small text-dark">'.$address.'</span></td>
 							<td><span class="small text-dark">'.$mins.'</span></td>
 							<td>
-								<ul class="nk-tb-actions">
-									<li>
-										<div class="drodown">
-											<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-											<div class="dropdown-menu dropdown-menu-end">
-												<ul class="link-list-opt no-bdr">
-													' . $all_btn . '
-												</ul>
-											</div>
-										</div>
-									</li>
-								</ul>
+								<div class="drodown">
+									<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+									<div class="dropdown-menu dropdown-menu-end">
+										<ul class="link-list-opt no-bdr">
+											' . $all_btn . '
+										</ul>
+									</div>
+								</div>
 							</td>
 						</tr>
 						
@@ -585,7 +577,7 @@ class Church extends BaseController {
 		
 		if(empty($item)) {
 			$resp['item'] = $items.'
-				<Tr><td colspan="8"><div class="text-center text-muted">
+				<tr><td colspan="8"><div class="text-center text-muted">
 					<br/><br/><br/>
 					<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Zonal Church Returned').'
 				</div></td></tr>
@@ -892,18 +884,14 @@ class Church extends BaseController {
 								<td><span class="small text-dark">'.$address.'</span></td>
 								<td><span class="small text-dark">'.$mins.'</span></td>
 								<td>
-									<ul class="nk-tb-actions">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 							
@@ -1231,18 +1219,14 @@ class Church extends BaseController {
 								<td><span class="small text-dark">'.$address.'</span></td>
 								<td><span class="small text-dark">'.$mins.'</span></td>
 								<td>
-									<ul class="nk-tb-actions">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 							
@@ -1635,18 +1619,14 @@ class Church extends BaseController {
 								<td><span class=" small">' . ucwords($address) . '</span></td>
 								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
 								<td>
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 							
@@ -2033,18 +2013,14 @@ class Church extends BaseController {
 								<td><span class=" small">' . ucwords($address) . '</span></td>
 								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
 								<td>
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 							

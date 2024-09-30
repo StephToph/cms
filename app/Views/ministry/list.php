@@ -60,14 +60,14 @@ $this->Crud = new Crud();
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
-                            <div class="card-inner p-0">
-                                <div class="nk-tb-list nk-tb-ulist" id="load_data">
-                                </div><!-- .nk-tb-list -->
+                            <div class="card-inner table-responsive p-0">
+                                <table class="table table-hover">
+                                    <tbody id="load_data"></tbody>
+                                    <tfoot id="loadmore"></tfoot>
+                                </table>
+                                
                             </div><!-- .card-inner -->
-                            <div class="card-inner">
-                                <div class="nk-block-between-md g-3" id="loadmore">
-                                </div><!-- .nk-block-between -->
-                            </div><!-- .card-inner -->
+                           
                         </div><!-- .card-inner-group -->
                     </div><!-- .card -->
                 </div><!-- .nk-block -->
@@ -256,11 +256,10 @@ $this->Crud = new Crud();
         }
 
         if (more == 'no') {
-            $('#load_data').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#load_data').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         } else {
-            $('#loadmore').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
-
 
         var search = $('#search').val();
         //alert(status);
@@ -278,7 +277,7 @@ $this->Crud = new Crud();
                 }
                 $('#counta').html(dt.count);
                 if (dt.offset > 0) {
-                    $('#loadmore').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
+                    $('#loadmore').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
                 } else {
                     $('#loadmore').html('');
                 }
