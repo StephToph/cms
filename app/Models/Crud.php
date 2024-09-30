@@ -1562,6 +1562,67 @@ class Crud extends Model {
 	}
 	//////////////////// END SEND EMAIL //////////////////
 
+	
+	public function church_report($firstDate, $secondDate, $date_type, $church_id, $church_type, $limit='', $offset='') {
+		$db = db_connect();
+		$builder = $db->table('service_report');
+	
+		// Step 1: Determine church type if the type is 'general'
+		$churchIds = [];
+	
+		if ($church_type == 'individual') {
+			$churchIds[] = $church_id; // Only the specific church ID
+		} else {
+			// Fetch the church type based on the given church_id
+			$churchBuilder = $db->table('church')->where('id', $church_id);
+			$church = $churchBuilder->select('id, type, regional_id, zonal_id, group_id')->get()->getRow();
+	
+			if ($church) {
+				// Step 2: Determine the related church IDs based on the type
+				if ($church->type == 'region') {
+					// Get all churches under this region
+					$churchIds = $db->table('church')->where('regional_id', $church->regional_id)->select('id')->get()->getResultArray();
+					$churchIds = array_column($churchIds, 'id');
+				} elseif ($church->type == 'zone') {
+					// Get all churches under this zone
+					$churchIds = $db->table('church')->where('zonal_id', $church->zonal_id)->select('id')->get()->getResultArray();
+					$churchIds = array_column($churchIds, 'id');
+				}  elseif ($church->type == 'group') {
+					// Get all churches under this group (adjust as needed)
+					$churchIds = $db->table('church')->where('group_id', $church->church_level_id)->select('id')->get()->getResultArray();
+					$churchIds = array_column($churchIds, 'id');
+				}
+			}
+		}
+	
+		// Step 3: Filter the service_report based on the collected church IDs
+		$builder->whereIn('church_id', $churchIds);
+	
+		// Date filtering
+		if ($date_type == 'Two_Date') {
+			$builder->where("DATE_FORMAT(date,'%Y-%m-%d')", $firstDate)
+					->orWhere("DATE_FORMAT(date,'%Y-%m-%d')", $secondDate);
+		} else {
+			$builder->where("DATE_FORMAT(date,'%Y-%m-%d') >=", $firstDate)
+					->where("DATE_FORMAT(date,'%Y-%m-%d') <=", $secondDate);
+		}
+	
+		$builder->orderBy('id', 'DESC');
+	
+		// Limit query
+		if ($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if ($limit) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+	
+		// Return query results
+		return $query->getResult();
+		$db->close();
+	}
+	
 	public function title() {
 		return array(
 			'Mr',

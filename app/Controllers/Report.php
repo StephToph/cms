@@ -256,4 +256,142 @@ class Report extends BaseController {
 		}
     }
 	
+	public function generate($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $log_id = $this->session->get('td_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        
+		
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		
+		$data['current_language'] = $this->session->get('current_language');
+		
+		if($param1 == 'type'){
+			if($param2 == 'church'){
+				$date_type = $this->request->getPost('date_type');
+				$start_dates = $this->request->getPost('start_date');
+				$end_dates = $this->request->getPost('end_date');
+				$date1 = $this->request->getPost('date1');
+				$date2 = $this->request->getPost('date2');
+				$ministry_id = $this->request->getPost('ministry_id');
+				$level = $this->request->getPost('level');
+				$church_id = $this->request->getPost('church_id');
+				$church_type = $this->request->getPost('church_type');
+				
+				if($date_type == 'Today'){
+					$start_date = date('Y-m-d');
+					$end_date = date('Y-m-d');
+				} elseif($date_type == 'Yesterday'){
+					$start_date = date('Y-m-d', strtotime( '-1 days' ));
+					$end_date = date('Y-m-d');
+				} elseif($date_type == 'Last_Week'){
+					$start_date = date('Y-m-d', strtotime( '-7 days' ));
+					$end_date = date('Y-m-d');
+				} elseif($date_type == 'Last_Month'){
+					$start_date = date('Y-m-d', strtotime( '-30 days' ));
+					$end_date = date('Y-m-d');
+				} elseif($date_type == 'Date_Range'){
+					$start_date = date('Y-m-d', strtotime($start_dates));
+					$end_date = date('Y-m-d', strtotime($end_dates));
+
+					if(empty($start_dates) || empty($end_dates)){
+						echo $this->Crud->msg('danger', 'Enter both Date Range');
+						die;
+					} else{
+						if($start_dates > $end_dates){
+							echo $this->Crud->msg('danger', 'Start Date cannot be Greater than the End Date');
+							die;
+						}
+					}
+				} elseif($date_type == 'This_Year'){
+					$start_date = date('Y-01-01');
+					$end_date = date('Y-m-d');
+				} elseif($date_type == 'Two_Date'){
+					$start_date = date('Y-m-d', strtotime($date1));
+					$end_date = date('Y-m-d', strtotime($date2));
+					if(empty($date1) || empty($date2)){
+						echo $this->Crud->msg('danger', 'Enter both Dates');
+						die;
+					}
+				} else {
+					$start_date = date('Y-m-01');
+					$end_date = date('Y-m-d');
+				}
+
+				if(empty($ministry_id) || $ministry_id == ' '){
+					echo $this->Crud->msg('warning', 'Select  Ministry');
+					die;
+				}
+
+				if(empty($level) || $level == ' '){
+					echo $this->Crud->msg('warning', 'Select Church Level');
+					die;
+				}
+
+				if(empty($church_id) || $church_id == ' '){
+					echo $this->Crud->msg('warning', 'Select Church');
+					die;
+				}
+
+
+				$query = $this->Crud->church_report($start_date, $end_date, $date_type, $church_id, $church_type);
+				if(empty($query)){
+					echo $this->Crud->msg('danger', 'No Result Found');
+				} else {
+					$this->session->set('date_type', $date_type);
+					$this->session->set('church_id', $church_id);
+					$this->session->set('church_type', $church_type);
+					$this->session->set('report_title', 'Church Report ');
+					$this->session->set('query', $query);
+					
+					echo "
+						<a class='btn btn-info  btn-block' href='".site_url('report/generate/get_report')."' data-bs-toggle='tooltip' data-bs-placement='top' title='Click to View' target='_blank'><em class='icon ni ni-eye'></em><span>CLICK TO VIEW REPORT</span></a>
+					";
+				}
+
+				die;
+			}
+		}
+
+		if($param1 == 'get_report'){
+			$query = $this->session->get('query');
+			$report_title = $this->session->get('report_title');
+			$date_type = $this->session->get('date_type');
+			$church_id = $this->session->get('church_id');
+			$church_type = $this->session->get('church_type');
+
+			$date_type = str_replace('_',' ', $date_type);
+			$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+
+			if($church_type == 'individual'){
+				$title = $report_title.' for Only '.$church.' Church - Dates { '.$date_type.'}';
+			}
+			
+			if($church_type == 'general'){
+				$title = $report_title.' for all Churches under '.$church.' - Dates { '.$date_type.'}';
+			}
+			
+			$data['report_title']  = $report_title;
+			$data['query']  = $query;
+			$data['church_id']  = $church_id;
+			$data['title'] = ucwords($title);
+
+			return view('report/generate', $data);
+		}
+    }
+	
 }
