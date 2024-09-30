@@ -1562,6 +1562,38 @@ class Crud extends Model {
 	}
 	//////////////////// END SEND EMAIL //////////////////
 
+	
+	public function church_report($firstDate, $secondDate, $date_type, $church_id, $church_type, $limit='', $offset=''){
+		$db = db_connect();
+        $builder = $db->table('service_report');
+
+		$builder->where('church_id', $church_id);
+
+
+		if($date_type ==  'Two_Date'){
+			$builder->where("DATE_FORMAT(date,'%Y-%m-%d') == '".$firstDate."'",NULL,FALSE);
+   			$builder->where("DATE_FORMAT(date,'%Y-%m-%d') == '".$secondDate."'",NULL,FALSE);
+		
+		} else{
+			$builder->where("DATE_FORMAT(date,'%Y-%m-%d') >= '".$firstDate."'",NULL,FALSE);
+   			$builder->where("DATE_FORMAT(date,'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
+		
+		}
+
+		$builder->orderBy('id', 'DESC');
+		// limit query
+		if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+
+		// return query
+		return $query->getResult();
+		$db->close();
+	}
 	public function title() {
 		return array(
 			'Mr',

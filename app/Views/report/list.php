@@ -73,7 +73,7 @@ $this->session = \Config\Services::session();
                                 <div class="col-md-12" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
                             </div>
                             <div class="col-sm-3 my-2">
-                                <input type="hidden" id="date_type" value="This Month">
+                                <input type="hidden" id="date_type" value="This_Month">
                                 <a href="javascript:;" class="dropdown-toggle btn btn-white btn-block btn  btn-outline-secondary" data-bs-toggle="dropdown"><em class="  icon ni ni-calender-date"></em><span id="filter_type"><span class="" id="filter_type"><?=translate_phrase('This'); ?></span> <?=translate_phrase('Month'); ?></span></a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <ul class="link-list-opt no-bdr">
@@ -152,7 +152,7 @@ $this->session = \Config\Services::session();
                                         </select>
                                     </div>
 
-                                    <div class="col-sm-4 mb-3" id="church_div">
+                                    <div class="col-sm-4 mb-3" >
                                         <div class="form-group">
                                             <label>Church</label>
                                             <select class="js-select2" data-search="on" name="church_id" id="church_id">
@@ -161,10 +161,28 @@ $this->session = \Config\Services::session();
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="col-sm-4 mb-3" id="church_div" style="display:none;">
+                                        <div class="form-group">
+                                            <label>Church Type</label>
+                                            <select class="js-select2" data-search="on" name="church_type" id="church_type">
+                                                <option value="individual">Individual Church</option>
+                                                <option value="general">General Church</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 <?php } else{?>
 
                                     <input type="hidden" id="church_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'church_id'); ?>">
                                 <?php } ?>
+                                <div class="col-sm-12 my-2">
+                                    <button type="button" class="btn btn-outline-primary btn-block" onclick="generate_church();"><span>Generate</span><em class="icon ni ni-search"></em></button>
+                                </div>
+                            </div>
+                           
+                        </div>
+                        <div class="row card-inner">
+                            <div class="col-12 my-3" id="generate_resp">
+
                             </div>
                         </div>
                     </div><!-- .card -->
@@ -200,7 +218,7 @@ $this->session = \Config\Services::session();
     });
 
     $('#church_btn').click(function() {
-       $('#church_resp').show(500);
+       $('#church_resp').toggle(500);
     });
 
     
@@ -223,13 +241,18 @@ $this->session = \Config\Services::session();
                     // Add options for each cell
                     dt.churches.forEach(function(cell) {
                         var selected = '';
-                       
                         cellSelect.append('<option value="' + cell.id + '" ' + selected + '>' + cell.name + '</option>');
                     });
-                        
+                    $('#church_div').show(500);
                 }
             });
-        }  
+        }  else{
+            $('#church_div').hide(500);
+            var cellSelect = $('#church_id');
+            cellSelect.empty(); 
+            cellSelect.append('<option value=" ">Empty Church</option>');
+                    
+        }
     }
 
     
@@ -260,6 +283,31 @@ $this->session = \Config\Services::session();
             $('#date_resul').html('');
             
         }
+    }
+
+    function generate_church(){
+        $('#generate_resp').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> <span>Processing Request..</span></div>');
+
+        var start_date = $('#start_date').val();
+        var end_date = $('#end_date').val();
+        var date1 = $('#date1').val();
+        var date2 = $('#date2').val();
+        var date_type = $('#date_type').val();
+        
+        var church_id = $('#church_id').val();
+        var ministry_id = $('#ministry_id').val();
+        var level = $('#level').val();
+        var church_type = $('#church_type').val();
+        
+        $.ajax({
+            url: site_url + 'report/generate/type/church',
+            data: {level:level,ministry_id:ministry_id,church_id:church_id,church_type:church_type,date_type:date_type,date1:date1,date2:date2,start_date:start_date,end_date:end_date},
+            type: 'post',
+            success: function (data) {
+                $('#generate_resp').html(data);
+                
+            }
+        });
     }
 </script>
 <?= $this->endSection(); ?>
