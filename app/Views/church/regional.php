@@ -38,6 +38,7 @@ $this->Crud = new Crud();
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search"
                                                     data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
+                                            <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" pageTitle="Add Church"
@@ -45,7 +46,7 @@ $this->Crud = new Crud();
                                                     pageName="<?= site_url('church/regional/manage'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
-
+                                                <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->

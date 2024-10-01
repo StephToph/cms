@@ -36,11 +36,12 @@
                                             <li>
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
+                                            <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" pageTitle="Add Department" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('accounts/dept/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
-                                           
+                                           <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
