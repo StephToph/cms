@@ -232,6 +232,9 @@
                     </div><!-- .card -->
                 </div><!-- .nk-block -->
             </div>
+            <div class="nk-content-body" id="login_resp" style="display:none;">
+                
+            </div>
         </div>
     </div>
 </div>
@@ -242,6 +245,26 @@
     $(function() {
         load('', '');
     });
+
+    function church_login(church_id){
+        $('#church_resp').hide(500);
+        $('#admin_resp').hide(500);
+        
+        $('#pastor_resp').hide(500);
+        $('#login_resp').show(500);
+        $('#login_resp').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> Loading.. Please Wait!!</div>');
+
+        $.ajax({
+            url: site_url + 'church/switch_church',
+            type: 'post',
+            data: { church_id: church_id },
+            success: function (data) {
+                $('#login_resp').html(data);
+            }
+        });
+    
+    }
+
    
     function church_back() {
         $('#church_resp').show(500);

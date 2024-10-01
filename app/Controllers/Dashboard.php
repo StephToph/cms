@@ -11,8 +11,27 @@ class Dashboard extends BaseController {
        if(empty($log_id)) return redirect()->to(site_url('auth'));
 
     
-       $mod = 'dashboard';
+        $mod = 'dashboard';
+        
+        $switch_id = $this->session->get('switch_church_id');
+        
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+        
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
@@ -28,9 +47,8 @@ class Dashboard extends BaseController {
         $data['param2'] = $param2;
         $data['param3'] = $param3;
 
-
-        
-		// record listing
+        $data['switch_id'] = $switch_id;
+       // record listing
 		if($param1 == 'activity_load') {
 			$limit = $param2;
 			$offset = $param3;

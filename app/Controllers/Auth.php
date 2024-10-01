@@ -36,7 +36,10 @@ class Auth extends BaseController {
 				$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
 				$action = $codes . ' logged in ';
 				$this->Crud->activity('authentication', $id, $action);
-				
+				$this->session->set('last_activity', time());
+				$this->session->set('timeout', $this->session->get('timeout'));
+				$this->session->set('isLoggedIn', true);
+		
 				echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
 				$this->session->set('td_auth_message', '');
 				
@@ -103,8 +106,14 @@ class Auth extends BaseController {
 						$action = $codes . ' logged in ';
 						$this->Crud->activity('authentication', $id, $action);
 						$this->session->set('td_id', $id);
+						$this->session->set('last_activity', time());
+						$this->session->set('timeout', $this->session->get('timeout'));
+						$this->session->set('isLoggedIn', true);
+				
 						echo $this->Crud->msg('success', translate_phrase($msg));
 						echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
+						
+						session()->setFlashdata('success', translate_phrase($msg));
 						$this->session->set('td_auth_message', '');
 					}
 				}
@@ -538,8 +547,23 @@ class Auth extends BaseController {
         $log_id = $this->session->get('td_id');
         if(empty($log_id)) return redirect()->to(site_url('auth'));
 
-        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $main_email = $this->Crud->read_field('id', $log_id, 'user', 'email');
 
         $data['log_id'] = $log_id;
