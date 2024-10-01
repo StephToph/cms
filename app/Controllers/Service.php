@@ -194,12 +194,20 @@ class Service extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								
+								
+							';
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								
 								
 							';
+							}
+							
 						}
 
 						$item .= '
@@ -2500,7 +2508,14 @@ class Service extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								
+								
+							';
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
@@ -2514,6 +2529,9 @@ class Service extends BaseController {
 								
 								
 							';
+
+							}
+							
 						}
 
 						$item .= '

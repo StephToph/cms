@@ -235,7 +235,16 @@ class Church extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
+								
+								
+							';
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
@@ -244,6 +253,9 @@ class Church extends BaseController {
 								
 								
 							';
+
+							}
+							
 						}
 
 						$item .= '
@@ -559,7 +571,16 @@ class Church extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Zone\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
+								
+								
+							';
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Zone\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
@@ -568,6 +589,8 @@ class Church extends BaseController {
 								
 								
 							';
+							}
+							
 						}
 
 						$item .= '
@@ -900,7 +923,16 @@ class Church extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Group\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
+								
+								
+							';
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Group\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
@@ -909,6 +941,9 @@ class Church extends BaseController {
 								
 								
 							';
+
+							}
+							
 						}
 
 							
@@ -1251,7 +1286,16 @@ class Church extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
+								
+								
+							';
+							} else{
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
@@ -1260,6 +1304,8 @@ class Church extends BaseController {
 								
 								
 							';
+							}
+							
 						}
 							
 						$item .= '
@@ -1668,12 +1714,21 @@ class Church extends BaseController {
 
 						// add manage buttons
 						
+						if(!empty($switch_id)){
+							$all_btn = '
+								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="'.site_url($mod.'/manage/admin_send/'.$id).'"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								
+							';
+						} else {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="'.site_url($mod.'/manage/admin_send/'.$id).'"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
+
+						}
+							
 						
 
 						$item .= '
@@ -2075,13 +2130,21 @@ class Church extends BaseController {
 						}
 
 						// add manage buttons
-						
+						if(!empty($switch_id)){
+							$all_btn = '
+								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="'.site_url($mod.'/manage/admin_send/'.$id).'"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								
+							';
+						} else {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="'.site_url($mod.'/manage/admin_send/'.$id).'"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
+
+						}
+							
 						
 
 						$item .= '

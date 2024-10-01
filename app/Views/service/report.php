@@ -63,12 +63,15 @@ $this->session = \Config\Services::session();
                                     </div><!-- .card-tools -->
                                     <div class="card-tools me-n1">
                                         <ul class="btn-toolbar gx-1">
+                                            <?php if(empty($switch_id)){?>
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
                                                     title="Add Report" id="add_btn"
                                                     class="btn btn-icon btn-outline-primary"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
+
+                                            <?php } ?>
                                             <li>
                                                 <div class="nk-block-head-sub mb-3" id="attendance_prev"
                                                     style="display:none;">
