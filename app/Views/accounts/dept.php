@@ -1,6 +1,10 @@
 <?php
     use App\Models\Crud;
     $this->Crud = new Crud();
+    
+    $this->session = \Config\Services::session();
+    
+    $switch_id = $this->session->get('switch_church_id');
 ?>
 
 <?=$this->extend('designs/backend');?>
