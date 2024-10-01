@@ -2228,20 +2228,33 @@ class Church extends BaseController {
 	}
 	
 	public function switch_church(){
+		$log_id = $this->session->get('td_id');
+		
 		$church_id = $this->request->getPost('church_id');
 		if(empty($church_id)){
 			echo $this->Crud->msg('danger', 'Invalid Church');
 		} else {
 			echo $this->Crud->msg('success', 'Switching Church.. Do not Reload');
+			///// store activities
+			$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+			$code = $this->Crud->read_field('id', $church_id, 'church', 'name');
+			$action = $by.' Logged into Church ('.$code.') Account';
+			$this->Crud->activity('user', $church_id, $action);
 			$this->session->set('switch_church_id', $church_id);
 			echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
 		}
 	}
 
 	public function back_church(){
+		$log_id = $this->session->get('td_id');
 		$church_id = $this->session->get('switch_church_id');
 		if(!empty($church_id)){
-			$this->session->set('switch_church_id');
+			$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+			$code = $this->Crud->read_field('id', $church_id, 'church', 'name');
+			$action = $by.' Logged out of Church ('.$code.') Account';
+			$this->Crud->activity('user', $church_id, $action);
+			
+			$this->session->set('switch_church_id', '');
 			echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
 		} 
 	}
