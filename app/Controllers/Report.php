@@ -347,6 +347,7 @@ class Report extends BaseController {
 					die;
 				}
 
+				// echo $end_date;
 
 				$query = $this->Crud->church_report($start_date, $end_date, $date_type, $church_id, $church_type);
 				if(empty($query)){

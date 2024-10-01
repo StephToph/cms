@@ -36,7 +36,10 @@ class Auth extends BaseController {
 				$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
 				$action = $codes . ' logged in ';
 				$this->Crud->activity('authentication', $id, $action);
-				
+				$this->session->set('last_activity', time());
+				$this->session->set('timeout', $this->session->get('timeout'));
+				$this->session->set('isLoggedIn', true);
+		
 				echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
 				$this->session->set('td_auth_message', '');
 				
@@ -103,8 +106,14 @@ class Auth extends BaseController {
 						$action = $codes . ' logged in ';
 						$this->Crud->activity('authentication', $id, $action);
 						$this->session->set('td_id', $id);
+						$this->session->set('last_activity', time());
+						$this->session->set('timeout', $this->session->get('timeout'));
+						$this->session->set('isLoggedIn', true);
+				
 						echo $this->Crud->msg('success', translate_phrase($msg));
 						echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
+						
+						session()->setFlashdata('success', translate_phrase($msg));
 						$this->session->set('td_auth_message', '');
 					}
 				}

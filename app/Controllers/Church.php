@@ -223,6 +223,7 @@ class Church extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -2069,6 +2070,17 @@ class Church extends BaseController {
 
 	}
 	
+	public function switch_church(){
+		$church_id = $this->request->getPost('church_id');
+		if(empty($church_id)){
+			echo $this->Crud->msg('danger', 'Invalid Church');
+		} else {
+			echo $this->Crud->msg('success', 'Switching Church.. Do not Reload');
+			$this->session->set('switch_church_id', $church_id);
+			echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
+		}
+	}
+
 	public function get_region(){
 		$ministry_id = $this->request->getPost('ministry_id');
 		if(empty($ministry_id)){
