@@ -213,7 +213,8 @@ class Church extends BaseController {
 				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type);
 				$data['count'] = $counts;
 				
-
+				$switch_id = $this->session->get('switch_church_id');
+       
 				if(!empty($query)) {
 					foreach ($query as $q) {
 						$id = $q->id;
@@ -347,7 +348,8 @@ class Church extends BaseController {
 		} 
 
         $mod = 'church/zonal';
-
+		$switch_id = $this->session->get('switch_church_id');
+       
         $log_id = $this->session->get('td_id');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
@@ -544,7 +546,8 @@ class Church extends BaseController {
 
 				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type);
 				$data['count'] = $counts;
-				
+				$switch_id = $this->session->get('switch_church_id');
+       
 
 				if(!empty($query)) {
 					foreach ($query as $q) {
@@ -681,7 +684,8 @@ class Church extends BaseController {
 		} 
 
         $mod = 'church/group';
-
+		$switch_id = $this->session->get('switch_church_id');
+       
         $log_id = $this->session->get('td_id');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
@@ -879,7 +883,8 @@ class Church extends BaseController {
 				
 			';
 			$a = 1;
-
+			$switch_id = $this->session->get('switch_church_id');
+       
             //echo $status;
 			$log_id = $this->session->get('td_id');
 			if(!$log_id) {
@@ -1035,7 +1040,8 @@ class Church extends BaseController {
 		} 
 
         $mod = 'church/church';
-
+		$switch_id = $this->session->get('switch_church_id');
+       
         $log_id = $this->session->get('td_id');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
@@ -1393,7 +1399,8 @@ class Church extends BaseController {
 		} 
 
         $mod = 'church/administrator';
-
+		$switch_id = $this->session->get('switch_church_id');
+       
         $log_id = $this->session->get('td_id');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
@@ -1813,7 +1820,8 @@ class Church extends BaseController {
 		} 
 
         $mod = 'church/pastor';
-
+		$switch_id = $this->session->get('switch_church_id');
+       
         $log_id = $this->session->get('td_id');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
