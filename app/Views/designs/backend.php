@@ -2,15 +2,36 @@
     use App\Models\Crud;
     $this->Crud = new Crud();
     
+    $this->session = \Config\Services::session();
+    
+    $switch_id = $this->session->get('switch_church_id');
     $username = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
     $log_name = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
     $email = $this->Crud->read_field('id', $log_id, 'user', 'email');
-    $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+    if(empty($switch_id)){
+        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+    } else{
+        $ministry_id = $this->Crud->read_field('id', $switch_id, 'church',  'ministry_id');
+    }
     
     $ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
     $ministry_logo = $this->Crud->read_field('id', $ministry_id, 'ministry', 'logo');
     $log_role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-	$log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
+    if(!empty($switch_id)){
+        $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+        if($church_type == 'region'){
+            $log_role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+        }
+        if($church_type == 'zone'){
+            $log_role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+        }
+        if($church_type == 'group'){
+            $log_role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+        }
+        if($church_type == 'church'){
+            $log_role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+        }
+    }$log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
     $log_user_img_id = 0;
     $log_user_img = $this->Crud->image($log_user_img_id, 'big');
     
@@ -34,10 +55,10 @@
 <head>
     <base href="../../">
     <meta charset="utf-8">
-    <meta name="author" content="TiDREM">
+    <meta name="author" content="Angel Church Management System">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description"
-        content="Add Money, Make Transfers, Pay Bills">
+        content="Church Performnce Tracking">
     <meta name="theme-color" content="blue">
     <!-- Fav Icon  -->
     <link rel="shortcut icon" href="<?=site_url($logo); ?>">
@@ -172,6 +193,14 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <?php } ?>
+                                <?php if(!empty($switch_id)){?>
+                                    <li class="nk-menu-item">
+                                        <a class="nk-menu-link" href="<?=site_url('church/back_church'); ?>">
+                                            <span class="nk-menu-icon"><em class="icon ni ni-signout"></em></span>
+                                            <span class="nk-menu-text">Back to My Account</span>
+                                        </a>
+                                    </li>
                                 <?php } ?>
                             </ul>
                         </div>

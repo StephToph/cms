@@ -16,7 +16,24 @@ class Church extends BaseController {
         $mod = 'church/regional';
 
         $log_id = $this->session->get('td_id');
+        $switch_id = $this->session->get('switch_church_id');
+        
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
@@ -321,8 +338,22 @@ class Church extends BaseController {
         $mod = 'church/zonal';
 
         $log_id = $this->session->get('td_id');
-        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
         $role_u = $this->Crud->module($role_id, $mod, 'update');
@@ -533,6 +564,7 @@ class Church extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Zone\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -630,8 +662,22 @@ class Church extends BaseController {
         $mod = 'church/group';
 
         $log_id = $this->session->get('td_id');
-        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
         $role_u = $this->Crud->module($role_id, $mod, 'update');
@@ -859,6 +905,7 @@ class Church extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Group\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -958,8 +1005,22 @@ class Church extends BaseController {
         $mod = 'church/church';
 
         $log_id = $this->session->get('td_id');
-        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
         $role_u = $this->Crud->module($role_id, $mod, 'update');
@@ -1195,6 +1256,7 @@ class Church extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -1291,8 +1353,22 @@ class Church extends BaseController {
         $mod = 'church/administrator';
 
         $log_id = $this->session->get('td_id');
-        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
         $role_u = $this->Crud->module($role_id, $mod, 'update');
@@ -1688,8 +1764,22 @@ class Church extends BaseController {
         $mod = 'church/pastor';
 
         $log_id = $this->session->get('td_id');
-        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
         $role_u = $this->Crud->module($role_id, $mod, 'update');
@@ -2079,6 +2169,14 @@ class Church extends BaseController {
 			$this->session->set('switch_church_id', $church_id);
 			echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
 		}
+	}
+
+	public function back_church(){
+		$church_id = $this->session->get('switch_church_id');
+		if(!empty($church_id)){
+			$this->session->set('switch_church_id');
+			echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
+		} 
 	}
 
 	public function get_region(){
