@@ -239,7 +239,6 @@ class Church extends BaseController {
 								$all_btn = '
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
-								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -575,7 +574,6 @@ class Church extends BaseController {
 								$all_btn = '
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Zone\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
-								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -927,7 +925,6 @@ class Church extends BaseController {
 								$all_btn = '
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Group\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
-								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
@@ -1290,7 +1287,6 @@ class Church extends BaseController {
 								$all_btn = '
 								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Admin').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Pastors').'</span></a></li>
-								<li><a href="javascript:;" onclick="church_login(' . (int)$id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>'.translate_phrase('Login to Church').'</span></a></li>
 								
 								
 							';
