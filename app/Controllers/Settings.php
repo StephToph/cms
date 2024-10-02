@@ -566,11 +566,15 @@ class Settings extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '<div class="text-center">
-								<a href="javascript:;" class="text-primary pop m-3 mr-3" pageTitle="Edit ' . $name . '" pageSize="modal-sm"  pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a> <a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageSize="modal-sm"  pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a>
-								</div>
-								
-							';
+							if(empty($switch_id)){
+								$all_btn = '<div class="text-center">
+									<a href="javascript:;" class="text-primary pop m-3 mr-3" pageTitle="Edit ' . $name . '" pageSize="modal-sm"  pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a> <a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageSize="modal-sm"  pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a>
+									</div>
+									
+								';
+							} else{
+								$all_btn= '';
+							}
 						}
 
 						$item .= '

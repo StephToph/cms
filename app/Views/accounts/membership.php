@@ -23,6 +23,9 @@
                             <div class="nk-block-des text-soft">
                                 <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('membership(s).');?></p>
                             </div>
+                        </div>
+                        <div class="nk-block-head-content">
+                            <a href="javascript:;" onclick="$('#filter_resp').toggle(500);" data-toggle="tooltip" data-bs-placement="top" title="Filter"  class="btn  btn-info btn-icon"><em class="icon ni ni-filter"></em></a>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
@@ -62,6 +65,16 @@
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
+                            <div class="card-inner" id="filter_resp" style="display:none;">
+                                <div class="row">
+                                    <div class="col-sm-4 mb-3" >
+                                        <select class=" js-select2" id="include" onchange="load();">
+                                            <option value="true">All Churches</option>
+                                            <option value="false" >My Church Only</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="card-inner table-responsive p-0">
                                 <table class="table table-hover">
                                     <tbody id="load_data"></tbody>
@@ -100,12 +113,13 @@
 
        
         var search = $('#search').val();
+        var include = $('#include').val();
         //alert(status);
 
         $.ajax({
             url: site_url + 'accounts/membership/load' + methods,
             type: 'post',
-            data: { search: search },
+            data: { search: search, include:include },
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
