@@ -111,6 +111,7 @@
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
+                                            <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -119,6 +120,7 @@
                                                     pageName="<?= site_url('church/administrator/manage'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
+                                            <?php } ?>
 
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
@@ -190,6 +192,7 @@
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
+                                            <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
@@ -198,7 +201,7 @@
                                                     pageName="<?= site_url('church/pastor/manage'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
-
+                                            <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->

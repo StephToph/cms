@@ -206,11 +206,11 @@ class Church extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				$type = 'region';
-				$all_rec = $this->Crud->filter_church('', '', $log_id, $search, $type);
+				$all_rec = $this->Crud->filter_church('', '', $log_id, $search, $type,$switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type);
+				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type,$switch_id);
 				$data['count'] = $counts;
 				
 				$switch_id = $this->session->get('switch_church_id');
@@ -349,7 +349,7 @@ class Church extends BaseController {
 
         $mod = 'church/zonal';
 		$switch_id = $this->session->get('switch_church_id');
-       
+    //    echo $switch_id;
         $log_id = $this->session->get('td_id');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
@@ -540,11 +540,11 @@ class Church extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				$type = 'zone';
-				$all_rec = $this->Crud->filter_church('', '', $log_id, $search, $type);
+				$all_rec = $this->Crud->filter_church('', '', $log_id, $search, $type,$switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type);
+				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type,$switch_id);
 				$data['count'] = $counts;
 				$switch_id = $this->session->get('switch_church_id');
        

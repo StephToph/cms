@@ -1756,13 +1756,14 @@ class Accounts extends BaseController {
 							$approved = '<span class="text-danger"><i class="ri-check-circle-line"></i></span> ';
 						}
 
+						$all_btn = '';
 						// add manage buttons
-						
+						if(empty($switch_id)){
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage_member/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								
 							';
-						
+						}
 
 						$item .= '
 							<tr>
@@ -1784,18 +1785,14 @@ class Accounts extends BaseController {
 								<td><span class=" small">' . ucwords($address) . '</span></td>
 								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
 								<td>
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 							
@@ -4148,6 +4145,7 @@ class Accounts extends BaseController {
 			if(empty($offset)) {$offset = 0;}
 			
 			$search = $this->request->getPost('search');
+			$include = $this->request->getPost('include');
 			
 			$items = '
 				<tr>
@@ -4174,10 +4172,10 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_membership('', '', $log_id, $search);
+				$all_rec = $this->Crud->filter_membership('', '', $log_id, $search, $switch_id,$include);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$query = $this->Crud->filter_membership($limit, $offset, $log_id, $search);
+				$query = $this->Crud->filter_membership($limit, $offset, $log_id, $search, $switch_id,$include);
 				$data['count'] = $counts;
 				
 

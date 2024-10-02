@@ -111,7 +111,7 @@ class Dashboard extends BaseController {
 
                 //timer Records
                 $timer_data = [];
-                $service_query = $this->Crud->read_order('service_report', 'id', 'desc');
+                $service_query = $this->Crud->read_order('service_report', 'id', 'desc',7);
 				
 				if (!empty($service_query)) {
 					foreach($service_query as $q) {
@@ -124,7 +124,7 @@ class Dashboard extends BaseController {
 
                     }
                 }
-                $cell_query = $this->Crud->read_order('cell_report', 'id', 'desc', 10);
+                $cell_query = $this->Crud->read_order('cell_report', 'id', 'desc', 7);
 				
 				if (!empty($cell_query)) {
 					foreach($cell_query as $q) {
@@ -143,6 +143,7 @@ class Dashboard extends BaseController {
 
                 // print_r($timer_data);
                 if(!empty($timer_data)){
+                    $tco = 0;
                     foreach($timer_data as $td){
                         if(empty($td['timers']))continue;
                         $timer = $td['timers'];
@@ -156,6 +157,7 @@ class Dashboard extends BaseController {
                                     
                                     foreach($time as $t=> $vals){
                                         if($t == 'fullname'){
+                                            if($tco > 9)continue;
                                             $timer_item .= '
                                                 <div class="card-inner card-inner-md">
                                                     <div class="user-card">
@@ -168,6 +170,7 @@ class Dashboard extends BaseController {
                                                     </div>
                                                 </div>  
                                             ';
+                                            $tco++;
                                         }
                                     }
                                 }
@@ -298,8 +301,25 @@ class Dashboard extends BaseController {
     public function metric(){
         $log_id = $this->session->get('td_id');
         
+        $switch_id = $this->session->get('switch_church_id');
+        
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 
         $tithe = 0;
         $tithe_part = 0;
@@ -338,11 +358,19 @@ class Dashboard extends BaseController {
 			$start_date = date('Y-m-01');
 			$end_date = date('Y-m-d');
 		}
-        $membership = $this->Crud->filter_members($log_id, $start_date, $end_date);
+
+        // echo $switch_id;
+        $membership = $this->Crud->filter_members($log_id, $start_date, $end_date, $switch_id);
         $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-        
+        if(!empty($switch_id)){
+            $church_id = $switch_id;
+            $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+        }
+
+
         if($role == 'developer' || $role == 'administrator'){
             $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
             $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
@@ -514,7 +542,10 @@ class Dashboard extends BaseController {
             $col = array('success', 'primary', 'danger', 'info', 'warning', 'azure', 'gray','blue', 'indigo', 'orange', 'teal', 'purple');
             $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
             $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-        
+            if(!empty($switch_id)){
+                $church_id = $switch_id;
+                $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+            }
             foreach($parts as $p){
                 $paid = 0;
                 if($role !=  'administrator' && $role != 'developer'){
@@ -587,7 +618,23 @@ class Dashboard extends BaseController {
     public function service_metric(){
         $log_id = $this->session->get('td_id');
         
+        $switch_id = $this->session->get('switch_church_id');
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 
         $service_date = '';
@@ -625,7 +672,10 @@ class Dashboard extends BaseController {
         $male_per = 0;$female_per = 0;$children_per=0;$ft_per=0;$nc_per=0;
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-        
+        if(!empty($switch_id)){
+            $church_id = $switch_id;
+            $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+        }
         if($role == 'developer' || $role == 'administrator'){
             $service = $this->Crud->read('service_report');
         } else {
@@ -706,7 +756,24 @@ class Dashboard extends BaseController {
     public function finance_metric(){
         $log_id = $this->session->get('td_id');
         
+        $switch_id = $this->session->get('switch_church_id');
+        
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 
         $finance_wednesday = [];
@@ -724,6 +791,10 @@ class Dashboard extends BaseController {
         $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        if(!empty($switch_id)){
+            $church_id = $switch_id;
+            $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+        }
         $sunday_id = $this->Crud->read_field('name', 'Sunday Service', 'service_type', 'id');
         $wednesday_id = $this->Crud->read_field('name', 'Wednesday Service', 'service_type', 'id');
             
