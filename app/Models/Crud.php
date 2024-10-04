@@ -2019,7 +2019,8 @@ class Crud extends Model {
         $db->close();
     }
 	
-	public function filter_ministry($limit='', $offset='', $search='') {
+	
+	public function filter_ministry($limit='', $offset='', $search='', $switch_id='') {
         $db = db_connect();
         $builder = $db->table('ministry');
 
@@ -2137,7 +2138,7 @@ class Crud extends Model {
         $db->close();
     }
 
-	public function filter_events($limit='', $offset='', $log_id='', $status= '', $search='', $type='') {
+	public function filter_events($limit='', $offset='', $log_id='', $status= '', $search='', $type='', $switch_id='') {
         $db = db_connect();
         $builder = $db->table('events');
 
@@ -2147,9 +2148,86 @@ class Crud extends Model {
 		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			
+			switch ($church_type) {
+				case 'region':
+					$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+					$role = 'church leader';
+					break;
+			}
+	
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		}
+
 		if($role != 'developer' && $role != 'administrator'){
 			$builder->where('ministry_id', $ministry_id);
 		} 
+		if ($role === 'regional manager') {
+			$regional_id = $church_id;
+
+			$churches = $db->table('church')
+				->where('regional_id', $regional_id)
+				->select('id')
+				->get()
+				->getResultArray();
+
+			$church_ids = array_column($churches, 'id');
+			$church_ids[] = $church_id;
+			
+		} elseif ($role === 'zonal manager') {
+			$regional_id = $church_id;
+
+			$churches = $db->table('church')
+				->where('zonal_id', $regional_id)
+				->select('id')
+				->get()
+				->getResultArray();
+
+			$church_ids = array_column($churches, 'id');
+			$church_ids[] = $church_id;
+			
+		} elseif ($role === 'group manager') {
+			$regional_id = $church_id;
+
+			$churches = $db->table('church')
+				->where('group_id', $regional_id)
+				->select('id')
+				->get()
+				->getResultArray();
+
+			$church_ids = array_column($churches, 'id');
+			$church_ids[] = $church_id;
+		} elseif ($role === 'church assembly') {
+			$church_ids[] = $church_id;
+		}
+	
+		// Check if the announcement is global or specific
+		$builder->groupStart();
+		$builder->where('church_type', 'all');
+
+		if (!empty($church_ids)) {
+			foreach ($church_ids as $id) {
+				$builder->orWhere("JSON_CONTAINS(church_id, '\"$id\"')");
+			}
+		}
+		
+		$builder->groupEnd();
 
 
 		// $builder->where('type', $type);
@@ -2172,7 +2250,7 @@ class Crud extends Model {
     }
 
 	
-	public function filter_forms($limit='', $offset='', $log_id='', $status= '', $search='', $type='') {
+	public function filter_forms($limit='', $offset='', $log_id='', $status= '', $search='', $type='', $switch_id='') {
         $db = db_connect();
         $builder = $db->table('form');
 
@@ -2182,9 +2260,85 @@ class Crud extends Model {
 		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			
+			switch ($church_type) {
+				case 'region':
+					$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+					$role = 'church leader';
+					break;
+			}
+	
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		}
+
 		if($role != 'developer' && $role != 'administrator'){
 			$builder->where('ministry_id', $ministry_id);
 		} 
+		if ($role === 'regional manager') {
+			$regional_id = $church_id;
+
+			$churches = $db->table('church')
+				->where('regional_id', $regional_id)
+				->select('id')
+				->get()
+				->getResultArray();
+
+			$church_ids = array_column($churches, 'id');
+			$church_ids[] = $church_id;
+			
+		} elseif ($role === 'zonal manager') {
+			$regional_id = $church_id;
+
+			$churches = $db->table('church')
+				->where('zonal_id', $regional_id)
+				->select('id')
+				->get()
+				->getResultArray();
+
+			$church_ids = array_column($churches, 'id');
+			$church_ids[] = $church_id;
+			
+		} elseif ($role === 'group manager') {
+			$regional_id = $church_id;
+
+			$churches = $db->table('church')
+				->where('group_id', $regional_id)
+				->select('id')
+				->get()
+				->getResultArray();
+
+			$church_ids = array_column($churches, 'id');
+			$church_ids[] = $church_id;
+		} elseif ($role === 'church assembly') {
+			$church_ids[] = $church_id;
+		}
+	
+		// Check if the announcement is global or specific
+		$builder->groupStart();
+		$builder->where('church_type', 'all');
+
+		if (!empty($church_ids)) {
+			foreach ($church_ids as $id) {
+				$builder->orWhere("JSON_CONTAINS(church_id, '\"$id\"')");
+			}
+		}
+		
+		$builder->groupEnd();
 
 
 		// $builder->where('type', $type);
@@ -2207,7 +2361,7 @@ class Crud extends Model {
         $db->close();
     }
 	
-	public function filter_form_extension($limit='', $offset='', $log_id='', $form_id= '') {
+	public function filter_form_extension($limit='', $offset='', $log_id='', $form_id= '', $switch_id='') {
         $db = db_connect();
         $builder = $db->table('form_extension');
 
@@ -2218,7 +2372,31 @@ class Crud extends Model {
 		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-		
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			
+			switch ($church_type) {
+				case 'region':
+					$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+					$role = 'church leader';
+					break;
+			}
+	
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		}
 		if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
 			$builder->where('church_id', $church_id);
 		} 
@@ -2439,23 +2617,75 @@ class Crud extends Model {
         $db->close();
     }
 
-	public function filter_givings($limit='', $offset='', $search='', $log_id, $start_date = '', $end_date = '', $partnership_id = '') {
+	public function filter_givings($limit='', $offset='', $search='', $log_id, $start_date = '', $end_date = '', $partnership_id = '', $switch_id ='') {
         $db = db_connect();
         $builder = $db->table('partners_history');
 
-		 // Retrieve user details
-		 $role_id = $this->read_field('id', $log_id, 'user', 'role_id');
-		 $ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
-		 $church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
-		 $role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-	 
+		// Retrieve user details
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if(!empty($switch_id)){
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			if($church_type == 'region'){
+				$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+				$role = 'regional manager';
+			}
+			if($church_type == 'zone'){
+				$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+				$role = 'zonal manager';
+			}
+			if($church_type == 'group'){
+				$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+				$role = 'group manager';
+			}
+			if($church_type == 'church'){
+				$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+				$role = 'church leader';
+			}
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		
+		}
 		 // Apply filters based on user role
 		 if ($role != 'developer' && $role != 'administrator') {
-			 if ($role == 'ministry administrator') {
-				 $builder->where('ministry_id', $ministry_id);
-			 } else {
-				 $builder->where('church_id', $church_id_user);
-			 }
+			if($role == 'ministry administrator'){
+    			$builder->where('ministry_id', $ministry_id);
+    		} else {
+    		     // Determine the churches based on the user's role
+				$church_ids = [$church_id]; // Start with the user's church
+				if ($role == 'regional manager') {
+					// Fetch zonal and group churches under the regional church
+					$zonal_churches = $this->get_sub_church_ids($church_id, 'zone');
+					$group_churches = $this->get_sub_church_ids($church_id, 'group');
+					$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
+					
+					$church_ids = array_merge($church_ids, $zonal_churches, $group_churches, $assembly_churches);
+				} 
+				
+				if ($role == 'zonal manager') {
+					// Fetch group churches under the zonal church
+					$group_churches = $this->get_sub_church_ids($church_id, 'group');
+					$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
+					
+					$church_ids = array_merge($church_ids, $group_churches, $assembly_churches);
+				}
+
+				if ($role == 'group manager') {
+					// Fetch group churches under the zonal church
+					$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
+					
+					$church_ids = array_merge($church_ids, $assembly_churches);
+				}
+			
+				// Filter by church IDs
+				if (!empty($church_ids)) {
+					$builder->whereIn('church_id', $church_ids);
+				}
+
+    		}
+			
 		 }
 
         // build query
@@ -2605,8 +2835,6 @@ class Crud extends Model {
 			$builder->orLike('phone', $search);
         }
 
-		
-
 		if(!empty($start_date) && !empty($end_date)){
 			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') >= '".$start_date."'",NULL,FALSE);
 			$builder->where("DATE_FORMAT(reg_date,'%Y-%m-%d') <= '".$end_date."'",NULL,FALSE); 
@@ -2628,35 +2856,121 @@ class Crud extends Model {
 
 	
 	//Filter Announements
-	public function filter_announcement($limit = '', $offset = '', $user_id, $search = '')
-	{
+	public function filter_announcement($limit = '', $offset = '', $user_id, $search = '', $switch_id = '') {
 		$db = db_connect();
 		$builder = $db->table('announcement');
-
-		// build query
+	
+		// Get user role
 		$role_id = $this->read_field('id', $user_id, 'user', 'role_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-
+		
+		$ministry_id = $this->read_field('id', $user_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $user_id, 'user', 'church_id');
+	
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			
+			switch ($church_type) {
+				case 'region':
+					$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+					$role = 'church leader';
+					break;
+			}
+	
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		}
+	
+		if ($role != 'developer' && $role != 'administrator') {
+			// Initialize the query based on user role
+			if ($role === 'ministry administrator') {
+				$builder->where('ministry_id', $ministry_id);
+			} elseif ($role === 'regional manager') {
+				$regional_id = $church_id;
+	
+				$churches = $db->table('church')
+					->where('regional_id', $regional_id)
+					->select('id')
+					->get()
+					->getResultArray();
+	
+				$church_ids = array_column($churches, 'id');
+				$church_ids[] = $church_id;
+				
+			} elseif ($role === 'zonal manager') {
+				$regional_id = $church_id;
+	
+				$churches = $db->table('church')
+					->where('zonal_id', $regional_id)
+					->select('id')
+					->get()
+					->getResultArray();
+	
+				$church_ids = array_column($churches, 'id');
+				$church_ids[] = $church_id;
+				
+			} elseif ($role === 'group manager') {
+				$regional_id = $church_id;
+	
+				$churches = $db->table('church')
+					->where('group_id', $regional_id)
+					->select('id')
+					->get()
+					->getResultArray();
+	
+				$church_ids = array_column($churches, 'id');
+				$church_ids[] = $church_id;
+			} elseif ($role === 'church assembly') {
+				$church_ids[] = $church_id;
+			}
+	
+			// Check if the announcement is global or specific
+			$builder->groupStart();
+			$builder->where('level', 'all');
+	
+			if (!empty($church_ids)) {
+				foreach ($church_ids as $id) {
+					$builder->orWhere("JSON_CONTAINS(church_id, '\"$id\"')");
+				}
+			}
+			
+			$builder->groupEnd();
+	
+		}
+	
+		// Add search functionality
 		if (!empty($search)) {
 			$builder->like('title', $search);
 		}
-		// build query
+	
+		// Order by announcement ID
 		$builder->orderBy('id', 'DESC');
-
-
-		// limit query
+	
+		// Handle limits and offsets
 		if ($limit && $offset) {
 			$query = $builder->get($limit, $offset);
-		} else if ($limit) {
+		} elseif ($limit) {
 			$query = $builder->get($limit);
 		} else {
 			$query = $builder->get();
 		}
-
-		// return query
+		
+		// Return the results
 		return $query->getResult();
-		$db->close();
 	}
+	
 
 	public function filter_church_admin($limit='', $offset='',$log_id, $status='all', $search='', $role_id) {
         $db = db_connect();

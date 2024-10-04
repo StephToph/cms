@@ -3069,11 +3069,11 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_givings('', '', $search, $log_id, $start_date, $end_date, $partnership_id);
+				$all_rec = $this->Crud->filter_givings('', '', $search, $log_id, $start_date, $end_date, $partnership_id, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_givings($limit, $offset, $search, $log_id, $start_date, $end_date, $partnership_id);
+				$query = $this->Crud->filter_givings($limit, $offset, $search, $log_id, $start_date, $end_date, $partnership_id, $switch_id);
 				$data['count'] = $counts;
 				
 
