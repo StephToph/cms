@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 class Ministry extends BaseController {
 
-	
 	public function index($param1='', $param2='', $param3='') {
 		// check session login
 		if($this->session->get('td_id') == ''){
@@ -356,11 +355,11 @@ class Ministry extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_ministry('', '', '', $log_id, $search);
+				$all_rec = $this->Crud->filter_ministry('', '', '', $log_id, $search, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_ministry($limit, $offset, '', $log_id, $search);
+				$query = $this->Crud->filter_ministry($limit, $offset, '', $log_id, $search, $switch_id);
 				$data['count'] = $counts;
 				
 
@@ -1098,6 +1097,7 @@ class Ministry extends BaseController {
 			if ($offset == '') {
 				$offset = 0;
 			}
+			$switch_id = $this->session->get('switch_church_id');
 
 			$search = $this->request->getPost('search');
 			$todo = $param1;
@@ -1105,8 +1105,8 @@ class Ministry extends BaseController {
 			if (!$log_id) {
 				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
 			} else {
-				$query = $this->Crud->filter_announcement($limit, $offset, $log_id, $search);
-				$all_rec = $this->Crud->filter_announcement('', '', $log_id, $search);
+				$query = $this->Crud->filter_announcement($limit, $offset, $log_id, $search, $switch_id);
+				$all_rec = $this->Crud->filter_announcement('', '', $log_id, $search, $switch_id);
 				if (!empty($all_rec)) {
 					$count = count($all_rec);
 				} else {
@@ -1140,14 +1140,25 @@ class Ministry extends BaseController {
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
-								<a href="javascript:;" class="text-primary pop" pageTitle="Manage ' . $title . '" pageName="' . site_url('ministry/announcement/manage/edit/' . $id) . '" pageSize="modal-lg">
-									<i class="ni ni-edit-alt"></i> Edit
-								</a> ||  
-								<a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageName="' . site_url('ministry/announcement/manage/view/' . $id) . '" pageSize="modal-xl">
-									<i class="ni ni-eye"></i> View
-								</a>
-                            ';
+							// echo $switch_id;
+							if(!empty($switch_id)){
+								$all_btn = '
+									 
+									<a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageName="' . site_url('ministry/announcement/manage/view/' . $id) . '" pageSize="modal-xl">
+										<i class="ni ni-eye"></i> View
+									</a>
+								';
+							} else{
+								$all_btn = '
+									<a href="javascript:;" class="text-primary pop mx-2" pageTitle="Manage ' . $title . '" pageName="' . site_url('ministry/announcement/manage/edit/' . $id) . '" pageSize="modal-lg">
+										<i class="ni ni-edit-alt"></i> Edit
+									</a>  
+									<a href="javascript:;" class="text-success pop mx-2" pageTitle="View ' . $title . '" pageName="' . site_url('ministry/announcement/manage/view/' . $id) . '" pageSize="modal-xl">
+										<i class="ni ni-eye"></i> View
+									</a>
+								';
+							}
+							
 						}
 
 						$church = '';
@@ -1854,9 +1865,9 @@ class Ministry extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
 			} else {
-				$all_rec = $this->Crud->filter_events('', '', $log_id, $status, $search);
+				$all_rec = $this->Crud->filter_events('', '', $log_id, $status, $search, $switch_id);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$query = $this->Crud->filter_events($limit, $offset, $log_id, $status, $search);
+				$query = $this->Crud->filter_events($limit, $offset, $log_id, $status, $search, $switch_id);
 
 				if(!empty($query)) {
 					foreach($query as $q) {
@@ -1888,12 +1899,23 @@ class Ministry extends BaseController {
 						if($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+							if(!empty($switch_id)){
+
+								$all_btn = '
+									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								
-							';
+								';
+							} else {
+
+								$all_btn = '
+									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+									
+								';
+
+							}
+							
 						}
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
@@ -1921,18 +1943,14 @@ class Ministry extends BaseController {
 								<td><span class="small text-dark">'.ucwords($event_type).'</span></td>
 								<td><span class="small text-dark">'.ucwords($q->location).'</span></td>
 								<td>
-									<ul class="nk-tb-actions">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 						';
@@ -1982,6 +2000,11 @@ class Ministry extends BaseController {
 		
 		$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
 		$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+		if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            $church_id = $switch_id;
+			$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+        }
 		if($role != 'developer' && $role != 'administrator'){
 			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
 		}
@@ -2435,13 +2458,16 @@ class Ministry extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
 			} else {
-				$all_rec = $this->Crud->filter_forms('', '', $log_id, $status, $search);
+				$all_rec = $this->Crud->filter_forms('', '', $log_id, $status, $search,$switch_id);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$query = $this->Crud->filter_forms($limit, $offset, $log_id, $status, $search);
+				$query = $this->Crud->filter_forms($limit, $offset, $log_id, $status, $search,$switch_id);
 
 				$log_church_id = $this->Crud->read_field('id',  $log_id, 'user', 'church_id');
-				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'region_id');
-				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zone_id');
+				if(!empty($switch_id)){
+					$log_church_id = $switch_id;
+				}
+				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'regional_id');
+				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zonal_id');
 				$log_group_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'group_id');
 
 				if(!empty($query)) {
@@ -2486,13 +2512,23 @@ class Ministry extends BaseController {
 						if($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+									<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
+									
+								'.$feed_btn;
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
 								
 							'.$feed_btn;
+
+							}
+							
 						}
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
@@ -2517,14 +2553,14 @@ class Ministry extends BaseController {
 								<td>'.ucwords($events).'</td>
 								<td>'.number_format($responses).'</td>
 								<td>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
 								</td>
 							</tr>
 						';
@@ -2588,9 +2624,9 @@ class Ministry extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
 			} else {
-				$all_rec = $this->Crud->filter_form_extension('', '', $log_id, $form_id);
+				$all_rec = $this->Crud->filter_form_extension('', '', $log_id, $form_id,$switch_id);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$query = $this->Crud->filter_form_extension($limit, $offset, $log_id, $form_id);
+				$query = $this->Crud->filter_form_extension($limit, $offset, $log_id, $form_id,$switch_id);
 
 				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'region_id');
 				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zone_id');
@@ -2608,12 +2644,21 @@ class Ministry extends BaseController {
 						if($role_u != 1) {
 							$all_btn = '';
 						} else {
-							$all_btn = '
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								
+							';
+							} else {
+								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageSize="modal-lg" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete " pageSize="modal-lg" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								
 							';
+
+							}
+							
 						}
 
 						
