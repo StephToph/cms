@@ -59,9 +59,5 @@ class BaseController extends Controller
         $this->multilingual = new Multilingual();
 
         // Initialize the session expire filter
-        $sessionExpireFilter = new SessionExpireFilter();
-
-        // Call the before method of the filter to check session expiration
-        $sessionExpireFilter->before($request);
     }
 }

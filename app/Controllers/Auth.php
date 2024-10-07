@@ -106,9 +106,10 @@ class Auth extends BaseController {
 						$action = $codes . ' logged in ';
 						$this->Crud->activity('authentication', $id, $action);
 						$this->session->set('td_id', $id);
-						$this->session->set('last_activity', time());
 						$this->session->set('timeout', $this->session->get('timeout'));
 						$this->session->set('isLoggedIn', true);
+						$this->session->set('logged_in', true);
+						$this->session->set('last_activity', time()); 
 				
 						echo $this->Crud->msg('success', translate_phrase($msg));
 						echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
