@@ -2466,6 +2466,117 @@ class Church extends BaseController {
 						exit;	
 					}
 				}
+			} elseif($param2 == 'extend'){ 
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_name'] = $e->name;
+							$data['e_description'] = $e->description;
+							$data['e_section'] = $e->sections;
+							$data['e_ministry_id'] = $e->ministry_id;
+							$data['e_church_id'] = $e->church_id;
+							$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+
+						}
+					}
+				}
+
+				
+				if($this->request->getMethod() == 'post'){
+					$template_id = $this->request->getVar('template_id');
+					$name = $this->Crud->read_field('id', $template_id, 'service_template', 'name');
+					$description = $this->Crud->read_field('id', $template_id, 'service_template', 'description');
+					$section = $this->request->getVar('section');
+					$priority = $this->request->getVar('priority');
+					$ministry_id =  $this->request->getVar('ministry_id');
+					$church_id =  $this->request->getVar('church_id');
+
+					if(empty($church_id)){
+
+						echo $this->Crud->msg('warning', 'Select a Church');
+						die;
+					}
+
+					$church =  $this->Crud->read_field('id', $church_id, 'church', 'name');
+					$name .= ucwords(' for '.$church);
+					$sections = [];
+
+					if (!empty($section) && !empty($priority)) {
+						if (count($section) === count($priority)) {  // Ensure both arrays have the same length
+							for ($i = 0; $i < count($section); $i++) {
+								// Trim to remove any extra spaces and validate each section
+								$current_section = trim($section[$i]);
+								$current_priority = trim($priority[$i]);
+								
+								// Validate that the section is not empty and the priority is a number between 1 and 20
+								if (!empty($current_section) && !empty($current_priority) && is_numeric($current_priority) && $current_priority >= 1 && $current_priority <= 20) {
+									$sect = [];
+									$sect['section'] = $current_section;
+									$sect['priority'] = $current_priority;
+									$sections[] = $sect;
+								} else {
+									// Return a specific error message for each failed condition
+									if (empty($current_section)) {
+										echo $this->Crud->msg('danger', "Section at index $i cannot be empty.");
+									} elseif (empty($current_priority) || !is_numeric($current_priority)) {
+										echo $this->Crud->msg('danger', "Priority at index $i must be a valid number.");
+									} elseif ($current_priority < 1 || $current_priority > 20) {
+										echo $this->Crud->msg('danger', "Priority at index $i must be between 1 and 20.");
+									}
+									die;
+								}
+							}
+						} else {
+							echo $this->Crud->msg('danger', 'Mismatch between the number of sections and priorities.');
+							die;
+						}
+					} else {
+						echo $this->Crud->msg('danger', 'Please enter both Sections and Priorities.');
+						die;
+					}
+
+
+					if(empty($sections)){
+						echo $this->Crud->msg('danger', 'Enter Sections and their Priority');
+						die;
+					}
+
+					$ins_data['name'] = $name;
+					$ins_data['description'] = $description;
+					$ins_data['sections'] = json_encode($sections);
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['type'] = 'personal';
+				
+					$ins_data['is_extended'] = $template_id;
+				
+				
+					// do create or update
+					
+					if($this->Crud->check3('name', $name, 'ministry_id', $ministry_id, 'church_id', $church_id, $table) > 0) {
+						echo $this->Crud->msg('warning', 'Service Template Already Exist Already Exist');
+					} else {
+						
+						$ins_data['reg_date'] = date(fdate);
+						$ins_data['update_date'] = date(fdate);
+						$ins_rec = $this->Crud->create($table, $ins_data);
+						if($ins_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $ins_rec, $table, 'name');
+							$action = $by.' created an Extended Service Template ('.$code.')';
+							$this->Crud->activity('service_template', $ins_rec, $action);
+
+							echo $this->Crud->msg('success', 'Service Template Extended Successfully');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');	
+						}	
+					}
+					die;	
+				}
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -2490,16 +2601,46 @@ class Church extends BaseController {
 					$section = $this->request->getVar('section');
 					$priority = $this->request->getVar('priority');
 					$ministry_id =  $this->request->getVar('ministry_id');
+					$church_id =  $this->request->getVar('church_id');
 
 					$sections = [];
-					if(!empty($section) && !empty($priority)){
-						for($i=0;$i<count($section);$i++){
-							$sect = [];
-							$sect['section'] = $section[$i];
-							$sect['priority'] = $priority[$i];
-							$sections[] = $sect;
+
+					if (!empty($section) && !empty($priority)) {
+						if (count($section) === count($priority)) {  // Ensure both arrays have the same length
+							for ($i = 0; $i < count($section); $i++) {
+								// Trim to remove any extra spaces and validate each section
+								$current_section = trim($section[$i]);
+								$current_priority = trim($priority[$i]);
+								
+								// Validate that the section is not empty and the priority is a number between 1 and 20
+								if (!empty($current_section) && !empty($current_priority) && is_numeric($current_priority) && $current_priority >= 1 && $current_priority <= 20) {
+									$sect = [];
+									$sect['section'] = $current_section;
+									$sect['priority'] = $current_priority;
+									$sections[] = $sect;
+								} else {
+									// Return a specific error message for each failed condition
+									if (empty($current_section)) {
+										echo $this->Crud->msg('danger', "Section at index $i cannot be empty.");
+									} elseif (empty($current_priority) || !is_numeric($current_priority)) {
+										echo $this->Crud->msg('danger', "Priority at index $i must be a valid number.");
+									} elseif ($current_priority < 1 || $current_priority > 20) {
+										echo $this->Crud->msg('danger', "Priority at index $i must be between 1 and 20.");
+									}
+									die;
+								}
+							}
+						} else {
+							echo $this->Crud->msg('danger', 'Mismatch between the number of sections and priorities.');
+							die;
 						}
-					} else{
+					} else {
+						echo $this->Crud->msg('danger', 'Please enter both Sections and Priorities.');
+						die;
+					}
+
+
+					if(empty($sections)){
 						echo $this->Crud->msg('danger', 'Enter Sections and their Priority');
 						die;
 					}
@@ -2527,8 +2668,8 @@ class Church extends BaseController {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
 					} else {
-						if($this->Crud->check('name', $name, $table) > 0) {
-							echo $this->Crud->msg('warning', 'Church Already Exist');
+						if($this->Crud->check3('name', $name, 'ministry_id', $ministry_id, 'church_id', $church_id, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Service Template Already Exist Already Exist');
 						} else {
 							
 							$ins_data['reg_date'] = date(fdate);
@@ -2607,22 +2748,50 @@ class Church extends BaseController {
 							$church = 'All Churches';
 						}
 
+						$all_btn = '';
 						// add manage buttons
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
 							if(!empty($switch_id)){
-								$all_btn = '
-								
-								
-							';
+								$all_btn = ' ';
 							} else {
-								$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Group\', ' . (int)$id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Extend Template').'</span></a></li>
+								if($role != 'developer' && $role != 'administrator'){
+									if($role == 'ministry administrator'){
+										if($type == 'all'){
+											$all_btn = '
+												<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+												<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+												
+											';
+										} 
+
+									} else {
+										if($type == 'all'){
+											$all_btn = '
+												<li><a href="javascript:;" pageTitle="Extend Template ' . $name . '" pageName="' . site_url($mod . '/manage/extend/' . $id) . '" pageSize="modal-lg" class="text-info pop" ><em class="icon ni ni-file-plus"></em><span>'.translate_phrase('Extend Template').'</span></a></li>
+												
+											';
+										} else{
+											$all_btn = '
+												<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+												<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+												
+											';
+
+										}
+
+									}
+								} else{
+
+									$all_btn = '
+										<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+										<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+										<li><a href="javascript:;" pageTitle="Extend Template ' . $name . '" pageName="' . site_url($mod . '/manage/extend/' . $id) . '" pageSize="modal-lg" class="text-info pop" ><em class="icon ni ni-file-plus"></em><span>'.translate_phrase('Extend Template').'</span></a></li>
+										
+									';
+								}
 								
-							';
 
 							}
 							

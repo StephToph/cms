@@ -143,6 +143,183 @@ $this->Crud = new Crud();
         </div>
 
     <?php } ?>
+
+    
+    <!-- insert/edit view -->
+    <?php if($param2 == 'extend') { ?>
+        
+        
+        <div class="row">
+            <input type="hidden" name="template_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+            <?php
+            
+                $ministry_id = $e_ministry_id;
+                $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                echo '<input type="hidden" id="ministry_id" name="ministry_id" value="'.$ministry_id.'">
+                ';
+                if ($ministry_id > 0 && $church_id > 0) { ?>
+                <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+                
+            <?php } else { ?>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label>Church Level</label>
+                        <select class="js-select2" data-search="on" name="level" id="level">
+                            <option value=" ">Select Church Level</option>
+                            <?php
+
+                            $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                            $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                            if ($log_church_type == 'region') {
+
+                                ?>
+
+                                <option value="zone" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'zone') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Zonal
+                                    Church</option>
+                                <option value="group" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'group') {
+                                        echo 'selected';
+                                    }
+                                } ?>>Group
+                                    Church</option>
+                                <option value="church" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'church') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Church Assembly</option>
+                            <?php } elseif ($log_church_type == 'zone') { ?>
+
+                                <option value="group" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'group') {
+                                        echo 'selected';
+                                    }
+                                } ?>>Group
+                                    Church</option>
+                                <option value="church" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'church') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Church Assembly</option>
+
+                            <?php } elseif ($log_church_type == 'group') { ?>
+
+                                <option value="church" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'church') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Church Assembly</option>
+
+                            <?php } else { ?>
+                                <option value="region" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'region') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Regional Church</option>
+                                <option value="zone" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'zone') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Zonal
+                                    Church</option>
+                                <option value="group" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'group') {
+                                        echo 'selected';
+                                    }
+                                } ?>>Group
+                                    Church</option>
+                                <option value="church" <?php if (!empty($e_church_type)) {
+                                    if ($e_church_type == 'church') {
+                                        echo 'selected';
+                                    }
+                                } ?>>
+                                    Church Assembly</option>
+                            <?php } ?>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label>Church</label>
+                        <select class="js-select2" data-search="on" name="church_id" id="church_ids">
+                            <option value="">Select</option>
+
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+
+           
+            <div class="col-sm-12 mb-3 table-responsive" >
+                <label>Section</label><br>
+                <span class="text-danger">Please enter personalised section of the service for your church, such as the Opening Prayer, Worship, etc., and specify the corresponding priority based on the order of service.<br><b>Ensure that each priority is unique and not repeated.</b></span>
+                <table class="table table-borderless table-hover">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Priority</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr>
+                            <td>
+                                <div class="form-group">
+                                    <input class="form-control" type="text" name="section[]" placeholder="Opening Prayer">
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-group">
+                                    <input class="form-control priority-input" type="number" name="priority[]" placeholder="1"  min="1" max="20">
+                                </div>
+                            </td>
+                            <td align="right">
+                                <button class="btn btn-outline-danger btn-sm ms-2 delete-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="top"  title="Delete Section" disabled>
+                                    <i class="icon ni ni-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <button class="btn btn-info btn-block bb_for_btn" id="add_field" type="button">
+                                    <i class="icon ni ni-plus-c"></i> <span>Add Field</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    
+                </table>
+
+            </div>
+        </div>
+        
+
+        <div class="row" >
+            
+            <div class="col-sm-12 text-center mt-3">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+    <?php } ?>
 <?php echo form_close(); ?>
 <script>
     $('.js-select2').select2();
@@ -173,7 +350,7 @@ $this->Crud = new Crud();
                 var newRow = `<tr>
                     <td>
                         <div class="form-group">
-                            <input class="form-control" type="text" name="section[]" value="${item.section}" placeholder="Enter Section">
+                            <input class="form-control" type="text" name="section[]" readonly value="${item.section}" placeholder="Enter Section">
                         </div>
                     </td>
                     <td>
@@ -182,7 +359,7 @@ $this->Crud = new Crud();
                         </div>
                     </td>
                     <td align="right">
-                        <button class="btn btn-outline-danger btn-sm ms-2 delete-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Section" ${disabled}>
+                        <button class="btn btn-outline-danger btn-sm ms-2 delete-btn" type="button" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete Section" disabled>
                             <i class="icon ni ni-trash"></i>
                         </button>
                     </td>
@@ -238,6 +415,89 @@ $this->Crud = new Crud();
         // Disable the delete button on the first row
         $('#table-body').find('tr:first-child .delete-btn').prop('disabled', true);
     });
+
+    
+    $(document).ready(function () {
+        <?php
+            $e_church_ids = !empty($e_church_id) ? $e_church_id : 0;
+        ?>
+        var eChurchId = <?php echo $e_church_ids; ?>;
+    
+        // Function to load churches based on selected ministry ID and/or level
+        function loadChurches(ministryId, level) {
+            // Clear the Church dropdown
+            $('#church_ids').empty();
+            $('#church_ids').append(new Option('Loading...', '', false, false));
+
+            // Construct data object based on provided parameters
+            var data = {};
+            if (ministryId) {
+                data.ministry_id = ministryId;
+            }
+            if (level) {
+                data.level = level;
+            }
+
+            // Proceed if there's data to be sent
+            if (Object.keys(data).length > 0) {
+                $.ajax({
+                    url: site_url + 'ministry/announcement/get_church', // Update this to the path of your API endpoint
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success: function (response) {
+                        $('#church_ids').empty(); // Clear 'Loading...' option
+
+                        if (response.success) {
+                            // Populate the Church dropdown with the data received
+                             $.each(response.data, function (index, church) {
+                                var selected = '';
+                                if (church.id === eChurchId) {
+                                    selected = 'selected';
+                                }
+                                var churchName = toTitleCase(church.name); // Convert name to title case
+                                var churchType = toTitleCase(church.type); // Convert type to title case
+                                $('#church_ids').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
+                             });
+                         } else {
+                             $('#church_ids').append(new Option('No churches available', '', false, false));
+                         }
+                    },
+                    error: function () {
+                        $('#church_ids').append(new Option('Error fetching churches', '', false, false));
+                    }
+                });
+            } else {
+                $('#church_ids').append(new Option('Please select a ministry or level', '', false, false));
+            }
+        }
+
+        // Helper function to convert strings to title case
+        function toTitleCase(str) {
+            return str.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+        }
+
+        // Auto-load churches if ministry_id or level is already set
+        var ministryId = $('#ministry_id').val();
+        var initialLevel = $('#level').val();
+        if (ministryId || initialLevel) {
+            loadChurches(ministryId, initialLevel);
+        }
+        
+        // Handle the change event of the Church Level dropdown
+        $('#level').change(function () {
+            var selectedLevel = $(this).val();
+            var selectedMinistryId = $('#ministry_id').val();
+
+            if (selectedLevel === 'all' || selectedLevel === ' ') {
+               
+            } else {
+                loadChurches(selectedMinistryId, selectedLevel); // Load churches based on selected level
+            }
+        });
+    });
+
+
 </script>
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>

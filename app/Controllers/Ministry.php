@@ -1002,7 +1002,7 @@ class Ministry extends BaseController {
 			$ministry_id = $this->request->getPost('ministry_id');
 			$level = $this->request->getPost('level');
 			if ($ministry_id) {
-				$church = $this->Crud->read_single_order('ministry_id', $ministry_id, 'church', 'type', 'asc');
+				$church = $this->Crud->read_single_order('ministry_id', $ministry_id, 'church', 'name', 'asc');
 				if(!empty($level) && $level !=  'all'){
 					$church = $this->Crud->read2_order('type', $level, 'ministry_id', $ministry_id, 'church', 'name', 'asc');
 				}
