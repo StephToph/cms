@@ -2877,4 +2877,439 @@ class Church extends BaseController {
 	
 
 
+	public function service($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'church/service';
+		$switch_id = $this->session->get('switch_church_id');
+       
+        $log_id = $this->session->get('td_id');
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+		
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+		
+		$table = 'service_order';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+        $data['current_language'] = $this->session->get('current_language');
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$del_id = $this->request->getVar('del_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$action = $by.' deleted Order of Service ';
+
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							
+							$this->Crud->activity('service_order', $del_id, $action);
+							echo $this->Crud->msg('success', 'Order of Service Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_template_id'] = $e->template_id;
+								$data['e_service_id'] = $e->service_id;
+								$data['e_start_time'] = $e->start_time;
+								$data['e_durations'] = $e->durations;
+								$data['e_anchors'] = $e->anchors;
+								$data['e_notes'] = $e->notes;
+							}
+						}
+					}
+				} 
+
+				if($this->request->getMethod() == 'post'){
+					$edit_id = $this->request->getVar('edit_id');
+					$template_id = $this->request->getVar('template_id');
+					$service_id = $this->request->getVar('service_id');
+					$coordinator = $this->request->getVar('coordinator');
+					$durations = $this->request->getVar('duration');
+					$start_time =  $this->request->getVar('start_time');
+					$notes =  $this->request->getVar('notes');
+					$section =  $this->request->getVar('section_name');
+
+					$anchors = [];
+					$duration = [];
+
+					if (!empty($durations) && !empty($coordinator)) {
+						if (count($durations) === count($coordinator)) {  // Ensure both arrays have the same length
+							for ($i = 0; $i < count($durations); $i++) {
+								// Trim to remove any extra spaces and validate each section
+								$current_durations = trim($durations[$i]);
+								$current_anchors = trim($coordinator[$i]);
+								
+								// Validate that the section is not empty and the priority is a number between 1 and 20
+								if (!empty($current_anchors) && !empty($current_durations) && is_numeric($current_durations) && $current_durations >= 1 && $current_durations <= 200) {
+									$dur = [];
+									$dur['section'] = trim($section[$i]);
+									$dur['duration'] = $current_durations;
+									$duration[] = $dur;
+
+									$coord = [];
+									$coord['section'] = trim($section[$i]);
+									$coord['anchor'] = $current_anchors;
+									$anchors[] = $coord;
+								} else {
+									// Return a specific error message for each failed condition
+									if (empty($current_anchors)) {
+										echo $this->Crud->msg('danger', "Coordinator at index $i cannot be empty.");
+									} elseif (empty($current_durations) || !is_numeric($current_durations)) {
+										echo $this->Crud->msg('danger', "Duration at index $i must be a valid number.");
+									} elseif ($current_durations < 1 || $current_durations > 200) {
+										echo $this->Crud->msg('danger', "Duration at index $i must be between 1 and 200.");
+									}
+									die;
+								}
+							}
+						} else {
+							echo $this->Crud->msg('danger', 'Mismatch between the number of Duration and Coordinator.');
+							die;
+						}
+					} else {
+						echo $this->Crud->msg('danger', 'Please enter both Duration and Coordinator.');
+						die;
+					}
+
+					// print_r($duration);
+					// die;
+
+					if(empty($start_time)){
+						echo $this->Crud->msg('danger', 'Please enter time that the Service Starts.');
+						die;
+					}
+
+					$ministry_id = $this->Crud->read_field('id', $service_id, 'service_report', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $service_id, 'service_report', 'church_id');
+					
+					$ins_data['service_id'] = $service_id;
+					$ins_data['template_id'] = $template_id;
+					$ins_data['durations'] = json_encode($duration);
+					$ins_data['anchors'] = json_encode($anchors);
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['notes'] = $notes;
+					$ins_data['start_time'] = date('h:i:s', strtotime($start_time));
+				
+					// do create or update
+					if($edit_id) {
+						
+						$upd_rec = $this->Crud->updates('id', $edit_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by.' updated Order of Program  Record';
+							$this->Crud->activity('service_order', $edit_id, $action);
+
+							echo $this->Crud->msg('success', 'Order of Service Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+					} else {
+						if($this->Crud->check3('service_id', $service_id, 'template_id', $template_id, 'church_id', $church_id, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Order of Service Already Exist Already Exist');
+						} else {
+							
+							$ins_data['reg_date'] = date(fdate);
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$action = $by.' created Order of Service for a Program';
+								$this->Crud->activity('service_order', $ins_rec, $action);
+
+								echo $this->Crud->msg('success', 'Order of Service Created');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');	
+							}	
+						}
+					}
+
+					die;	
+				}
+			}
+		}
+
+		if($param1 == 'get_sections_by_template') {
+			// Get template ID from the request
+			$template_id = $this->request->getPost('template_id');
+			$edit_id = $this->request->getPost('edit_id');
+			// echo $edit_id;
+			if ($template_id) {
+				// Fetch sections for the template from the database
+				$sections = json_decode($this->Crud->read_field('id', $template_id, 'service_template', 'sections'));
+				
+				// Prepare the response (e.g., name, priority, duration, coordinator)
+				$anchors = [];$durations = [];
+				if(!empty($edit_id)){
+					$anchors = json_decode($this->Crud->read_field('id', $edit_id, 'service_order', 'anchors'));
+					$durations = json_decode($this->Crud->read_field('id', $edit_id, 'service_order', 'durations'));
+				}
+				$response = [];
+				
+				foreach ($sections as $section) {
+					$duration = '';
+					$anchor = '';
+				
+					// Search for matching section in anchors
+					if (!empty($anchors)) {
+						// Match anchor where the section name aligns
+						foreach ($anchors as $key => $value) {
+							if ($value->section === $section->section) {
+								$anchor = $value->anchor;
+								break;
+							}
+						}
+					}
+				
+					// Search for matching section in durations
+					if (!empty($durations)) {
+						// print_r($durations);
+						foreach ($durations as $key => $value) {
+							if ($value->section === $section->section) {
+								$duration = $value->duration;
+								break;
+							}
+						}
+					}
+				
+					$response[] = [
+						'name' => $section->section,
+						'priority' => $section->priority,
+						'duration' => $duration,
+						'anchor' => $anchor,
+						
+
+					];
+				}
+				// print_r($response);
+				 // Sort the response by priority using usort
+				usort($response, function ($a, $b) {
+					return $a['priority'] <=> $b['priority']; // Ascending order
+				});
+				// Return the response as JSON
+				echo json_encode($response);
+			} else {
+				echo json_encode([]);
+			}
+
+			die;
+		}
+		
+
+        // record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$search = $this->request->getPost('search');
+			
+			$items = '
+				
+				
+			';
+			$a = 1;
+			$switch_id = $this->session->get('switch_church_id');
+       
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				
+				$all_rec = $this->Crud->filter_service_order('', '', $log_id, $search, $switch_id);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_service_order($limit, $offset, $log_id, $search, $switch_id);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$service_id = $q->service_id;
+						$church_id = $q->church_id;
+						$template_id = $q->template_id;
+						$notes = $q->notes;
+						$ministry_id = $q->ministry_id;
+						
+						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
+						$start_time = date('h:iA', strtotime($q->start_time));
+						
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name'); 
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name'); 
+						$service_type = $this->Crud->read_field('id', $service_id, 'service_report', 'type'); 
+						$service_date = $this->Crud->read_field('id', $service_id, 'service_report', 'date'); 
+						$service = $this->Crud->read_field('id', $service_type, 'service_type', 'name'); 
+						$template = $this->Crud->read_field('id', $template_id, 'service_template', 'name'); 
+						
+						
+						
+
+						$all_btn = '';
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							if(!empty($switch_id)){
+								$all_btn = ' ';
+							} else {
+								$all_btn = '
+									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete " pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+									
+								';
+									
+
+							}
+							
+						}
+
+							
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-name">            
+											<span class="tb-lead">' . ucwords($service.' - '.$service_date) . '</span> 
+										</div>    
+									</div>  
+								</td>
+								<td>
+									<span class="small text-dark">'.ucwords($template).'</span>
+								</td>
+								<td><span class="small text-dark">'.ucwords($start_time).'</span></td>
+								<td><span class="small text-dark">'.ucwords($church).'</span></td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<Tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/>
+						<i class="ni ni-folder-list" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Order of Service Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('Order of Service').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+    }
+	
+
+
 }

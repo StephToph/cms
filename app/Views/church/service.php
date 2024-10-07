@@ -19,10 +19,8 @@
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?=translate_phrase('Service Templates');?></h3>
-                            <div class="nk-block-des text-soft">
-                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=('template(s).');?></p>
-                            </div>
+                            <h3 class="nk-block-title page-title"><?=translate_phrase('Order of Service');?></h3>
+                            
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
@@ -32,7 +30,7 @@
                             <div class="card-inner position-relative card-tools-toggle">
                                 <div class="card-title-group">
                                     <div class="card-tools">
-                                        
+                                    
                                     </div><!-- .card-tools -->
                                     <div class="card-tools me-n1">
                                         <ul class="btn-toolbar gx-1">
@@ -44,7 +42,7 @@
                                                 ?>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
                                                 <li>
-                                                    <a href="javascript:;" pageTitle="Add Template" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('church/templates/manage'); ?>" pageSize="modal-lg"><em class="icon ni ni-plus-c"></em></a>
+                                                    <a href="javascript:;" pageTitle="Add Order of Program" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('church/service/manage'); ?>" pageSize="modal-xl"><em class="icon ni ni-plus-c"></em></a>
                                                 </li><!-- li -->
                                            <?php } }?>
                                         </ul><!-- .btn-toolbar -->
@@ -64,10 +62,10 @@
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Name</th>
-                                                <th>Type</th>
-                                                <th>Description</th>
-                                                <th>Updated At</th>
+                                                <th>Service</th>
+                                                <th>Template</th>
+                                                <th>Start Time</th>
+                                                <th>Church</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -91,7 +89,7 @@
     $(function() {
         load('', '');
     });
-    
+   
     function load(x, y) {
         var more = 'no';
         var methods = '';
@@ -111,7 +109,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'church/templates/load' + methods,
+            url: site_url + 'church/service/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {

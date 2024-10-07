@@ -3060,6 +3060,78 @@ class Crud extends Model {
 	}
 
 
+	
+	public function filter_service_order($limit = null, $offset = null, $user_id, $search = '', $switch_id = null) {
+		$db = \Config\Database::connect();  // CI4 way of connecting to the database
+		$builder = $db->table('service_order');
+		
+		// Get user role
+		$role_id = $this->read_field('id', $user_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+
+		$ministry_id = $this->read_field('id', $user_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $user_id, 'user', 'church_id');
+
+		// If switch_id is provided, change the ministry and church context based on the church type
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+
+			switch ($church_type) {
+				case 'region':
+					$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+					$role = 'church leader';
+					break;
+			}
+
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		}
+
+		// Filter based on role (if not developer or admin)
+		if ($role != 'developer' && $role != 'administrator') {
+			if ($role === 'ministry administrator') {
+				$builder->where('ministry_id', $ministry_id);
+			} else {
+				$builder->where('church_id', $church_id);
+			}
+		}
+
+		// Search functionality
+		if (!empty($search)) {
+			$builder->like('name', $search);
+		}
+
+		// Order by ID in descending order
+		$builder->orderBy('id', 'DESC');
+
+		// Handle limits and offsets
+		if ($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} elseif ($limit) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+
+		// Return the result
+		return $query->getResult();
+
+		$db->close();  // Closing the database connection
+	}
+
+
 	public function filter_church_admin($limit='', $offset='',$log_id, $status='all', $search='', $role_id) {
         $db = db_connect();
         $builder = $db->table('user');
