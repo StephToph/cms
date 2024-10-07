@@ -23,6 +23,7 @@ class Filters extends BaseConfig
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
+        'sessionTimeout' => \App\Filters\SessionTimeoutFilter::class,
     ];
 
     /**
@@ -36,6 +37,7 @@ class Filters extends BaseConfig
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
+            'sessionTimeout',
         ],
         'after' => [
             'toolbar',
