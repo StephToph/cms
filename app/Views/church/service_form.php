@@ -156,10 +156,12 @@ $this->Crud = new Crud();
                         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
                          
                         $sReport = $this->Crud->read_order('service_report', 'date', 'desc');
-                        if($church_id > 0){
-                            $sReport = $this->Crud->read_single_order('church_id', $church_id, 'service_report', 'date', 'desc');
-                        } else {
-                            $sReport = $this->Crud->read_single_order('ministry_id', $ministry_id, 'service_report', 'date', 'desc');
+                        if($role != 'developer' && $role != 'administrator'){
+                            if($church_id > 0){
+                                $sReport = $this->Crud->read_single_order('church_id', $church_id, 'service_report', 'date', 'desc');
+                            } else {
+                                $sReport = $this->Crud->read_single_order('ministry_id', $ministry_id, 'service_report', 'date', 'desc');
+                            }
                         }
                         if (!empty($sReport)) {
                             foreach ($sReport as $d) {
