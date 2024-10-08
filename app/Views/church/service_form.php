@@ -259,43 +259,110 @@ $this->Crud = new Crud();
     <!-- insert/edit view -->
     <?php if($param2 == 'edit' || $param2 == '') { ?>
         <div class="row">
-            <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
-            <p class="text-danger">Service has to be Created before creating the Order of Program.</p>
+        <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+        <input type="hidden" name="service_id" id="service_id" value="<?php if(!empty($e_service_id)){echo $e_service_id;} ?>" />
+            
+            <?php
+                $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                
+                $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        
+                if ($ministry_id <= 0) { ?>
+                    <div class="col-sm-4 mb-3">
+                        <div class="form-group">
+                            <label class="name">Ministry </label>
+                            <select id="ministry_id" name="ministry_id" class="js-select2 "
+                                onchange="load_level();">
+                                <option value=" ">Select Ministry</option>
+
+                            </select>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <input type="hidden" name="ministry_id" value="<?= $ministry_id; ?>">
+                    <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+                <?php } ?>
+                <?php if ($role != 'church leader') { ?>
+                    <div class="col-sm-6 mb-3">
+                        <div class="form-group">
+                            <label>Church Level</label>
+                            <select class="js-select2" data-search="on" name="level" id="level">
+                                <option value="all">All Church Level</option>
+                                <?php
+                                    
+                                    $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                    $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                                    if($log_church_type == 'region'){
+                                        
+                                ?>
+                                
+                                    <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
+                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                <?php } elseif($log_church_type == 'zone'){?>
+                                
+                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+
+                                <?php } elseif($log_church_type == 'group'){?>
+                                
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+
+                                <?php } else{?>
+                                    <option value="region" <?php if(!empty($e_level)){if($e_level == 'region'){echo 'selected';}} ?>>Regional Church</option>
+                                    <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
+                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                <?php } ?>
+                                
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="col-sm-6 mb-3">
+                        <div class="form-group">
+                            <label>Church</label>
+                            <select class="js-select2" data-search="on" name="church_id" id="church_ids">
+                                <option value="">Select</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                <?php } ?>
+            
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label>Service</label>
-                    <select class="js-select2" data-search="on" name="service_id" id="service_id" required>
-                        <option value="">Select Service</option>
+                    <label for="name">*<?= translate_phrase('Service Type'); ?></label>
+                    <select data-search="on" class=" js-select2" id="type" name="service_type" required>
+                        <option value="">Select</option>
                         <?php
-                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-                         
-                        $sReport = $this->Crud->read_order('service_report', 'date', 'desc');
-                        if($role != 'developer' && $role != 'administrator'){
-                            if($church_id > 0){
-                                $sReport = $this->Crud->read_single_order('church_id', $church_id, 'service_report', 'date', 'desc');
-                            } else {
-                                $sReport = $this->Crud->read_single_order('ministry_id', $ministry_id, 'service_report', 'date', 'desc');
-                            }
-                        }
-                        if (!empty($sReport)) {
-                            foreach ($sReport as $d) {
-                                if($this->Crud->check('service_id', $d->id, 'service_order') > 0 && $param2 != 'edit'){
-                                    continue;
-                                }
-                                $name = $this->Crud->read_field('id', $d->type, 'service_type', 'name');
-                                $name .=  ' - ' .date('d F Y', strtotime($d->date));
+                        $type = $this->Crud->read_order('service_type', 'name', 'asc');
+                        if (!empty($type)) {
+                            foreach ($type as $t) {
                                 $sel = '';
-                                if (!empty($e_service_id)) {
-                                    if ($e_service_id == $d->id) {
+                                if (!empty($e_service_type)) {
+                                    if ($e_service_type == $t->id) {
                                         $sel = 'selected';
                                     }
                                 }
-                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($name) . '</option>';
+                                echo '<option value="' . $t->id . '" '.$sel.'>' . ucwords($t->name) . '</option>';
                             }
                         }
                         ?>
                     </select>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label class="name">*Service Date</label>
+                    <div class="form-control-wrap">
+                        <input type="text" name="service_dates" id="dates"
+                            class="form-control date-picker" required  value="<?php if (!empty($e_service_date)) {
+                            echo date('m/d/y', strtotime($e_service_date));
+                        } ?>">
+                    </div>
                 </div>
             </div>
 
@@ -431,8 +498,97 @@ $this->Crud = new Crud();
             focus: true
         });
         $('.time-picker').timepicker({});
+        $('.date-picker').datepicker({
+            dateFormat: "mm/dd/yy", // You can customize the date format
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-100:+10"
+        });
 
     });
+
+    
+    
+    $(document).ready(function () {
+        <?php
+            $e_church_ids = !empty($e_church_id) ? $e_church_id : 0;
+        ?>
+        var eChurchId = <?php echo $e_church_ids; ?>;
+    
+        // Function to load churches based on selected ministry ID and/or level
+        function loadChurches(ministryId, level) {
+            // Clear the Church dropdown
+            $('#church_ids').empty();
+            $('#church_ids').append(new Option('Loading...', '', false, false));
+
+            // Construct data object based on provided parameters
+            var data = {};
+            if (ministryId) {
+                data.ministry_id = ministryId;
+            }
+            if (level) {
+                data.level = level;
+            }
+
+            // Proceed if there's data to be sent
+            if (Object.keys(data).length > 0) {
+                $.ajax({
+                    url: site_url + 'ministry/announcement/get_church', // Update this to the path of your API endpoint
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success: function (response) {
+                        $('#church_ids').empty(); // Clear 'Loading...' option
+
+                        if (response.success) {
+                            // Populate the Church dropdown with the data received
+                             $.each(response.data, function (index, church) {
+                                var selected = '';
+                                if (church.id === eChurchId) {
+                                    selected = 'selected';
+                                }
+                                var churchName = toTitleCase(church.name); // Convert name to title case
+                                var churchType = toTitleCase(church.type); // Convert type to title case
+                                $('#church_ids').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
+                             });
+                         } else {
+                             $('#church_ids').append(new Option('No churches available', '', false, false));
+                         }
+                    },
+                    error: function () {
+                        $('#church_ids').append(new Option('Error fetching churches', '', false, false));
+                    }
+                });
+            } else {
+                $('#church_ids').append(new Option('Please select a ministry or level', '', false, false));
+            }
+        }
+
+        // Helper function to convert strings to title case
+        function toTitleCase(str) {
+            return str.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+        }
+
+        // Auto-load churches if ministry_id or level is already set
+        var ministryId = $('#ministry_id').val();
+        var initialLevel = $('#level').val();
+        if (ministryId || initialLevel) {
+            loadChurches(ministryId, initialLevel);
+        }
+        
+        // Handle the change event of the Church Level dropdown
+        $('#level').change(function () {
+            var selectedLevel = $(this).val();
+            var selectedMinistryId = $('#ministry_id').val();
+
+            if (selectedLevel === 'all' || selectedLevel === ' ') {
+               
+            } else {
+                loadChurches(selectedMinistryId, selectedLevel); // Load churches based on selected level
+            }
+        });
+    });
+
 
     <?php if($param2 == 'download'){?>
     document.getElementById('downloadBtn').addEventListener('click', function() {

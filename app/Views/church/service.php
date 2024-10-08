@@ -40,13 +40,13 @@
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
                                             <?php if(empty($switch_id)){
-                                                if($role == 'developer' || $role == 'administrator' || $role == 'ministry administrator'){
+                                               
                                                 ?>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
                                                 <li>
                                                     <a href="javascript:;" pageTitle="Add Order of Program" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('church/service/manage'); ?>" pageSize="modal-xl"><em class="icon ni ni-plus-c"></em></a>
                                                 </li><!-- li -->
-                                           <?php } }?>
+                                           <?php }?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->

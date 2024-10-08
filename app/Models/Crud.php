@@ -3026,29 +3026,29 @@ class Crud extends Model {
 				// For all other non-developer/admin roles
 				// 1. Return records where type is 'all' and ministry_id matches
 				$builder->groupStart()
-						->where('type', 'all')
-						->where('ministry_id', $ministry_id)
+						->where('service_template.type', 'all')
+						->where('service_template.ministry_id', $ministry_id)
 						->groupEnd();
 	
 				// 2. Return records where type is not 'all' and match church_id
 				$builder->orGroupStart()
-						->where('type !=', 'all')
+						->where('service_template.type !=', 'all')
 						->where('service_template.church_id', $church_id)
 						->groupEnd();
 	
 				// 3. Additional logic: If type is not 'all', check is_sharing and church_type
 				$builder->orGroupStart()
-						->where('type !=', 'all')
+						->where('service_template.type !=', 'all')
 						->groupStart()
-							->where('church.church_type', 'region')
+							->where('church.type', 'region')
 							->where('is_sharing', $this->read_field('id', $church_id, 'church', 'regional_id'))  // Compare with user's region
 						->groupEnd()
 						->orGroupStart()
-							->where('church.church_type', 'zone')
+							->where('church.type', 'zone')
 							->where('is_sharing', $this->read_field('id', $church_id, 'church', 'zonal_id'))  // Compare with user's zone
 						->groupEnd()
 						->orGroupStart()
-							->where('church.church_type', 'group')
+							->where('church.type', 'group')
 							->where('is_sharing', $this->read_field('id', $church_id, 'church', 'group_id'))  // Compare with user's group
 						->groupEnd()
 					->groupEnd();
