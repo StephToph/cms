@@ -179,9 +179,7 @@
                                         <span class="nk-menu-text">Access Roles</span>
                                     </a>
                                     <ul class="nk-menu-sub">
-                                        <li class="nk-menu-item <?php if($page_active=='app') {echo 'active';} ?>">
-                                            <a href="<?php echo site_url('settings/app'); ?>" class="nk-menu-link">Website Settings</a>
-                                        </li>
+                                        
                                         <li class="nk-menu-item <?php if($page_active=='module') {echo 'active';} ?>">
                                             <a href="<?php echo site_url('settings/modules'); ?>" class="nk-menu-link">Modules</a>
                                         </li>
@@ -453,6 +451,21 @@
     </script>
     <?=$this->renderSection('scripts');?>
     <script>
+        // Event listener to trigger PDF download when modal is shown
+        $('#modal').on('shown.bs.modal', function () {
+            var element = document.getElementById('content');
+            html2pdf()
+            .from(element)
+            .set({
+                margin: 1,
+                filename: 'order_of_service.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Ensure proper page breaks
+            })
+            .save();
+            
+        });
     function mark_read(id) {
         $.ajax({
             url: site_url + 'notification/mark_read/' + id,

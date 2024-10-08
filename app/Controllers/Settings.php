@@ -204,7 +204,7 @@ class Settings extends BaseController {
 			$data['order_sort'] = '0, "asc"'; // default ordering (0, 'asc')
 			$data['no_sort'] = '1'; // sort disable columns (1,3,5)
 		
-			$data['title'] = 'Modules | '.app_name;
+			$data['title'] = 'Modules - '.app_name;
 			$data['page_active'] = 'module';
 			
 			return view('setting/module', $data);
@@ -366,7 +366,7 @@ class Settings extends BaseController {
 			$data['order_sort'] = '0, "asc"'; // default ordering (0, 'asc')
 			$data['no_sort'] = '1'; // sort disable columns (1,3,5)
 		
-			$data['title'] = 'Roles | '.app_name;
+			$data['title'] = 'Roles - '.app_name;
 			$data['page_active'] = 'role';
 			
 			return view('setting/role', $data);
@@ -789,7 +789,7 @@ class Settings extends BaseController {
 			$data['order_sort'] = '3, "desc"'; // default ordering (0, 'asc')
 			$data['no_sort'] = '1,2,4'; // sort disable columns (1,3,5)
 		
-			$data['title'] = 'Language Settings | '.app_name;
+			$data['title'] = 'Language Settings - '.app_name;
 			$data['page_active'] = 'language';
 			
 			return view('setting/language', $data);
@@ -813,7 +813,7 @@ class Settings extends BaseController {
 
 		$data['allrole'] = $this->Crud->read('access_role');
 			
-		$data['title'] = 'Access CRUD | '.app_name;
+		$data['title'] = 'Access CRUD - '.app_name;
 		$data['page_active'] = 'access';
 		
 		return view('setting/access', $data);
@@ -835,7 +835,7 @@ class Settings extends BaseController {
 
 		$data['settings'] = $this->Crud->read_order('setting', 'name', 'asc');
 			
-		$data['title'] = 'Application Settings | '.app_name;
+		$data['title'] = 'Application Settings - '.app_name;
 		$data['page_active'] = 'app';
 		
         $data['current_language'] = $this->session->get('current_language');

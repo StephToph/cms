@@ -40,7 +40,7 @@
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
                                             <?php if(empty($switch_id)){
-                                                if($role == 'developer' || $role == 'administrator' || $role == 'ministry administrator'){
+                                                if($role != 'church leader'){
                                                 ?>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
                                                 <li>

@@ -141,46 +141,228 @@ $this->Crud = new Crud();
 
     <?php } ?>
 
+    <?php if ($param2 == 'download') { ?>
+        <div class="col-sm-12 my-2 text-center">
+            <button class="btn btn-danger text-uppercase" id="downloadBtn" type="button">
+                <i class="icon ni ni-download"></i> <?=translate_phrase('Download as PDF');?>
+            </button>
+        </div>
+        <div id="msg"></div>
+        <div class="row" id="content">
+            <div class="col-sm-12 mb-3">
+                <?php
+                    
+                    $service_date = $this->Crud->read_field('id',  $e_service_id, 'service_report', 'date');
+                    $sections = json_decode($this->Crud->read_field('id',  $e_template_id, 'service_template', 'sections'), true);
+                    usort($sections, function($a, $b) {
+                        return $a['priority'] - $b['priority'];
+                    });
+                    $anchors = json_decode($e_anchors);
+                    $durations = json_decode($e_durations);
+                    $total_duration = 0;
+                    if (!empty($durations)) {
+                        foreach ($durations as $key => $value) {
+                            if ($value->section) {
+                                $total_duration += (int)$value->duration;
+                                
+                            }
+                        }
+                    }
+                    $totals = $this->Crud->convertMinutesToTime($total_duration);
+                    
+                ?>
+                <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
+                
+                <div class="my-2">
+                    <div class="col-12 table-responsive">
+                        <table class="table table-borderless table-hover">
+                            <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>ACTIVITY</th>
+                                    <th>TIME (<?=$totals; ?>)</th>
+                                    <th>COORDINATOR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                    if (!empty($sections)) {
+                                        // Set initial start time for the program (e.g., 9 AM)
+                                        // $start_time = '09:00 AM'; // Replace with your actual start time
+                                        $current_time = strtotime($e_start_time); // Convert start time to a timestamp
+                                    
+                                        foreach ($sections as $sect) {
+                                            $dur = 0;
+                                            $coord = '';
+                                    
+                                            // Search for matching section in anchors (coordinator)
+                                            if (!empty($anchors)) {
+                                                foreach ($anchors as $key => $value) {
+                                                    if ($value->section === $sect['section']) {
+                                                        $coord = $value->anchor;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                    
+                                            // Search for matching section in durations
+                                            if (!empty($durations)) {
+                                                foreach ($durations as $key => $value) {
+                                                    if ($value->section === $sect['section']) {
+                                                        $dur = $value->duration;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                    
+                                            // Convert minutes to seconds and add to current time
+                                            $duration_in_seconds = $dur * 60;
+                                             // Calculate the end time by adding duration to current start time
+                                            $end_time = $current_time + $duration_in_seconds;
+
+                                             // Format the start and end times
+                                            $formatted_start_time = date('h:i A', $current_time);
+                                            $formatted_end_time = date('h:i A', $end_time);
+
+                                            // Output the row
+                                            echo '
+                                                <tr>
+                                                    <td>'.ucwords($sect['priority']).'</td>
+                                                    <td>'.ucwords($sect['section']).'</td>
+                                                    <td>'.$formatted_start_time.' - '.$formatted_end_time.' ('.$this->Crud->convertMinutesToTime($dur).')</td>
+                                                    <td>'.ucwords($coord).'</td>
+                                                </tr>
+                                            ';
+
+                                            $current_time = $end_time;
+                                        }
+                                    } else{
+
+                                        echo '
+                                            <tr><td colspan="5">NO ACTIVITY</td></tr>
+                                        ';
+                                    }
+                                
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                   
+
+                    <p><?= ucwords(($e_notes)); ?></p>
+                </div>
+            </div>
+        </div>
+        
+    <?php } ?>
+
     <!-- insert/edit view -->
     <?php if($param2 == 'edit' || $param2 == '') { ?>
         <div class="row">
-            <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
-            <p class="text-danger">Service has to be Created before creating the Order of Program.</p>
+        <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+        <input type="hidden" name="service_id" id="service_id" value="<?php if(!empty($e_service_id)){echo $e_service_id;} ?>" />
+            
+            <?php
+                $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                
+                $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        
+                if ($ministry_id <= 0) { ?>
+                    <div class="col-sm-4 mb-3">
+                        <div class="form-group">
+                            <label class="name">Ministry </label>
+                            <select id="ministry_id" name="ministry_id" class="js-select2 "
+                                onchange="load_level();">
+                                <option value=" ">Select Ministry</option>
+
+                            </select>
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <input type="hidden" name="ministry_id" id="ministry_id" value="<?= $ministry_id; ?>">
+                    <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+                <?php } ?>
+                <?php if ($role != 'church leader') { ?>
+                    <div class="col-sm-6 mb-3">
+                        <div class="form-group">
+                            <label>Church Level</label>
+                            <select class="js-select2" data-search="on" name="level" id="level">
+                                <option value="all">All Church Level</option>
+                                <?php
+                                    
+                                    $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                    $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                                    if($log_church_type == 'region'){
+                                        
+                                ?>
+                                
+                                    <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
+                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                <?php } elseif($log_church_type == 'zone'){?>
+                                
+                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+
+                                <?php } elseif($log_church_type == 'group'){?>
+                                
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+
+                                <?php } else{?>
+                                    <option value="region" <?php if(!empty($e_level)){if($e_level == 'region'){echo 'selected';}} ?>>Regional Church</option>
+                                    <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
+                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                <?php } ?>
+                                
+                            </select>
+                        </div>
+                    </div>
+                
+                    <div class="col-sm-6 mb-3">
+                        <div class="form-group">
+                            <label>Church</label>
+                            <select class="js-select2" data-search="on" name="church_id" id="church_ids">
+                                <option value="">Select</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                <?php } ?>
+            
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label>Service</label>
-                    <select class="js-select2" data-search="on" name="service_id" id="service_id" required>
-                        <option value="">Select Service</option>
+                    <label for="name">*<?= translate_phrase('Service Type'); ?></label>
+                    <select data-search="on" class=" js-select2" id="type" name="service_type" required>
+                        <option value="">Select</option>
                         <?php
-                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-                         
-                        $sReport = $this->Crud->read_order('service_report', 'date', 'desc');
-                        if($role != 'developer' && $role != 'administrator'){
-                            if($church_id > 0){
-                                $sReport = $this->Crud->read_single_order('church_id', $church_id, 'service_report', 'date', 'desc');
-                            } else {
-                                $sReport = $this->Crud->read_single_order('ministry_id', $ministry_id, 'service_report', 'date', 'desc');
-                            }
-                        }
-                        if (!empty($sReport)) {
-                            foreach ($sReport as $d) {
-                                if($this->Crud->check('service_id', $d->id, 'service_order') > 0 && $param2 != 'edit'){
-                                    continue;
-                                }
-                                $name = $this->Crud->read_field('id', $d->type, 'service_type', 'name');
-                                $name .=  ' - ' .date('d F Y', strtotime($d->date));
+                        $type = $this->Crud->read_order('service_type', 'name', 'asc');
+                        if (!empty($type)) {
+                            foreach ($type as $t) {
                                 $sel = '';
-                                if (!empty($e_service_id)) {
-                                    if ($e_service_id == $d->id) {
+                                if (!empty($e_service_type)) {
+                                    if ($e_service_type == $t->id) {
                                         $sel = 'selected';
                                     }
                                 }
-                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($name) . '</option>';
+                                echo '<option value="' . $t->id . '" '.$sel.'>' . ucwords($t->name) . '</option>';
                             }
                         }
                         ?>
                     </select>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label class="name">*Service Date</label>
+                    <div class="form-control-wrap">
+                        <input type="text" name="service_dates" id="dates"
+                            class="form-control date-picker" required  value="<?php if (!empty($e_service_date)) {
+                            echo date('m/d/y', strtotime($e_service_date));
+                        } ?>">
+                    </div>
                 </div>
             </div>
 
@@ -274,8 +456,39 @@ $this->Crud = new Crud();
 
     <?php } ?>
 
+    <?php if($param2 == 'send_email') { ?>
+        <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($param3)){echo $param3;} ?>" />
+        <div class="row">
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label>Emails</label>
+                    <div id="email-container">
+                        <div class="input-group mb-2">
+                            <input type="email" class="form-control" name="emails[]" placeholder="Enter email" required>
+                            <button class="btn btn-outline-danger remove-email" type="button" style="display:none;">Remove</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-info" type="button" id="add-email">Add More Emails</button>
+                </div>
+            </div>
+            
+            <div class="col-sm-12 text-center mt-3">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-share"></i> <span><?=translate_phrase('Send');?></span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+    <?php } ?>
+
     
 <?php echo form_close(); ?>
+<?php if ($param2 == 'download') { ?>
+    
+<?php } ?>
 <script>
     $('.js-select2').select2();
     $(function () {
@@ -285,8 +498,133 @@ $this->Crud = new Crud();
             focus: true
         });
         $('.time-picker').timepicker({});
+        $('.date-picker').datepicker({
+            dateFormat: "mm/dd/yy", // You can customize the date format
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-100:+10"
+        });
 
     });
+
+    
+    
+    $(document).ready(function () {
+        <?php
+            $e_church_ids = !empty($e_church_id) ? $e_church_id : 0;
+        ?>
+        var eChurchId = <?php echo $e_church_ids; ?>;
+    
+        // Function to load churches based on selected ministry ID and/or level
+        function loadChurches(ministryId, level) {
+            // Clear the Church dropdown
+            $('#church_ids').empty();
+            $('#church_ids').append(new Option('Loading...', '', false, false));
+
+            // Construct data object based on provided parameters
+            var data = {};
+            if (ministryId) {
+                data.ministry_id = ministryId;
+            }
+            if (level) {
+                data.level = level;
+            }
+
+            // Proceed if there's data to be sent
+            if (Object.keys(data).length > 0) {
+                $.ajax({
+                    url: site_url + 'ministry/announcement/get_church', // Update this to the path of your API endpoint
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success: function (response) {
+                        $('#church_ids').empty(); // Clear 'Loading...' option
+
+                        if (response.success) {
+                            // Populate the Church dropdown with the data received
+                             $.each(response.data, function (index, church) {
+                                var selected = '';
+                                if (church.id === eChurchId) {
+                                    selected = 'selected';
+                                }
+                                var churchName = toTitleCase(church.name); // Convert name to title case
+                                var churchType = toTitleCase(church.type); // Convert type to title case
+                                $('#church_ids').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
+                             });
+                         } else {
+                             $('#church_ids').append(new Option('No churches available', '', false, false));
+                         }
+                    },
+                    error: function () {
+                        $('#church_ids').append(new Option('Error fetching churches', '', false, false));
+                    }
+                });
+            } else {
+                $('#church_ids').append(new Option('Please select a ministry or level', '', false, false));
+            }
+        }
+
+        // Helper function to convert strings to title case
+        function toTitleCase(str) {
+            return str.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
+        }
+
+        // Auto-load churches if ministry_id or level is already set
+        var ministryId = $('#ministry_id').val();
+        var initialLevel = $('#level').val();
+        if (ministryId || initialLevel) {
+            loadChurches(ministryId, initialLevel);
+        }
+        
+        // Handle the change event of the Church Level dropdown
+        $('#level').change(function () {
+            var selectedLevel = $(this).val();
+            var selectedMinistryId = $('#ministry_id').val();
+
+            if (selectedLevel === 'all' || selectedLevel === ' ') {
+               
+            } else {
+                loadChurches(selectedMinistryId, selectedLevel); // Load churches based on selected level
+            }
+        });
+    });
+
+
+    <?php if($param2 == 'download'){?>
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        $('#msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        var element = document.getElementById('content');
+        html2pdf()
+            .from(element)
+            .set({
+                margin: 1,
+                filename: 'content.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' }
+            })
+            .save();
+            $('#msg').html('');
+    });
+    <?php } ?>
+    $(document).ready(function() {
+        $('#add-email').click(function() {
+            // Create a new input group for the email
+            var newEmailGroup = `
+                <div class="input-group mb-2">
+                    <input type="email" class="form-control" name="emails[]" placeholder="Enter email" required>
+                    <button class="btn btn-outline-danger remove-email" type="button">Remove</button>
+                </div>
+            `;
+            // Append the new email input group to the container
+            $('#email-container').append(newEmailGroup);
+        });
+
+        // Use event delegation to handle the remove button click
+        $('#email-container').on('click', '.remove-email', function() {
+            $(this).closest('.input-group').remove();
+        });
+    });
+
 
     $(document).ready(function() {
         // Function to handle the template change
