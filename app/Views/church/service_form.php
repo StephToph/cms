@@ -24,10 +24,41 @@ $this->Crud = new Crud();
         </div>
     <?php } ?>
 
+    
+    <?php if ($param2 == 'view') { ?>
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <div class="user-card">
+                    <div class="user-info">
+                        <span
+                            class="lead-text"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name')); ?></span>
+                        <span class="sub-text"><?= $e_reg_date; ?></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3">
+                
+            </div>
+
+            <div class="col-sm-12 mb-3">
+                <h5 class="text-center text-info"><?= ucwords('Order of Service'); ?></h5>
+                <div class="my-1">
+                    <p><?= ucwords(html_entity_decode($e_notes)); ?></p>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <h6></h6>
+                <div class="mt-2 row">
+                    
+                </div>
+            </div>
+        </div>
+
+    <?php } ?>
+
     <!-- insert/edit view -->
     <?php if($param2 == 'edit' || $param2 == '') { ?>
-        
-        
         <div class="row">
             <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
             <p class="text-danger">Service has to be Created before creating the Order of Program.</p>
