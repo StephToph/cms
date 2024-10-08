@@ -4412,4 +4412,19 @@ class Crud extends Model {
 			return $serialDate;
 		}
 	}
+
+	public function convertMinutesToTime($minutes) {
+		// Check if the value is greater than or equal to 60
+		if ($minutes >= 60) {
+			// Calculate the number of hours and minutes
+			$hours = floor($minutes / 60);
+			$remainingMinutes = $minutes % 60;
+	
+			// Return formatted time with hours and minutes
+			return $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ' . ($remainingMinutes > 0 ? $remainingMinutes . ' min' : '');
+		} else {
+			// If less than 60, just return the minutes
+			return $minutes . ' mins';
+		}
+	}
 }
