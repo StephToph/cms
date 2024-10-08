@@ -2963,6 +2963,26 @@ class Church extends BaseController {
 				}
 			} else {
 				// prepare for edit
+				if($param2 == 'view') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_template_id'] = $e->template_id;
+								$data['e_service_id'] = $e->service_id;
+								$data['e_start_time'] = $e->start_time;
+								$data['e_durations'] = $e->durations;
+								$data['e_anchors'] = $e->anchors;
+								$data['e_notes'] = $e->notes;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_reg_date'] = $e->reg_date;
+							}
+						}
+					}
+				} 
+
 				if($param2 == 'edit') {
 					if($param3) {
 						$edit = $this->Crud->read_single('id', $param3, $table);
@@ -3211,8 +3231,6 @@ class Church extends BaseController {
 						$service = $this->Crud->read_field('id', $service_type, 'service_type', 'name'); 
 						$template = $this->Crud->read_field('id', $template_id, 'service_template', 'name'); 
 						
-						
-						
 
 						$all_btn = '';
 						// add manage buttons
@@ -3225,6 +3243,7 @@ class Church extends BaseController {
 								$all_btn = '
 									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete " pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+									<li><a href="javascript:;" pageSize="modal-xl" class="text-success pop" pageTitle="View " pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 									
 								';
 									

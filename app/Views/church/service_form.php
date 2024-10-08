@@ -24,10 +24,125 @@ $this->Crud = new Crud();
         </div>
     <?php } ?>
 
+    
+    <?php if ($param2 == 'view') { ?>
+        <div class="row">
+            <div class="col-sm-12 mb-3">
+                <?php
+                    
+                    $service_date = $this->Crud->read_field('id',  $e_service_id, 'service_report', 'date');
+                    $sections = json_decode($this->Crud->read_field('id',  $e_template_id, 'service_template', 'sections'), true);
+                    usort($sections, function($a, $b) {
+                        return $a['priority'] - $b['priority'];
+                    });
+                    $anchors = json_decode($e_anchors);
+                    $durations = json_decode($e_durations);
+                    $total_duration = 0;
+                    if (!empty($durations)) {
+                        foreach ($durations as $key => $value) {
+                            if ($value->section) {
+                                $total_duration += (int)$value->duration;
+                                
+                            }
+                        }
+                    }
+                    $totals = $this->Crud->convertMinutesToTime($total_duration);
+                    
+                ?>
+                <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
+                
+                <div class="my-2">
+                    <div class="col-12 table-responsive">
+                        <table class="table table-borderless table-hover">
+                            <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>ACTIVITY</th>
+                                    <th>TIME (<?=$totals; ?>)</th>
+                                    <th>COORDINATOR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                    if (!empty($sections)) {
+                                        // Set initial start time for the program (e.g., 9 AM)
+                                        // $start_time = '09:00 AM'; // Replace with your actual start time
+                                        $current_time = strtotime($e_start_time); // Convert start time to a timestamp
+                                    
+                                        foreach ($sections as $sect) {
+                                            $dur = 0;
+                                            $coord = '';
+                                    
+                                            // Search for matching section in anchors (coordinator)
+                                            if (!empty($anchors)) {
+                                                foreach ($anchors as $key => $value) {
+                                                    if ($value->section === $sect['section']) {
+                                                        $coord = $value->anchor;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                    
+                                            // Search for matching section in durations
+                                            if (!empty($durations)) {
+                                                foreach ($durations as $key => $value) {
+                                                    if ($value->section === $sect['section']) {
+                                                        $dur = $value->duration;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                    
+                                            // Convert minutes to seconds and add to current time
+                                            $duration_in_seconds = $dur * 60;
+                                             // Calculate the end time by adding duration to current start time
+                                            $end_time = $current_time + $duration_in_seconds;
+
+                                             // Format the start and end times
+                                            $formatted_start_time = date('h:i A', $current_time);
+                                            $formatted_end_time = date('h:i A', $end_time);
+
+                                            // Output the row
+                                            echo '
+                                                <tr>
+                                                    <td>'.ucwords($sect['priority']).'</td>
+                                                    <td>'.ucwords($sect['section']).'</td>
+                                                    <td>'.$formatted_start_time.' - '.$formatted_end_time.' ('.$this->Crud->convertMinutesToTime($dur).')</td>
+                                                    <td>'.ucwords($coord).'</td>
+                                                </tr>
+                                            ';
+
+                                            $current_time = $end_time;
+                                        }
+                                    } else{
+
+                                        echo '
+                                            <tr><td colspan="5">NO ACTIVITY</td></tr>
+                                        ';
+                                    }
+                                
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                   
+
+                    <p><?= ucwords(($e_notes)); ?></p>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <h6></h6>
+                <div class="mt-2 row">
+                    
+                </div>
+            </div>
+        </div>
+
+    <?php } ?>
+
     <!-- insert/edit view -->
     <?php if($param2 == 'edit' || $param2 == '') { ?>
-        
-        
         <div class="row">
             <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
             <p class="text-danger">Service has to be Created before creating the Order of Program.</p>
