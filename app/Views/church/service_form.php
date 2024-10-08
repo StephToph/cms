@@ -279,7 +279,7 @@ $this->Crud = new Crud();
                         </div>
                     </div>
                 <?php } else { ?>
-                    <input type="hidden" name="ministry_id" value="<?= $ministry_id; ?>">
+                    <input type="hidden" name="ministry_id" id="ministry_id" value="<?= $ministry_id; ?>">
                     <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
                 <?php } ?>
                 <?php if ($role != 'church leader') { ?>

@@ -3390,7 +3390,7 @@ class Church extends BaseController{
 						if($this->Crud->check2('type', $service_type, 'date', $dates, 'service_report') == 0) {
 							$service_id = $this->Crud->create('service_report', $ser_data);
 						} else {
-							$service_id = $this->Crud->check2('type', $service_type, 'date', $dates, 'service_report');
+							$service_id = $this->Crud->read_field2('type', $service_type, 'date', $dates, 'service_report', 'id');
 							$ser_update = $this->Crud->updates('id', $service_id, 'service_report', $ser_data);
 						}
 					}
