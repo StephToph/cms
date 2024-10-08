@@ -73,8 +73,21 @@ $this->Crud = new Crud();
                         <input class="form-control" type="text" id="name" name="name" value="<?php if(!empty($e_name)) {echo $e_name;} ?>" required>
                     </div>
                 </div>
-            <?php } ?>
+            <?php } 
+            if($church_id > 0){
+            ?>
+                <div class="col-sm-4 mb-3">
+                    <div class="form-group">
+                        <label>Share With All Church</label>
+                        <select class="js-select2" name="is_sharing" id="is_sharing">
+                            <option value="0">Do Not Share</option>
+                            <option value="<?=$church_id; ?>">Share</option>
+                        </select>
+                    </div>
+                </div>
 
+            <?php } ?>
+                
             <div class="col-sm-12 mb-3">
                 <div class="form-group">
                     <label for="name">Description</label>

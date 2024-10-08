@@ -2589,6 +2589,7 @@ class Church extends BaseController {
 								$data['e_description'] = $e->description;
 								$data['e_section'] = $e->sections;
 								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_is_sharing'] = $e->is_sharing;
 							}
 						}
 					}
@@ -2600,6 +2601,7 @@ class Church extends BaseController {
 					$description = $this->request->getVar('description');
 					$section = $this->request->getVar('section');
 					$priority = $this->request->getVar('priority');
+					$is_sharing =  $this->request->getVar('is_sharing');
 					$ministry_id =  $this->request->getVar('ministry_id');
 					$church_id =  $this->request->getVar('church_id');
 
@@ -2647,6 +2649,11 @@ class Church extends BaseController {
 
 					$ins_data['name'] = $name;
 					$ins_data['description'] = $description;
+					if($is_sharing > 0){
+						$ins_data['is_sharing'] = $is_sharing;
+						$ins_data['type'] = 'personal';
+						$ins_data['church_id'] = $church_id;
+					}
 					$ins_data['sections'] = json_encode($sections);
 					$ins_data['ministry_id'] = $ministry_id;
 				

@@ -2974,21 +2974,21 @@ class Crud extends Model {
 	}
 	
 	//Filter Announements
-	public function filter_templates($limit = null, $offset = null, $user_id, $search = '', $switch_id = null) {
+	public function filter_templates($limit = '', $offset = '', $user_id, $search = '', $switch_id = '') {
 		$db = \Config\Database::connect();  // CI4 way of connecting to the database
 		$builder = $db->table('service_template');
 		
 		// Get user role
 		$role_id = $this->read_field('id', $user_id, 'user', 'role_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-
+	
 		$ministry_id = $this->read_field('id', $user_id, 'user', 'ministry_id');
 		$church_id = $this->read_field('id', $user_id, 'user', 'church_id');
-
+	
 		// If switch_id is provided, change the ministry and church context based on the church type
 		if (!empty($switch_id)) {
 			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
-
+	
 			switch ($church_type) {
 				case 'region':
 					$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
@@ -3007,43 +3007,62 @@ class Crud extends Model {
 					$role = 'church leader';
 					break;
 			}
-
+	
 			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
 			$church_id = $switch_id;
 		}
-
+	
+		// Join with the church table to access church_type, region, zone, and group if needed
+		
 		// Filter based on role (if not developer or admin)
 		if ($role != 'developer' && $role != 'administrator') {
 			if ($role === 'ministry administrator') {
 				// Ministry Administrator: Apply ministry_id filter
 				$builder->where('ministry_id', $ministry_id);
 				
-				// Include records where type is 'all' and church_id matches
-				
 			} else {
+				$builder->join('church', 'church.id = service_template.church_id');
+	
 				// For all other non-developer/admin roles
 				// 1. Return records where type is 'all' and ministry_id matches
 				$builder->groupStart()
 						->where('type', 'all')
 						->where('ministry_id', $ministry_id)
 						->groupEnd();
-
+	
 				// 2. Return records where type is not 'all' and match church_id
 				$builder->orGroupStart()
 						->where('type !=', 'all')
-						->where('church_id', $church_id)
+						->where('service_template.church_id', $church_id)
 						->groupEnd();
+	
+				// 3. Additional logic: If type is not 'all', check is_sharing and church_type
+				$builder->orGroupStart()
+						->where('type !=', 'all')
+						->groupStart()
+							->where('church.church_type', 'region')
+							->where('is_sharing', $this->read_field('id', $church_id, 'church', 'regional_id'))  // Compare with user's region
+						->groupEnd()
+						->orGroupStart()
+							->where('church.church_type', 'zone')
+							->where('is_sharing', $this->read_field('id', $church_id, 'church', 'zonal_id'))  // Compare with user's zone
+						->groupEnd()
+						->orGroupStart()
+							->where('church.church_type', 'group')
+							->where('is_sharing', $this->read_field('id', $church_id, 'church', 'group_id'))  // Compare with user's group
+						->groupEnd()
+					->groupEnd();
 			}
 		}
-
+	
 		// Search functionality
 		if (!empty($search)) {
-			$builder->like('name', $search);
+			$builder->like('service_template.name', $search);
 		}
-
+	
 		// Order by ID in descending order
-		$builder->orderBy('id', 'DESC');
-
+		$builder->orderBy('service_template.id', 'DESC');
+	
 		// Handle limits and offsets
 		if ($limit && $offset) {
 			$query = $builder->get($limit, $offset);
@@ -3052,13 +3071,13 @@ class Crud extends Model {
 		} else {
 			$query = $builder->get();
 		}
-
+	
 		// Return the result
 		return $query->getResult();
-
+	
 		$db->close();  // Closing the database connection
 	}
-
+	
 
 	
 	public function filter_service_order($limit = null, $offset = null, $user_id, $search = '', $switch_id = null) {
