@@ -141,6 +141,121 @@ $this->Crud = new Crud();
 
     <?php } ?>
 
+    <?php if ($param2 == 'download') { ?>
+        <div class="col-sm-12 my-2 text-center">
+            <button class="btn btn-danger text-uppercase" id="downloadBtn" type="button">
+                <i class="icon ni ni-download"></i> <?=translate_phrase('Download as PDF');?>
+            </button>
+        </div>
+        <div id="msg"></div>
+        <div class="row" id="content">
+            <div class="col-sm-12 mb-3">
+                <?php
+                    
+                    $service_date = $this->Crud->read_field('id',  $e_service_id, 'service_report', 'date');
+                    $sections = json_decode($this->Crud->read_field('id',  $e_template_id, 'service_template', 'sections'), true);
+                    usort($sections, function($a, $b) {
+                        return $a['priority'] - $b['priority'];
+                    });
+                    $anchors = json_decode($e_anchors);
+                    $durations = json_decode($e_durations);
+                    $total_duration = 0;
+                    if (!empty($durations)) {
+                        foreach ($durations as $key => $value) {
+                            if ($value->section) {
+                                $total_duration += (int)$value->duration;
+                                
+                            }
+                        }
+                    }
+                    $totals = $this->Crud->convertMinutesToTime($total_duration);
+                    
+                ?>
+                <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
+                
+                <div class="my-2">
+                    <div class="col-12 table-responsive">
+                        <table class="table table-borderless table-hover">
+                            <thead>
+                                <tr>
+                                    <th>S/N</th>
+                                    <th>ACTIVITY</th>
+                                    <th>TIME (<?=$totals; ?>)</th>
+                                    <th>COORDINATOR</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                    if (!empty($sections)) {
+                                        // Set initial start time for the program (e.g., 9 AM)
+                                        // $start_time = '09:00 AM'; // Replace with your actual start time
+                                        $current_time = strtotime($e_start_time); // Convert start time to a timestamp
+                                    
+                                        foreach ($sections as $sect) {
+                                            $dur = 0;
+                                            $coord = '';
+                                    
+                                            // Search for matching section in anchors (coordinator)
+                                            if (!empty($anchors)) {
+                                                foreach ($anchors as $key => $value) {
+                                                    if ($value->section === $sect['section']) {
+                                                        $coord = $value->anchor;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                    
+                                            // Search for matching section in durations
+                                            if (!empty($durations)) {
+                                                foreach ($durations as $key => $value) {
+                                                    if ($value->section === $sect['section']) {
+                                                        $dur = $value->duration;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                    
+                                            // Convert minutes to seconds and add to current time
+                                            $duration_in_seconds = $dur * 60;
+                                             // Calculate the end time by adding duration to current start time
+                                            $end_time = $current_time + $duration_in_seconds;
+
+                                             // Format the start and end times
+                                            $formatted_start_time = date('h:i A', $current_time);
+                                            $formatted_end_time = date('h:i A', $end_time);
+
+                                            // Output the row
+                                            echo '
+                                                <tr>
+                                                    <td>'.ucwords($sect['priority']).'</td>
+                                                    <td>'.ucwords($sect['section']).'</td>
+                                                    <td>'.$formatted_start_time.' - '.$formatted_end_time.' ('.$this->Crud->convertMinutesToTime($dur).')</td>
+                                                    <td>'.ucwords($coord).'</td>
+                                                </tr>
+                                            ';
+
+                                            $current_time = $end_time;
+                                        }
+                                    } else{
+
+                                        echo '
+                                            <tr><td colspan="5">NO ACTIVITY</td></tr>
+                                        ';
+                                    }
+                                
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                   
+
+                    <p><?= ucwords(($e_notes)); ?></p>
+                </div>
+            </div>
+        </div>
+        
+    <?php } ?>
+
     <!-- insert/edit view -->
     <?php if($param2 == 'edit' || $param2 == '') { ?>
         <div class="row">
@@ -274,8 +389,39 @@ $this->Crud = new Crud();
 
     <?php } ?>
 
+    <?php if($param2 == 'send_email') { ?>
+        <input type="hidden" name="edit_id" id="edit_id" value="<?php if(!empty($param3)){echo $param3;} ?>" />
+        <div class="row">
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label>Emails</label>
+                    <div id="email-container">
+                        <div class="input-group mb-2">
+                            <input type="email" class="form-control" name="emails[]" placeholder="Enter email" required>
+                            <button class="btn btn-outline-danger remove-email" type="button" style="display:none;">Remove</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-info" type="button" id="add-email">Add More Emails</button>
+                </div>
+            </div>
+            
+            <div class="col-sm-12 text-center mt-3">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-share"></i> <span><?=translate_phrase('Send');?></span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+    <?php } ?>
+
     
 <?php echo form_close(); ?>
+<?php if ($param2 == 'download') { ?>
+    
+<?php } ?>
 <script>
     $('.js-select2').select2();
     $(function () {
@@ -287,6 +433,42 @@ $this->Crud = new Crud();
         $('.time-picker').timepicker({});
 
     });
+
+    <?php if($param2 == 'download'){?>
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        $('#msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        var element = document.getElementById('content');
+        html2pdf()
+            .from(element)
+            .set({
+                margin: 1,
+                filename: 'content.pdf',
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' }
+            })
+            .save();
+            $('#msg').html('');
+    });
+    <?php } ?>
+    $(document).ready(function() {
+        $('#add-email').click(function() {
+            // Create a new input group for the email
+            var newEmailGroup = `
+                <div class="input-group mb-2">
+                    <input type="email" class="form-control" name="emails[]" placeholder="Enter email" required>
+                    <button class="btn btn-outline-danger remove-email" type="button">Remove</button>
+                </div>
+            `;
+            // Append the new email input group to the container
+            $('#email-container').append(newEmailGroup);
+        });
+
+        // Use event delegation to handle the remove button click
+        $('#email-container').on('click', '.remove-email', function() {
+            $(this).closest('.input-group').remove();
+        });
+    });
+
 
     $(document).ready(function() {
         // Function to handle the template change

@@ -12,6 +12,8 @@
 <?=$this->endSection();?>
 
 <?=$this->section('content');?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
 <div class="nk-content" >
     <div class="container-fluid mt-3">
         <div class="nk-content-inner">
@@ -86,9 +88,13 @@
 <script>var site_url = '<?php echo site_url(); ?>';</script>
 <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script>
+    
     $(function() {
         load('', '');
     });
+
+    
+
    
     function load(x, y) {
         var more = 'no';

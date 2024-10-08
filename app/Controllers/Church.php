@@ -2961,9 +2961,151 @@ class Church extends BaseController {
 						exit;	
 					}
 				}
+			} elseif($param2 == 'send_email'){
+				if($param3) {
+					$order_id = $param3;
+					$template_id = $this->Crud->read_field('id', $order_id, 'service_order', 'template_id');
+					$service_id = $this->Crud->read_field('id', $order_id, 'service_order', 'service_id');
+					$start_time = $this->Crud->read_field('id', $order_id, 'service_order', 'start_time');
+					$notes = $this->Crud->read_field('id', $order_id, 'service_order', 'notes');
+					$anchorsa = $this->Crud->read_field('id', $order_id, 'service_order', 'anchors');
+					$durationsa = $this->Crud->read_field('id', $order_id, 'service_order', 'durations');
+					$service_date = $this->Crud->read_field('id',  $service_id, 'service_report', 'date');
+					$church_id = $this->Crud->read_field('id',  $service_id, 'service_report', 'church_id');
+					
+					$sections = json_decode($this->Crud->read_field('id',  $template_id, 'service_template', 'sections'), true);
+					usort($sections, function($a, $b) {
+						return $a['priority'] - $b['priority'];
+					});
+					$anchors = json_decode($anchorsa);
+					$durations = json_decode($durationsa);
+					$total_duration = 0;
+					if (!empty($durations)) {
+						foreach ($durations as $key => $value) {
+							if ($value->section) {
+								$total_duration += (int)$value->duration;
+								
+							}
+						}
+					}
+					$totals = $this->Crud->convertMinutesToTime($total_duration);
+									
+					$body = '
+						<div class="row" id="content">
+							<div class="col-sm-12 mb-3">
+								<h5 class="text-center text-dark mb-2">'. ucwords($this->Crud->read_field('id', $church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'.'</h5>
+								
+								<div class="my-2">
+									<div class="col-12 table-responsive">
+										<table class="table table-borderless table-hover">
+											<thead>
+												<tr>
+													<th>S/N</th>
+													<th>ACTIVITY</th>
+													<th>TIME ('.$totals.')</th>
+													<th>COORDINATOR</th>
+												</tr>
+											</thead>
+											<tbody>'; 
+												if (!empty($sections)) {
+													$current_time = strtotime($start_time);
+												
+													foreach ($sections as $sect) {
+														$dur = 0;
+														$coord = '';
+												
+														// Search for matching section in anchors (coordinator)
+														if (!empty($anchors)) {
+															foreach ($anchors as $key => $value) {
+																if ($value->section === $sect['section']) {
+																	$coord = $value->anchor;
+																	break;
+																}
+															}
+														}
+												
+														// Search for matching section in durations
+														if (!empty($durations)) {
+															foreach ($durations as $key => $value) {
+																if ($value->section === $sect['section']) {
+																	$dur = $value->duration;
+																	break;
+																}
+															}
+														}
+												
+														// Convert minutes to seconds and add to current time
+														$duration_in_seconds = $dur * 60;
+														// Calculate the end time by adding duration to current start time
+														$end_time = $current_time + $duration_in_seconds;
+
+														// Format the start and end times
+														$formatted_start_time = date('h:i A', $current_time);
+														$formatted_end_time = date('h:i A', $end_time);
+
+														// Output the row
+														$body .= '
+															<tr>
+																<td>'.ucwords($sect['priority']).'</td>
+																<td>'.ucwords($sect['section']).'</td>
+																<td>'.$formatted_start_time.' - '.$formatted_end_time.' ('.$this->Crud->convertMinutesToTime($dur).')</td>
+																<td>'.ucwords($coord).'</td>
+															</tr>
+														';
+
+														$current_time = $end_time;
+													}
+												} else{
+
+													$body .= '
+														<tr><td colspan="5">NO ACTIVITY</td></tr>
+													';
+												}
+												
+												
+											$body .='</tbody>
+										</table>
+									</div>
+								
+
+									<p>'. ucwords(($notes)).'</p>
+								</div>
+							</div>
+						</div>
+					';
+
+					if($this->request->getMethod() == 'post'){
+						$email = $this->request->getPost('emails');
+
+						if(empty($email)){
+							echo $this->Crud->msg('warning', 'Enter Emails');
+							die;
+						}
+						$sent = 0;
+						$failed = 0;
+						foreach($email as $emails){
+							$head = 'Order of Program';
+							$email_status = $this->Crud->send_email($emails, $head, $body);
+							if($email_status > 0){
+								$sent++;
+							} else {
+								$failed++;
+							}
+							
+						}
+						if($sent == 0){
+							echo $this->Crud->msg('danger', 'Order of Service Email Failed to Send. Try Again Later');
+						} else{
+							echo $this->Crud->msg('info', 'Order of Service Sent to '.$sent.' Emails Successfully.'.$failed.' Failed');
+							echo '<script>location.reload(false);</script>';
+						}
+						
+						die;
+					}	
+				}
 			} else {
 				// prepare for edit
-				if($param2 == 'view') {
+				if($param2 == 'view' || $param2 == 'download') {
 					if($param3) {
 						$edit = $this->Crud->read_single('id', $param3, $table);
 						if(!empty($edit)) {
@@ -3009,7 +3151,9 @@ class Church extends BaseController {
 					$start_time =  $this->request->getVar('start_time');
 					$notes =  $this->request->getVar('notes');
 					$section =  $this->request->getVar('section_name');
-
+					$ministry_id = $this->Crud->read_field('id', $service_id, 'service_report', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $service_id, 'service_report', 'church_id');
+					
 					$anchors = [];
 					$duration = [];
 
@@ -3060,8 +3204,6 @@ class Church extends BaseController {
 						die;
 					}
 
-					$ministry_id = $this->Crud->read_field('id', $service_id, 'service_report', 'ministry_id');
-					$church_id = $this->Crud->read_field('id', $service_id, 'service_report', 'church_id');
 					
 					$ins_data['service_id'] = $service_id;
 					$ins_data['template_id'] = $template_id;
@@ -3241,9 +3383,11 @@ class Church extends BaseController {
 								$all_btn = ' ';
 							} else {
 								$all_btn = '
-									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-lg"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageName="' . site_url($mod . '/manage/edit/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete " pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 									<li><a href="javascript:;" pageSize="modal-xl" class="text-success pop" pageTitle="View " pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+									<li><a href="javascript:;" pageSize="modal-lg" class="text-dark pop" pageTitle="Download Service " pageName="' . site_url($mod . '/manage/download/' . $id) . '"><em class="icon ni ni-download"></em><span>'.translate_phrase('Download Service').'</span></a></li>
+									<li><a href="javascript:;" pageSize="modal-" class="text-info pop" pageTitle="Send to Email " pageName="' . site_url($mod . '/manage/send_email/' . $id) . '"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Send to Email').'</span></a></li>
 									
 								';
 									
