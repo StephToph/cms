@@ -261,8 +261,6 @@ $this->Crud = new Crud();
             </div>
         </div>
 
-
-
         <div class="col-sm-6 mb-3" id="weekly_days" style="display: none;">
             <div class="form-group">
                 <label>Select Days (for Weekly Recurrence)</label><br>
@@ -356,7 +354,7 @@ $this->Crud = new Crud();
 
         <?php } ?>
 
-        <?php if ($role != 'Church Leader') { ?>
+        <?php if ($church_id == 0) { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label>Church Level</label>
@@ -367,54 +365,7 @@ $this->Crud = new Crud();
                         $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
                         $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
-                        if ($log_church_type == 'region') {
-
-                            ?>
-
-                            <option value="zone" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'zone') {
-                                    echo 'selected';
-                                }
-                            } ?>>
-                                Zonal
-                                Church</option>
-                            <option value="group" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'group') {
-                                    echo 'selected';
-                                }
-                            } ?>>Group
-                                Church</option>
-                            <option value="church" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'church') {
-                                    echo 'selected';
-                                }
-                            } ?>>
-                                Church Assembly</option>
-                        <?php } elseif ($log_church_type == 'zone') { ?>
-
-                            <option value="group" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'group') {
-                                    echo 'selected';
-                                }
-                            } ?>>Group
-                                Church</option>
-                            <option value="church" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'church') {
-                                    echo 'selected';
-                                }
-                            } ?>>
-                                Church Assembly</option>
-
-                        <?php } elseif ($log_church_type == 'group') { ?>
-
-                            <option value="church" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'church') {
-                                    echo 'selected';
-                                }
-                            } ?>>
-                                Church Assembly</option>
-
-                        <?php } else { ?>
+                        ?>
                             <option value="all" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'all') {
                                     echo 'selected';
@@ -445,53 +396,27 @@ $this->Crud = new Crud();
                                 }
                             } ?>>
                                 Church Assembly</option>
-                        <?php } ?>
+                        
 
                     </select>
                 </div>
             </div>
 
-            <div class="col-sm-6 mb-3" id="send_resp" style="display:none;">
-                <div class="form-group">
-                    <label>Event For</label>
-                    <select class="js-select2" data-search="on" name="send_type" id="send_type" >
-                        <option value="general" <?php if (!empty($e_event_for)) {
-                            if ($e_event_for == 'general') {
-                                echo 'selected';
-                            }
-                        }
-                        ; ?>>General Church</option>
-                        <option value="individual" <?php if (!empty($e_event_for)) {
-                            if ($e_event_for == 'individual') {
-                                echo 'selected';
-                            }
-                        }
-                        ; ?>>
-                            Individual Church</option>
 
-                    </select>
-                    <span id="send_text" class="text-danger small">
-                        <?php if (!empty($e_event_for)) {
-                            if ($e_event_for == 'general') {
-                                echo 'This Event would apply to all Churches under the Selected  Region/Zone/Group/Church Assembly';
-
-                            } else {
-                                echo 'This  Event would apply to the Selected Church Only';
-
-                            }
-                        } else {
-                            echo 'This Event would apply to all Churches under the Selected  Region/Zone/Group/Church Assembly';
-
-                        }
-                        ?>
-                    </span>
-                </div>
-            </div>
-
-            <div class="col-sm-12 mb-3" id="church_div" style="display:none;">
+            <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label>Church</label>
-                    <select class="js-select2" data-search="on" multiple name="church_id[]" id="church_id">
+                    <select class="js-select2" data-search="on" name="church_id" id="church_id">
+                        <option value="">Select</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label>Members</label>
+                    <select class="js-select2" data-search="on" multiple name="member_id[]" id="member_id">
                         <option value="">Select</option>
 
                     </select>
