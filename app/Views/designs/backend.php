@@ -80,7 +80,7 @@
     </style>
     <div class="nk-app-root">
         <div class="nk-main ">
-            <div class="nk-sidebar nk-sidebar-fixed is-dark" data-content="sidebarMenu">
+            <div class="nk-sidebar nk-sidebar-fixed is-compact is-dark" data-content="sidebarMenu">
                 <div class="nk-sidebar-element nk-sidebar-head">
                     <div class="nk-menu-trigger"><a href="#" class="nk-nav-toggle nk-quick-nav-icon d-xl-none"
                         data-target="sidebarMenu"><em class="icon ni ni-arrow-left"></em></a><a href="#"

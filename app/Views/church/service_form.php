@@ -50,10 +50,10 @@ $this->Crud = new Crud();
                     
                 ?>
                 <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
-                
+                <br>
                 <div class="my-2">
-                    <div class="col-12 table-responsive">
-                        <table class="table table-borderless table-hover">
+                    <div class="col-12 ">
+                        <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>S/N</th>
@@ -172,10 +172,10 @@ $this->Crud = new Crud();
                     
                 ?>
                 <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
-                
+                <br>
                 <div class="my-2">
-                    <div class="col-12 table-responsive">
-                        <table class="table table-borderless table-hover">
+                    <div class="col-12 table-responsiv">
+                        <table class="table table-borderles table-hover">
                             <thead>
                                 <tr>
                                     <th>S/N</th>

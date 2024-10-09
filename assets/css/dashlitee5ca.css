@@ -36,23 +36,23 @@
 
 
 @font-face {
-    font-family: 'Open_Sans';
-    src: url('../fonts/Open_Sans/static/OpenSans_Condensed-Regular.ttf') format('truetype');
-    font-weight: 400;
+    font-family: 'Jakarta';
+    src: url('../ffonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Light.ttf') format('truetype');
+    font-weight: 300;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Open_Sans';
-    src: url('../fonts/Open_Sans/static/OpenSans_Condensed-Bold.ttf') format('truetype');
-    font-weight: 700;
+    font-family: 'Jakarta';
+    src: url('../fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-Medium.ttf') format('truetype');
+    font-weight: 500;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Open_Sans';
-    src: url('../fonts/Open_Sans/static/OpenSans_Condensed-Italic.ttf') format('truetype');
-    font-weight: 400;
+    font-family: 'Jakarta';
+    src: url('../fonts/Plus_Jakarta_Sans/static/PlusJakartaSans-SemiBold.ttf') format('truetype');
+    font-weight: 600;
     font-style: italic;
 }
 
@@ -174,7 +174,7 @@
     --bs-dark-border-subtle: #adb5bd;
     --bs-white-rgb: 255, 255, 255;
     --bs-black-rgb: 0, 0, 0;
-    --bs-font-sans-serif: Open_Sans sans-serif;
+    --bs-font-sans-serif: Jakarta sans-serif;
     --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
     --bs-body-font-family: 'Jakarta', sans-serif;
@@ -330,7 +330,7 @@ h6 {
     margin-top: 0;
     margin-bottom: .5rem;
     font-family: 'Jakarta', sans-serif;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.1;
     color: var(--bs-heading-color)
 }
@@ -34861,7 +34861,7 @@ body.nav-shown {
     padding: .625rem 40px .625rem 24px;
     color: #6e82a5;
     font-family: 'Jakarta', sans-serif;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 17px;
     letter-spacing: .01em;
     text-transform: none;

@@ -36,7 +36,58 @@
                 aspectRatio: 3,
                 editable: !0,
                 droppable: !0,
-                views: { dayGridMonth: { dayMaxEventRows: 2 } },
+                views: { 
+                    dayGridMonth: { dayMaxEventRows: 2 },
+                    listWeek: {
+                        eventContent: function (info) {
+                            // Create a div row for the event layout
+                            var rowDiv = document.createElement('div');
+                            rowDiv.classList.add('row', 'align-items-center');  // Using Bootstrap's row and align-items-center for vertical alignment
+                    
+                            // Create title div with col-6
+                            var titleDiv = document.createElement('div');
+                            titleDiv.classList.add('col-6');
+                            titleDiv.innerHTML = '<strong>' + info.event.title + '</strong>';
+                    
+                            // Create category div with col-3
+                            var categoryDiv = document.createElement('div');
+                            categoryDiv.classList.add('col-3');
+                            categoryDiv.innerHTML = '<strong>' + info.event.extendedProps.category + '</strong>';
+                    
+                            // Create buttons div with col-3
+                            var buttonsDiv = document.createElement('div');
+                            buttonsDiv.classList.add('col-3', 'text-end');  // text-end for right alignment
+                    
+                            // Create Edit button
+                            var editBtn = document.createElement('a');
+                            var editUrl = '/manage/edit/' + info.event.publicId;  // Update the URL format as needed
+                            editBtn.href = editUrl;
+                            editBtn.className = 'pop btn btn-sm btn-warning mx-1';  // mx-1 for spacing
+                            editBtn.textContent = 'Edit';
+                    
+                            // Create Delete button
+                            var deleteBtn = document.createElement('a');
+                            var deleteUrl = '/manage/delete/' + info.event.publicId;  // Update the URL format as needed
+                            deleteBtn.href = deleteUrl;
+                            deleteBtn.className = 'pop btn btn-sm btn-danger mx-1';  // mx-1 for spacing
+                            deleteBtn.textContent = 'Delete';
+                    
+                            // Append buttons to the buttonsDiv
+                            buttonsDiv.appendChild(editBtn);
+                            buttonsDiv.appendChild(deleteBtn);
+                    
+                            // Append title, category, and buttons divs to the rowDiv
+                            rowDiv.appendChild(titleDiv);
+                            rowDiv.appendChild(categoryDiv);
+                            rowDiv.appendChild(buttonsDiv);
+                    
+                            // Return the array of elements (in this case, the single rowDiv element)
+                            return { domNodes: [rowDiv] };
+                        }
+                    }
+                    
+                    
+                },
                 direction: g.State.isRTL ? "rtl" : "ltr",
                 nowIndicator: !0,
                 now: r + "T09:25:00",
