@@ -266,14 +266,51 @@ $this->Crud = new Crud();
         <div class="col-sm-6 mb-3" id="weekly_days" style="display: none;">
             <div class="form-group">
                 <label>Select Days (for Weekly Recurrence)</label><br>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="monday" name="by_day[]" value="MO" <?php if (!empty($e_by_day)) { if ($e_by_day == 'MO') {  echo 'checked'; } } ?>>
-                    <label class="form-check-label" for="monday">Monday</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="tuesday" name="by_day[]" value="TU" <?php if (!empty($e_by_day)) { if ($e_by_day == 'TU') {  echo 'checked'; } } ?>>
-                    <label class="form-check-label" for="tuesday">Tuesday</label>
-                </div>
+                <select id="days_of_week" multiple name="by_day" class="js-select2">
+                    <option value="">-- Select Days --</option>
+                    <option value="monday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'monday') {
+                            echo 'selected';
+                        }
+                    } ?>>
+                        Monday</option>
+                    <option value="tuesday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'tuesday') {
+                            echo 'selected';
+                        }
+                    } ?>>
+                        Tuesday</option>
+                    <option value="wednesday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'wednesday') {
+                            echo 'selected';
+                        }
+                    } ?>>Wednesday</option>
+                    <option value="thursday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'thursday') {
+                            echo 'selected';
+                        }
+                    } ?>>
+                        Thursday</option>
+                    <option value="friday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'friday') {
+                            echo 'selected';
+                        }
+                    } ?>>
+                        Friday</option>
+                    <option value="saturday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'saturday') {
+                            echo 'selected';
+                        }
+                    } ?>>
+                        Saturday</option>
+                    <option value="sunday" <?php if (!empty($e_by_day)) {
+                        if ($e_by_day == 'sunday') {
+                            echo 'selected';
+                        }
+                    } ?>>
+                        Sunday</option>
+                </select>
+                
             </div>
            
         </div>
@@ -507,10 +544,11 @@ $this->Crud = new Crud();
     });
 
     $('#is_recurring').change(function () {
+        console.log($(this).val());
         if ($(this).val() == '1') {
-            $('#recurring_options').show(500);
+            $('.recurring_options').show(500);
         } else {
-            $('#recurring_options').hide(500);
+            $('.recurring_options').hide(500);
         }
     });
 

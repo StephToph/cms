@@ -41,6 +41,7 @@
             </div>
         </div>
     </div>
+    <?php //echo ($cal_eventss).' dkjkdjfkdj'; ?>
     
     <div class="modal fade" id="previewEventPopup">
         <div class="modal-dialog modal-md" role="document">
@@ -71,6 +72,7 @@
                     </ul> -->
                 </div>
             </div>
+            
         </div>
     </div>
     <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>

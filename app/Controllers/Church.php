@@ -4111,7 +4111,8 @@ class Church extends BaseController{
 			}
 	
 	
-			$data['cal_events'] = array_values($cal_events);
+			$data['cal_events'] = json_encode(array_values($cal_events));
+			// print_r($cal_events);
 			if($param1 == 'manage') { // view for form data posting
 				return view($mod.'_form', $data);
 			} else { // view for main page
