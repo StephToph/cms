@@ -53,7 +53,7 @@ $this->Crud = new Crud();
                 <br>
                 <div class="my-2">
                     <div class="col-12 table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-bordered  table-hover">
                             <thead>
                                 <tr>
                                     <th>S/N</th>
@@ -175,7 +175,7 @@ $this->Crud = new Crud();
                 <br>
                 <div class="my-2">
                     <div class="col-12 table-responsive">
-                        <table class="table table-borderles table-hover">
+                        <table class="table  table-bordered   table-hover">
                             <thead>
                                 <tr>
                                     <th>S/N</th>
