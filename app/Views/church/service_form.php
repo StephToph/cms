@@ -52,7 +52,7 @@ $this->Crud = new Crud();
                 <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
                 <br>
                 <div class="my-2">
-                    <div class="col-12 ">
+                    <div class="col-12 table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -106,7 +106,7 @@ $this->Crud = new Crud();
                                             echo '
                                                 <tr>
                                                     <td>'.ucwords($sect['priority']).'</td>
-                                                    <td>'.ucwords($sect['section']).'</td>
+                                                    <td style="white-space:normal;">'.ucwords($sect['section']).'</td>
                                                     <td>'.$formatted_start_time.' - '.$formatted_end_time.' ('.$this->Crud->convertMinutesToTime($dur).')</td>
                                                     <td>'.ucwords($coord).'</td>
                                                 </tr>
@@ -174,7 +174,7 @@ $this->Crud = new Crud();
                 <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
                 <br>
                 <div class="my-2">
-                    <div class="col-12 table-responsiv">
+                    <div class="col-12 table-responsive">
                         <table class="table table-borderles table-hover">
                             <thead>
                                 <tr>
