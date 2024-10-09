@@ -14,7 +14,7 @@
     <!-- Page Title  -->
     <title><?=$title; ?></title>
     <!-- StyleSheets  -->
-    <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlite.css">
+    <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlitee5ca.css?ver=3.2.3">
     <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/css/skins/theme-blue.css">
     <style>
           /* Small screens (up to 576px) */
