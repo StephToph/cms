@@ -366,11 +366,6 @@ $this->Crud = new Crud();
                         $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
                         ?>
-                            <option value="all" <?php if (!empty($e_church_type)) {
-                                if ($e_church_type == 'all') {
-                                    echo 'selected';
-                                }
-                            } ?>>All Church Level</option>
                             <option value="region" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'region') {
                                     echo 'selected';
@@ -425,6 +420,31 @@ $this->Crud = new Crud();
 
            
 
+        <?php }else{ ?>
+            
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label>Members</label>
+                    <select class="js-select2" data-search="on" multiple name="member_id[]" id="member_id">
+                        <option value="">Select</option>
+                        <?php
+
+                        $members = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
+                        if (!empty($members)) {
+                            foreach ($members as $d) {
+                                $sel = '';
+                                if (!empty($e_member_id)) {
+                                    if ($e_member_id == $d->id) {
+                                        $sel = 'selected';
+                                    }
+                                }
+                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->firstname.' '.$d->surname.' - '.$d->phone) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
         <?php } ?>
 
         <div class="col-sm-12 text-center">
