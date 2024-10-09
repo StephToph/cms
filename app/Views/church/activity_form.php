@@ -139,26 +139,74 @@ $this->Crud = new Crud();
 <?php } ?>
 
 <!-- insert/edit view -->
-<?php if ($param2 == 'edit' || $param2 == '') { ?>
+<?php if ($param2 == 'edit' || $param2 == '') {
+     $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+     $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+
+     ?>
 
     <div class="row">
         <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
             echo $e_id;
         } ?>" />
 
-        <div class="col-sm-12 mb-3">
+        <div class="col-sm-8 mb-3">
             <div class="form-group">
-                <label for="name">Activity Name</label>
+                <label  class="form-label" for="name">Activity Name</label>
                 <input class="form-control" type="text" id="name" name="name" value="<?php if (!empty($e_name)) {
                     echo $e_name;
                 } ?>" required>
             </div>
         </div>
-
+        
+        <div class="col-sm-4 mb-3">
+            <div class="form-group">
+                <label>Category</label><br>
+                <select id="category_ids" name="category_id" class="js-select2" required>
+                    <option value="">-- Select --</option>
+                    <?php
+                        $category = $this->Crud->read_order('activity_category', 'name', 'asc');
+                        if($ministry_id > 0 && $church_id <= 0){
+                            $category = $this->Crud->read_single_order('ministry_id', $ministry_id, 'activity_category', 'name', 'asc');
+                        }
+                        if($church_id > 0){
+                            $category = $this->Crud->read_single_order('church_id', $church_id, 'activity_category', 'name', 'asc');
+                        }
+                        if (!empty($category)) {
+                            foreach ($category as $d) {
+                                $sel = '';
+                                if (!empty($e_category_id)) {
+                                    if ($e_category_id == $d->id) {
+                                        $sel = 'selected';
+                                    }
+                                }
+                                if($church_id > 0){
+                                    echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
+                                } else{
+                                    $church = $this->Crud->read_field('id', $d->church_id, 'church', 'name');
+                                    echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name.' - '.$church) . '</option>';
+                                }
+                                
+                            }
+                        }
+                        ?>
+                    <option value="new"> New Category</option>
+                </select>
+                
+            </div>
+           
+        </div>
+        <div class="col-sm-4 mb-3" id="category_resp" style="display:none;">
+            <div class="form-group">
+                <label class="form-label">New Category</label>
+                <input type="text"  name="category" id="category" class="form-control">
+                
+            </div>
+        </div>
         <div class="col-sm-12 mb-3">
             <div class="form-group">
-                <label for="name">Description</label>
-                <textarea id="summernote" class="form-control" name="content" rows="5" required><?php if (!empty($e_description)) {
+                <label  class="form-label" for="name">Description</label>
+                <textarea id="summernote" class="form-control" name="description" rows="5" required><?php if (!empty($e_description)) {
                     echo $e_description;
                 } ?></textarea>
             </div>
@@ -216,7 +264,7 @@ $this->Crud = new Crud();
 
         <div class="col-sm-6 mb-3">
             <div class="form-group">
-                <label for="is_recurring">Is this activity recurring?</label>
+                <label  class="form-label" for="is_recurring">Is this activity recurring?</label>
                 <select class="js-select2" data-search="on" id="is_recurring" name="is_recurring" required>
                     <option value="0">No (One-time event)</option>
                     <option value="1">Yes (Recurring event)</option>
@@ -256,7 +304,7 @@ $this->Crud = new Crud();
 
         <div class="col-sm-6 mb-3 recurring_options" id="" style="display:none;">
             <div class="form-group">
-                <label for="interval">Recurrence Interval (e.g., every 2 weeks)</label>
+                <label  class="form-label" for="interval">Recurrence Interval (e.g., every 2 weeks)</label>
                 <input type="number" class="form-control" id="interval" name="interval" value="1" min="1">
             </div>
         </div>
@@ -315,22 +363,20 @@ $this->Crud = new Crud();
 
         <div class="col-sm-6 mb-3 recurring_options" id="" style="display:none;">
             <div class="form-group">
-                <label for="until">Recurrence End Date</label>
+                <label  class="form-label" for="until">Recurrence End Date</label>
                 <input type="text" data-date-format="yyyy-mm-dd" name="until" id="until" class="form-control date-picker" value="<?php if (!empty($e_until)) { echo date('Y-m-d', strtotime($e_until));  } ?>">
             </div>
         </div>
 
         <?php
-        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-
+       
         if ($ministry_id > 0) { ?>
             <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
             <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
         <?php } else { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label>Ministry</label>
+                    <label  class="form-label">Ministry</label>
                     <select class="js-select2" data-search="on" name="ministry_id" id="ministry_id">
                         <option value="">Select Ministry</option>
                         <?php
@@ -357,7 +403,7 @@ $this->Crud = new Crud();
         <?php if ($church_id == 0) { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label>Church Level</label>
+                    <label  class="form-label">Church Level</label>
                     <select class="js-select2" data-search="on" name="level" id="level">
                         <option value=" ">Select Church Level</option>
                         <?php
@@ -400,7 +446,7 @@ $this->Crud = new Crud();
 
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label>Church</label>
+                    <label  class="form-label">Church</label>
                     <select class="js-select2" data-search="on" name="church_id" id="church_id">
                         <option value="">Select</option>
 
@@ -408,9 +454,9 @@ $this->Crud = new Crud();
                 </div>
             </div>
 
-            <div class="col-sm-6 mb-3">
+            <div class="col-sm-12 mb-3">
                 <div class="form-group">
-                    <label>Members</label>
+                    <label  class="form-label">Members</label>
                     <select class="js-select2" data-search="on" multiple name="member_id[]" id="member_id">
                         <option value="">Select</option>
 
@@ -424,8 +470,8 @@ $this->Crud = new Crud();
             
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label>Members</label>
-                    <select class="js-select2" data-search="on" multiple name="member_id[]" id="member_id">
+                    <label  class="form-label">Members</label>
+                    <select class="js-select2" data-search="on" multiple name="member_id[]" >
                         <option value="">Select</option>
                         <?php
 
@@ -489,11 +535,19 @@ $this->Crud = new Crud();
     });
 
     $('#is_recurring').change(function () {
-        console.log($(this).val());
         if ($(this).val() == '1') {
             $('.recurring_options').show(500);
         } else {
             $('.recurring_options').hide(500);
+        }
+    });
+
+    $('#category_ids').change(function () {
+        if ($(this).val() == 'new') {
+            console.log($(this).val());
+            $('#category_resp').show(500);
+        } else {
+            $('#category_resp').hide(500);
         }
     });
 
@@ -504,24 +558,30 @@ $this->Crud = new Crud();
             $('#weekly_days').hide(500);
         }
     });
-
+    $('#member_id').select2({
+        placeholder: 'Select members',
+        allowClear: true,
+        multiple: true,
+        width: '100%'
+    });
     var site_url = '<?php echo site_url(); ?>';
 
     $(document).ready(function () {
         $('.time-picker').timepicker({});
         <?php
             $e_church_ids = !empty($e_church_id) ? json_encode($e_church_id) : '[]';
+            $e_member_ids = !empty($e_member_id) ? json_encode($e_member_id) : '[]';
             
         ?>
         var eChurchId = <?php echo $e_church_ids; ?>;
+        var eMemberId = <?php echo $e_member_ids; ?>;
 
-    });
-
-
-    $(document).ready(function () {
-        var eChurchId = <?php echo $e_church_ids; ?>;
+  
         if (typeof eChurchId === 'string') {
             eChurchId = JSON.parse(eChurchId); // Parse JSON string to array
+        }
+        if (typeof eMemberId === 'string') {
+            eMemberId = JSON.parse(eMemberId); // Parse JSON string to array
         }
         // Function to load churches based on selected ministry ID and/or level
         function loadChurches(ministryId, level) {
@@ -557,6 +617,9 @@ $this->Crud = new Crud();
                                 var churchType = toTitleCase(church.type); // Convert type to title case
                                 $('#church_id').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
                             });
+                            var selectedChurchId = $('#church_id').val();
+                            loadMembers(selectedChurchId); // Load members when a church is selected
+                        
                         } else {
                             $('#church_id').append(new Option('No churches available', '', false, false));
                         }
@@ -570,12 +633,7 @@ $this->Crud = new Crud();
             }
         }
 
-        // Helper function to convert strings to title case
-        function toTitleCase(str) {
-            return str.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
-        }
-
-        // Auto-load churches if ministry_id or level is already set
+         // Auto-load churches if ministry_id or level is already set
         var ministryId = $('#ministry_id').val();
         var initialLevel = $('#level').val();
         if (ministryId || initialLevel) {
@@ -610,21 +668,65 @@ $this->Crud = new Crud();
             var selectedMinistryId = $('#ministry_id').val();
 
             if (selectedLevel === 'all' || selectedLevel === ' ') {
-                $('#church_div').hide(600);
-                $('#send_resp').hide(600); // Hide the Church dropdown
+               
             } else {
-                $('#send_resp').show(600);
-                $('#church_div').show(600); // Show the Church dropdown
                 loadChurches(selectedMinistryId, selectedLevel); // Load churches based on selected level
             }
         });
 
-        // Initial check to handle the case when the page loads with a preset level
-        if (initialLevel !== 'all' && initialLevel !== ' ') {
-            $('#church_div').show(600); // Ensure the Church dropdown is shown if a level is selected
-        } else {
-            $('#church_div').hide(600); // Hide the Church dropdown if the level is 'all'
+                // Function to load members based on selected church ID
+        function loadMembers(churchId) {
+            // Clear the Member dropdown
+            $('#member_id').empty();
+            $('#member_id').append(new Option('Loading...', '', false, false)).trigger('change');;
+
+            // Proceed only if a churchId is provided
+            if (churchId) {
+                $.ajax({
+                    url: site_url + 'ministry/announcement/get_members', // Update this to the path of your API endpoint
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { church_id: churchId }, // Send the selected church ID
+                    success: function (response) {
+                        $('#member_id').empty(); // Clear 'Loading...' option
+
+                        if (response.success) {
+                            // Populate the Member dropdown with the data received
+                            $.each(response.data, function (index, member) {
+                                var selected = eMemberId.includes(member.id); // Pre-select if necessary
+                                var memberName = toTitleCase(member.name);
+                                var memberPhone = member.phone || 'N/A';      // Show phone number or 'N/A' if missing
+                                // Append the member's name and phone number to the select box
+                                $('#member_id').append(new Option(memberName + ' (' + memberPhone + ')', member.id, selected, selected));
+
+                            });
+                        } else {
+                            $('#member_id').append(new Option('No members available', '', false, false)).trigger('change');;
+                        }
+                    },
+                    error: function () {
+                        $('#member_id').append(new Option('Error fetching members', '', false, false)).trigger('change');;
+                    }
+                });
+            } else {
+                $('#member_id').append(new Option('Please select a church', '', false, false)).trigger('change');;
+            }
         }
+
+        // Helper function to convert strings to title case
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function (txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        // Example: You might call loadMembers when the church dropdown changes
+        $('#church_id').change(function() {
+            var selectedChurchId = $(this).val();
+            loadMembers(selectedChurchId); // Load members when a church is selected
+        });
+
+
     });
 
 </script>

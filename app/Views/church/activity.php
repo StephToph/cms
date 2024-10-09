@@ -13,6 +13,24 @@
 <?=$this->endSection();?>
 
 <?=$this->section('content');?>
+<style>
+    .fc-event-table {
+        display: table;
+        width: 100%;
+    }
+
+    .fc-event-table td {
+        display: table-cell;
+        padding: 8px;
+        border-bottom: 1px solid #ddd;
+        vertical-align: middle;
+    }
+
+    .fc-event-table td:last-child {
+        text-align: right;  /* Align buttons to the right */
+    }
+
+</style>
 <!-- content @s -->
 <div class="nk-content ">
         <div class="container-fluid">
@@ -25,7 +43,7 @@
                             </div>
                             <div class="nk-block-head-content" id="add_resp">
                                 <?php if(empty($switch_id)){?>
-                                    <a href="javascript:;" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-lg" class="btn btn-outline-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
+                                    <a href="javascript:;" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-xl" class="btn btn-outline-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
                                 <?php } ?>
                             </div>
                         </div>
@@ -84,6 +102,8 @@
     
     // Parse the JSON string into a JavaScript object/array
     var calEvents = JSON.parse(calEventsStr);
+
+    
     function event_back() {
         $('#calendar_resp').hide(500);
         $('#view_resp').show(500);

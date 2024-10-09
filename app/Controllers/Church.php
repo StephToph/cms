@@ -3714,7 +3714,7 @@ class Church extends BaseController{
 			$data['role'] = $role;
 			$data['role_c'] = $role_c;
 			
-			$table = 'events';
+			$table = 'church_activity';
 			
 			$form_link = site_url($mod);
 			if($param1){$form_link .= '/'.$param1;}
@@ -3813,75 +3813,70 @@ class Church extends BaseController{
 					
 					if($this->request->getMethod() == 'post'){
 						$e_id =  $this->request->getVar('e_id');
-						$title =  $this->request->getVar('title');
-						$content =  $this->request->getVar('content');
+						$name =  $this->request->getVar('name');
+						$description =  $this->request->getVar('description');
 						$start_date =  $this->request->getVar('start_date');
 						$start_time =  $this->request->getVar('start_time');
 						$end_date =  $this->request->getVar('end_date');
 						$end_time =  $this->request->getVar('end_time');
-						$event_type =  $this->request->getVar('event_type');
-						$recurring_pattern =  $this->request->getVar('recurring_pattern');
-						$week_day =  $this->request->getVar('week_day');
-						$month_day =  $this->request->getVar('month_day');
-						$year =  $this->request->getVar('year');
-						$location =  $this->request->getVar('location');
-						$venue =  $this->request->getVar('venue');
+						$category_id =  $this->request->getVar('category_id');
+						$category =  $this->request->getVar('category');
+						$is_recurring =  $this->request->getVar('is_recurring');
+						$frequency =  $this->request->getVar('frequency');
+						$interval =  $this->request->getVar('interval');
+						$until =  $this->request->getVar('until');
+						$member_id =  $this->request->getVar('member_id');
 						$ministry_id =  $this->request->getVar('ministry_id');
-						$level =  $this->request->getVar('level');
-						$send_type =  $this->request->getVar('send_type');
 						$church_id =  $this->request->getVar('church_id');
-						$img_id =  $this->request->getVar('img');
-						if(empty($church_id)){
-							$church_id = array();
+						if(empty($member_id)){
+							$member_id = array();
 						}
 						
-						//// Image upload
-						if (file_exists($this->request->getFile('pics'))) {
-							if (!empty($img_id)) {
-								unlink(FCPATH . $img_id);
-							}
-							$path = 'assets/images/events/';
-							$file = $this->request->getFile('pics');
-							$getImg = $this->Crud->img_upload($path, $file);
-	
-							if (!empty($getImg->path)) $img_id = $getImg->path;
-						}
-	
-						if($event_type == 'one-time'){
-							$recurring_pattern = '';
-						}
-						$pattern = '';
-						if($event_type == 'recurring'){
-							if($recurring_pattern == 'weekly'){
-								$pattern = $week_day;
-							}
-							if($recurring_pattern == 'monthly'){
-								$pattern = $month_day;
-							}
-							if($recurring_pattern == 'yearly'){
-								$pattern = $year;
+						if($category_id == 'new'){
+							$cate_data['ministry_id'] = $ministry_id;
+							$cate_data['church_id'] = $church_id;
+							$cate_data['name'] = $category;
+
+							if($this->Crud->check3('ministry_id', $ministry_id, 'church_id', $church_id, 'name', $category, 'activity_category') > 0){
+								$category_id = $this->Crud->read_field3('ministry_id', $ministry_id, 'church_id', $church_id, 'name', $category, 'activity_category', 'id');
+							} else {
+								$category_id = $this->Crud->create('activity_category', $cate_data);
 							}
 							
-						
 						}
-						$ins_data['title'] = $title;
-						$ins_data['description'] = $content;
-						$ins_data['start_date'] = $start_date;
-						$ins_data['start_time'] = date('H:i', strtotime($start_time));
-						$ins_data['end_date'] = $end_date;
-						$ins_data['end_time'] = date('H:i', strtotime($end_time));
-						$ins_data['event_type'] = $event_type;
-						$ins_data['recurrence_pattern'] = $recurring_pattern;
-						$ins_data['pattern'] = $pattern;
-						$ins_data['location'] = $location;
-						$ins_data['venue'] = $venue;
-						$ins_data['ministry_id'] = $ministry_id;
-						$ins_data['event_for'] = $send_type;
-						$ins_data['church_type'] = $level;
-						$ins_data['church_id'] = json_encode($church_id);
-						if (!empty($img_id) || !empty($getImg->path))  $ins_data['image'] = $img_id;
+
+						if($is_recurring == 0){
+							$frequency = '';
+							$interval = 0;
+							$by_day = [];
+							$by_month_day = '0';
+							$until = null;
+							
+						} else{
+
+						}
+
+						$sDate = date('Y-m-d', strtotime($start_date)).'  '. date('h:i:s', strtotime($start_time));
+						$eDate = date('Y-m-d', strtotime($end_date)).' '.date('h:i:s', strtotime($end_time));
 						
-						$ins_data['updated_at'] = date(fdate);
+						// echo $eDate;
+						// die;
+
+						$ins_data['name'] = $name;
+						$ins_data['description'] = $description;
+						$ins_data['start_datetime'] = $sDate;
+						$ins_data['end_datetime'] = $eDate;
+						$ins_data['category_id'] = $category_id;
+						$ins_data['recurrence'] = $is_recurring;
+						$ins_data['frequency'] = $frequency;
+						$ins_data['intervals'] = $interval;
+						$ins_data['by_day'] = json_encode($by_day);
+						$ins_data['ministry_id'] = $ministry_id;
+						$ins_data['by_month_day'] = $by_month_day;
+						$ins_data['until'] = $until;
+						$ins_data['church_id'] = ($church_id);
+						$ins_data['members'] = json_encode($member_id);
+						
 						// do create or update
 						if($e_id) {
 							$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
@@ -3894,20 +3889,20 @@ class Church extends BaseController{
 							
 						} else{
 							
-							$ins_data['created_at'] = date(fdate);
+							$ins_data['reg_date'] = date(fdate);
 							
-							if($this->Crud->check2('title', $title, 'ministry_id', $ministry_id, $table) > 0) {
-								echo $this->Crud->msg('warning', ('Event Already Exist'));
+							if($this->Crud->check2('name', $name, 'ministry_id', $ministry_id, $table) > 0) {
+								echo $this->Crud->msg('warning', ('Church Activity Already Exist'));
 							} else {
 								$ins_rec = $this->Crud->create($table, $ins_data);
 								if($ins_rec > 0) {
-									echo $this->Crud->msg('success', translate_phrase('Event Created'));
+									echo $this->Crud->msg('success', translate_phrase('Church Activity Created'));
 									
 									///// store activities
 									$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-									$code = $this->Crud->read_field('id', $ins_rec, 'events', 'title');
-									$action = $by.' created Event ('.$code.')';
-									$this->Crud->activity('event', $ins_rec, $action);
+									$code = $this->Crud->read_field('id', $ins_rec, 'church_activity', 'name');
+									$action = $by.' created Church Activity ('.$code.')';
+									$this->Crud->activity('church_activity', $ins_rec, $action);
 	
 									
 									echo '<script>location.reload(false);</script>';
@@ -4070,7 +4065,7 @@ class Church extends BaseController{
 			}
 	
 			$cal_events = array();
-			$cal_ass = $this->Crud->read('events');
+			$cal_ass = $this->Crud->read('church_activity');
 			$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
 			$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 			
@@ -4081,29 +4076,34 @@ class Church extends BaseController{
 				$church_id = $switch_id;
 				$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
 			}
-			if($role != 'developer' && $role != 'administrator'){
-				$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
+			if($ministry_id > 0 && $church_id <= 0){
+				$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'church_activity');
+			}
+			if($church_id > 0){
+				$cal_ass = $this->Crud->read_single('church_id', $church_id, 'church_activity');
 			}
 			if(!empty($cal_ass)){
 				foreach($cal_ass as $key => $value){
-					if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
-						if(!in_array($church_id, json_decode($value->church_id))){
-							continue;
-						}
-					}
-					$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
-					$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
 					
-					$class = 'fc-event-warning';
-					if($value->church_type == 'all') $class = 'fc-event-primary';
-					if($value->church_type == 'region') $class = 'fc-event-info';
-					if($value->church_type == 'zone') $class = 'fc-event-indigo';
-					if($value->church_type == 'group') $class = 'fc-event-danger';
-					if($value->church_type == 'church') $class = 'fc-event-success';
+					$start = date('Y-m-d H:i', strtotime($value->start_datetime));
+					$end = date('Y-m-d H:i', strtotime($value->end_datetime));
+					$members = json_decode($value->members, true);
+					if (!empty($members) && is_array($members)) {
+						// Get the first value from the array
+						$firstMember = reset($members);  // reset() will return the first element of the array
+						
+						// You can now use $firstMember
+						$member = $this->Crud->read_field('id', $firstMember, 'user', 'firstname').' '.$this->Crud->read_field('id', $firstMember, 'user', 'surname');
+					} else {
+						$member = "No members found.";
+					}
+					$class = 'fc-event-primary';
 					$cal_events[$key]['id'] = $value->id;
-					$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->title));
+					$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->name));
 					$cal_events[$key]['start'] = $start;
 					$cal_events[$key]['end'] = $end;
+					$cal_events[$key]['extendedProps'] =  array('category'=>  ucwords($member));
+					$cal_events[$key]['publicId'] = $value->id;
 					$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
 					$cal_events[$key]['className'] = $class;
 				}
@@ -4111,7 +4111,7 @@ class Church extends BaseController{
 			}
 	
 	
-			$data['cal_events'] = json_encode(array_values($cal_events));
+			$data['cal_events'] = (array_values($cal_events));
 			// print_r($cal_events);
 			if($param1 == 'manage') { // view for form data posting
 				return view($mod.'_form', $data);
