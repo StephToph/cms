@@ -3673,6 +3673,457 @@ class Church extends BaseController{
 		}
 	}
 
+	public function activity($param1='', $param2='', $param3='') {
+		// check session login
+			if($this->session->get('td_id') == ''){
+				$request_uri = uri_string();
+				$this->session->set('td_redirect', $request_uri);
+				return redirect()->to(site_url('auth'));
+			} 
+	
+			$mod = 'church/activity';
+	
+			$log_id = $this->session->get('td_id');
+			$switch_id = $this->session->get('switch_church_id');
+			
+			$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+			if(!empty($switch_id)){
+				$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+				if($church_type == 'region'){
+					$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+				}
+				if($church_type == 'zone'){
+					$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+				}
+				if($church_type == 'group'){
+					$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+				}
+				if($church_type == 'church'){
+					$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+				}
+			}
+			$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+			$role_c = $this->Crud->module($role_id, $mod, 'create');
+			$role_r = $this->Crud->module($role_id, $mod, 'read');
+			$role_u = $this->Crud->module($role_id, $mod, 'update');
+			$role_d = $this->Crud->module($role_id, $mod, 'delete');
+			if($role_r == 0){
+				return redirect()->to(site_url('dashboard'));	
+			}
+			$data['log_id'] = $log_id;
+			$data['role'] = $role;
+			$data['role_c'] = $role_c;
+			
+			$table = 'events';
+			
+			$form_link = site_url($mod);
+			if($param1){$form_link .= '/'.$param1;}
+			if($param2){$form_link .= '/'.$param2.'/';}
+			if($param3){$form_link .= $param3;}
+			
+			// pass parameters to view
+			$data['param1'] = $param1;
+			$data['param2'] = $param2;
+			$data['param3'] = $param3;
+			$data['form_link'] = rtrim($form_link, '/');
+			$data['current_language'] = $this->session->get('current_language');
+			
+			// manage record
+			if($param1 == 'manage') {
+				// prepare for delete
+				if($param2 == 'delete') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						//echo var_dump($edit);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['d_id'] = $e->id;
+							}
+						}
+						
+						if($this->request->getMethod() == 'post'){
+							$del_id =  $this->request->getVar('d_id');
+							if($this->Crud->deletes('id', $del_id, $table) > 0) {
+								echo $this->Crud->msg('success', 'Record Deleted');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');
+							}
+							die;	
+						}
+					}
+				} else {
+					// prepare for edit
+					if($param2 == 'edit') {
+						if($param3) {
+							$edit = $this->Crud->read_single('id', $param3, $table);
+							if(!empty($edit)) {
+								foreach($edit as $e) {
+									$data['e_id'] = $e->id;
+									$data['e_title'] = $e->title;
+									$data['e_description'] = $e->description;
+									$data['e_start_date'] = $e->start_date;
+									$data['e_start_time'] = $e->start_time;
+									$data['e_end_date'] = $e->end_date;
+									$data['e_end_time'] = $e->end_time;
+									$data['e_location'] = $e->location;
+									$data['e_venue'] = $e->venue;
+									$data['e_event_type'] = $e->event_type;
+									$data['e_recurrence_pattern'] = $e->recurrence_pattern;
+									$data['e_pattern'] = $e->pattern;
+									$data['e_image'] = $e->image;
+									$data['e_event_for'] = $e->event_for;
+									$data['e_church_id'] = $e->church_id;
+									$data['e_ministry_id'] = $e->ministry_id;
+									$data['e_church_type'] = $e->church_type;
+								}
+							}
+						}
+					}
+	
+					// prepare for view
+					if($param2 == 'view') {
+						if($param3) {
+							$edit = $this->Crud->read_single('id', $param3, $table);
+							if(!empty($edit)) {
+								foreach($edit as $e) {
+									$data['e_id'] = $e->id;
+									$data['e_title'] = $e->title;
+									$data['e_description'] = $e->description;
+									$data['e_start_date'] = $e->start_date;
+									$data['e_start_time'] = $e->start_time;
+									$data['e_end_date'] = $e->end_date;
+									$data['e_end_time'] = $e->end_time;
+									$data['e_location'] = $e->location;
+									$data['e_venue'] = $e->venue;
+									$data['e_event_type'] = $e->event_type;
+									$data['e_recurrence_pattern'] = $e->recurrence_pattern;
+									$data['e_pattern'] = $e->pattern;
+									$data['e_image'] = $e->image;
+									$data['e_event_for'] = $e->event_for;
+									$data['e_church_id'] = $e->church_id;
+									$data['e_ministry_id'] = $e->ministry_id;
+									$data['e_created_at'] = $e->created_at;
+									$data['e_updated_at'] = $e->updated_at;
+									$data['e_church_type'] = $e->church_type;
+								}
+							}
+						}
+					}
+					
+					if($this->request->getMethod() == 'post'){
+						$e_id =  $this->request->getVar('e_id');
+						$title =  $this->request->getVar('title');
+						$content =  $this->request->getVar('content');
+						$start_date =  $this->request->getVar('start_date');
+						$start_time =  $this->request->getVar('start_time');
+						$end_date =  $this->request->getVar('end_date');
+						$end_time =  $this->request->getVar('end_time');
+						$event_type =  $this->request->getVar('event_type');
+						$recurring_pattern =  $this->request->getVar('recurring_pattern');
+						$week_day =  $this->request->getVar('week_day');
+						$month_day =  $this->request->getVar('month_day');
+						$year =  $this->request->getVar('year');
+						$location =  $this->request->getVar('location');
+						$venue =  $this->request->getVar('venue');
+						$ministry_id =  $this->request->getVar('ministry_id');
+						$level =  $this->request->getVar('level');
+						$send_type =  $this->request->getVar('send_type');
+						$church_id =  $this->request->getVar('church_id');
+						$img_id =  $this->request->getVar('img');
+						if(empty($church_id)){
+							$church_id = array();
+						}
+						
+						//// Image upload
+						if (file_exists($this->request->getFile('pics'))) {
+							if (!empty($img_id)) {
+								unlink(FCPATH . $img_id);
+							}
+							$path = 'assets/images/events/';
+							$file = $this->request->getFile('pics');
+							$getImg = $this->Crud->img_upload($path, $file);
+	
+							if (!empty($getImg->path)) $img_id = $getImg->path;
+						}
+	
+						if($event_type == 'one-time'){
+							$recurring_pattern = '';
+						}
+						$pattern = '';
+						if($event_type == 'recurring'){
+							if($recurring_pattern == 'weekly'){
+								$pattern = $week_day;
+							}
+							if($recurring_pattern == 'monthly'){
+								$pattern = $month_day;
+							}
+							if($recurring_pattern == 'yearly'){
+								$pattern = $year;
+							}
+							
+						
+						}
+						$ins_data['title'] = $title;
+						$ins_data['description'] = $content;
+						$ins_data['start_date'] = $start_date;
+						$ins_data['start_time'] = date('H:i', strtotime($start_time));
+						$ins_data['end_date'] = $end_date;
+						$ins_data['end_time'] = date('H:i', strtotime($end_time));
+						$ins_data['event_type'] = $event_type;
+						$ins_data['recurrence_pattern'] = $recurring_pattern;
+						$ins_data['pattern'] = $pattern;
+						$ins_data['location'] = $location;
+						$ins_data['venue'] = $venue;
+						$ins_data['ministry_id'] = $ministry_id;
+						$ins_data['event_for'] = $send_type;
+						$ins_data['church_type'] = $level;
+						$ins_data['church_id'] = json_encode($church_id);
+						if (!empty($img_id) || !empty($getImg->path))  $ins_data['image'] = $img_id;
+						
+						$ins_data['updated_at'] = date(fdate);
+						// do create or update
+						if($e_id) {
+							$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
+							if($upd_rec > 0) {
+								echo $this->Crud->msg('success', 'Updated');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('info', 'No Changes');	
+							}
+							
+						} else{
+							
+							$ins_data['created_at'] = date(fdate);
+							
+							if($this->Crud->check2('title', $title, 'ministry_id', $ministry_id, $table) > 0) {
+								echo $this->Crud->msg('warning', ('Event Already Exist'));
+							} else {
+								$ins_rec = $this->Crud->create($table, $ins_data);
+								if($ins_rec > 0) {
+									echo $this->Crud->msg('success', translate_phrase('Event Created'));
+									
+									///// store activities
+									$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+									$code = $this->Crud->read_field('id', $ins_rec, 'events', 'title');
+									$action = $by.' created Event ('.$code.')';
+									$this->Crud->activity('event', $ins_rec, $action);
+	
+									
+									echo '<script>location.reload(false);</script>';
+								} else {
+									echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+								}	
+							}
+						}
+						die;	
+					}
+				}
+			}
+	
+			// record listing
+			if($param1 == 'load') {
+				$limit = $param2;
+				$offset = $param3;
+	
+				$rec_limit = 25;
+				$item = '';
+	
+				if(empty($limit)) {$limit = $rec_limit;}
+				if(empty($offset)) {$offset = 0;}
+				
+				
+				if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
+				$search = $this->request->getPost('search');
+	
+				//echo $status;
+				$log_id = $this->session->get('td_id');
+				if(!$log_id) {
+					$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
+				} else {
+					$all_rec = $this->Crud->filter_events('', '', $log_id, $status, $search, $switch_id);
+					if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+					$query = $this->Crud->filter_events($limit, $offset, $log_id, $status, $search, $switch_id);
+	
+					if(!empty($query)) {
+						foreach($query as $q) {
+							$id = $q->id;
+							$reg_date =  date('M d, Y h:i A', strtotime($q->created_at));
+							$title = $q->title;
+							$church_id = $q->church_id;
+							$img = $q->image;
+							$ministry_id = $q->ministry_id;
+							$church_type = $q->church_type;
+							$start_date = $q->start_date;
+							$end_date = $q->end_date;
+							$event_type = $q->event_type;
+							$recurrence_pattern = $q->recurrence_pattern;
+							$status = $q->status;
+							$images = '';
+							if(!empty($img))$images = '<img  src="' . site_url($img) . '" height="40px" width="40px" class="img-responsive">';
+							//$approve = '';
+							if($status == 1) { 
+								$colors = 'success';
+								$approve_text = 'Approved';
+								$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> '; 
+							} else {
+								$colors = 'danger';
+								$approve_text = 'Not Approved';
+							}
+	
+							// add manage buttons
+							if($role_u != 1) {
+								$all_btn = '';
+							} else {
+								if(!empty($switch_id)){
+	
+									$all_btn = '
+										<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+									
+									';
+								} else {
+	
+									$all_btn = '
+										<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+										<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+										<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+										
+									';
+	
+								}
+								
+							}
+	
+							$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+	
+							$start = date('Y-m-d', strtotime($q->start_date)).' '.date('H:i', strtotime($q->start_time));
+							$end = date('Y-m-d', strtotime($q->end_date)).' '.date('H:i', strtotime($q->end_time));
+					
+							$item .= '
+								<tr>
+									<td>
+										<div class="user-card">
+											<div class="user-avatar">            
+												'.$images.'      
+											</div>        
+											<div class="user-name">            
+												<span class="tb-lead">' . ucwords($title) . '</span> <br>
+											<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                   
+											</div>    
+										</div>  
+									</td>
+									<td>
+										<span class="small text-dark">'.ucwords($church_type).' Churches</span>
+									</td>
+									<td><span class="small text-dark">'.$start.' <b>&#8594;</b> '.$end.'</span></td>
+									<td><span class="small text-dark">'.ucwords($event_type).'</span></td>
+									<td><span class="small text-dark">'.ucwords($q->location).'</span></td>
+									<td>
+										<div class="drodown">
+											<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+											<div class="dropdown-menu dropdown-menu-end">
+												<ul class="link-list-opt no-bdr">
+													' . $all_btn . '
+												</ul>
+											</div>
+										</div>
+									</td>
+								</tr>
+							';
+	
+							
+						}
+					}
+				}
+				
+				if(empty($item)) {
+					$resp['item'] = '
+						<Tr><td colspan="8"><div class="text-center text-muted">
+							<br/><br/><br/>
+							<i class="ni ni-calendar-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Events Returned').'
+						</div></td></tr>
+					';
+				} else {
+					$resp['item'] = $item;
+					if($offset >= 25){
+						$resp['item'] = $item;
+					}
+					
+				}
+	
+	
+				$resp['count'] = $counts;
+	
+				$more_record = $counts - ($offset + $rec_limit);
+				$resp['left'] = $more_record;
+	
+				if($counts > ($offset + $rec_limit)) { // for load more records
+					$resp['limit'] = $rec_limit;
+					$resp['offset'] = $offset + $limit;
+				} else {
+					$resp['limit'] = 0;
+					$resp['offset'] = 0;
+				}
+	
+				echo json_encode($resp);
+				die;
+			}
+	
+			$cal_events = array();
+			$cal_ass = $this->Crud->read('events');
+			$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+			$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+			
+			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			if(!empty($switch_id)){
+				$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+				$church_id = $switch_id;
+				$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+			}
+			if($role != 'developer' && $role != 'administrator'){
+				$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
+			}
+			if(!empty($cal_ass)){
+				foreach($cal_ass as $key => $value){
+					if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
+						if(!in_array($church_id, json_decode($value->church_id))){
+							continue;
+						}
+					}
+					$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
+					$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
+					
+					$class = 'fc-event-warning';
+					if($value->church_type == 'all') $class = 'fc-event-primary';
+					if($value->church_type == 'region') $class = 'fc-event-info';
+					if($value->church_type == 'zone') $class = 'fc-event-indigo';
+					if($value->church_type == 'group') $class = 'fc-event-danger';
+					if($value->church_type == 'church') $class = 'fc-event-success';
+					$cal_events[$key]['id'] = $value->id;
+					$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->title));
+					$cal_events[$key]['start'] = $start;
+					$cal_events[$key]['end'] = $end;
+					$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
+					$cal_events[$key]['className'] = $class;
+				}
+				
+			}
+	
+	
+			$data['cal_events'] = json_encode(array_values($cal_events));
+			// print_r($cal_events);
+			if($param1 == 'manage') { // view for form data posting
+				return view($mod.'_form', $data);
+			} else { // view for main page
+				
+				$data['title'] = 'Church Activity - '.app_name;
+				$data['page_active'] = $mod;
+	
+				return view($mod, $data);
+			}
+		}
+		
 
 
 }

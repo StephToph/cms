@@ -451,21 +451,7 @@
     </script>
     <?=$this->renderSection('scripts');?>
     <script>
-        // Event listener to trigger PDF download when modal is shown
-        $('#modal').on('shown.bs.modal', function () {
-            var element = document.getElementById('content');
-            html2pdf()
-            .from(element)
-            .set({
-                margin: 1,
-                filename: 'order_of_service.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // Ensure proper page breaks
-            })
-            .save();
-            
-        });
+       
     function mark_read(id) {
         $.ajax({
             url: site_url + 'notification/mark_read/' + id,
@@ -498,7 +484,7 @@
     
     </script>
     
-    <?php if($page_active == 'ministry/calendar'){?>
+    <?php if($page_active == 'ministry/calendar' || $page_active == 'church/activity'){?>
         <script src="<?php echo base_url(); ?>/assets/js/libs/fullcalendar.js"></script>
         <script src="<?php echo base_url(); ?>/assets/js/apps/calendar.js?v=<?=time();?>"></script>
     <?php } ?>
