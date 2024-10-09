@@ -15,6 +15,10 @@
             r = n + "-" + a + "-" + t,
             v = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             e = document.getElementById("calendar"),
+            initialView = e.getAttribute("data-initial-view") || (g.Win.width < g.Break.md ? "listWeek" : "dayGridMonth"),  // Use the value from the data attribute
+            headerToolbarConfig = initialView === "listWeek"
+                ? { left: "title prev,next", center: null, right: null } // No right toolbar for view switching
+                : { left: "title prev,next", center: null, right: "today dayGridMonth,timeGridWeek,timeGridDay,listWeek" }, // Default header with view switching
             n = (document.getElementById("externalEvents"), document.getElementById("removeEvent"), f("#addEvent")),
             s = (f("#addEventForm"), f("#addEventPopup")),
             a = f("#updateEvent"),
@@ -22,12 +26,11 @@
             o = f("#editEventPopup"),
             p = f("#previewEventPopup"),
             t = f("#deleteEvent"),
-            l = g.Win.width < g.Break.md,
             c = new FullCalendar.Calendar(e, {
                 timeZone: "UTC",
-                initialView: l ? "listWeek" : "dayGridMonth",
+                initialView: initialView, // Set the initial view dynamically
                 themeSystem: "bootstrap5",
-                headerToolbar: { left: "title prev,next", center: null, right: "today dayGridMonth,timeGridWeek,timeGridDay,listWeek" },
+                headerToolbar: headerToolbarConfig,
                 height: 800,
                 contentHeight: 780,
                 aspectRatio: 3,
