@@ -108,7 +108,7 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total Service Tithe</h6>
+                                                <h6 class="title"><?=translate_phrase('Total Service Tithe');?></h6>
                                             </div>
                                             <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"

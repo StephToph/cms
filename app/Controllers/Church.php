@@ -3776,7 +3776,7 @@ class Church extends BaseController{
 									$data['e_church_id'] = $e->church_id;
 									$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 									$data['e_ministry_id'] = $e->ministry_id;
-									$data['e_member_id'] = $e->members;
+									// $data['e_member_id'] = $e->members;
 								}
 							}
 						}
@@ -3825,7 +3825,10 @@ class Church extends BaseController{
 						$is_recurring =  $this->request->getVar('is_recurring');
 						$frequency =  $this->request->getVar('frequency');
 						$interval =  $this->request->getVar('interval');
-						$until =  $this->request->getVar('until');
+						$by_day =  $this->request->getVar('by_day');
+						$recurrence_end =  $this->request->getVar('recurrence_end');
+						$occurrences =  $this->request->getVar('occurrences');
+						$recurrence_end_dates =  $this->request->getVar('end_dates');
 						$member_id =  $this->request->getVar('member_id');
 						$ministry_id =  $this->request->getVar('ministry_id');
 						$church_id =  $this->request->getVar('church_id');
@@ -3833,6 +3836,49 @@ class Church extends BaseController{
 							$member_id = array();
 						}
 						
+
+						// 2. Recurring Event Validation
+						if ($is_recurring == 1) {
+							// Validate frequency (daily, weekly, monthly, yearly)
+							if (empty($frequency) || !in_array($frequency, ['daily', 'weekly', 'monthly', 'yearly'])) {
+								$errors[] = 'Invalid recurrence frequency.';
+							}
+
+							// Validate interval (e.g., repeat every X days/weeks/months)
+							if (empty($interval) || !is_numeric($interval) || $interval <= 0) {
+								$errors[] = 'Recurrence interval must be a positive number.';
+							}
+
+							// Validate recurrence_end (never, after, by)
+							if (empty($recurrence_end) || !in_array($recurrence_end, ['never', 'after', 'by'])) {
+								$errors[] = 'Invalid recurrence end type.';
+							}
+
+							// If recurrence ends 'after' a certain number of occurrences
+							if ($recurrence_end == 'after' && (empty($occurrences) || !is_numeric($occurrences) || $occurrences <= 0)) {
+								$errors[] = 'Occurrences must be a valid positive number if recurrence ends after a set number of occurrences.';
+							}
+
+							// If recurrence ends 'by' a certain date
+							if ($recurrence_end == 'by' && (empty($recurrence_end_dates) || !strtotime($recurrence_end_dates))) {
+								$errors[] = 'A valid end date is required if recurrence ends by a specific date.';
+							}
+
+							// Example: Recurrence days for weekly recurrence
+							if ($frequency == 'weekly' && empty($by_day)) {
+								$errors[] = 'Please select at least one day for weekly recurrence.';
+							}
+						}
+
+						// 3. If there are errors, display them and stop the process
+						if (!empty($errors)) {
+							// Show errors to the user (this could be done with session flash data or directly returning the errors)
+							foreach ($errors as $error) {
+								echo $this->Crud->msg('danger', $error);
+							}
+							die; // Stop the process if there are errors
+						}
+
 						if($category_id == 'new'){
 							$cate_data['ministry_id'] = $ministry_id;
 							$cate_data['church_id'] = $church_id;
@@ -3849,12 +3895,24 @@ class Church extends BaseController{
 						if($is_recurring == 0){
 							$frequency = '';
 							$interval = 0;
+							$occurrences = 0;
 							$by_day = [];
-							$by_month_day = '0';
-							$until = null;
-							
-						} else{
-
+							$recurrence_end = '';
+							$recurrence_end_dates = null;
+						} else {
+							if($frequency != 'weekly'){
+								$by_day = [];
+							}
+							if($recurrence_end == 'never'){
+								$occurrences = 0;
+								$recurrence_end_dates = null;
+							}
+							if($recurrence_end == 'after'){
+								$recurrence_end_dates = null;
+							}
+							if($recurrence_end == 'by'){
+								$occurrences = 0;
+							}
 						}
 
 						$sDate = date('Y-m-d', strtotime($start_date)).'  '. date('h:i:s', strtotime($start_time));
@@ -3863,7 +3921,7 @@ class Church extends BaseController{
 						// echo $eDate;
 						// die;
 
-						$ins_data['name'] = $name;
+						// $ins_data['name'] = $name;
 						$ins_data['description'] = $description;
 						$ins_data['start_datetime'] = $sDate;
 						$ins_data['end_datetime'] = $eDate;
@@ -3873,8 +3931,9 @@ class Church extends BaseController{
 						$ins_data['intervals'] = $interval;
 						$ins_data['by_day'] = json_encode($by_day);
 						$ins_data['ministry_id'] = $ministry_id;
-						$ins_data['by_month_day'] = $by_month_day;
-						$ins_data['until'] = $until;
+						$ins_data['occurrences'] = $occurrences;
+						$ins_data['recurrence_end'] = $recurrence_end;
+						$ins_data['end_dates'] = $recurrence_end_dates;
 						$ins_data['church_id'] = ($church_id);
 						$ins_data['members'] = json_encode($member_id);
 						
@@ -3892,7 +3951,7 @@ class Church extends BaseController{
 							
 							$ins_data['reg_date'] = date(fdate);
 							
-							if($this->Crud->check2('name', $name, 'ministry_id', $ministry_id, $table) > 0) {
+							if($this->Crud->check3('category_id', $category_id, 'reg_date', date(fdate), 'ministry_id', $ministry_id, $table) > 0) {
 								echo $this->Crud->msg('warning', ('Church Activity Already Exist'));
 							} else {
 								$ins_rec = $this->Crud->create($table, $ins_data);
@@ -4099,8 +4158,9 @@ class Church extends BaseController{
 						$member = "No members found.";
 					}
 					$class = 'fc-event-primary';
+					$name = $this->Crud->read_field('id', $value->category_id, 'activity_category', 'name');
 					$cal_events[$key]['id'] = $value->id;
-					$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->name));
+					$cal_events[$key]['title'] = strtoupper(($name));
 					$cal_events[$key]['start'] = $start;
 					$cal_events[$key]['end'] = $end;
 					$cal_events[$key]['extendedProps'] =  array('category'=>  ucwords($member));

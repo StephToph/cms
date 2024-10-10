@@ -150,18 +150,18 @@ $this->Crud = new Crud();
             echo $e_id;
         } ?>" />
 
-        <div class="col-sm-8 mb-3">
+        <!-- <div class="col-sm-8 mb-3">
             <div class="form-group">
                 <label  class="form-label" for="name">Activity Name</label>
                 <input class="form-control" type="text" id="name" name="name" value="<?php if (!empty($e_name)) {
                     echo $e_name;
                 } ?>" required>
             </div>
-        </div>
+        </div> -->
         
-        <div class="col-sm-4 mb-3">
+        <div class="col-sm-6 mb-3">
             <div class="form-group">
-                <label>Category</label><br>
+                <label class="form-label" >Category</label><br>
                 <select id="category_ids" name="category_id" class="js-select2" required>
                     <option value="">-- Select --</option>
                     <?php
@@ -196,7 +196,7 @@ $this->Crud = new Crud();
             </div>
            
         </div>
-        <div class="col-sm-4 mb-3" id="category_resp" style="display:none;">
+        <div class="col-sm-6 mb-3" id="category_resp" style="display:none;">
             <div class="form-group">
                 <label class="form-label">New Category</label>
                 <input type="text"  name="category" id="category" class="form-control">
@@ -241,7 +241,7 @@ $this->Crud = new Crud();
             <div class="form-group">
                 <label class="form-label">End Date</label>
                 <div class="form-control-wrap">
-                    <input type="text" data-date-format="yyyy-mm-dd" name="end_date" id="end_date"
+                    <input type="text" data-date-format="yyyy-mm-dd" name="end_date" id="end_dates"
                         class="form-control date-picker" value="<?php if (!empty($e_end_time)) {
                             echo date('Y-m-d', strtotime($e_end_time));
                         } ?>">
@@ -275,7 +275,7 @@ $this->Crud = new Crud();
 
         <div class="col-sm-6 mb-3 recurring_options" id="" style="display:none;">
             <div class="form-group">
-                <label>Recurring Frequency</label>
+                <label class="form-label">Recurring Frequency</label>
                 <select class="js-select2" data-search="on" name="frequency" id="frequency">
                     <option value="daily" <?php if (!empty($e_frequency)) {
                         if ($e_frequency == 'daily') {
@@ -311,7 +311,7 @@ $this->Crud = new Crud();
 
         <div class="col-sm-6 mb-3" id="weekly_days" style="display: none;">
             <div class="form-group">
-                <label>Select Days (for Weekly Recurrence)</label><br>
+                <label class="form-label">Select Days (for Weekly Recurrence)</label><br>
                 <select id="days_of_week" multiple name="by_day" class="js-select2">
                     <option value="">-- Select Days --</option>
                     <option value="monday" <?php if (!empty($e_by_day)) {
@@ -362,12 +362,43 @@ $this->Crud = new Crud();
         </div>
 
         <div class="col-sm-6 mb-3 recurring_options" id="" style="display:none;">
-            <div class="form-group">
-                <label  class="form-label" for="until">Recurrence End Date</label>
-                <input type="text" data-date-format="yyyy-mm-dd" name="until" id="until" class="form-control date-picker" value="<?php if (!empty($e_until)) { echo date('Y-m-d', strtotime($e_until));  } ?>">
+            
+            <label class="form-label">Recurrence End</label>
+             <!-- Recurrence End -->
+            <div class="g-4 align-center flex-wrap">
+                <div class="g">
+                    <div class="custom-control custom-control-sm custom-radio">
+                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_never" value="never" checked>
+                        <label class="custom-control-label" for="end_never">Never (Indefinite)</label>
+                    </div>
+                </div>
+                <div class="g">
+                    <div class="custom-control custom-control-sm custom-radio">
+                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_after" value="after">
+                        <label class="custom-control-label" for="end_after">End after</label>
+                        
+                    </div>
+                </div>
+                <div class="g">
+                    <div class="custom-control custom-control-sm custom-radio">
+                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_by" value="by">
+                        <label class="custom-control-label" for="end_by">End by</label>
+                        
+                    </div>
+                </div>
+               
             </div>
         </div>
-
+        <div class="col-sm-6 mb-3 recurring_option" id="" style="display:none;">
+            <div class="form-group" style="display: none;" id="occurrences">
+                <label class="form-label">Number of Occurrences</label>
+                <input type="number" class="form-control"  name="occurrences" placeholder="Enter number of occurrences" >
+            </div>
+            <div class="form-group" style="display: none;" id="end_date">
+                <label class="form-label">Date Activity will End</label>
+                <input type="text" data-date-format="yyyy-mm-dd" class="form-control  date-picker" id="" name="end_dates" value="<?php if (!empty($e_until)) { echo date('Y-m-d', strtotime($e_until));  } ?>">
+            </div>
+        </div>
         <?php
        
         if ($ministry_id > 0) { ?>
@@ -533,6 +564,28 @@ $this->Crud = new Crud();
             allowClear: true  // This allows clearing the selection if needed
         });
     });
+
+    $('input[name="recurrence_end"]').on('change', function () {
+        var selected = $(this).val();
+        if (selected === 'after') {
+            $('#occurrences').show(500);
+            $('#end_date').hide(500);
+            $('.recurring_option').show(500);
+        } else if (selected === 'by') {
+            $('#occurrences').hide(500);
+            $('#end_date').show(500);
+            $('.recurring_option').show(500);
+        } else {
+            $('#occurrences').hide(500);
+            $('#end_date').hide(500);
+            $('.recurring_option').hide(500);
+        }
+    });
+    
+    $('.recurring_option').hide(500);
+    // Initially hide the fields for occurrences and end date
+    $('#occurrences').hide(500);
+    $('#end_date').hide(500);
 
     $('#is_recurring').change(function () {
         if ($(this).val() == '1') {
