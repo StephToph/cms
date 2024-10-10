@@ -3918,8 +3918,8 @@ class Church extends BaseController{
 						$sDate = date('Y-m-d', strtotime($start_date)).'  '. date('h:i:s', strtotime($start_time));
 						$eDate = date('Y-m-d', strtotime($end_date)).' '.date('h:i:s', strtotime($end_time));
 						
-						echo $eDate;
-						die;
+						// echo $eDate;
+						// die;
 
 						// $ins_data['name'] = $name;
 						$ins_data['description'] = $description;
@@ -3931,8 +3931,9 @@ class Church extends BaseController{
 						$ins_data['intervals'] = $interval;
 						$ins_data['by_day'] = json_encode($by_day);
 						$ins_data['ministry_id'] = $ministry_id;
-						$ins_data['by_month_day'] = $by_month_day;
-						$ins_data['until'] = $until;
+						$ins_data['occurrences'] = $occurrences;
+						$ins_data['recurrence_end'] = $recurrence_end;
+						$ins_data['end_dates'] = $recurrence_end_dates;
 						$ins_data['church_id'] = ($church_id);
 						$ins_data['members'] = json_encode($member_id);
 						
@@ -3950,7 +3951,7 @@ class Church extends BaseController{
 							
 							$ins_data['reg_date'] = date(fdate);
 							
-							if($this->Crud->check2('name', $name, 'ministry_id', $ministry_id, $table) > 0) {
+							if($this->Crud->check3('category_id', $category_id, 'reg_date', date(fdate), 'ministry_id', $ministry_id, $table) > 0) {
 								echo $this->Crud->msg('warning', ('Church Activity Already Exist'));
 							} else {
 								$ins_rec = $this->Crud->create($table, $ins_data);
