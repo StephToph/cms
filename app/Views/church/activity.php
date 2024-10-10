@@ -25,13 +25,22 @@
                                 <h3 class="nk-block-title page-title">Church Activities</h3>
                             </div>
                             <div class="nk-block-head-content" id="add_resp">
-                                <?php if(empty($switch_id)){?>
-                                    <a href="javascript:;" id="add_btn" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-xl" class="btn btn-outline-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
-                                <?php } ?>
+                                
                             </div>
                         </div>
                     </div>
                     <div class="nk-block" id="calendar_resp">
+                        <div class="d-flex flex-row-reverse bg-lighter">
+                            
+                            <?php if(empty($switch_id)){?>
+                                <div class="my-2">
+                                    <a href="javascript:;" id="add_btn" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-xl" class="btn btn-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
+                                </div>
+                            <?php } ?>
+                            <div class="my-2">
+                                <a href="javascript:;" pageName="<?=site_url('church/activity/manage/generate'); ?>" pageTitle="Generate" pageSize="modal-lg" class="btn btn-info pop mx-1"><em class="icon ni ni-list-index"></em> <span>Generate</span></a>
+                            </div>
+                        </div>
                         <div class="card">
                             <div class="card-inner">
                                 <div id="calendar" data-initial-view="listWeek" class="nk-calendar"></div>
