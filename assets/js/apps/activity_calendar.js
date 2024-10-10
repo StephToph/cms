@@ -36,7 +36,75 @@
                 aspectRatio: 3,
                 editable: !0,
                 droppable: !0,
-                views: { dayGridMonth: { dayMaxEventRows: 2 } },
+                views: { 
+                    dayGridMonth: { dayMaxEventRows: 2 },
+                    listWeek: {
+                        eventContent: function (info) {
+                            // Create a div row for the event layout
+                            var rowDiv = document.createElement('div');
+                            rowDiv.classList.add('row', 'align-items-center');  // Using Bootstrap's row and align-items-center for vertical alignment
+                    
+                            // Create title div with col-6
+                            var titleDiv = document.createElement('div');
+                            titleDiv.classList.add('col-6');
+                            titleDiv.innerHTML = '<strong>' + info.event.title + '</strong>';
+                    
+                            // Create category div with col-3
+                            var categoryDiv = document.createElement('div');
+                            categoryDiv.classList.add('col-3');
+                            categoryDiv.innerHTML = '<strong>' + info.event.extendedProps.category + '</strong>';
+                    
+                            // Create buttons div with col-3
+                            var buttonsDiv = document.createElement('div');
+                            buttonsDiv.classList.add('col-3', 'text-end');  // text-end for right alignment
+                    
+                            // Create Edit button
+                            var editBtn = document.createElement('a');
+                            var editUrl = site_url + 'church/activity/manage/edit/' + info.event.id;  // Update the URL format as needed
+                            editBtn.href = 'javascript:;';
+                            editBtn.setAttribute('pageName', editUrl);
+                            editBtn.setAttribute('pageTitle', 'Edit Event: ' + info.event.title); // Set page title
+                            editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
+                            editBtn.className = 'btn btn-primary btn-icon pops text-white mx-1';  // mx-1 for spacing
+                            editBtn.innerHTML = '<em class="icon ni ni-edit"></em>';
+
+                            // Create Delete button
+                            var deleteBtn = document.createElement('a');
+                            var deleteUrl = site_url + 'church/activity/manage/delete/' + info.event.id;  // Update the URL format as needed
+                            deleteBtn.href = 'javascript:;';
+                            deleteBtn.setAttribute('pageName', deleteUrl);
+                            deleteBtn.setAttribute('pageTitle', 'Delete Event: ' + info.event.title); // Set page title
+                            deleteBtn.setAttribute('pageSize', 'modal-md'); // Set modal size
+                            deleteBtn.className = 'btn btn-danger btn-icon text-white pops mx-1';  // mx-1 for spacing
+                            deleteBtn.innerHTML = '<em class="icon ni ni-trash"></em>';
+                           
+                            // Create View button
+                            var viewBtn = document.createElement('a');
+                            var viewUrl = site_url + 'church/activity/manage/view/' + info.event.id;  // Update the URL format as needed
+                            viewBtn.href = 'javascript:;';
+                            viewBtn.setAttribute('pageName', viewUrl);
+                            viewBtn.setAttribute('pageTitle', 'View Event: ' + info.event.title); // Set page title
+                            viewBtn.setAttribute('pageSize', 'modal-lg'); // Set modal size
+                            viewBtn.className = 'btn btn-success btn-icon text-white pops mx-1';  // mx-1 for spacing
+                            viewBtn.innerHTML = '<em class="icon ni ni-eye"></em>';
+                            
+                            // Append buttons to the buttonsDiv
+                            buttonsDiv.appendChild(editBtn);
+                            buttonsDiv.appendChild(deleteBtn);
+                            buttonsDiv.appendChild(viewBtn);
+                    
+                            // Append title, category, and buttons divs to the rowDiv
+                            rowDiv.appendChild(titleDiv);
+                            rowDiv.appendChild(categoryDiv);
+                            rowDiv.appendChild(buttonsDiv);
+                            
+                            
+                            // Return the array of elements (in this case, the single rowDiv element)
+                            return { domNodes: [rowDiv] };
+                        }
+                    }
+                    
+                },
                 direction: g.State.isRTL ? "rtl" : "ltr",
                 nowIndicator: !0,
                 now: r + "T09:25:00",
@@ -113,6 +181,30 @@
         function h(e) {
             return 1 < (e = e.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [e]).length && ((e = e.slice(1)).pop(), (e[5] = +e[0] < 12 ? " AM" : " PM"), (e[0] = +e[0] % 12 || 12)), (e = e.join(""));
         }
+        $(document).on('click', '.pops', function (event) {
+            // Prevent the event from bubbling up to the parent elements
+           // Prevents the click event from propagating to parent elements
+
+            var pageTitle = $(this).attr('pageTitle');
+            var pageName = $(this).attr('pageName');
+            var pageSize = $(this).attr('pageSize');
+
+            // Add the appropriate class for modal size
+            $(".modal-dialog").removeClass("modal-lg modal-sm modal-xl").addClass(pageSize);
+            $(".modal-center .modal-title").html(pageTitle);
+            $(".modal-center .modal-body").html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><br>Loading Please Wait..</div>');
+            
+            // Load the content into the modal body
+            $(".modal-center .modal-body").load(pageName, function () {
+                // Optional: Add any additional logic after content loads
+            });
+            var add_url = site_url + 'church/activity/manage';
+            $("#add_btn").attr('pageName', add_url);
+            
+            // Show the modal
+            $(".modal-center").modal("show");
+        });
+        
         c.render(),
             n.on("click", function (e) {
                 e.preventDefault();

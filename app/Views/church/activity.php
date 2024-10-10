@@ -26,7 +26,7 @@
                             </div>
                             <div class="nk-block-head-content" id="add_resp">
                                 <?php if(empty($switch_id)){?>
-                                    <a href="javascript:;" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-xl" class="btn btn-outline-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
+                                    <a href="javascript:;" id="add_btn" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-xl" class="btn btn-outline-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
                                 <?php } ?>
                             </div>
                         </div>
@@ -106,35 +106,9 @@
 
     $(document).ready(function () {
         // Attach click event handler to elements with the class "pop"
-        $(document).on('click', '.pop', function (event) {
-            // Prevent the event from bubbling up to the parent elements
-            event.preventDefault(); // Prevents default anchor click behavior
-            event.stopPropagation(); // Prevents the click event from propagating to parent elements
-
-            // Clear previous modal data
-            $(".modal").off('hidden.bs.modal').on('hidden.bs.modal', function () {
-                $(this).data('bs.modal', null);
-            });
-
-            var pageTitle = $(this).attr('pageTitle');
-            var pageName = $(this).attr('pageName');
-            var pageSize = $(this).attr('pageSize');
-
-            // Add the appropriate class for modal size
-            $(".modal-dialog").removeClass("modal-lg modal-sm modal-xl").addClass(pageSize);
-            $(".modal-center .modal-title").html(pageTitle);
-            $(".modal-center .modal-body").html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><br>Loading Please Wait..</div>');
-            
-            // Load the content into the modal body
-            $(".modal-center .modal-body").load(pageName, function () {
-                // Optional: Add any additional logic after content loads
-            });
-            
-            // Show the modal
-            $(".modal-center").modal("show");
-        });
+       
     });
-
+    
     function load(x, y) {
         var more = 'no';
         var methods = '';
