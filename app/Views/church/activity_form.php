@@ -266,8 +266,18 @@ $this->Crud = new Crud();
             <div class="form-group">
                 <label  class="form-label" for="is_recurring">Is this activity recurring?</label>
                 <select class="js-select2" data-search="on" id="is_recurring" name="is_recurring" required>
-                    <option value="0">No (One-time event)</option>
-                    <option value="1">Yes (Recurring event)</option>
+                    <option value="0"<?php if (!empty($e_recurrence)) {
+                        if ($e_recurrence == 0) {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>No (One-time event)</option>
+                    <option value="1"<?php if (!empty($e_recurrence)) {
+                        if ($e_recurrence == 1) {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Yes (Recurring event)</option>
                 </select>
             </div>
             
@@ -305,52 +315,52 @@ $this->Crud = new Crud();
         <div class="col-sm-6 mb-3 recurring_options" id="" style="display:none;">
             <div class="form-group">
                 <label  class="form-label" for="interval">Recurrence Interval (e.g., every 2 weeks)</label>
-                <input type="number" class="form-control" id="interval" name="interval" value="1" min="1">
+                <input type="number" class="form-control" id="interval" name="interval" value="<?php if(!empty($e_intervals)){echo $e_intervals;} else{echo '1';} ?>" min="1">
             </div>
         </div>
 
         <div class="col-sm-6 mb-3" id="weekly_days" style="display: none;">
             <div class="form-group">
                 <label class="form-label">Select Days (for Weekly Recurrence)</label><br>
-                <select id="days_of_week" multiple name="by_day" class="js-select2">
+                <select id="days_of_week" multiple name="by_day[]" class="js-select2">
                     <option value="">-- Select Days --</option>
                     <option value="monday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'monday') {
+                        if (in_array('monday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>
                         Monday</option>
                     <option value="tuesday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'tuesday') {
+                        if (in_array('tuesday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>
                         Tuesday</option>
                     <option value="wednesday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'wednesday') {
+                        if (in_array('wednesday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>Wednesday</option>
                     <option value="thursday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'thursday') {
+                        if (in_array('thursday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>
                         Thursday</option>
                     <option value="friday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'friday') {
+                        if (in_array('friday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>
                         Friday</option>
                     <option value="saturday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'saturday') {
+                        if (in_array('saturday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>
                         Saturday</option>
                     <option value="sunday" <?php if (!empty($e_by_day)) {
-                        if ($e_by_day == 'sunday') {
+                        if (in_array('sunday', $e_by_day)) {
                             echo 'selected';
                         }
                     } ?>>
@@ -368,20 +378,32 @@ $this->Crud = new Crud();
             <div class="g-4 align-center flex-wrap">
                 <div class="g">
                     <div class="custom-control custom-control-sm custom-radio">
-                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_never" value="never" checked>
+                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_never" value="never" <?php if (!empty($e_recurrence_end )) {
+                        if ( $e_recurrence_end == 'never') {
+                            echo 'checked';
+                        }
+                    } else{echo 'checked';} ?>>
                         <label class="custom-control-label" for="end_never">Never (Indefinite)</label>
                     </div>
                 </div>
                 <div class="g">
                     <div class="custom-control custom-control-sm custom-radio">
-                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_after" value="after">
+                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_after" value="after" <?php if (!empty($e_recurrence_end )) {
+                        if ( $e_recurrence_end == 'after') {
+                            echo 'checked';
+                        }
+                    } ?>>
                         <label class="custom-control-label" for="end_after">End after</label>
                         
                     </div>
                 </div>
                 <div class="g">
                     <div class="custom-control custom-control-sm custom-radio">
-                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_by" value="by">
+                        <input type="radio" class="custom-control-input" name="recurrence_end" id="end_by" value="by" <?php if (!empty($e_recurrence_end )) {
+                        if ( $e_recurrence_end == 'by') {
+                            echo 'checked';
+                        }
+                    }  ?>>
                         <label class="custom-control-label" for="end_by">End by</label>
                         
                     </div>
@@ -392,11 +414,11 @@ $this->Crud = new Crud();
         <div class="col-sm-6 mb-3 recurring_option" id="" style="display:none;">
             <div class="form-group" style="display: none;" id="occurrences">
                 <label class="form-label">Number of Occurrences</label>
-                <input type="number" class="form-control"  name="occurrences" placeholder="Enter number of occurrences" >
+                <input type="number" class="form-control"  name="occurrences" placeholder="Enter number of occurrences" value="<?php if (!empty($e_occurrences )) {  echo $e_occurrences;  } ?>">
             </div>
             <div class="form-group" style="display: none;" id="end_date">
                 <label class="form-label">Date Activity will End</label>
-                <input type="text" data-date-format="yyyy-mm-dd" class="form-control  date-picker" id="" name="end_dates" value="<?php if (!empty($e_until)) { echo date('Y-m-d', strtotime($e_until));  } ?>">
+                <input type="text" data-date-format="yyyy-mm-dd" class="form-control  date-picker" id="" name="end_dates" value="<?php if (!empty($e_end_dates)) { echo date('Y-m-d', strtotime($e_end_dates));  } ?>">
             </div>
         </div>
         <?php
@@ -586,7 +608,7 @@ $this->Crud = new Crud();
     // Initially hide the fields for occurrences and end date
     $('#occurrences').hide(500);
     $('#end_date').hide(500);
-
+    $('input[name="recurrence_end"]:checked').trigger('change');
     $('#is_recurring').change(function () {
         if ($(this).val() == '1') {
             $('.recurring_options').show(500);
@@ -594,7 +616,7 @@ $this->Crud = new Crud();
             $('.recurring_options').hide(500);
         }
     });
-
+    $('#is_recurring').trigger('change');
     $('#category_ids').change(function () {
         if ($(this).val() == 'new') {
             console.log($(this).val());
@@ -603,7 +625,6 @@ $this->Crud = new Crud();
             $('#category_resp').hide(500);
         }
     });
-
     $('#frequency').change(function () {
         if ($(this).val() == 'weekly') {
             $('#weekly_days').show(500);
@@ -611,6 +632,8 @@ $this->Crud = new Crud();
             $('#weekly_days').hide(500);
         }
     });
+    $('#frequency').trigger('change');
+    
     $('#member_id').select2({
         placeholder: 'Select members',
         allowClear: true,

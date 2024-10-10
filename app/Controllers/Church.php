@@ -3770,13 +3770,14 @@ class Church extends BaseController{
 									$data['e_recurrence'] = $e->recurrence;
 									$data['e_frequency'] = $e->frequency;
 									$data['e_intervals'] = $e->intervals;
-									$data['e_by_day'] = $e->by_day;
-									$data['e_until'] = $e->until;
-									$data['e_by_month_day'] = $e->by_month_day;
+									$data['e_by_day'] = json_decode($e->by_day);
+									$data['e_recurrence_end'] = $e->recurrence_end;
+									$data['e_occurrences'] = $e->occurrences;
+									$data['e_end_dates'] = $e->end_dates;
 									$data['e_church_id'] = $e->church_id;
 									$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 									$data['e_ministry_id'] = $e->ministry_id;
-									// $data['e_member_id'] = $e->members;
+									$data['e_member_id'] = $e->members;
 								}
 							}
 						}
@@ -3918,7 +3919,7 @@ class Church extends BaseController{
 						$sDate = date('Y-m-d', strtotime($start_date)).'  '. date('h:i:s', strtotime($start_time));
 						$eDate = date('Y-m-d', strtotime($end_date)).' '.date('h:i:s', strtotime($end_time));
 						
-						// echo $eDate;
+						// echo json_encode($by_day);
 						// die;
 
 						// $ins_data['name'] = $name;
