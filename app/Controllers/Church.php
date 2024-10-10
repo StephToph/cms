@@ -3760,22 +3760,23 @@ class Church extends BaseController{
 							if(!empty($edit)) {
 								foreach($edit as $e) {
 									$data['e_id'] = $e->id;
-									$data['e_title'] = $e->title;
+									$data['e_name'] = $e->name;
 									$data['e_description'] = $e->description;
-									$data['e_start_date'] = $e->start_date;
-									$data['e_start_time'] = $e->start_time;
-									$data['e_end_date'] = $e->end_date;
-									$data['e_end_time'] = $e->end_time;
-									$data['e_location'] = $e->location;
-									$data['e_venue'] = $e->venue;
-									$data['e_event_type'] = $e->event_type;
-									$data['e_recurrence_pattern'] = $e->recurrence_pattern;
-									$data['e_pattern'] = $e->pattern;
-									$data['e_image'] = $e->image;
-									$data['e_event_for'] = $e->event_for;
+									$data['e_start_date'] = date('m/d/Y', strtotime($e->start_datetime));
+									$data['e_start_time'] = date('H:iA', strtotime($e->start_datetime));
+									$data['e_end_date'] = date('m/d/Y', strtotime($e->end_datetime));
+									$data['e_end_time'] = date('H:iA', strtotime($e->end_datetime));
+									$data['e_category_id'] = $e->category_id;
+									$data['e_recurrence'] = $e->recurrence;
+									$data['e_frequency'] = $e->frequency;
+									$data['e_intervals'] = $e->intervals;
+									$data['e_by_day'] = $e->by_day;
+									$data['e_until'] = $e->until;
+									$data['e_by_month_day'] = $e->by_month_day;
 									$data['e_church_id'] = $e->church_id;
+									$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 									$data['e_ministry_id'] = $e->ministry_id;
-									$data['e_church_type'] = $e->church_type;
+									$data['e_member_id'] = $e->members;
 								}
 							}
 						}

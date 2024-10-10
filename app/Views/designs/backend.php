@@ -126,7 +126,7 @@
                                                             // add the rest
                                                             $level2 .= '
                                                                 <li class="nk-menu-item '.$a_active.'">
-                                                                    <a href="'.site_url($mod2->link).'" class="nk-menu-link">'.$mod2->name.'</a>
+                                                                    <a href="'.site_url($mod2->link).'" class="nk-menu-link">'.translate_phrase($mod2->name).'</a>
                                                                 </li>
                                                             '; 
                                                         }
@@ -158,7 +158,7 @@
                                                             <span class="nk-menu-icon">
                                                                 <em class="'.$mod->icon.'"></em>
                                                             </span>
-                                                            <span class="nk-menu-text">'.$mod->name.'</span>
+                                                            <span class="nk-menu-text">'.translate_phrase($mod->name).'</span>
                                                             '.$menu_arrow.'
                                                         </a>
                                                         '.$level2.'
@@ -176,18 +176,18 @@
                                 <li class="nk-menu-item has-sub">
                                     <a class="nk-menu-link nk-menu-toggle" href="javascript:;">
                                         <span class="nk-menu-icon"><em class="icon ni ni-setting-alt-fill"></em></span>
-                                        <span class="nk-menu-text">Access Roles</span>
+                                        <span class="nk-menu-text"><?=translate_phrase('Access Roles'); ?></span>
                                     </a>
                                     <ul class="nk-menu-sub">
                                         
                                         <li class="nk-menu-item <?php if($page_active=='module') {echo 'active';} ?>">
-                                            <a href="<?php echo site_url('settings/modules'); ?>" class="nk-menu-link">Modules</a>
+                                            <a href="<?php echo site_url('settings/modules'); ?>" class="nk-menu-link"><?=translate_phrase('Modules'); ?></a>
                                         </li>
                                         <li class="nk-menu-item <?php if($page_active=='role') {echo 'active';} ?>">
-                                            <a href="<?php echo site_url('settings/roles'); ?>" class="nk-menu-link">Roles</a>
+                                            <a href="<?php echo site_url('settings/roles'); ?>" class="nk-menu-link"><?=translate_phrase('Roles'); ?></a>
                                         </li>
                                         <li class="nk-menu-item <?php if($page_active=='access') {echo 'active';} ?>">
-                                            <a href="<?php echo site_url('settings/access'); ?>" class="nk-menu-link">Access CRUD</a>
+                                            <a href="<?php echo site_url('settings/access'); ?>" class="nk-menu-link"><?=translate_phrase('Access CRUD'); ?></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -196,7 +196,7 @@
                                     <li class="nk-menu-item">
                                         <a class="nk-menu-link" href="<?=site_url('church/back_church'); ?>">
                                             <span class="nk-menu-icon"><em class="icon ni ni-signout"></em></span>
-                                            <span class="nk-menu-text">Back to My Account</span>
+                                            <span class="nk-menu-text"><?=translate_phrase('Back to My Account');?></span>
                                         </a>
                                     </li>
                                 <?php } ?>

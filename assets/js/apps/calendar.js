@@ -60,32 +60,49 @@
                     
                             // Create Edit button
                             var editBtn = document.createElement('a');
-                            var editUrl = '/manage/edit/' + info.event.publicId;  // Update the URL format as needed
-                            editBtn.href = editUrl;
-                            editBtn.className = 'pop btn btn-sm btn-warning mx-1';  // mx-1 for spacing
+                            var editUrl = site_url + 'church/activity/manage/edit/' + info.event.id;  // Update the URL format as needed
+                            editBtn.href = 'javascript:;';
+                            editBtn.setAttribute('pageName', editUrl);
+                            editBtn.setAttribute('pageTitle', 'Edit Event: ' + info.event.title); // Set page title
+                            editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
+                            editBtn.className = 'btn btn-primary pop text-white mx-1';  // mx-1 for spacing
                             editBtn.textContent = 'Edit';
-                    
+
                             // Create Delete button
                             var deleteBtn = document.createElement('a');
-                            var deleteUrl = '/manage/delete/' + info.event.publicId;  // Update the URL format as needed
-                            deleteBtn.href = deleteUrl;
-                            deleteBtn.className = 'pop btn btn-sm btn-danger mx-1';  // mx-1 for spacing
+                            var deleteUrl = site_url + 'church/activity/manage/delete/' + info.event.id;  // Update the URL format as needed
+                            deleteBtn.href = 'javascript:;';
+                            deleteBtn.setAttribute('pageName', deleteUrl);
+                            deleteBtn.setAttribute('pageTitle', 'Delete Event: ' + info.event.title); // Set page title
+                            deleteBtn.setAttribute('pageSize', 'modal-md'); // Set modal size
+                            deleteBtn.className = 'btn btn-danger text-white pop mx-1';  // mx-1 for spacing
                             deleteBtn.textContent = 'Delete';
-                    
+                           
+                            // Create View button
+                            var viewBtn = document.createElement('a');
+                            var viewUrl = site_url + 'church/activity/manage/view/' + info.event.id;  // Update the URL format as needed
+                            viewBtn.href = 'javascript:;';
+                            viewBtn.setAttribute('pageName', deleteUrl);
+                            viewBtn.setAttribute('pageTitle', 'View Event: ' + info.event.title); // Set page title
+                            viewBtn.setAttribute('pageSize', 'modal-lg'); // Set modal size
+                            viewBtn.className = 'btn btn-success text-white pop mx-1';  // mx-1 for spacing
+                            viewBtn.textContent = 'View';
+                            
                             // Append buttons to the buttonsDiv
                             buttonsDiv.appendChild(editBtn);
                             buttonsDiv.appendChild(deleteBtn);
+                            buttonsDiv.appendChild(viewBtn);
                     
                             // Append title, category, and buttons divs to the rowDiv
                             rowDiv.appendChild(titleDiv);
                             rowDiv.appendChild(categoryDiv);
                             rowDiv.appendChild(buttonsDiv);
+                            
                     
                             // Return the array of elements (in this case, the single rowDiv element)
                             return { domNodes: [rowDiv] };
                         }
                     }
-                    
                     
                 },
                 direction: g.State.isRTL ? "rtl" : "ltr",
@@ -164,6 +181,7 @@
         function h(e) {
             return 1 < (e = e.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [e]).length && ((e = e.slice(1)).pop(), (e[5] = +e[0] < 12 ? " AM" : " PM"), (e[0] = +e[0] % 12 || 12)), (e = e.join(""));
         }
+        
         c.render(),
             n.on("click", function (e) {
                 e.preventDefault();
