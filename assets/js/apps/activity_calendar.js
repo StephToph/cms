@@ -84,7 +84,7 @@
                             viewBtn.href = 'javascript:;';
                             viewBtn.setAttribute('pageName', viewUrl);
                             viewBtn.setAttribute('pageTitle', 'View Event: ' + info.event.title); // Set page title
-                            viewBtn.setAttribute('pageSize', 'modal-lg'); // Set modal size
+                            viewBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
                             viewBtn.className = 'btn btn-success btn-icon text-white pops mx-1';  // mx-1 for spacing
                             viewBtn.innerHTML = '<em class="icon ni ni-eye"></em>';
                             
