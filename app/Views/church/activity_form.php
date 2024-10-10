@@ -418,7 +418,10 @@ $this->Crud = new Crud();
        
         if ($ministry_id > 0) { ?>
             <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
-            <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
+           <?php if($church_id > 0){?>
+
+                <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
+            <?php } ?>
         <?php } else { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
