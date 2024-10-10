@@ -131,6 +131,202 @@ $this->Crud = new Crud();
     </div>
 <?php } ?>
 
+
+<?php if ($param2 == 'generate') {
+     $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+     $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+
+    ?>
+    <div class="row py-1">
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label class="form-label">Activity Category</label><br>
+                <select id="cate_id" name="category_id" class="js-select2" required>
+                    <option value="">-- Select --</option>
+                    <?php
+                        $category = $this->Crud->read_order('activity_category', 'name', 'asc');
+                        if($ministry_id > 0 && $church_id <= 0){
+                            $category = $this->Crud->read_single_order('ministry_id', $ministry_id, 'activity_category', 'name', 'asc');
+                        }
+                        if($church_id > 0){
+                            $category = $this->Crud->read_single_order('church_id', $church_id, 'activity_category', 'name', 'asc');
+                        }
+                        if (!empty($category)) {
+                            foreach ($category as $d) {
+                                $sel = '';
+                                if (!empty($e_category_id)) {
+                                    if ($e_category_id == $d->id) {
+                                        $sel = 'selected';
+                                    }
+                                }
+                                if($church_id > 0){
+                                    echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
+                                } else{
+                                    $church = $this->Crud->read_field('id', $d->church_id, 'church', 'name');
+                                    echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name.' - '.$church) . '</option>';
+                                }
+                                
+                            }
+                        }
+                        ?>
+                </select>
+            </div>
+        </div>
+        
+        <?php
+       
+        if ($ministry_id > 0) { ?>
+            <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
+           <?php if($church_id > 0){?>
+
+                <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
+           
+        <?php } } else { ?>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label  class="form-label">Ministry</label>
+                    <select class="js-select2" data-search="on" name="ministry_id" id="ministry_id">
+                        <option value="">Select Ministry</option>
+                        <?php
+
+                        $ministry = $this->Crud->read_order('ministry', 'name', 'asc');
+                        if (!empty($ministry)) {
+                            foreach ($ministry as $d) {
+                                $sel = '';
+                                if (!empty($e_ministry_id)) {
+                                    if ($e_ministry_id == $d->id) {
+                                        $sel = 'selected';
+                                    }
+                                }
+                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+
+        <?php } ?>
+
+        <?php if ($church_id == 0) { ?>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label  class="form-label">Church Level</label>
+                    <select class="js-select2" data-search="on" name="level" id="level">
+                        <option value=" ">Select Church Level</option>
+                        <?php
+
+                        $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                        $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                        ?>
+                            <option value="region" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'region') {
+                                    echo 'selected';
+                                }
+                            } ?>>
+                                Regional Church</option>
+                            <option value="zone" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'zone') {
+                                    echo 'selected';
+                                }
+                            } ?>>
+                                Zonal
+                                Church</option>
+                            <option value="group" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'group') {
+                                    echo 'selected';
+                                }
+                            } ?>>Group
+                                Church</option>
+                            <option value="church" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'church') {
+                                    echo 'selected';
+                                }
+                            } ?>>
+                                Church Assembly</option>
+                        
+
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label  class="form-label">Church</label>
+                    <select class="js-select2" data-search="on" name="church_id" id="church_id">
+                        <option value="">Select</option>
+
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label  class="form-label">Memberss</label>
+                    <select class="js-select2" data-search="on" name="member_id" id="member_id">
+                        <option value="">Select</option>
+
+                    </select>
+                </div>
+            </div>
+
+           
+
+        <?php }else{ ?>
+            
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label  class="form-label">Members</label>
+                    <select class="js-select2" data-search="on" name="member_id" >
+                        <option value="">Select</option>
+                        <?php
+
+                        $members = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'firstname', 'asc');
+                        if (!empty($members)) {
+                            foreach ($members as $d) {
+                                $sel = '';
+                                if (!empty($e_member_id)) {
+                                    if ($e_member_id == $d->id) {
+                                        $sel = 'selected';
+                                    }
+                                }
+                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->firstname.' '.$d->surname.' - '.$d->phone) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
+
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">    
+                <label class="form-label">Date Range</label>    
+                <div class="form-control-wrap">        
+                    <div class="input-daterange date-picker-range input-group">            
+                        <input type="text" class="form-control" name="start_date" required/>            
+                        <div class="input-group-addon">TO</div>            
+                        <input type="text" class="form-control" name="end_date" required/>        
+                    </div>    
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 text-center">
+            <hr />
+            <button class="btn btn-primary bb_for_btn" id="bt" type="submit">
+                <i class="icon ni ni-save"></i> Save
+            </button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="bb_ajax_msg"></div>
+        </div>
+    </div>
+<?php } ?>
+
 <!-- insert/edit view -->
 <?php if ($param2 == 'edit' || $param2 == '') {
      $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
@@ -570,6 +766,11 @@ $this->Crud = new Crud();
             autoclose: true
         });
 
+        $('.input-daterange').datepicker({
+            format: 'yyyy-mm-dd',  // Format for the date
+            autoclose: true,       // Automatically close the picker when a date is selected
+            todayHighlight: true,  // Highlight today's date
+        });
 
         $('#summernote').summernote({
             height: 300, // Set the height of the editor
@@ -627,12 +828,7 @@ $this->Crud = new Crud();
     });
     $('#frequency').trigger('change');
     
-    $('#member_id').select2({
-        placeholder: 'Select members',
-        allowClear: true,
-        multiple: true,
-        width: '100%'
-    });
+    
     var site_url = '<?php echo site_url(); ?>';
 
     $(document).ready(function () {
@@ -676,6 +872,7 @@ $this->Crud = new Crud();
                     data: data,
                     success: function (response) {
                         $('#church_id').empty(); // Clear 'Loading...' option
+                        $('#church_id').append(new Option('Select Church', '', false, false));
 
                         if (response.success) {
 
@@ -761,6 +958,7 @@ $this->Crud = new Crud();
                     data: { church_id: churchId }, // Send the selected church ID
                     success: function (response) {
                         $('#member_id').empty(); // Clear 'Loading...' option
+                        $('#member_id').append(new Option('Selec Member', '', false, false));
 
                         if (response.success) {
                             // Populate the Member dropdown with the data received

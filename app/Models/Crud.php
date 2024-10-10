@@ -356,6 +356,27 @@ class Crud extends Model {
         $db->close();
 	}
 
+	public function read_order_like($table, $or_field='id', $or_value='DESC', $search_field, $search_value, $limit='', $offset='') {
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		$builder->orderBy($or_field, $or_value);
+		$builder->like($search_field, $search_value);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+
     public function read3($field, $value, $field2, $value2, $field3, $value3, $table, $limit='', $offset='') {
 		$db = db_connect();
         $builder = $db->table($table);
@@ -2701,6 +2722,47 @@ class Crud extends Model {
 		if (!empty($start_date) && !empty($end_date)) {
             $builder->where("DATE(date_paid) >=", $start_date);
             $builder->where("DATE(date_paid) <=", $end_date);
+        }
+    
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
+	public function filter_church_activity($limit='', $offset='', $log_id, $start_date = '', $end_date = '', $category_id = '', $member_id ='', $church_id='', $ministry_id='') {
+        $db = db_connect();
+        $builder = $db->table('church_activity');
+
+        // build query
+		$builder->orderBy('start_datetime', 'desc');
+		
+        if(!empty($ministry_id)) {
+            $builder->like('ministry_id', $ministry_id);
+        }
+
+		if(!empty($church_id) && $church_id != 'all') {
+            $builder->like('church_id', $church_id);
+        }
+		if(!empty($member_id) && $member_id != 'all') {
+			$builder->where("JSON_CONTAINS(members, '\"$member_id\"')");
+        }
+		if(!empty($category_id) && $category_id != 'all') {
+            $builder->like('category_id', $category_id);
+        }
+		
+		
+		if (!empty($start_date) && !empty($end_date)) {
+            $builder->where("DATE_FORMAT(start_datetime,'%Y-%m-%d') >=", $start_date);
+            $builder->where("DATE_FORMAT(end_datetime,'%Y-%m-%d') <=", $end_date);
         }
     
         // limit query

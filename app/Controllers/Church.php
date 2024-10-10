@@ -3675,59 +3675,59 @@ class Church extends BaseController{
 
 	public function activity($param1='', $param2='', $param3='') {
 		// check session login
-			if($this->session->get('td_id') == ''){
-				$request_uri = uri_string();
-				$this->session->set('td_redirect', $request_uri);
-				return redirect()->to(site_url('auth'));
-			} 
-	
-			$mod = 'church/activity';
-	
-			$log_id = $this->session->get('td_id');
-			$switch_id = $this->session->get('switch_church_id');
-			
-			$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-			if(!empty($switch_id)){
-				$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
-				if($church_type == 'region'){
-					$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
-				}
-				if($church_type == 'zone'){
-					$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
-				}
-				if($church_type == 'group'){
-					$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
-				}
-				if($church_type == 'church'){
-					$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
-				}
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+		$mod = 'church/activity';
+
+		$log_id = $this->session->get('td_id');
+		$switch_id = $this->session->get('switch_church_id');
+		
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		if(!empty($switch_id)){
+			$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+			if($church_type == 'region'){
+				$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
 			}
-			$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
-			$role_c = $this->Crud->module($role_id, $mod, 'create');
-			$role_r = $this->Crud->module($role_id, $mod, 'read');
-			$role_u = $this->Crud->module($role_id, $mod, 'update');
-			$role_d = $this->Crud->module($role_id, $mod, 'delete');
-			if($role_r == 0){
-				return redirect()->to(site_url('dashboard'));	
+			if($church_type == 'zone'){
+				$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
 			}
-			$data['log_id'] = $log_id;
-			$data['role'] = $role;
-			$data['role_c'] = $role_c;
-			
-			$table = 'church_activity';
-			
-			$form_link = site_url($mod);
-			if($param1){$form_link .= '/'.$param1;}
-			if($param2){$form_link .= '/'.$param2.'/';}
-			if($param3){$form_link .= $param3;}
-			
-			// pass parameters to view
-			$data['param1'] = $param1;
-			$data['param2'] = $param2;
-			$data['param3'] = $param3;
-			$data['form_link'] = rtrim($form_link, '/');
-			$data['current_language'] = $this->session->get('current_language');
-			
+			if($church_type == 'group'){
+				$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+			}
+			if($church_type == 'church'){
+				$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+			}
+		}
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if($role_r == 0){
+			return redirect()->to(site_url('dashboard'));	
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+		
+		$table = 'church_activity';
+		
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = rtrim($form_link, '/');
+		$data['current_language'] = $this->session->get('current_language');
+		
 			// manage record
 			if($param1 == 'manage') {
 				// prepare for delete
@@ -3751,6 +3751,118 @@ class Church extends BaseController{
 							}
 							die;	
 						}
+					}
+				} elseif($param2 == 'generate'){
+					if($this->request->getMethod() == 'post'){
+						$category_id =  $this->request->getVar('category_id');
+						$ministry_id =  $this->request->getVar('ministry_id');
+						$church_id =  $this->request->getVar('church_id');
+						$member_id =  $this->request->getVar('member_id');
+						$start_date =  $this->request->getVar('start_date');
+						$end_date =  $this->request->getVar('end_date');
+
+						$cal_ass = $this->Crud->filter_church_activity('', '', $log_id, $start_date, $end_date, $category_id, $member_id, $church_id, $ministry_id);
+						$cal_events = array();
+						if (!empty($cal_ass)) {
+							foreach ($cal_ass as $key => $value) {
+								// Handle the event's basic details
+								$start = strtotime($value->start_datetime);
+								$end = strtotime($value->end_datetime);
+								$members = json_decode($value->members, true);
+								
+								if (!empty($members) && is_array($members)) {
+									$firstMember = reset($members);
+									$member = $this->Crud->read_field('id', $firstMember, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $firstMember, 'user', 'surname');
+								} else {
+									$member = "No members found.";
+								}
+						
+								$class = 'fc-event-primary';
+								$name = $this->Crud->read_field('id', $value->category_id, 'activity_category', 'name');
+						
+								// Check if the event is recurring
+								if ($value->recurrence) {
+									// Get recurrence parameters
+									$frequency = $value->frequency; // daily, weekly, monthly
+									$interval = $value->intervals; // e.g., every 1 day
+									$recurrence_end = $value->recurrence_end; // 'after', 'by date', or 'indefinite'
+									$occurrences = $value->occurrences; // number of occurrences if 'after' is selected
+									$recurrence_end_date = strtotime($value->end_dates); // date if 'by' is selected
+						
+									// Generate occurrences based on frequency and interval
+									$currentStart = $start;
+									$i = 0; // Occurrence counter
+						
+									// Loop until we reach the defined limits based on the recurrence settings
+									while (true) {
+										// Set the current occurrence end datetime
+										$occurrenceStart = $currentStart;
+										$occurrenceEnd = $end + ($i * ($frequency === 'daily' ? 86400 * $interval : ($frequency === 'weekly' ? 604800 * $interval : 2592000 * $interval)));
+						
+										// Check for end scenarios based on the recurrence end type
+										if ($recurrence_end === 'after' && $i >= $occurrences) {
+											break; // Stop if we've reached the specified number of occurrences
+										}
+										if ($recurrence_end === 'by' && $occurrenceStart > $recurrence_end_date) {
+											break; // Stop if the occurrence start exceeds the end date
+										}
+										if ($recurrence_end === 'never' && $i > 500) { // Arbitrary limit to prevent infinite loop, can be adjusted
+											break; // Break after a certain number of iterations to avoid infinite loops
+										}
+						
+										// Prepare the event data for the calendar
+										$cal_events[] = [
+											'id' => $value->id,
+											'title' => strtoupper(($name)),
+											'start' => date('Y-m-d H:i', $occurrenceStart),
+											'end' => date('Y-m-d H:i', $occurrenceEnd),
+											'extendedProps' => ['category' => ucwords($member)],
+											'publicId' => $value->id,
+											'description' => ucwords($this->Crud->convertText($value->description)),
+											'className' => $class,
+										];
+						
+										// Move to the next occurrence date based on the frequency
+										if ($frequency === 'daily') {
+											$currentStart += 86400 * $interval; // Increment by days
+										} elseif ($frequency === 'weekly') {
+											$currentStart += 604800 * $interval; // Increment by weeks
+										} elseif ($frequency === 'monthly') {
+											// Add months using DateTime to handle month-end correctly
+											$dateTime = new DateTime();
+											$dateTime->setTimestamp($currentStart);
+											$dateTime->modify("+{$interval} month");
+											$currentStart = $dateTime->getTimestamp();
+										}
+										$i++; // Increment the occurrence counter
+									}
+								} else {
+									// For non-recurring events
+									$cal_events[$key] = [
+										'id' => $value->id,
+										'title' => strtoupper(($name)),
+										'start' => date('Y-m-d H:i', $start),
+										'end' => date('Y-m-d H:i', $end),
+										'extendedProps' => ['category' => ucwords($member)],
+										'publicId' => $value->id,
+										'description' => ucwords($this->Crud->convertText($value->description)),
+										'className' => $class,
+									];
+								}
+							}
+						}
+						
+						if(empty($cal_events)){
+							echo $this->Crud->msg('danger', 'No Record Returned');
+							die;
+						} else {
+							echo $this->Crud->msg('success', count($cal_events).' Record Returned');
+
+						}
+
+
+
+						die;
 					}
 				} else {
 					// prepare for edit
@@ -4248,5 +4360,635 @@ class Church extends BaseController{
 		}
 		
 
+	public function currency($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+	
+		$mod = 'church/currency';
+
+		$log_id = $this->session->get('td_id');
+		$switch_id = $this->session->get('switch_church_id');
+		
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		if(!empty($switch_id)){
+			$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+			if($church_type == 'region'){
+				$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+			}
+			if($church_type == 'zone'){
+				$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+			}
+			if($church_type == 'group'){
+				$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+			}
+			if($church_type == 'church'){
+				$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+			}
+		}
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if($role_r == 0){
+			return redirect()->to(site_url('dashboard'));	
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+		
+		$table = 'currency';
+		
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = rtrim($form_link, '/');
+		$data['current_language'] = $this->session->get('current_language');
+			
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					//echo var_dump($edit);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($this->request->getMethod() == 'post'){
+						$del_id =  $this->request->getVar('d_id');
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', 'Record Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						die;	
+					}
+				}
+			} elseif($param2 == 'generate'){
+				if($this->request->getMethod() == 'post'){
+					$category_id =  $this->request->getVar('category_id');
+					$ministry_id =  $this->request->getVar('ministry_id');
+					$church_id =  $this->request->getVar('church_id');
+					$member_id =  $this->request->getVar('member_id');
+					$start_date =  $this->request->getVar('start_date');
+					$end_date =  $this->request->getVar('end_date');
+
+					$cal_ass = $this->Crud->filter_church_activity('', '', $log_id, $start_date, $end_date, $category_id, $member_id, $church_id, $ministry_id);
+					$cal_events = array();
+					if (!empty($cal_ass)) {
+						foreach ($cal_ass as $key => $value) {
+							// Handle the event's basic details
+							$start = strtotime($value->start_datetime);
+							$end = strtotime($value->end_datetime);
+							$members = json_decode($value->members, true);
+							
+							if (!empty($members) && is_array($members)) {
+								$firstMember = reset($members);
+								$member = $this->Crud->read_field('id', $firstMember, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $firstMember, 'user', 'surname');
+							} else {
+								$member = "No members found.";
+							}
+					
+							$class = 'fc-event-primary';
+							$name = $this->Crud->read_field('id', $value->category_id, 'activity_category', 'name');
+					
+							// Check if the event is recurring
+							if ($value->recurrence) {
+								// Get recurrence parameters
+								$frequency = $value->frequency; // daily, weekly, monthly
+								$interval = $value->intervals; // e.g., every 1 day
+								$recurrence_end = $value->recurrence_end; // 'after', 'by date', or 'indefinite'
+								$occurrences = $value->occurrences; // number of occurrences if 'after' is selected
+								$recurrence_end_date = strtotime($value->end_dates); // date if 'by' is selected
+					
+								// Generate occurrences based on frequency and interval
+								$currentStart = $start;
+								$i = 0; // Occurrence counter
+					
+								// Loop until we reach the defined limits based on the recurrence settings
+								while (true) {
+									// Set the current occurrence end datetime
+									$occurrenceStart = $currentStart;
+									$occurrenceEnd = $end + ($i * ($frequency === 'daily' ? 86400 * $interval : ($frequency === 'weekly' ? 604800 * $interval : 2592000 * $interval)));
+					
+									// Check for end scenarios based on the recurrence end type
+									if ($recurrence_end === 'after' && $i >= $occurrences) {
+										break; // Stop if we've reached the specified number of occurrences
+									}
+									if ($recurrence_end === 'by' && $occurrenceStart > $recurrence_end_date) {
+										break; // Stop if the occurrence start exceeds the end date
+									}
+									if ($recurrence_end === 'never' && $i > 500) { // Arbitrary limit to prevent infinite loop, can be adjusted
+										break; // Break after a certain number of iterations to avoid infinite loops
+									}
+					
+									// Prepare the event data for the calendar
+									$cal_events[] = [
+										'id' => $value->id,
+										'title' => strtoupper(($name)),
+										'start' => date('Y-m-d H:i', $occurrenceStart),
+										'end' => date('Y-m-d H:i', $occurrenceEnd),
+										'extendedProps' => ['category' => ucwords($member)],
+										'publicId' => $value->id,
+										'description' => ucwords($this->Crud->convertText($value->description)),
+										'className' => $class,
+									];
+					
+									// Move to the next occurrence date based on the frequency
+									if ($frequency === 'daily') {
+										$currentStart += 86400 * $interval; // Increment by days
+									} elseif ($frequency === 'weekly') {
+										$currentStart += 604800 * $interval; // Increment by weeks
+									} elseif ($frequency === 'monthly') {
+										// Add months using DateTime to handle month-end correctly
+										$dateTime = new DateTime();
+										$dateTime->setTimestamp($currentStart);
+										$dateTime->modify("+{$interval} month");
+										$currentStart = $dateTime->getTimestamp();
+									}
+									$i++; // Increment the occurrence counter
+								}
+							} else {
+								// For non-recurring events
+								$cal_events[$key] = [
+									'id' => $value->id,
+									'title' => strtoupper(($name)),
+									'start' => date('Y-m-d H:i', $start),
+									'end' => date('Y-m-d H:i', $end),
+									'extendedProps' => ['category' => ucwords($member)],
+									'publicId' => $value->id,
+									'description' => ucwords($this->Crud->convertText($value->description)),
+									'className' => $class,
+								];
+							}
+						}
+					}
+					
+					if(empty($cal_events)){
+						echo $this->Crud->msg('danger', 'No Record Returned');
+						die;
+					} else {
+						echo $this->Crud->msg('success', count($cal_events).' Record Returned');
+
+					}
+
+
+
+					die;
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_name'] = $e->name;
+								$data['e_description'] = $e->description;
+								$data['e_start_date'] = date('m/d/Y', strtotime($e->start_datetime));
+								$data['e_start_time'] = date('H:iA', strtotime($e->start_datetime));
+								$data['e_end_date'] = date('m/d/Y', strtotime($e->end_datetime));
+								$data['e_end_time'] = date('H:iA', strtotime($e->end_datetime));
+								$data['e_category_id'] = $e->category_id;
+								$data['e_recurrence'] = $e->recurrence;
+								$data['e_frequency'] = $e->frequency;
+								$data['e_intervals'] = $e->intervals;
+								$data['e_by_day'] = json_decode($e->by_day);
+								$data['e_recurrence_end'] = $e->recurrence_end;
+								$data['e_occurrences'] = $e->occurrences;
+								$data['e_end_dates'] = $e->end_dates;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_member_id'] = $e->members;
+							}
+						}
+					}
+				}
+
+				// prepare for view
+				if($param2 == 'view') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_name'] = $e->name;
+								$data['e_description'] = $e->description;
+								$data['e_start_date'] = date('m/d/Y', strtotime($e->start_datetime));
+								$data['e_start_time'] = date('H:iA', strtotime($e->start_datetime));
+								$data['e_end_date'] = date('m/d/Y', strtotime($e->end_datetime));
+								$data['e_end_time'] = date('H:iA', strtotime($e->end_datetime));
+								$data['e_category_id'] = $e->category_id;
+								$data['e_recurrence'] = $e->recurrence;
+								$data['e_frequency'] = $e->frequency;
+								$data['e_intervals'] = $e->intervals;
+								$data['e_by_day'] = json_decode($e->by_day);
+								$data['e_recurrence_end'] = $e->recurrence_end;
+								$data['e_occurrences'] = $e->occurrences;
+								$data['e_end_dates'] = $e->end_dates;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_member_id'] = json_decode($e->members);
+								$data['e_reg_date'] = $e->reg_date;
+							}
+						}
+					}
+				}
+				
+				if($this->request->getMethod() == 'post'){
+					$e_id =  $this->request->getVar('e_id');
+					$name =  $this->request->getVar('name');
+					$description =  $this->request->getVar('description');
+					$start_date =  $this->request->getVar('start_date');
+					$start_time =  $this->request->getVar('start_time');
+					$end_date =  $this->request->getVar('end_date');
+					$end_time =  $this->request->getVar('end_time');
+					$category_id =  $this->request->getVar('category_id');
+					$category =  $this->request->getVar('category');
+					$is_recurring =  $this->request->getVar('is_recurring');
+					$frequency =  $this->request->getVar('frequency');
+					$interval =  $this->request->getVar('interval');
+					$by_day =  $this->request->getVar('by_day');
+					$recurrence_end =  $this->request->getVar('recurrence_end');
+					$occurrences =  $this->request->getVar('occurrences');
+					$recurrence_end_dates =  $this->request->getVar('end_dates');
+					$member_id =  $this->request->getVar('member_id');
+					$ministry_id =  $this->request->getVar('ministry_id');
+					$church_id =  $this->request->getVar('church_id');
+					if(empty($member_id)){
+						$member_id = array();
+					}
+					
+
+					// 2. Recurring Event Validation
+					if ($is_recurring == 1) {
+						// Validate frequency (daily, weekly, monthly, yearly)
+						if (empty($frequency) || !in_array($frequency, ['daily', 'weekly', 'monthly', 'yearly'])) {
+							$errors[] = 'Invalid recurrence frequency.';
+						}
+
+						// Validate interval (e.g., repeat every X days/weeks/months)
+						if (empty($interval) || !is_numeric($interval) || $interval <= 0) {
+							$errors[] = 'Recurrence interval must be a positive number.';
+						}
+
+						// Validate recurrence_end (never, after, by)
+						if (empty($recurrence_end) || !in_array($recurrence_end, ['never', 'after', 'by'])) {
+							$errors[] = 'Invalid recurrence end type.';
+						}
+
+						// If recurrence ends 'after' a certain number of occurrences
+						if ($recurrence_end == 'after' && (empty($occurrences) || !is_numeric($occurrences) || $occurrences <= 0)) {
+							$errors[] = 'Occurrences must be a valid positive number if recurrence ends after a set number of occurrences.';
+						}
+
+						// If recurrence ends 'by' a certain date
+						if ($recurrence_end == 'by' && (empty($recurrence_end_dates) || !strtotime($recurrence_end_dates))) {
+							$errors[] = 'A valid end date is required if recurrence ends by a specific date.';
+						}
+
+						// Example: Recurrence days for weekly recurrence
+						if ($frequency == 'weekly' && empty($by_day)) {
+							$errors[] = 'Please select at least one day for weekly recurrence.';
+						}
+					}
+
+					// 3. If there are errors, display them and stop the process
+					if (!empty($errors)) {
+						// Show errors to the user (this could be done with session flash data or directly returning the errors)
+						foreach ($errors as $error) {
+							echo $this->Crud->msg('danger', $error);
+						}
+						die; // Stop the process if there are errors
+					}
+
+					if($category_id == 'new'){
+						$cate_data['ministry_id'] = $ministry_id;
+						$cate_data['church_id'] = $church_id;
+						$cate_data['name'] = $category;
+
+						if($this->Crud->check3('ministry_id', $ministry_id, 'church_id', $church_id, 'name', $category, 'activity_category') > 0){
+							$category_id = $this->Crud->read_field3('ministry_id', $ministry_id, 'church_id', $church_id, 'name', $category, 'activity_category', 'id');
+						} else {
+							$category_id = $this->Crud->create('activity_category', $cate_data);
+						}
+						
+					}
+
+					if($is_recurring == 0){
+						$frequency = '';
+						$interval = 0;
+						$occurrences = 0;
+						$by_day = [];
+						$recurrence_end = '';
+						$recurrence_end_dates = null;
+					} else {
+						if($frequency != 'weekly'){
+							$by_day = [];
+						}
+						if($recurrence_end == 'never'){
+							$occurrences = 0;
+							$recurrence_end_dates = null;
+						}
+						if($recurrence_end == 'after'){
+							$recurrence_end_dates = null;
+						}
+						if($recurrence_end == 'by'){
+							$occurrences = 0;
+						}
+					}
+
+					$sDate = date('Y-m-d', strtotime($start_date)).'  '. date('h:i:s', strtotime($start_time));
+					$eDate = date('Y-m-d', strtotime($end_date)).' '.date('h:i:s', strtotime($end_time));
+					
+					// echo json_encode($by_day);
+					// die;
+
+					// $ins_data['name'] = $name;
+					$ins_data['description'] = $description;
+					$ins_data['start_datetime'] = $sDate;
+					$ins_data['end_datetime'] = $eDate;
+					$ins_data['category_id'] = $category_id;
+					$ins_data['recurrence'] = $is_recurring;
+					$ins_data['frequency'] = $frequency;
+					$ins_data['intervals'] = $interval;
+					$ins_data['by_day'] = json_encode($by_day);
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['occurrences'] = $occurrences;
+					$ins_data['recurrence_end'] = $recurrence_end;
+					$ins_data['end_dates'] = $recurrence_end_dates;
+					$ins_data['church_id'] = ($church_id);
+					$ins_data['members'] = json_encode($member_id);
+					
+					// do create or update
+					if($e_id) {
+						$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							echo $this->Crud->msg('success', 'Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+						
+					} else{
+						
+						$ins_data['reg_date'] = date(fdate);
+						
+						if($this->Crud->check3('category_id', $category_id, 'reg_date', date(fdate), 'ministry_id', $ministry_id, $table) > 0) {
+							echo $this->Crud->msg('warning', ('Church Activity Already Exist'));
+						} else {
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Church Activity Created'));
+								
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'church_activity', 'name');
+								$action = $by.' created Church Activity ('.$code.')';
+								$this->Crud->activity('church_activity', $ins_rec, $action);
+
+								
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+							}	
+						}
+					}
+					die;	
+				}
+			}
+		}
+
+		if($param1 == 'update_rate'){
+			$country_id = $this->request->getPost('id');
+			$rate = $this->request->getPost('rate');
+			$ministry_id = $this->request->getPost('ministry_id');
+			
+			if($this->Crud->check('id', $country_id, 'country')==0){
+				echo $this->Crud->msg('warning', 'Invalid Country');
+				die;
+			}
+
+			$currency_name = $this->Crud->read_field('id', $country_id, 'country', 'currency_name');
+			$symbol = $this->Crud->read_field('id', $country_id, 'country', 'currency_symbol');
+			
+			$ins['country_id'] = $country_id;
+			$ins['ministry_id'] = $ministry_id;
+			$ins['symbol'] = $symbol;
+			$ins['rate'] = $rate;
+			$ins['currency_name'] = $currency_name;
+			
+			if($this->Crud->check2('country_id', $country_id, 'ministry_id', $ministry_id, 'currency')> 0){
+				// Record exists, get the current data
+				$currency_data = $this->Crud->read_field2('country_id', $country_id, 'ministry_id', $ministry_id, 'currency', 'date_rate_change');
+				$rec_id = $this->Crud->read_field2('country_id', $country_id, 'ministry_id', $ministry_id, 'currency', 'id');
+
+				// Decode the existing rate changes
+				$existing_rate_changes = json_decode($currency_data, true);
+				
+				// Check if $existing_rate_changes is an array
+				if (!is_array($existing_rate_changes)) {
+					$existing_rate_changes = []; // Initialize as an empty array if not
+				}
+
+				/// Initialize variables to store the latest rate information
+				$latest_rate_info = null;
+				$latest_date = null;
+
+				// Iterate through the existing rate changes to find the latest date
+				foreach ($existing_rate_changes as $rate_change) {
+					$current_date = strtotime($rate_change['date']);
+					
+					if ($latest_date === null || $current_date > $latest_date) {
+						$latest_date = $current_date;
+						$latest_rate_info = $rate_change;
+					}
+				}
+
+
+				if ($latest_rate_info) {
+					$recent_rate = $latest_rate_info['rate']; // Get the most recent rate
+
+					// Check if the new rate is different from the most recent one
+					if ($recent_rate !== (string)$rate) {
+						// If the rate has changed, add the new rate to the rate change array
+						$rate_change = array('rate' => (string)$rate, 'date' => date('Y-m-d H:i:s'));
+
+						// Add the new rate change to the existing changes array
+						$existing_rate_changes[] = $rate_change;
+
+						// Update the `date_rate_change` field with the new array
+						$ins['date_rate_change'] = json_encode($existing_rate_changes);
+
+						// Update the record with the new rate and rate change array
+						$update_rec = $this->Crud->updates('id', $rec_id, 'currency', $ins);
+
+						if ($update_rec > 0) {
+							echo $this->Crud->msg('success', 'Rate Updated Successfully');
+						} else {
+							echo $this->Crud->msg('danger', 'Update Failed. Try Again Later');
+						}
+					} else {
+						echo $this->Crud->msg('info', 'No Rate Change Detected');
+					}
+				} else {
+					echo "No rate changes found.";
+				}
+
+			} else{
+				$change['rate'] = $rate;
+				$change['date'] = date(fdate);
+
+				$rate_change[] = $change;
+				$ins['date_rate_change'] = json_encode($rate_change);
+				$ins['reg_date'] = date(fdate);
+				$ins_rec = $this->Crud->create('currency', $ins);
+				if($ins_rec > 0){
+					echo $this->Crud->msg('success', 'Rate Update');
+				} else{
+					echo $this->Crud->msg('danger', 'Try Again Later');
+				}
+			}
+
+			die;
+		}
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 75;
+			$item = '';
+
+			if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			
+			if(!empty($this->request->getPost('ministry_id'))) { $ministry_id = $this->request->getPost('ministry_id'); } else { $ministry_id = 0; }
+			$search = $this->request->getPost('search');
+
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<tr><td colspan="7><div class="text-center text-muted">Session Timeout! - Please login again</div></td></tr>';
+			} else {
+				$counts = 0;
+				if(!$ministry_id){
+					$item = '<tr><td colspan="7"><div class="text-center text-muted m-2"><br/><br/>'.translate_phrase('Select Ministry First').'</div></td></tr>';
+				} else{
+					$all_rec = $this->Crud->read_order_like('country', 'name', 'asc', 'name', $search, '', '');
+					if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+					$query = $this->Crud->read_order_like('country', 'name', 'asc', 'name', $search, $limit, $offset);
+
+					if(!empty($query)) {
+						foreach($query as $q) {
+							$id = $q->id;
+							$name = $q->name;
+							$currency = $q->currency;
+							$currency_name = $q->currency_name;
+							$currency_symbol = $q->currency_symbol;
+							$logo = ltrim($q->tld, '.');
+							
+							$images = '<img  src="' . site_url('assets/images/flags/'.$logo.'.png') . '" height="40px" width="40px" class="img-responsive">';
+							
+							$rate = $this->Crud->read_field2('ministry_id', $ministry_id, 'country_id', $id, 'currency', 'rate');
+							if(empty($rate)){
+								$rate = 0;
+							}
+
+
+							$item .= '
+								<tr>
+									<td>
+										<div class="user-card">
+											<div class="user-avatar">            
+												'.$images.'      
+											</div> 
+										</div>  
+									</td>
+									<td>
+										<div class="user-card">
+											<div class="user-name">            
+												<span class="tb-lead">' . ucwords($name) . '</span> 
+											</div>    
+										</div> 
+									</td>
+									<td><span class="small text-dark">'.ucwords($currency_name).' <b>&#8594;</b> '.$currency.'</span></td>
+									<td><span class="small text-dark">'.($currency_symbol).'</span></td>
+									<td><input id="value'.$id.'" type="text" value="'.$rate.'" class="form-control update_rates" oninput="update_rate('.$id.');" />
+									<span class="small text-danger" id="rate_resp'.$id.'"></span>
+									</td>
+									
+								</tr>
+							';
+
+							
+						}
+					}
+				}
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = '
+					<tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/>
+						<i class="ni ni-calendar-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Events Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+				if($offset >= 75){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+	
+		// print_r($cal_events);
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = 'Currency Setup - '.app_name;
+			$data['page_active'] = $mod;
+
+			return view($mod, $data);
+		}
+	}
+			
 
 }
