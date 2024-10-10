@@ -574,10 +574,7 @@ $this->Crud = new Crud();
             focus: true
         });
 
-        $('#church_id').select2({
-            placeholder: 'Select Church(s)',
-            allowClear: true  // This allows clearing the selection if needed
-        });
+       
     });
 
     $('input[name="recurrence_end"]').on('change', function () {
