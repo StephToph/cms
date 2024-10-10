@@ -3900,12 +3900,18 @@ class Church extends BaseController{
 							$recurrence_end = '';
 							$recurrence_end_dates = null;
 						} else {
-							if($frequency == 'weekly'){
-
-
-							} else{
-
-								
+							if($frequency != 'weekly'){
+								$by_day = [];
+							}
+							if($recurrence_end == 'never'){
+								$occurrences = 0;
+								$recurrence_end_dates = null;
+							}
+							if($recurrence_end == 'after'){
+								$recurrence_end_dates = null;
+							}
+							if($recurrence_end == 'by'){
+								$occurrences = 0;
 							}
 						}
 
