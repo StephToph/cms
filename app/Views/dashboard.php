@@ -16,7 +16,7 @@
                     <div class="mt-1 d-lg-none">.</div>
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title">Dashboard Overview</h3>
+                            <h3 class="nk-block-title page-title"><?=translate_phrase('Dashboard Overview'); ?></h3>
                         </div>
                         <div class="nk-block-head-content">
                             <div class="toggle-wrap nk-block-tools-toggle">
@@ -68,12 +68,12 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total Service Offering</h6>
+                                                <h6 class="title"><?=translate_phrase('Total Service Offering');?></h6>
                                             </div>
                                             <div class="card-tools">
                                                 <em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Service Offering"></em>
+                                                    title="<?=translate_phrase('Total Service Offering'); ?>"></em>
                                                 </div>
                                         </div>
                                         <div class="card-amount">
@@ -88,7 +88,7 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total Cell Offering</h6>
+                                                <h6 class="title"><?=translate_phrase('Total Cell Offering');?></h6>
                                             </div>
                                             <div class="card-tools">
                                                 <em class="card-hint icon ni ni-help-fill"

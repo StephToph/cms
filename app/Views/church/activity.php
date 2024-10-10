@@ -13,24 +13,7 @@
 <?=$this->endSection();?>
 
 <?=$this->section('content');?>
-<style>
-    .fc-event-table {
-        display: table;
-        width: 100%;
-    }
 
-    .fc-event-table td {
-        display: table-cell;
-        padding: 8px;
-        border-bottom: 1px solid #ddd;
-        vertical-align: middle;
-    }
-
-    .fc-event-table td:last-child {
-        text-align: right;  /* Align buttons to the right */
-    }
-
-</style>
 <!-- content @s -->
 <div class="nk-content ">
         <div class="container-fluid">
@@ -61,7 +44,7 @@
     </div>
     <?php //echo ($cal_eventss).' dkjkdjfkdj'; ?>
     
-    <div class="modal fade" id="previewEventPopup">
+    <div class="modal fade" id="previewEventPopu">
         <div class="modal-dialog modal-md" role="document">
             <div class="modal-content">
                 <div id="preview-event-header" class="modal-header">
@@ -98,7 +81,6 @@
 <script>
     var site_url = '<?php echo site_url(); ?>';   
     var calEventsStr = '<?php if (!empty($cal_events)) { echo json_encode($cal_events); } else { echo "[]"; } ?>';
-    console.log(calEvents);
     
     // Parse the JSON string into a JavaScript object/array
     var calEvents = JSON.parse(calEventsStr);
@@ -113,6 +95,7 @@
         load('', '');
 
     }
+   
     function calendar_view() {
         $('#calendar_resp').show(500);
         $('#view_resp').hide(500);
@@ -121,8 +104,37 @@
 
     }
 
-    
-   
+    $(document).ready(function () {
+        // Attach click event handler to elements with the class "pop"
+        $(document).on('click', '.pop', function (event) {
+            // Prevent the event from bubbling up to the parent elements
+            event.preventDefault(); // Prevents default anchor click behavior
+            event.stopPropagation(); // Prevents the click event from propagating to parent elements
+
+            // Clear previous modal data
+            $(".modal").off('hidden.bs.modal').on('hidden.bs.modal', function () {
+                $(this).data('bs.modal', null);
+            });
+
+            var pageTitle = $(this).attr('pageTitle');
+            var pageName = $(this).attr('pageName');
+            var pageSize = $(this).attr('pageSize');
+
+            // Add the appropriate class for modal size
+            $(".modal-dialog").removeClass("modal-lg modal-sm modal-xl").addClass(pageSize);
+            $(".modal-center .modal-title").html(pageTitle);
+            $(".modal-center .modal-body").html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><br>Loading Please Wait..</div>');
+            
+            // Load the content into the modal body
+            $(".modal-center .modal-body").load(pageName, function () {
+                // Optional: Add any additional logic after content loads
+            });
+            
+            // Show the modal
+            $(".modal-center").modal("show");
+        });
+    });
+
     function load(x, y) {
         var more = 'no';
         var methods = '';

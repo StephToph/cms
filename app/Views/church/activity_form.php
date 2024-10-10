@@ -612,7 +612,10 @@ $this->Crud = new Crud();
 
                             // Populate the Church dropdown with the data received
                             $.each(response.data, function (index, church) {
-                                var selected = eChurchId.includes(church.id);
+                                var selected = '';
+                                if (church.id === eChurchId) {
+                                    selected = 'selected';
+                                }
                                 var churchName = toTitleCase(church.name); // Convert name to title case
                                 var churchType = toTitleCase(church.type); // Convert type to title case
                                 $('#church_id').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
@@ -693,6 +696,7 @@ $this->Crud = new Crud();
                         if (response.success) {
                             // Populate the Member dropdown with the data received
                             $.each(response.data, function (index, member) {
+                                
                                 var selected = eMemberId.includes(member.id); // Pre-select if necessary
                                 var memberName = toTitleCase(member.name);
                                 var memberPhone = member.phone || 'N/A';      // Show phone number or 'N/A' if missing
