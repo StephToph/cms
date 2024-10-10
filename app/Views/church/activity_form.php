@@ -29,113 +29,106 @@ $this->Crud = new Crud();
 <?php } ?>
 
 <?php if ($param2 == 'view') { ?>
-    <div class="row">
-        
-        <div class="col-sm-12 mb-3 table-responsive">
-            <table class="table table-hovered">
-                <?php if(!empty($e_image)){?>
-                    <tr>
-                        <td><img src="<?=site_url($e_image); ?>" alt=""> </td>
-                    </tr>
-                <?php }
-                        ?>
-                <tr>
-                    <td><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
-                </tr>
-                <tr>
-                    <td><?= ucwords(($e_description)); ?></d></td>
-                </tr>
-            </table>
-            <table class="table table-hovered">
-                <tr>
-                    <td><b>Minstry</b></td>
-                    <td><?=$this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name');?></td>
-                </tr>
-                <tr>
-                    <td><b>Event is For</b></td>
-                    <td><?=ucwords($e_event_for);?> Church</td>
-                </tr>
-                <tr>
-                    <td><b>Church Level</b></td>
-                    <td><?=ucwords($e_church_type);?> Level</td>
-                </tr>
-                <?php if($e_church_type != 'all'){?>
-                <tr>
-                   
-                    <td><b>Church</b></td>
-                    <td><?php 
-                        $church = '';
-                        if(!empty($e_church_id)){
-                            $churches = json_decode($e_church_id);
-                            if(!empty($churches)){
-                                foreach($churches as $c => $val){
-                                    $church .=  ucwords($this->Crud->read_field('id', $val, 'church', 'name')).', ';
-                                }
+    <div class="row gy-3 py-1">
+        <div class="col-sm-6 mb-3">
+            <h6 class="overline-title">Category</h6>
+            <p id="preview-event-start"><?=ucwords($this->Crud->read_field('id', $e_category_id, 'activity_category', 'name')); ?></p>
+        </div>
+        <div class="col-sm-6 mb-3" id="preview-event-end-check">
+            <h6 class="overline-title">Church</h6>
+            <p id="preview-event-end"><?=ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name')); ?></p>
+        </div>
+        <div class="col-sm-4 mb-3">
+            <h6 class="overline-title">Start Time</h6>
+            <p id="preview-event-start"><?=$e_start_date.' '.$e_start_time; ?></p>
+        </div>
+        <div class="col-sm-4 mb-3" id="preview-event-end-check">
+            <h6 class="overline-title">End Time</h6>
+            <p id="preview-event-end"><?=$e_end_date.' '.$e_end_time; ?></p>
+        </div>
+        <div class="col-sm-4 mb-3" id="preview-event-end-check">
+            <h6 class="overline-title">Recurring</h6>
+            <p id="preview-event-end"><?php
+                if($e_recurrence == 0){
+                    echo 'One Time';
+                } else{
+                    echo 'Recurring Activity';
+                }
+            ?></p>
+        </div>
+        <?php
+            if($e_recurrence > 0){?>
+            <div class="col-sm-4 mb-3">
+                <h6 class="overline-title">Frequency</h6>
+                <p id="preview-event-start"><?=ucwords($e_frequency); ?></p>
+            </div>
+            <div class="col-sm-4 mb-3">
+                <h6 class="overline-title">Interval</h6>
+                <p id="preview-event-start"><?php
+                    $fre = 'day';
+                    $days = '';$daysa ='';
+                    if($e_frequency == 'weekly'){
+                        $fre = 'week';
+                        if(!empty($e_by_day)){
+                            foreach($e_by_day as $day){
+                                $daysa .= ucwords($day).' ';
                             }
                         }
-                        echo rtrim($church,', ');
-                       
-                    ?></td>
-                </tr>
-                <?php } ?>
-                <tr>
-                    <td><b>Event Type</b></td>
-                    <td><?=ucwords($e_event_type);?></td>
-                </tr>
-                <?php if($e_event_type == 'recurring'){?>
-                    <tr>
-                        <td><b>Recurrene Pattern</b></td>
-                        <td><?=ucwords($e_recurrence_pattern);?></td>
-                    </tr>
-                    <tr>
-                        <td><b>Pattern</b></td>
-                        <td><?php 
-                            $pattern = '';
-                            if($e_recurrence_pattern == 'weekly'){
-                                $pattern = 'Every '.$e_pattern;
-                            }
-                            if($e_recurrence_pattern == 'monthly'){
-                                $pattern = 'Every '.$this->Crud->numberToOrdinal((int)$e_pattern).' of the Month';
-                            }
-                            if($e_recurrence_pattern == 'yearly'){
-                                $pattern = 'Every '.$this->Crud->numberToMonth($e_pattern).' of the Year';
-                            }
-                            echo $pattern;?></td>
-                    </tr>
-                <?php } ?>
-                <tr>
-                    <td><b>Start Date</b></td>
-                    <td><?=date('d F Y', strtotime($e_start_date)).' '.date('h:i A', strtotime($e_start_time));?></td>
-                </tr>
-                <tr>
-                    <td><b>End Date</b></td>
-                    <td><?=date('d F Y', strtotime($e_end_date)).' '.date('h:i A', strtotime($e_end_time));?></td>
-                </tr>
-                <tr>
-                    <td><b>Location</b></td>
-                    <td><?=ucwords($e_location);?></td>
-                </tr>
-                <?php if($e_location == 'other'){?>
-                <tr>
-                    <td><b>Venue</b></td>
-                    <td><?=ucwords($e_venue);?></td>
-                </tr>
-                <?php } ?>
-                <tr>
-                    <td><b>Created At</b></td>
-                    <td><?=date('d F Y h:i:sA', strtotime($e_created_at));?></td>
-                </tr>
-                <tr>
-                    <td><b>Updated At</b></td>
-                    <td><?=date('d F Y h:i:sA', strtotime($e_updated_at));?></td>
-                </tr>
-                
+                    }
+                    if($e_frequency == 'monthly'){
+                        $fre = 'month';
+                    }
+                    if(!empty($daysa)){
+                        $days .= '- On '.$daysa;
+                    }
+                   echo ucwords('Every '.$e_intervals.' '.$fre.' '.$days); ?></p>
+            </div>
+            <div class="col-sm-4 mb-3">
+                <h6 class="overline-title">Recurrence End</h6>
+                <p id="preview-event-start"><?php
+                    if($e_recurrence_end == 'never'){
+                        echo ucwords('Indefinitely');
+                    } 
+                    if($e_recurrence_end == 'after'){
+                        echo ucwords('After '.$e_occurrences.' Occurrences'); 
+                    }
+                    if($e_recurrence_end == 'by'){
+                        echo ucwords('Ends By '.date('d F, Y', strtotime($e_end_dates))); 
+                    }
+                 ?></p>
+            </div>
+        <?php } ?>
 
-            </table>
+
+        <div class="col-sm-10" id="preview-event-description-check">
+            <h6 class="overline-title">Description</h6>
+            <p id="preview-event-description"><?=$e_description; ?></p>
         </div>
+        <div class="col-sm-10" id="preview-event-description-check">
+            <h6 class="overline-title">Members</h6>
+            <div class="row" id="preview-event-description"><?php 
+                if(!empty($e_member_id)){
+                    foreach($e_member_id as $members){
+                        $name = $this->Crud->read_field('id', $members, 'user', 'firstname').' '.$this->Crud->read_field('id', $members, 'user', 'surname');
+                        $phone = $this->Crud->read_field('id', $members, 'user', 'phone');
 
+                        echo '
+                            <div class="user-toggle col-sm-3 mb-3">
+                                <div class="user-avatar">
+                                    <em class="icon ni ni-user-alt"></em>    
+                                </div>    
+                                <div class="user-info">     
+                                    <div class="user-name">'.ucwords($name).'</div>    
+                                    <div class="user-status text-primary">'.$phone.'</div> 
+                                </div>
+                            </div>
+                        ';
+                    }
+                }
+             ?>
+            </div>
+        </div>
     </div>
-
 <?php } ?>
 
 <!-- insert/edit view -->

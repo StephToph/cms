@@ -3790,24 +3790,25 @@ class Church extends BaseController{
 							if(!empty($edit)) {
 								foreach($edit as $e) {
 									$data['e_id'] = $e->id;
-									$data['e_title'] = $e->title;
+									$data['e_name'] = $e->name;
 									$data['e_description'] = $e->description;
-									$data['e_start_date'] = $e->start_date;
-									$data['e_start_time'] = $e->start_time;
-									$data['e_end_date'] = $e->end_date;
-									$data['e_end_time'] = $e->end_time;
-									$data['e_location'] = $e->location;
-									$data['e_venue'] = $e->venue;
-									$data['e_event_type'] = $e->event_type;
-									$data['e_recurrence_pattern'] = $e->recurrence_pattern;
-									$data['e_pattern'] = $e->pattern;
-									$data['e_image'] = $e->image;
-									$data['e_event_for'] = $e->event_for;
+									$data['e_start_date'] = date('m/d/Y', strtotime($e->start_datetime));
+									$data['e_start_time'] = date('H:iA', strtotime($e->start_datetime));
+									$data['e_end_date'] = date('m/d/Y', strtotime($e->end_datetime));
+									$data['e_end_time'] = date('H:iA', strtotime($e->end_datetime));
+									$data['e_category_id'] = $e->category_id;
+									$data['e_recurrence'] = $e->recurrence;
+									$data['e_frequency'] = $e->frequency;
+									$data['e_intervals'] = $e->intervals;
+									$data['e_by_day'] = json_decode($e->by_day);
+									$data['e_recurrence_end'] = $e->recurrence_end;
+									$data['e_occurrences'] = $e->occurrences;
+									$data['e_end_dates'] = $e->end_dates;
 									$data['e_church_id'] = $e->church_id;
+									$data['e_church_type'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 									$data['e_ministry_id'] = $e->ministry_id;
-									$data['e_created_at'] = $e->created_at;
-									$data['e_updated_at'] = $e->updated_at;
-									$data['e_church_type'] = $e->church_type;
+									$data['e_member_id'] = json_decode($e->members);
+									$data['e_reg_date'] = $e->reg_date;
 								}
 							}
 						}
@@ -4143,35 +4144,95 @@ class Church extends BaseController{
 			if($church_id > 0){
 				$cal_ass = $this->Crud->read_single('church_id', $church_id, 'church_activity');
 			}
-			if(!empty($cal_ass)){
-				foreach($cal_ass as $key => $value){
-					
-					$start = date('Y-m-d H:i', strtotime($value->start_datetime));
-					$end = date('Y-m-d H:i', strtotime($value->end_datetime));
+			if (!empty($cal_ass)) {
+				foreach ($cal_ass as $key => $value) {
+					// Handle the event's basic details
+					$start = strtotime($value->start_datetime);
+					$end = strtotime($value->end_datetime);
 					$members = json_decode($value->members, true);
+					
 					if (!empty($members) && is_array($members)) {
-						// Get the first value from the array
-						$firstMember = reset($members);  // reset() will return the first element of the array
-						
-						// You can now use $firstMember
-						$member = $this->Crud->read_field('id', $firstMember, 'user', 'firstname').' '.$this->Crud->read_field('id', $firstMember, 'user', 'surname');
+						$firstMember = reset($members);
+						$member = $this->Crud->read_field('id', $firstMember, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $firstMember, 'user', 'surname');
 					} else {
 						$member = "No members found.";
 					}
+			
 					$class = 'fc-event-primary';
 					$name = $this->Crud->read_field('id', $value->category_id, 'activity_category', 'name');
-					$cal_events[$key]['id'] = $value->id;
-					$cal_events[$key]['title'] = strtoupper(($name));
-					$cal_events[$key]['start'] = $start;
-					$cal_events[$key]['end'] = $end;
-					$cal_events[$key]['extendedProps'] =  array('category'=>  ucwords($member));
-					$cal_events[$key]['publicId'] = $value->id;
-					$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
-					$cal_events[$key]['className'] = $class;
+			
+					// Check if the event is recurring
+					if ($value->recurrence) {
+						// Get recurrence parameters
+						$frequency = $value->frequency; // daily, weekly, monthly
+						$interval = $value->intervals; // e.g., every 1 day
+						$recurrence_end = $value->recurrence_end; // 'after', 'by date', or 'indefinite'
+						$occurrences = $value->occurrences; // number of occurrences if 'after' is selected
+						$recurrence_end_date = strtotime($value->end_dates); // date if 'by' is selected
+			
+						// Generate occurrences based on frequency and interval
+						$currentStart = $start;
+						$i = 0; // Occurrence counter
+			
+						// Loop until we reach the defined limits based on the recurrence settings
+						while (true) {
+							// Set the current occurrence end datetime
+							$occurrenceStart = $currentStart;
+							$occurrenceEnd = $end + ($i * ($frequency === 'daily' ? 86400 * $interval : ($frequency === 'weekly' ? 604800 * $interval : 2592000 * $interval)));
+			
+							// Check for end scenarios based on the recurrence end type
+							if ($recurrence_end === 'after' && $i >= $occurrences) {
+								break; // Stop if we've reached the specified number of occurrences
+							}
+							if ($recurrence_end === 'by' && $occurrenceStart > $recurrence_end_date) {
+								break; // Stop if the occurrence start exceeds the end date
+							}
+							if ($recurrence_end === 'never' && $i > 500) { // Arbitrary limit to prevent infinite loop, can be adjusted
+								break; // Break after a certain number of iterations to avoid infinite loops
+							}
+			
+							// Prepare the event data for the calendar
+							$cal_events[] = [
+								'id' => $value->id,
+								'title' => strtoupper(($name)),
+								'start' => date('Y-m-d H:i', $occurrenceStart),
+								'end' => date('Y-m-d H:i', $occurrenceEnd),
+								'extendedProps' => ['category' => ucwords($member)],
+								'publicId' => $value->id,
+								'description' => ucwords($this->Crud->convertText($value->description)),
+								'className' => $class,
+							];
+			
+							// Move to the next occurrence date based on the frequency
+							if ($frequency === 'daily') {
+								$currentStart += 86400 * $interval; // Increment by days
+							} elseif ($frequency === 'weekly') {
+								$currentStart += 604800 * $interval; // Increment by weeks
+							} elseif ($frequency === 'monthly') {
+								// Add months using DateTime to handle month-end correctly
+								$dateTime = new DateTime();
+								$dateTime->setTimestamp($currentStart);
+								$dateTime->modify("+{$interval} month");
+								$currentStart = $dateTime->getTimestamp();
+							}
+							$i++; // Increment the occurrence counter
+						}
+					} else {
+						// For non-recurring events
+						$cal_events[$key] = [
+							'id' => $value->id,
+							'title' => strtoupper(($name)),
+							'start' => date('Y-m-d H:i', $start),
+							'end' => date('Y-m-d H:i', $end),
+							'extendedProps' => ['category' => ucwords($member)],
+							'publicId' => $value->id,
+							'description' => ucwords($this->Crud->convertText($value->description)),
+							'className' => $class,
+						];
+					}
 				}
-				
 			}
-	
+			
 	
 			$data['cal_events'] = (array_values($cal_events));
 			// print_r($cal_events);
