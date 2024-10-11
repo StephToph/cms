@@ -18,49 +18,66 @@
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title"><?=translate_phrase('Dashboard Overview'); ?></h3>
                         </div>
-                        <div class="nk-block-head-content">
-                            <div class="toggle-wrap nk-block-tools-toggle">
-                                <a href="#"
-                                    class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em>
-                                </a>
-                                <div class="toggle-expand-content" data-content="pageMenu">
-                                    <ul class="nk-block-tools g-3">
-                                        <input type="hidden" id="date_type" value="This Month">
+                        
+                    </div>
+                </div>
+                <div class="nk-block">
+                    <div class="d-flex flex-row-reverse">
+                        <div class="btn-group align-items-center" id="data-resp" style="display:none;">
+                            &nbsp;|&nbsp;<b><?=translate_phrase('Date');?>:</b>&nbsp;
+                            <input type="date" class="form-control" name="date_from" id="date_from" oninput="load()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('START DATE');?>">
+                            &nbsp;<i class="anticon anticon-arrow-right"></i>&nbsp;
+                            <input type="date" class="form-control" name="date_to" id="date_to" oninput="load()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('END DATE');?>">
+                        </div>
 
-                                        <li>
-                                            <div class="drodown">
-                                                <a href="javascript:;" class="dropdown-toggle btn btn-white btn  btn-outline-light" data-bs-toggle="dropdown"><em class="  icon ni ni-calender-date"></em><span id="filter_type"><span class="" id="filter_type"><?=translate_phrase('This'); ?></span> <?=translate_phrase('Month'); ?></span></a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <ul class="link-list-opt no-bdr">
-                                                        <li><a href="javascript:;" class="typeBtn" data-value="Today"><span><?=translate_phrase('Today');?></span></a></li>
-                                                        <li><a href="javascript:;" class="typeBtn" data-value="Yesterday"><span><?=translate_phrase('Yesterday');?></span></a></li>
-                                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Week"><span><?=translate_phrase('Last 7 Days');?></span></a></li>
-                                                        <li><a href="javascript:;" class="typeBtn active" data-value=""><span><?=translate_phrase('This Month');?></span></a></li>
-                                                        <li><a href="javascript:;" class="typeBtn" data-value="This_Year"><span><?=translate_phrase('This Year');?></span></a></li>
-                                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Month"><span><?=translate_phrase('Last 30 Days');?></span></a></li>
-                                                        <li><a href="javascript:;" class="typeBtn" data-value="Date_Range"><span><?=translate_phrase('Date Range');?></span></a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </li>
-                                        <li>
-                                            <div class="btn-group align-items-center" id="data-resp" style="display:none;">
-                                                &nbsp;|&nbsp;<b><?=translate_phrase('Date');?>:</b>&nbsp;
-                                                <input type="date" class="form-control" name="date_from" id="date_from" oninput="load()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('START DATE');?>">
-                                                &nbsp;<i class="anticon anticon-arrow-right"></i>&nbsp;
-                                                <input type="date" class="form-control" name="date_to" id="date_to" oninput="load()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('END DATE');?>">
-                                            </div>
+                        <div class="" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
 
-                                            <div class="col-md-12" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
-
-                                        </li>
+                        <div class=" mx-1 mb-1">
+                            <div class="drodown">
+                                <a href="javascript:;" class="dropdown-toggle btn btn-white btn  btn-outline-light" data-bs-toggle="dropdown"><em class="  icon ni ni-calender-date"></em><span id="filter_type"><span class="" id="filter_type"><?=translate_phrase('This'); ?></span> <?=translate_phrase('Month'); ?></span></a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <ul class="link-list-opt no-bdr">
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Today"><span><?=translate_phrase('Today');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Yesterday"><span><?=translate_phrase('Yesterday');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Week"><span><?=translate_phrase('Last 7 Days');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn active" data-value=""><span><?=translate_phrase('This Month');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="This_Year"><span><?=translate_phrase('This Year');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Month"><span><?=translate_phrase('Last 30 Days');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Date_Range"><span><?=translate_phrase('Date Range');?></span></a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
+                        <?php 
+                            $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			
+                            if($church_id > 0){
+                                $checked = '';
+                                $default_cur = $this->Crud->read_field('id', $church_id, 'church', 'default_currency');
+                                $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+                                if($country_id > 0 && $default_cur > 0){
+                                    $checked = 'checked';
+                                }
+                                ?>
+                            <div class=" mb-1">
+                                <div class="form-group ">
+                                    
+                                    <a href="javascript:;" onclick="$('#currency_resp').toggle(500);" class="btn btn-white mx-1 btn-outline-info">
+                                        <em class=" icon ni ni-tranx"></em>
+                                        <span><?=translate_phrase('Switch '); ?> </span>  <?=translate_phrase('Currency'); ?>
+                                    </a>
+                                                
+                                </div>
+                            </div>
+                        <?php } ?>
+                        <div class="form-group m-1" style="display:none;" id="currency_resp">
+                            <div class="custom-control custom-switch" >    
+                                <input type="checkbox" class="custom-control-input" <?=$checked; ?> id="currency">    
+                                <label class="custom-control-label" for="currency">Switch to Country Currency</label>
+                            </div>
+                        </div>
+                        
                     </div>
-                </div>
-                <div class="nk-block">
                     <div class="row g-gs">
                         <?php if($role != 'cell leader' && $role != 'cell executive' & $role != 'assistant cell_leader'){?>
                             <div class="col-md-3">
@@ -451,7 +468,33 @@
 <?=$this->endSection();?>
 <?=$this->section('scripts');?>
 
-   
+<script>
+    $(document).ready(function() {
+        // Listen for changes on the checkbox
+        $('#currency').change(function() {
+            // Check if the checkbox is checked
+            let isChecked = $(this).is(':checked');
+
+            // Define the default currency based on the checkbox
+            let defaultCurrency = isChecked ? 'country_currency' : 'church_currency';
+
+            // Perform the AJAX request to save the default currency
+            $.ajax({
+                url: '<?= site_url("church/updateDefaultCurrency") ?>', // CI4 controller action
+                type: 'POST',
+                data: {
+                    defaultCurrency: defaultCurrency
+                },
+                success: function(response) {
+                    // Handle success
+                    $('#currency_resp').html(response);
+                }
+            });
+
+        });
+    });
+</script>
+
 <script>
     function handleClick(element) {
         // Remove "active" class from all links

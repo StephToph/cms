@@ -4497,13 +4497,13 @@ class Accounts extends BaseController {
 										<span class="tb-lead text-primary">' . ucwords($name) . '</span>
 									</td>
 									<td>
-										<span class="tb-lead">' .curr. number_format($goal,2) . ' </span>
+										<span class="tb-lead">' .$this->session->get('currency'). number_format($goal,2) . ' </span>
 									</td>
 									<td>
-										<span class="tb-lead">' .curr. number_format($given,2) . '</span>
+										<span class="tb-lead">' .$this->session->get('currency'). number_format($given,2) . '</span>
 									</td>
 									<td>
-										<span class="tb-lead">' .curr.number_format($balance,2) . '</span>
+										<span class="tb-lead">' .$this->session->get('currency').number_format($balance,2) . '</span>
 									</td>
 									<td >' . $all_btn . '</td>
 								</tr><!-- .nk-tb-item -->
@@ -4845,7 +4845,7 @@ class Accounts extends BaseController {
 									<span class="fw-bold text-secondary">'.strtoupper($payment_type).'</span>
 								</div>
 								<div class="nk-tb-col">
-									<span>'.$curr.$amount.'</span><br>
+									<span>'.$$this->session->get('currency').$amount.'</span><br>
 									<span class="badge badge-dot text-success d-md-none d-sm-block">Success</span>
 								</div>
 								<div class="nk-tb-col tb-col-md">
@@ -4942,7 +4942,7 @@ class Accounts extends BaseController {
 									<span class="fw-bold text-'.$color.' d-md-none d-sm-block">'.strtoupper($type).'</span>
 								</div>
 								<div class="nk-tb-col">
-									<span>'.$curr.$amount.'</span><br>
+									<span>'.$$this->session->get('currency').$amount.'</span><br>
 									<span class="fw-bold text-dark d-md-none d-sm-block">'.strtoupper($itema).'</span>
 								</div>
 								<div class="nk-tb-col tb-col-md">

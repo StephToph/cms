@@ -320,7 +320,7 @@ class Order extends BaseController {
                                     <div class="col-12 col-md-2 text-right">
                                         <div class="single">
                                             <div class="text-muted font-size-12">AMOUNT</div>
-                                            <b class="font-size-16 text-success">'.$curr.$total.'</b>
+                                            <b class="font-size-16 text-success">'.$$this->session->get('currency').$total.'</b>
                                         </div>
                                     </div>
                                 </div>
@@ -693,7 +693,7 @@ class Order extends BaseController {
                                     <div class="col-4 col-md-2 text-right">
                                         <div class="single">
                                             <div class="text-muted font-size-12">Amount</div>
-                                            <b class="font-size-16 text-dark">'.$curr.$total.'</b>
+                                            <b class="font-size-16 text-dark">'.$$this->session->get('currency').$total.'</b>
                                         </div>
                                     </div>
 									<div class="col-4 col-md-2 text-right">

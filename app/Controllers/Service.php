@@ -2546,13 +2546,13 @@ class Service extends BaseController {
 									<span class="text-dark">' . ucwords($types) . '</span>
 								</div>
 								<div class="nk-tb-col">
-									<span class="text-dark">' .curr. number_format((float)$offering,2) . '</span>
+									<span class="text-dark">' .$this->session->get('currency'). number_format((float)$offering,2) . '</span>
 								</div>
 								<div class="nk-tb-col">
-									<span class="text-dark">' .curr. number_format((float)$tithe,2) . '</span>
+									<span class="text-dark">' .$this->session->get('currency'). number_format((float)$tithe,2) . '</span>
 								</div>
 								<div class="nk-tb-col">
-									<span class="text-dark">' .curr. number_format((float)$partnership,2) . '</span>
+									<span class="text-dark">' .$this->session->get('currency'). number_format((float)$partnership,2) . '</span>
 								</div>
 								<div class="nk-tb-col tb-col">
 									<span class="text-dark"><span>' . ucwords($attendance) . '</b></span>

@@ -224,7 +224,7 @@ class Wallets extends BaseController {
 									</div>
 									<div class="nk-tb-col">
 										<small class=" d-md-none d-sm-block">'.$us_date.'</small><br>
-										<span class="text-dark fw-bold">'.$curr.$amount.'</span><br>
+										<span class="text-dark fw-bold">'.$$this->session->get('currency').$amount.'</span><br>
 										<small class="badge badge-dot text-'.$st_code.' d-md-none d-sm-block">'.$status.'</small><br>
 										<small class="fw-bold d-md-none d-sm-block">'.$used.'</small>
 										
@@ -634,7 +634,7 @@ class Wallets extends BaseController {
 										<span class="fw-bold text-secondary">'.translate_phrase(strtoupper($payment_type)).'</span>
 									</div>
 									<div class="nk-tb-col">
-										<span>'.$curr.$amount.'</span><br>
+										<span>'.$$this->session->get('currency').$amount.'</span><br>
 										<span class="badge badge-dot text-success d-md-none d-sm-block">Success</span>
 									</div>
 									<div class="nk-tb-col tb-col-md">
@@ -996,7 +996,7 @@ class Wallets extends BaseController {
 										<span class="fw-bold text-secondary">'.strtoupper($payment_type).'</span>
 									</div>
 									<div class="nk-tb-col">
-										<span class="text-dark">'.$curr.$amount.'</span><br>
+										<span class="text-dark">'.$$this->session->get('currency').$amount.'</span><br>
 										'.$cash.'
 										<span class="badge badge-dot text-success d-md-none d-sm-block">Success</span>
 									</div>
@@ -1333,7 +1333,7 @@ class Wallets extends BaseController {
 									</div>
 									<div class="nk-tb-col">
 										<span class="text-'.$color.'">'.strtoupper($type).'</span><br>
-										<span class="fw-bold">'.$curr.$amount.'</span>
+										<span class="fw-bold">'.$$this->session->get('currency').$amount.'</span>
 									</div>
 								</div>
 								
