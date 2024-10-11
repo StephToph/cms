@@ -33,6 +33,7 @@
                         <div class="" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
 
                         <div class=" mx-1 mb-1">
+                            <input type="hidden" id="date_type"value="This Month">
                             <div class="drodown">
                                 <a href="javascript:;" class="dropdown-toggle btn btn-white btn  btn-outline-light" data-bs-toggle="dropdown"><em class="  icon ni ni-calender-date"></em><span id="filter_type"><span class="" id="filter_type"><?=translate_phrase('This'); ?></span> <?=translate_phrase('Month'); ?></span></a>
                                 <div class="dropdown-menu dropdown-menu-end">
@@ -61,22 +62,18 @@
                                 ?>
                             <div class=" mb-1">
                                 <div class="form-group ">
-                                    
-                                    <a href="javascript:;" onclick="$('#currency_resp').toggle(500);" class="btn btn-white mx-1 btn-outline-info">
-                                        <em class=" icon ni ni-tranx"></em>
-                                        <span><?=translate_phrase('Switch Currency'); ?> </span>
-                                    </a>
-                                                
+                                    <div class="custom-control custom-checkbox custom-control-pro no-control">            
+                                        <input type="checkbox" class="custom-control-input" name="btnRadio"  <?=$checked; ?> id="currency">            
+                                        <label class="custom-control-label" for="currency"><em class=" icon ni ni-tranx"></em>
+                                        <span><?=translate_phrase('Switch Currency'); ?> </span></label>        
+                                    </div> 
                                 </div>
+                                
+                            </div>
+                            <div class="mb-1">
+                                <span class="" id="currency_resp"></span>
                             </div>
                         <?php } ?>
-                        <div class="form-group m-1" style="display:none;" id="currency_resp">
-                            <div class="custom-control custom-switch" >    
-                                <input type="checkbox" class="custom-control-input" <?=$checked; ?> id="currency">    
-                                <label class="custom-control-label" for="currency">Switch to Country Currency</label>
-                            </div>
-                        </div>
-                        
                     </div>
                     <div class="row g-gs">
                         <?php if($role != 'cell leader' && $role != 'cell executive' & $role != 'assistant cell_leader'){?>
@@ -552,11 +549,11 @@
                                         <div class="card-title">
                                             <h6 class="title"><?=translate_phrase('Upcoming Birthdays');?></h6>
                                         </div>
-                                        <div class="card-tools">
+                                        <!-- <div class="card-tools">
                                             <ul class="card-tools-nav">
-                                                <li class="active"><a href="<?=site_url('activity'); ?>"><span><?=translate_phrase('All');?></span></a></li>
+                                                <li class="active"><a href="javascript:;"><span><?=translate_phrase('All');?></span></a></li>
                                             </ul>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                                 <ul class="nk-activity" id="activity_data">
