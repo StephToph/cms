@@ -64,7 +64,7 @@
                                     
                                     <a href="javascript:;" onclick="$('#currency_resp').toggle(500);" class="btn btn-white mx-1 btn-outline-info">
                                         <em class=" icon ni ni-tranx"></em>
-                                        <span><?=translate_phrase('Switch '); ?> </span>  <?=translate_phrase('Currency'); ?>
+                                        <span><?=translate_phrase('Switch Currency'); ?> </span>
                                     </a>
                                                 
                                 </div>
@@ -80,6 +80,114 @@
                     </div>
                     <div class="row g-gs">
                         <?php if($role != 'cell leader' && $role != 'cell executive' & $role != 'assistant cell_leader'){?>
+                            
+                            <div class="col-md-4">
+                                <div class="card card-bordered text-white bg-primary card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Total Membership'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total Membership'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount text-white" id="membership"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Total First Timer'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total First Timer'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Total New Convert'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total New Convert'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Prospective Students'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Prospective Students'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="prospective"> 0 </span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase(' Foundation Students'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total Foundation Students'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="students"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Foundation Graduates'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total Graduates'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="graduates"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
                                     <div class="card-inner">
@@ -132,12 +240,12 @@
                                                     title="Total Service Tithe"></em></div>
                                         </div>
                                         <div class="card-amount"><span class="amount" id="tithe"> 0.00 
-                                            <span class="currency currency-usd">USD</span></span>
+                                            <span class="currency currency-usd"></span></span>
                                         </div>
                                         <div class="invest-data">
                                             <div class="invest-data-amount g-2">
                                                 <div class="invest-data-history">
-                                                    <div class="title">Participant</div>
+                                                    <div class="title"><?=translate_phrase('Participant');?></div>
                                                     <div class="amount" id="tithe_part">0</span>
                                                     </div>
                                                 </div>
@@ -151,19 +259,19 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total Partnership</h6>
+                                                <h6 class="title"><?=translate_phrase('Total Partnership'); ?></h6>
                                             </div>
                                             <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Partnership"></em>
+                                                    title="<?=translate_phrase('Total Partnership'); ?>"></em>
                                                 </div>
                                         </div>
                                         <div class="card-amount"><span class="amount" id="partnership"> 0.00 <span
-                                                    class="currency currency-usd">USD</span></span></div>
+                                                    class="currency currency-usd"></span></span></div>
                                         <div class="invest-data">
                                             <div class="invest-data-amount g-2">
                                                 <div class="invest-data-history">
-                                                    <div class="title">Participant</div>
+                                                    <div class="title"><?=translate_phrase('Participant'); ?></div>
                                                     <div class="amount" id="partnership_part">0 </div>
                                                 </div>
                                             </div>
@@ -171,72 +279,71 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <div class="card card-bordered  card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title">Total Membership</h6>
-                                            </div>
-                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Membership"></em>
-                                                </div>
-                                        </div>
-                                        <div class="card-amount"><span class="amount" id="membership"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-bordered  card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title">Total First Timer</h6>
-                                            </div>
-                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total First Timer"></em>
-                                                </div>
-                                        </div>
-                                        <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card card-bordered  card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title">Total New Convert</h6>
-                                            </div>
-                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total New Convert"></em>
-                                                </div>
-                                        </div>
-                                        <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
                         <?php } else {?>
+                            <div class="col-md-4">
+                                <div class="card card-bordered card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Prospective Students'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Prospective Students'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="prospective"> 0 </span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase(' Foundation Students'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total Foundation Students'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="students"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Foundation Graduates'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total Graduates'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="graduates"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total Cell Offering</h6>
+                                                <h6 class="title"><?=translate_phrase('Total Cell Offering'); ?></h6>
                                             </div>
                                             <div class="card-tools">
                                                 <em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Cell Offering"></em>
+                                                    title="<?=translate_phrase('Total Cell Offering'); ?>"></em>
                                                 </div>
                                         </div>
                                         <div class="card-amount">
@@ -251,11 +358,11 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total Membership</h6>
+                                                <h6 class="title"><?=translate_phrase('Total Membership'); ?></h6>
                                             </div>
                                             <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Membership"></em>
+                                                    title="<?=translate_phrase('Total Membership'); ?>"></em>
                                                 </div>
                                         </div>
                                         <div class="card-amount"><span class="amount" id="membership"> 0 <span
@@ -269,11 +376,11 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total First Timer</h6>
+                                                <h6 class="title"><?=translate_phrase('Total First Timer' ); ?></h6>
                                             </div>
                                             <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total First Timer"></em>
+                                                    title="<?=translate_phrase('Total First Timer' ); ?>"></em>
                                                 </div>
                                         </div>
                                         <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
@@ -287,11 +394,11 @@
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
-                                                <h6 class="title">Total New Convert</h6>
+                                                <h6 class="title"><?=translate_phrase('Total New Convert'); ?></h6>
                                             </div>
                                             <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
                                                     data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total New Convert"></em>
+                                                    title="<?=translate_phrase('Total New Convert'); ?>"></em>
                                                 </div>
                                         </div>
                                         <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
@@ -301,13 +408,13 @@
                                 </div>
                             </div>
                         <?php } ?>
-                        
+                            
                         <div class="col-md-12">
                             <div class="card card-bordered card-full">
                                 <div class="card-inner d-flex flex-column h-100">
                                     <div class="card-title-group mb-3">
                                         <div class="card-title me-1">
-                                            <h6 class="title">Partnership Section</h6>
+                                            <h6 class="title"><?=translate_phrase('Partnership Section'); ?></h6>
                                         </div>
                                     </div>
                                     <div class="progress-list gy-3" id="partnership_list">
@@ -321,11 +428,11 @@
                                 <div class="card-inner mb-n2">
                                     <div class="card-title-group">
                                         <div class="card-title ">
-                                            <h6 class="title">Cell Report</h6>
+                                            <h6 class="title"><?=translate_phrase('Cell Report'); ?></h6>
                                         </div>
                                         <div class="card-tools align-end mb-2">
                                             <ul class="card-tools-nav">
-                                                <li class="active"><a href="<?=site_url('activity'); ?>"><span>All</span></a></li>
+                                                <li class="active"><a href="<?=site_url('activity'); ?>"><span><?=translate_phrase('All'); ?></span></a></li>
                                             </ul>
                                         </div>
                                     </div>
@@ -341,12 +448,12 @@
                                 <div class="card-inner">
                                     <div class="card-title-group">
                                         <div class="card-title">
-                                            <h6 class="title">Service Attendance Chart</h6>
+                                            <h6 class="title"><?=translate_phrase('Service Attendance Chart');?></h6>
                                             <p id="service_date"> </p>
                                         </div>
                                         <div class="card-tools">
                                             <div class="drodown">
-                                                <a href="javascript:;" class="btn btn-sm btn-outline-light btn-white"  data-bs-toggle="dropdown">VIEW MORE</a>
+                                                <a href="javascript:;" class="btn btn-sm btn-outline-light btn-white"  data-bs-toggle="dropdown"><?=translate_phrase('VIEW MORE');?></a>
                                             </div>
                                         </div>
                                     </div>
@@ -367,16 +474,16 @@
                                 <div class="card-inner">
                                     <div class="card-title-group pb-3 g-2">
                                         <div class="card-title">
-                                            <h6 class="title">Sunday vs Wednesday</h6>
+                                            <h6 class="title"><?=translate_phrase('Sunday vs Wednesday'); ?></h6>
                                         </div>
                                         
                                         <div class="card-tools shrink-0 d-none d-sm-block">
                                         
                                             <ul class="nav nav-switch-s2 nav-tabs bg-white">
                                                 
-                                                <li class="nav-item"><a href="javascript:;" onclick="handleClick(this)" class="nav-link active">Offering</a></li>
-                                                <li class="nav-item"><a href="javascript:;" onclick="handleClick(this)" class="nav-link ">Tithe</a></li>
-                                                <li class="nav-item"><a href="javascript:;" onclick="handleClick(this)" class="nav-link">Partnership</a></li>
+                                                <li class="nav-item"><a href="javascript:;" onclick="handleClick(this)" class="nav-link active"><?=translate_phrase('Offering'); ?></a></li>
+                                                <li class="nav-item"><a href="javascript:;" onclick="handleClick(this)" class="nav-link "><?=translate_phrase('Tithe'); ?></a></li>
+                                                <li class="nav-item"><a href="javascript:;" onclick="handleClick(this)" class="nav-link"><?=translate_phrase('Partnership'); ?></a></li>
                                             </ul>
                                         </div>
                                         <?php
@@ -399,10 +506,10 @@
                                     </div>
                                     <div class="traffic-channel-group g-2">
                                         <div class="traffic-channel-data">
-                                            <div class="title"><span class="dot dot-lg sq bg-purple" data-bg="#798bff"></span><span>Wednesday</span></div>
+                                            <div class="title"><span class="dot dot-lg sq bg-purple" data-bg="#798bff"></span><span><?=translate_phrase('Wednesday'); ?></span></div>
                                         </div>  
                                         <div class="traffic-channel-data">
-                                            <div class="title"><span class="dot dot-lg sq bg-danger" data-bg="#e85347"></span><span>Sunday</span></div>
+                                            <div class="title"><span class="dot dot-lg sq bg-danger" data-bg="#e85347"></span><span><?=translate_phrase('Sunday'); ?></span></div>
                                         </div>  
                                            
                                     </div>
@@ -411,10 +518,10 @@
                                         <div class="analytic-ov-ck"><canvas class="analytics-line-large"
                                                 id="analyticOvData"></canvas></div>
                                         <div class="chart-label-group ms-5">
-                                            <div class="chart-label">Week 1</div>
-                                            <div class="chart-label d-none d-sm-block">Week 26
+                                            <div class="chart-label"><?=translate_phrase('Week 1'); ?></div>
+                                            <div class="chart-label d-none d-sm-block"><?=translate_phrase('Week 26'); ?>
                                             </div>
-                                            <div class="chart-label">Week 52</div>
+                                            <div class="chart-label"><?=translate_phrase('Week 52'); ?></div>
                                         </div>
                                     </div>
                                 </div>
@@ -426,9 +533,9 @@
                                     <div class="card-inner">
                                         <div class="card-title-group">
                                             <div class="card-title">
-                                                <h6 class="title">First Timer</h6>
+                                                <h6 class="title"><?=translate_phrase('First Timer');?></h6>
                                             </div>
-                                            <div class="card-tools"><a href="<?=site_url('service/report'); ?>" class="link">View All</a>
+                                            <div class="card-tools"><a href="<?=site_url('service/report'); ?>" class="link"><?=translate_phrase('View All');?></a>
                                             </div>
                                         </div>
                                     </div>
@@ -443,11 +550,11 @@
                                 <div class="card-inner border-bottom">
                                     <div class="card-title-group">
                                         <div class="card-title">
-                                            <h6 class="title">Upcoming Birthdays</h6>
+                                            <h6 class="title"><?=translate_phrase('Upcoming Birthdays');?></h6>
                                         </div>
                                         <div class="card-tools">
                                             <ul class="card-tools-nav">
-                                                <li class="active"><a href="<?=site_url('activity'); ?>"><span>All</span></a></li>
+                                                <li class="active"><a href="<?=site_url('activity'); ?>"><span><?=translate_phrase('All');?></span></a></li>
                                             </ul>
                                         </div>
                                     </div>
