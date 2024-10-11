@@ -591,7 +591,9 @@
                 },
                 success: function(response) {
                     // Handle success
-                    $('#currency_resp').html(response);
+                    // $('#currency_resp').html(response);
+                    metric_load();
+                    load();
                 }
             });
 
