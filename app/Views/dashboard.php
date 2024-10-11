@@ -71,7 +71,7 @@
                                 
                             </div>
                             <div class="mb-1">
-                                <span class="" id="currency_resp"></span>
+                                <span class="" id="currency_rep"></span>
                             </div>
                         <?php } ?>
                     </div>
