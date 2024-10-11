@@ -99,17 +99,22 @@ class Dashboard extends BaseController {
                             $a++;
                         }
 						$church_id = $q->church_id;
+						$cell = $this->Crud->read_field('id', $q->church_id, 'cells', 'name');
 						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
 
-                        if($a > 5)continue;
+                        if($a > 6)continue;
 						
 						$item .= '
-                            <li class="nk-activity-item">
-                                <div class="nk-activity-data">
-                                    <div class="label lead-text"> '.translate_phrase($firstname.' '.$surname ).'</div>
-                                    <span class="time">'.$dob.'</span>
+                            <div class="card-inner card-inner-md">
+                                <div class="user-card">
+                                    
+                                    <div class="user-info"><span class="lead-text">'.ucwords($firstname.' '.$surname ).'</span>
+                                    <span class="sub-text text-info">'.strtoupper($cell).'</span></div>
+                                    <div class="user-action">
+                                        <span class="sub-text">'.$dob.'</span>
+                                    </div>
                                 </div>
-                            </li>    
+                            </div> 
 						';
                         
 					}

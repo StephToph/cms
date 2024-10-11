@@ -544,21 +544,21 @@
                         </div>
                         <div class="col-md-6">
                             <div class="card card-bordered card-full">
-                                <div class="card-inner border-bottom">
-                                    <div class="card-title-group">
-                                        <div class="card-title">
-                                            <h6 class="title"><?=translate_phrase('Upcoming Birthdays');?></h6>
+                                <div class="card-inner-group">
+                                    <div class="card-inner">
+                                        <div class="card-title-group">
+                                            <div class="card-title">
+                                                <h6 class="title my-2"><?=translate_phrase('Upcoming Birthdays');?></h6>
+                                            </div>
+                                            <div class="card-tools"></a>
+                                            </div>
                                         </div>
-                                        <!-- <div class="card-tools">
-                                            <ul class="card-tools-nav">
-                                                <li class="active"><a href="javascript:;"><span><?=translate_phrase('All');?></span></a></li>
-                                            </ul>
-                                        </div> -->
+                                    </div>
+                                    <div id="activity_data">
+                                        
                                     </div>
                                 </div>
-                                <ul class="nk-activity" id="activity_data">
-                                   
-                                </ul>
+                                
                             </div>
                         </div>
                         
