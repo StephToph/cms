@@ -38,6 +38,57 @@ $this->Crud = new Crud();
         </div>
     <?php } ?>
     
+    <?php if($param2 == 'church') { ?>
+        
+        <div class="row">
+            <input type="hidden" class="form-control" id="church_id" name="church_id" value="<?=$church_id;?>">
+            <div class="mb-2 col-md-6">
+                <label for="phone" class="form-label"><?=translate_phrase('Name'); ?></label>
+                <input type="text" class="form-control" id="church_name" name="church_name" required placeholder="<?=translate_phrase('Church Name'); ?>" value="<?=$church_name;?>">
+            </div>
+            <div class="mb-2 col-md-6">
+                <label for="phone" class="form-label"><?=translate_phrase('Email'); ?></label>
+                <input type="email" class="form-control" id="church_email" name="church_email" placeholder="" value="<?=$church_email;?>" required>
+            </div>
+            <div class="mb-2 col-md-6">
+                <label for="phone" class="form-label"><?=translate_phrase('Phone'); ?></label>
+                <input type="text" class="form-control" id="church_phone" name="church_phone" placeholder="<?=translate_phrase('Address'); ?>" value="<?=$church_phone;?>">
+            </div>
+            <div class="mb-2 col-md-6">
+                <label for="phone" class="form-label"><?=translate_phrase('Country'); ?></label>
+                <select class="js-select2" data-search="on" name="country_id" id="country_id">
+                    <option value="">Select Country</option>
+                    <?php
+
+                    $ministry = $this->Crud->read_order('country', 'name', 'asc');
+                    if (!empty($ministry)) {
+                        foreach ($ministry as $d) {
+                            $sel = '';
+                            if(!empty($church_country)){
+                                if($church_country == $d->id){
+                                    $sel = 'selected';
+                                }
+                            }
+                            echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
+                        }
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="mb-2 col-md-12">
+                <label for="phone" class="form-label"><?=translate_phrase('Address'); ?></label>
+                <input type="text" class="form-control" id="church_address" name="church_address" value="<?=$church_address;?>" placeholder="Address">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 my-3" align="center">
+                <button type="submit" class="btn btn-primary bb_form_bn"><?=translate_phrase('Update Profile'); ?></button>
+            </div>
+            <div id="bb_ajax_msg"></div>
+        </div>
+    <?php } ?>
+    
     
 <?php echo form_close(); ?>
     <script src="<?=site_url();?>assets/js/jsform.js"></script>

@@ -620,6 +620,57 @@ class Auth extends BaseController {
 			}
 		}
 		
+		if($param1 == 'manage' && $param2 == 'church'){
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+		
+			$data['church_id'] = $church_id;
+			$data['ministry_id'] = $ministry_id;
+			$data['church_email'] = $this->Crud->read_field('id', $church_id, 'church', 'email');
+			$data['church_address'] = $this->Crud->read_field('id', $church_id, 'church', 'address');
+			$data['church_phone'] = $this->Crud->read_field('id', $church_id, 'church', 'phone');
+			$data['church_name'] = $this->Crud->read_field('id', $church_id, 'church', 'name');
+			$data['church_region'] = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+			$data['church_zone'] = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+			$data['church_group'] = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+			$data['church_country'] = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+			$data['church_currency'] = $this->Crud->read_field('id', $church_id, 'church', 'default_currency');
+			$pastor_role = $this->Crud->read_field('name', 'Pastor-in-Charge', 'access_role', 'name');
+			$data['church_pastor'] = $this->Crud->read_field2('church_id', $church_id, 'role_id', $pastor_role, 'user', 'id');
+			if($this->request->getMethod() == 'post') {
+				$church_name = $this->request->getVar('church_name');
+				$church_address = $this->request->getVar('church_address');
+				$church_country = $this->request->getVar('country_id');
+				$church_email = $this->request->getVar('church_email');
+				$church_phone = $this->request->getVar('church_phone');
+				$church_id = $this->request->getVar('church_id');
+	
+				if(empty($church_id)){
+					echo $this->Crud->msg('warning', 'Church not Found');
+					die;
+				}
+
+	
+				$ins_datas['name'] = $church_name;
+				$ins_datas['address'] = $church_address;
+				$ins_datas['country_id'] = $church_country;
+				$ins_datas['email'] = $church_email;
+				$ins_datas['phone'] = $church_phone;
+				
+				$update = $this->Crud->updates('id', $church_id, 'church', $ins_datas);
+				// echo $add;
+				if($update > 0){
+					echo $this->Crud->msg('success', translate_phrase('Church Profile Updated'));
+					echo '<script>window.location.replace("'.site_url('auth/profile').'");</script>';
+					
+				} else {
+					echo $this->Crud->msg('info', translate_phrase('No Changes'));	
+				}
+				
+				die;
+			}
+		}
+		
 
 
 		if($param1 == 'message'){
@@ -635,7 +686,24 @@ class Auth extends BaseController {
 		$data['fullname'] = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
        	$data['phone'] = $this->Crud->read_field('id', $log_id, 'user', 'phone');
 		
-
+		$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+		$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+	
+		$data['church_id'] = $church_id;
+		$data['ministry_id'] = $ministry_id;
+		$data['church_email'] = $this->Crud->read_field('id', $church_id, 'church', 'email');
+		$data['church_address'] = $this->Crud->read_field('id', $church_id, 'church', 'address');
+		$data['church_phone'] = $this->Crud->read_field('id', $church_id, 'church', 'phone');
+		$data['church_name'] = $this->Crud->read_field('id', $church_id, 'church', 'name');
+		$data['church_region'] = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+		$data['church_zone'] = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+		$data['church_group'] = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+		$data['church_country'] = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+		$data['church_currency'] = $this->Crud->read_field('id', $church_id, 'church', 'default_currency');
+		$pastor_role = $this->Crud->read_field('name', 'Pastor-in-Charge', 'access_role', 'name');
+		$data['church_pastor'] = $this->Crud->read_field2('church_id', $church_id, 'role_id', $pastor_role, 'user', 'id');
+		   
+		
         $data['current_language'] = $this->session->get('current_language');
 		if($param1 == 'manage'){
 			return view('auth/profile_form', $data);
