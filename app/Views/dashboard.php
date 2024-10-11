@@ -443,7 +443,7 @@
                                 <div class="card-inner border-bottom">
                                     <div class="card-title-group">
                                         <div class="card-title">
-                                            <h6 class="title">Activity Log</h6>
+                                            <h6 class="title">Upcoming Birthdays</h6>
                                         </div>
                                         <div class="card-tools">
                                             <ul class="card-tools-nav">
