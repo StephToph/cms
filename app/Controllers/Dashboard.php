@@ -400,6 +400,8 @@ class Dashboard extends BaseController {
             }
         }
 
+        // print_r($service_report);
+
         if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
             $membership = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'cell_id', $celss, 'user');
         }
