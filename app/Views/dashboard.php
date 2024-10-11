@@ -548,7 +548,7 @@
                                     <div class="card-inner">
                                         <div class="card-title-group">
                                             <div class="card-title">
-                                                <h6 class="title my-2"><?=translate_phrase('Upcoming Birthdays');?></h6>
+                                                <h6 class="title my-1"><?=translate_phrase('Upcoming Birthdays');?></h6>
                                             </div>
                                             <div class="card-tools"></a>
                                             </div>
