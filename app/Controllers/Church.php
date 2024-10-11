@@ -5027,7 +5027,6 @@ class Church extends BaseController{
 			$this->session->set('currency', 'ESP ');
 		}
 		
-		echo $this->Crud->msg('success', 'Default Currency Updated');
 		echo '<script>location.reload(false);</script>';
 		die;
 	}

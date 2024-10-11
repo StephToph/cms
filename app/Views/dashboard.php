@@ -71,7 +71,7 @@
                                 
                             </div>
                             <div class="mb-1">
-                                <span class="" id="currency_rep"></span>
+                                <span class="" id="currency_resp"></span>
                             </div>
                         <?php } ?>
                     </div>
@@ -144,7 +144,7 @@
                                                     title="<?=translate_phrase('Prospective Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="prospective"> 0 </span></div>
+                                        <div class="card-amount"><span class="amount" id="prospective"> 30 </span></div>
                                         
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@
                                                     title="<?=translate_phrase('Total Foundation Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="students"> 0 <span
+                                        <div class="card-amount"><span class="amount" id="students"> 60 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -179,7 +179,7 @@
                                                     title="<?=translate_phrase('Total Graduates'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="graduates"> 0 <span
+                                        <div class="card-amount"><span class="amount" id="graduates"> 45 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -289,7 +289,7 @@
                                                     title="<?=translate_phrase('Prospective Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="prospective"> 0 </span></div>
+                                        <div class="card-amount"><span class="amount" id="prospective"> 30 </span></div>
                                         
                                     </div>
                                 </div>
@@ -306,7 +306,7 @@
                                                     title="<?=translate_phrase('Total Foundation Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="students"> 0 <span
+                                        <div class="card-amount"><span class="amount" id="students"> 60 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -324,7 +324,7 @@
                                                     title="<?=translate_phrase('Total Graduates'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="graduates"> 0 <span
+                                        <div class="card-amount"><span class="amount" id="graduates"> 55 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
