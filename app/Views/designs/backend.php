@@ -472,7 +472,7 @@
                         </div>
                         <div id="chat-body" class="p-3" style="max-height: 300px; overflow-y: auto;">
                             <div id="chat-messages">
-                                <p class="bg-light p-2 rounded bot-message">How can i help you today?</p>
+                                <p class="bg-light p-2 rounded bot-message">Welcome to Angel CMS.</p>
                             </div>
                         </div>
                         <div class="input-group p-2 border-top">
@@ -551,13 +551,13 @@
                 let botResponse = 'Coming soon'; // Default response
 
                 // Basic conversation patterns
-                const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'];
+                const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'Hi Angel', 'hi angel', 'Hello Angel', 'hello angel', 'hey there'];
                 const howAreYou = ['how are you', 'how are you doing', 'how’s it going'];
                 const timeRelated = ['what time is it', 'current time', 'tell me the time'];
 
                 // Respond to greetings
                 if (greetings.includes(message)) {
-                    botResponse = 'Hello, I am Angel A.I. You can ask me anything!';
+                    botResponse = 'Greetings, How can i help you today?';
                 }
                 // Respond to "how are you" questions
                 else if (howAreYou.some(phrase => message.includes(phrase))) {
