@@ -366,7 +366,7 @@ class Dashboard extends BaseController {
 		}
 
         // echo $switch_id;
-        $membership = $this->Crud->filter_members($log_id, $start_date, $end_date, $switch_id);
+        $membership = $this->Crud->filter_members($log_id, '', '', $switch_id);
         $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
 
@@ -694,7 +694,8 @@ class Dashboard extends BaseController {
         }
 
        
-        
+            $total_per = 0;
+            $total_s = 0;
             if(!empty($service)){
                 foreach($service as $u){
                    
@@ -718,6 +719,8 @@ class Dashboard extends BaseController {
                     $female_per = ((int)$female * 100)/(int)$attend;
                     $children_per = ((int)$children * 100)/(int)$attend;
                     $ft_per = ((int)$ft * 100)/(int)$attend;
+                    $total_per = $male_per + $female_per + $children_per + $ft_per;
+                    $total_s = $male + $female + $children + $ft;
                 }
                 
 
@@ -740,6 +743,10 @@ class Dashboard extends BaseController {
             <div class="traffic-channel-data">
                 <div class="title"><span class="dot dot-lg sq  bg-danger" data-bg="#ffa353"></span><span>First Timer</span></div>
                 <div class="amount">'.number_format($ft).' <small>'.number_format($ft_per,2).'%</small></div>
+            </div>
+           <div class="traffic-channel-data">
+                <div class="title"><span class="dot dot-lg sq  bg-success" data-bg="#ffa353"></span><span>Total</span></div>
+                <div class="amount">'.number_format($total_s).' <small>'.number_format($total_per,2).'%</small></div>
             </div>
            
 
