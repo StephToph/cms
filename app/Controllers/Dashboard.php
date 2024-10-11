@@ -581,7 +581,7 @@ class Dashboard extends BaseController {
                 $partnership_list .= '
                     <div class="progress-wrap">
                         <div class="progress-text">
-                            <div class="progress-label">'.ucwords($p->name).' <b>('.curr.number_format($paid,2).')</b></div>
+                            <div class="progress-label">'.ucwords($p->name).' <b>('.$this->session->get('currency').number_format($paid,2).')</b></div>
                             <div class="progress-amount">'.number_format($paids,1).'%</div>
                         </div>
                         <div class="progress ">
@@ -598,14 +598,14 @@ class Dashboard extends BaseController {
         }
            
        
-        $resp['tithe'] = curr.number_format($tithe,2);
+        $resp['tithe'] = $this->session->get('currency').number_format($tithe,2);
         $resp['tithe_part'] = number_format($tithe_part);
         $resp['membership'] = number_format($membership);
         $resp['first_timer'] = number_format($first_timer);
         $resp['new_convert'] = number_format($new_convert);
-        $resp['offering'] = curr.number_format($offering,2);
-        $resp['cell_offering'] = curr.number_format($cell_offering,2);
-        $resp['partnership'] = curr.number_format($partnership,2);
+        $resp['offering'] = $this->session->get('currency').number_format($offering,2);
+        $resp['cell_offering'] = $this->session->get('currency').number_format($cell_offering,2);
+        $resp['partnership'] = $this->session->get('currency').number_format($partnership,2);
         $resp['partnership_part'] = number_format($partnership_part);
         $resp['partnership_list'] = ($partnership_list);
         $resp['cell_data'] = ($cell_data);

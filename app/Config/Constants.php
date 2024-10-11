@@ -56,7 +56,7 @@ defined('app_email') || define('app_email', 'hello@loveworldbuddy.com');
 defined('app_website') || define('app_website', 'https://loveworldbuddy.com');
 defined('push_email') || define('push_email', 'hello@loveworldbuddy.com');
 defined('fdate') || define('fdate', 'Y-m-d H:i:s');
-defined('curr') || define('curr', 'SP ');
+defined('curr') || define('curr', 'ESP ');
 defined('pay_server') || define('pay_server', 'test');
 
 /*

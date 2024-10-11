@@ -177,7 +177,7 @@ class Payments extends BaseController {
                         $ref = $q->ref;
                         $remark = $q->remark;
                         $amount = number_format((float)$q->amount, 2);
-                        $balance = curr.number_format((float)$q->balance, 2);
+                        $balance = $this->session->get('currency').number_format((float)$q->balance, 2);
                         $reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
                         $payment_date = date('d M, Y', strtotime($q->payment_date));
 
@@ -201,7 +201,7 @@ class Payments extends BaseController {
                         if($status == 'pending'){
                             $bal = '<br><span class="text-danger fw-bold">Bal: '.$balance.'</span>';
                             if($rem > 0){
-                                $paid = '<br><span class="text-success fw-bold">PAID: '.curr.number_format((float)$rem, 2).'</span>';
+                                $paid = '<br><span class="text-success fw-bold">PAID: '.$this->session->get('currency').number_format((float)$rem, 2).'</span>';
                                 $st = '<span class="text-warning">'.ucwords('Part Payment').'</span>';
                             } else {
                                 $btn = '';
@@ -216,7 +216,7 @@ class Payments extends BaseController {
                                     <span class="fw-bold text-secondary">'.translate_phrase(strtoupper($user)).'</span>
                                 </div>
                                 <div class="nk-tb-col">
-                                    <span class="text-info">'.$curr.$amount.'</span>
+                                    <span class="text-info">'.$$this->session->get('currency').$amount.'</span>
                                     <div class="d-sm-none">
                                     '.$st.'
                                     '.$bal.$paid.'
@@ -450,13 +450,13 @@ class Payments extends BaseController {
                                         <div class="col-sm-3">
                                             <span class="text-dark">
                                                 <bTrade>Trade Line:</b>  <span class="text-info">'.ucwords($trade).' </span><br>
-                                               <b> Annual Remmittance:</b> '.curr.number_format((float)$trade_amount,2).'
+                                               <b> Annual Remmittance:</b> '.$this->session->get('currency').number_format((float)$trade_amount,2).'
                                             </span>
                                         </div>
                                         <div class="col-sm-3">
                                             <span class="text-dark">
-                                                <span class="text-success"><b>Total Paid: </b>'.curr.number_format((float)$paid,2).'</span><br>
-                                                <span class="text-danger"><b>Total Unpaid: </b> '.curr.number_format((float)$unpaid,2).'</span>
+                                                <span class="text-success"><b>Total Paid: </b>'.$this->session->get('currency').number_format((float)$paid,2).'</span><br>
+                                                <span class="text-danger"><b>Total Unpaid: </b> '.$this->session->get('currency').number_format((float)$unpaid,2).'</span>
                                             </span>
                                         </div>
                                         <div class="col-sm-2 text-end">
@@ -467,16 +467,16 @@ class Payments extends BaseController {
                                         <div class="col-sm-3 mb-3">
                                             <span class="text-dark">
                                                 Trade Line:  <span class="text-info">'.ucwords($trade).' </span><br>
-                                                Trade Amount: '.curr.number_format((float)$trade_amount,2).'<br>
+                                                Trade Amount: '.$this->session->get('currency').number_format((float)$trade_amount,2).'<br>
                                                 Duration: '.ucwords($duration).'<br>
-                                                Duration Price: '.curr.number_format((float)$price).'
+                                                Duration Price: '.$this->session->get('currency').number_format((float)$price).'
                                             </span>
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <span class="text-dark">
-                                                Annual Remmittance: '.curr.number_format((float)$trade_amount,2).'<br>
-                                                Total Paid: '.curr.number_format((float)$paid,2).'<br>
-                                                Total Unpaid:  '.curr.number_format((float)$unpaid,2).'
+                                                Annual Remmittance: '.$this->session->get('currency').number_format((float)$trade_amount,2).'<br>
+                                                Total Paid: '.$this->session->get('currency').number_format((float)$paid,2).'<br>
+                                                Total Unpaid:  '.$this->session->get('currency').number_format((float)$unpaid,2).'
                                             </span>
                                         </div>
                                         <div class="col-sm-5 mb-3">
@@ -664,13 +664,13 @@ class Payments extends BaseController {
                                         <div class="col-sm-3">
                                             <span class="text-dark">
                                                 <bTrade>Trade Line:</b>  <span class="text-info">'.ucwords($trade).' </span><br>
-                                               <b> Annual Remmittance:</b> '.curr.number_format((float)$trade_amount,2).'
+                                               <b> Annual Remmittance:</b> '.$this->session->get('currency').number_format((float)$trade_amount,2).'
                                             </span>
                                         </div>
                                         <div class="col-sm-3">
                                             <span class="text-dark">
-                                                <span class="text-success"><b>Total Paid: </b>'.curr.number_format((float)$paid,2).'</span><br>
-                                                <span class="text-danger"><b>Total Unpaid: </b> '.curr.number_format((float)$unpaid,2).'</span>
+                                                <span class="text-success"><b>Total Paid: </b>'.$this->session->get('currency').number_format((float)$paid,2).'</span><br>
+                                                <span class="text-danger"><b>Total Unpaid: </b> '.$this->session->get('currency').number_format((float)$unpaid,2).'</span>
                                             </span>
                                         </div>
                                         <div class="col-sm-2 text-end">
@@ -681,16 +681,16 @@ class Payments extends BaseController {
                                         <div class="col-sm-3 mb-3">
                                             <span class="text-dark">
                                                 Trade Line:  <span class="text-info">'.ucwords($trade).' </span><br>
-                                                Trade Amount: '.curr.number_format((float)$trade_amount,2).'<br>
+                                                Trade Amount: '.$this->session->get('currency').number_format((float)$trade_amount,2).'<br>
                                                 Duration: '.ucwords($duration).'<br>
-                                                Duration Price: '.curr.number_format((float)$price).'
+                                                Duration Price: '.$this->session->get('currency').number_format((float)$price).'
                                             </span>
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <span class="text-dark">
-                                                Annual Remmittance: '.curr.number_format((float)$trade_amount,2).'<br>
-                                                Total Paid: '.curr.number_format((float)$paid,2).'<br>
-                                                Total Unpaid:  '.curr.number_format((float)$unpaid,2).'
+                                                Annual Remmittance: '.$this->session->get('currency').number_format((float)$trade_amount,2).'<br>
+                                                Total Paid: '.$this->session->get('currency').number_format((float)$paid,2).'<br>
+                                                Total Unpaid:  '.$this->session->get('currency').number_format((float)$unpaid,2).'
                                             </span>
                                         </div>
                                         <div class="col-sm-5 mb-3">
@@ -960,7 +960,7 @@ class Payments extends BaseController {
                                     <span class="fw-bold text-secondary">'.translate_phrase(strtoupper($user)).'</span>
                                 </div>
                                 <div class="nk-tb-col">
-                                    <span class="text-info">'.$curr.$amount.'</span>
+                                    <span class="text-info">'.$$this->session->get('currency').$amount.'</span>
                                     <div class="d-md-none">
                                         '.strtoupper($payment_method).'
                                     </div>

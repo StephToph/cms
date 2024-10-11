@@ -194,7 +194,7 @@ class Analytics extends BaseController {
                         $ref = $q->ref;
                         $remark = $q->remark;
                         $amount = number_format((float)$q->amount, 2);
-                        $balance = curr.number_format((float)$q->balance, 2);
+                        $balance = $this->session->get('currency').number_format((float)$q->balance, 2);
                         $reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
                         $paid_date = date('M d, Y h:i A', strtotime($q->paid_date));
                         $payment_date = date('d M, Y', strtotime($q->payment_date));
@@ -212,7 +212,7 @@ class Analytics extends BaseController {
                         $btn = '';$bal ='';$paid ='';
                         if($status == 'pending'){
                             $rem = (float)$q->amount - (float)$q->balance;
-                            $bal = '<br><span class="text-danger fw-bold">Bal: '.$balance.'</span><br><span class="text-success fw-bold">Paid: '.curr.number_format($rem,2).'</span>';
+                            $bal = '<br><span class="text-danger fw-bold">Bal: '.$balance.'</span><br><span class="text-success fw-bold">Paid: '.$this->session->get('currency').number_format($rem,2).'</span>';
                            
                         }
                         if(!empty($ref) && !empty($q->paid_date)){
@@ -228,7 +228,7 @@ class Analytics extends BaseController {
                                     <span class="fw-bold text-secondary">'.translate_phrase(strtoupper($user)).'</span>'.$paid.'
                                 </div>
                                 <div class="nk-tb-col">
-                                    <span class="text-info">'.$curr.$amount.'</span>
+                                    <span class="text-info">'.$$this->session->get('currency').$amount.'</span>
                                 </div>
                                 <div class="nk-tb-col tb-col-md">
                                     <span class="fw-bold text-secondary">'.translate_phrase(ucwords($remark)).'</span><br>'.$st.'

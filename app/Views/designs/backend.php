@@ -10,6 +10,7 @@
     $email = $this->Crud->read_field('id', $log_id, 'user', 'email');
     if(empty($switch_id)){
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
     } else{
         $ministry_id = $this->Crud->read_field('id', $switch_id, 'church',  'ministry_id');
     }
@@ -31,7 +32,9 @@
         if($church_type == 'church'){
             $log_role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
         }
-    }$log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
+        $church_id = $switch_id;
+    }
+    $log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
     $log_user_img_id = 0;
     $log_user_img = $this->Crud->image($log_user_img_id, 'big');
     
@@ -42,6 +45,14 @@
         $min_title = str_replace('C M S', $ministry, $title);
         // define('app_name', $ministry);
     }
+
+    $currence = 'ESP ';
+    $default_cur = $this->Crud->read_field('id', $church_id, 'church', 'default_currency');
+    $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+    if($country_id > 0 && $default_cur > 0){
+        $currence = $this->Crud->read_field('id', $country_id, 'country', 'currency_symbol');
+    }
+    $this->session->set('currency', $currence);
 
     
     header("Access-Control-Allow-Origin: *");  // Replace * with the specific origin(s) you want to allow
