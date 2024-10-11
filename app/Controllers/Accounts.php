@@ -3089,7 +3089,9 @@ class Accounts extends BaseController {
 						$member = $this->Crud->read_field('id', $member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $member_id, 'user', 'surname');
 						$partnership = $this->Crud->read_field('id', $partnership_id, 'partnership', 'name');
 						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
-						
+						$cell_id = $this->Crud->read_field('id', $member_id, 'user', 'cell_id');
+						$cell = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+
 						$st = '<span class="text-warning">Pending</span>';
 						if($status > 0){
 							$st = '<span class="text-success">Confirmed</span>';
@@ -3114,6 +3116,9 @@ class Accounts extends BaseController {
 							
 						}
 
+						if($role == 'church leader'){
+							$church = $cell;
+						}
 						$item .= '
 							<tr>
 								<td>
