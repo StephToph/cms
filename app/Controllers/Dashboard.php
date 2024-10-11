@@ -14,7 +14,7 @@ class Dashboard extends BaseController {
         $mod = 'dashboard';
         
         $switch_id = $this->session->get('switch_church_id');
-        
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         if(!empty($switch_id)){
             $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
@@ -30,6 +30,7 @@ class Dashboard extends BaseController {
             if($church_type == 'church'){
                 $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
             }
+            $church_id = $switch_id ;
         }
         
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
@@ -54,7 +55,7 @@ class Dashboard extends BaseController {
 			$offset = $param3;
 
 			$count = 0;
-			$rec_limit = 10;
+			$rec_limit = 50;
 			$item = '';
             $timer_item = '';
 
@@ -68,44 +69,49 @@ class Dashboard extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
-				$all_rec = $this->Crud->filter_activity('', '', $log_id, $search);
+				$all_rec = $this->Crud->filter_membership('', '', $log_id, '', $switch_id, false);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_activity($limit, $offset, $log_id, $search);
+				$query = $this->Crud->filter_membership('', '', $log_id, '', $switch_id, false);
 				$data['count'] = $counts;
+
 				
+                
 				if (!empty($query)) {
+                    usort($query, function($a, $b) {
+                        return strcmp(date('m-d', strtotime($a->dob)), date('m-d', strtotime($b->dob)));
+                    });
+                    
+                    $a = 0;
 					foreach($query as $q) {
+                        
 						$id = $q->id;
-						$type = $q->item;
-						$type_id = $q->item_id;
-						$action = $q->action;
+						$firstname = $q->firstname;
+						$surname = $q->surname;
+                        $dobs = date('m-d', strtotime($q->dob)); // Extract month and day of birth
+
+						$dob = date('M d', strtotime($q->dob));
+                         // Step 3: Skip past birthdays (earlier than today's date)
+                        if ($dobs < date('m-d')) {
+                            continue; // Skip if the birthday has passed this year
+                        } else{
+                            $a++;
+                        }
+						$church_id = $q->church_id;
 						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
 
-						$timespan = $this->Crud->timespan(strtotime($q->reg_date));
-
-						$icon = 'article';
-						if($type == 'orders') $icon = 'template';
-						if($type == 'branch') $icon = 'reports-alt';
-						if($type == 'business') $icon = 'briefcase';
-						if($type == 'order') $icon = 'bag';
-						if($type == 'user') $icon = 'users';
-						if($type == 'pump') $icon = 'cc-secure';
-						if($type == 'authentication') $icon = 'article';
-						if($type == 'enrolment') $icon = 'property-add';
-						if($type == 'scholarship') $icon = 'award';
-
+                        if($a > 5)continue;
+						
 						$item .= '
                             <li class="nk-activity-item">
-                                <div class="nk-activity-media user-avatar bg-success"><img
-                                        src="'.site_url().'assets/images/avatar.png" alt=""></div>
                                 <div class="nk-activity-data">
-                                    <div class="label lead-text"> '.translate_phrase($action).'</div>
-                                    <span class="time">'.$timespan.'</span>
+                                    <div class="label lead-text"> '.translate_phrase($firstname.' '.$surname ).'</div>
+                                    <span class="time">'.$dob.'</span>
                                 </div>
                             </li>    
 						';
+                        
 					}
 				}
 
@@ -157,7 +163,7 @@ class Dashboard extends BaseController {
                                     
                                     foreach($time as $t=> $vals){
                                         if($t == 'fullname'){
-                                            if($tco > 9)continue;
+                                            if($tco > 5)continue;
                                             $timer_item .= '
                                                 <div class="card-inner card-inner-md">
                                                     <div class="user-card">
@@ -184,7 +190,7 @@ class Dashboard extends BaseController {
 				$resp['item'] = '
 					<div class="text-center text-muted">
 						<br/><br/><br/><br/>
-						<em class="icon ni ni-property" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Activity Returned').'
+						<em class="icon ni ni-property" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Upcoming Birthday Returned').'
 					</div>
 				';
 			} else {
@@ -677,13 +683,13 @@ class Dashboard extends BaseController {
             $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
         }
         if($role == 'developer' || $role == 'administrator'){
-            $service = $this->Crud->read('service_report');
+            $service = $this->Crud->read_order('service_report', 'date', 'asc');
         } else {
             if($role == 'ministry administrator'){
-                $service = $this->Crud->read_single('ministry_id', $ministry_id, 'service_report');
+                $service = $this->Crud->read_single_order('ministry_id', $ministry_id, 'service_report', 'date', 'asc');
             } else {
                 
-                $service = $this->Crud->read_single('church_id', $church_id, 'service_report');
+                $service = $this->Crud->read_single_order('church_id', $church_id, 'service_report', 'date', 'asc');
             }
         }
 
