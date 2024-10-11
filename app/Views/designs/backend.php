@@ -38,7 +38,7 @@
     $log_user_img_id = 0;
     $log_user_img = $this->Crud->image($log_user_img_id, 'big');
     
-    $logo = 'assets/new_logo.png';
+    $logo = 'assets/new_logo1.png';
     $min_title = $title;
     if($ministry_id > 0){
         $logo = $ministry_logo;
@@ -88,6 +88,42 @@
             overflow: hidden;              /* Hide any overflow content */
             text-overflow: ellipsis;       /* Display ellipsis (...) for overflowed content */
         }
+       /* Styles for chat icon */
+        #chat-icon {
+            width: 50px;
+            height: 50px;
+            bottom: 20px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        /* Chat window custom styles */
+        #chat-window {
+            display: none;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            max-height: 400px;
+        }
+
+        /* Message bubbles */
+        .bot-message {
+            background-color: #f1f1f1;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+            text-align: right;
+        }
+
+
     </style>
     <div class="nk-app-root">
         <div class="nk-main ">
@@ -421,7 +457,33 @@
                     </div>
                 </div>
                 <div id="bb_ajax_msgs"></div>
-                    
+                    <!-- Chat icon at the bottom-right corner -->
+                    <div id="chat-icon" class="position-fixed bg-primary text-white d-flex justify-content-center align-items-center rounded-circle shadow" 
+                        onclick="toggleChat()" style="width: 50px; height: 50px; bottom: 20px; right: 20px; cursor: pointer;">
+                        💬
+                    </div>
+
+                    <!-- Chat window -->
+                    <div id="chat-window" class="position-fixed shadow-lg bg-white rounded" 
+                        style="display: none; bottom: 80px; right: 20px; width: 300px;">
+                        <div class="d-flex justify-content-between align-items-center p-2 bg-primary text-white rounded-top">
+                            <h5 class="mb-0">Ask Angel</h5>
+                            <button type="button" class="btn btn-sm btn-light" onclick="toggleChat()">✖</button>
+                        </div>
+                        <div id="chat-body" class="p-3" style="max-height: 300px; overflow-y: auto;">
+                            <div id="chat-messages">
+                                <p class="bg-light p-2 rounded bot-message">How can i help you today?</p>
+                            </div>
+                        </div>
+                        <div class="input-group p-2 border-top">
+                            <input type="text" id="user-input" class="form-control" placeholder="Type your message here...">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                            </div>
+                        </div>
+                    </div>
+
+
                 <!-- wrap @e -->
             </div>
         <!-- wrap @e -->
@@ -458,7 +520,80 @@
                 });
             }
         }
-    
+                // Toggle chat visibility
+        // Toggle chat visibility
+        function toggleChat() {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.style.display = chatWindow.style.display === 'none' || chatWindow.style.display === '' ? 'block' : 'none';
+        }
+
+        // Send a message and respond intelligently to basic conversations
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim().toLowerCase(); // Convert input to lowercase for easier matching
+
+            if (message !== '') {
+                const chatMessages = document.getElementById('chat-messages');
+
+                // Display the user's message
+                const userMessage = document.createElement('p');
+                userMessage.className = 'user-message bg-primary text-white p-2 rounded';
+                userMessage.textContent = input.value; // Display original case-sensitive input
+                chatMessages.appendChild(userMessage);
+
+                // Scroll to the bottom of the chat
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                // Clear input
+                input.value = '';
+
+                // Define response rules for basic conversations
+                let botResponse = 'Coming soon'; // Default response
+
+                // Basic conversation patterns
+                const greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'];
+                const howAreYou = ['how are you', 'how are you doing', 'how’s it going'];
+                const timeRelated = ['what time is it', 'current time', 'tell me the time'];
+
+                // Respond to greetings
+                if (greetings.includes(message)) {
+                    botResponse = 'Hello, I am Angel A.I. You can ask me anything!';
+                }
+                // Respond to "how are you" questions
+                else if (howAreYou.some(phrase => message.includes(phrase))) {
+                    botResponse = 'I’m doing great, thank you! How can I assist you today?';
+                }
+                // Respond to time-related queries
+                else if (timeRelated.some(phrase => message.includes(phrase))) {
+                    const currentTime = new Date().toLocaleTimeString();
+                    botResponse = `The current time is ${currentTime}.`;
+                }
+                // Respond to general "thank you"
+                else if (message.includes('thank you') || message.includes('thanks')) {
+                    botResponse = 'You’re welcome! Let me know if you need anything else.';
+                }
+                // Respond to goodbye messages
+                else if (message.includes('bye') || message.includes('goodbye')) {
+                    botResponse = 'Goodbye! Have a great day!';
+                }
+                // Catch-all response
+                else {
+                    botResponse = 'Coming soon! I’m still learning, so stay tuned for more features!';
+                }
+
+                // Respond after a short delay
+                setTimeout(() => {
+                    const botMessage = document.createElement('p');
+                    botMessage.className = 'bot-message bg-light p-2 rounded';
+                    botMessage.textContent = botResponse;
+                    chatMessages.appendChild(botMessage);
+
+                    // Scroll to the bottom of the chat
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        }
+
     </script>
     <?=$this->renderSection('scripts');?>
     <script>
