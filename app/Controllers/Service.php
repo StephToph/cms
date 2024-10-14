@@ -1098,11 +1098,41 @@ class Service extends BaseController {
 						echo $this->Crud->msg('danger', 'Enter the New Convert Details');
 						
 					} else{
-						$ins['converts'] = json_encode($convert);
-						$ins['new_convert'] = count($first_name);
+						$ins_data['converts'] = json_encode($convert);
+						$ins_data['new_convert'] = count($first_name);
 
-						if($this->Crud->updates('id', $new_convert_id, 'service_report', $ins) > 0){
+						if($this->Crud->updates('id', $new_convert_id, 'service_report', $ins_data) > 0){
+							$ministry_id = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'ministry_id');
+							$church_id = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'church_id');
+							$dates = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'date');
 							
+							//Create Follow up
+							$converts = ($convert);
+							
+							$ins['source_type'] = 'service';
+							$ins['source_id'] = $new_convert_id;
+							$ins['ministry_id'] = $ministry_id;
+							$ins['church_id'] = $church_id;
+							$ins['visit_date'] = $dates;
+							
+
+							if(!empty($converts)){
+								$ins['category'] = 'new_convert';
+								foreach($converts as $f => $f_value){
+									$ins['fullname'] = $f_value['fullname'];
+									$ins['email'] = $f_value['email'];
+									$ins['phone'] = $f_value['phone'];
+									$ins['dob'] = $f_value['dob'];
+									$ins['reg_date'] = date(fdate);
+
+									$ins_recs = $this->Crud->create('visitors', $ins);
+									if ($ins_recs) {
+										// Add the new ID to the array
+										$converts[$f]['id'] = $ins_recs;
+										$this->Crud->updates('id', $new_convert_id, 'service_report', array('converts'=>json_encode($converts)));
+									}
+								}
+							}
 							echo $this->Crud->msg('success', 'New Convert List Submitted');
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
@@ -1204,6 +1234,46 @@ class Service extends BaseController {
 					} else{
 						if($this->Crud->updates('id', $new_convert_id, 'service_report', $timers) > 0){
 							echo $this->Crud->msg('success', 'First Timer List Submitted');
+							$ministry_id = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'ministry_id');
+							$church_id = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'church_id');
+							$dates = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'date');
+							
+							
+							//Create Follow up
+							$first = ($convert);
+							
+							$ins['source_type'] = 'service';
+							$ins['source_id'] = $new_convert_id;
+							$ins['ministry_id'] = $ministry_id;
+							$ins['church_id'] = $church_id;
+							$ins['visit_date'] = $dates;
+
+							if (!empty($first)) {
+								$ins['category'] = 'first_timer';
+							
+								foreach ($first as $f => $f_value) {
+									// Preparing data for insertion
+									$ins['fullname'] = $f_value['fullname'];
+									$ins['email'] = $f_value['email'];
+									$ins['phone'] = $f_value['phone'];
+									$ins['dob'] = $f_value['dob'];
+									$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
+									$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
+									$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
+							
+									// Inserting the record into 'visitors' table
+									$ins_recs = $this->Crud->create('visitors', $ins);
+							
+									// Assuming $ins_rec contains the newly inserted record ID
+									if ($ins_recs) {
+										// Add the new ID to the array
+										$first[$f]['id'] = $ins_recs;
+										$this->Crud->updates('id', $new_convert_id, 'service_report', array('timers'=>json_encode($first)));
+									}
+								}
+							}
+							
+
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 							$service_date = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'date');
@@ -1313,6 +1383,7 @@ class Service extends BaseController {
 								
 						$upd_rec = $this->Crud->updates('id', $report_id, $table, $ins_data);
 						if($upd_rec > 0) {
+
 							$this->session->set('service_attendance', '');
 							$this->session->set('service_partnership', '');
 							$this->session->set('service_converts', '');

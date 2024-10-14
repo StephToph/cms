@@ -2244,6 +2244,60 @@ class Accounts extends BaseController {
 							$at['attendant'] = $this->session->get('cell_attendance');
 							$at_id = $this->Crud->read_field2('type_id', $creport_id, 'type', 'cell', 'attendance', 'id');
 							$this->Crud->updates('id', $at_id, 'attendance', $at);
+
+							$first = json_decode($times, true);
+							$converts = json_decode($converts, true);
+							
+							$ins['source_type'] = 'cell';
+							$ins['source_id'] = $creport_id;
+							$ins['ministry_id'] = $ministry_id;
+							$ins['church_id'] = $church_id;
+							$ins['visit_date'] = $dates;
+
+							if (!empty($first)) {
+								$ins['category'] = 'first_timer';
+							
+								foreach ($first as $f => $f_value) {
+									// Preparing data for insertion
+									$ins['fullname'] = $f_value['fullname'];
+									$ins['email'] = $f_value['email'];
+									$ins['phone'] = $f_value['phone'];
+									$ins['dob'] = $f_value['dob'];
+									$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
+									$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
+									$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
+							
+									// Inserting the record into 'visitors' table
+									$ins_recs = $this->Crud->create('visitors', $ins);
+							
+									// Assuming $ins_rec contains the newly inserted record ID
+									if ($ins_recs) {
+										// Add the new ID to the array
+										$first[$f]['id'] = $ins_recs;
+										$this->Crud->updates('id', $creport_id, 'cell_report', array('timers'=>json_encode($first)));
+									}
+								}
+							}
+							
+
+							if(!empty($converts)){
+								$ins['category'] = 'new_convert';
+								foreach($converts as $f => $f_value){
+									$ins['fullname'] = $f_value['fullname'];
+									$ins['email'] = $f_value['email'];
+									$ins['phone'] = $f_value['phone'];
+									$ins['dob'] = $f_value['dob'];
+									$ins['reg_date'] = date(fdate);
+
+									$ins_recs = $this->Crud->create('visitors', $ins);
+									if ($ins_recs) {
+										// Add the new ID to the array
+										$converts[$f]['id'] = $ins_recs;
+										$this->Crud->updates('id', $creport_id, 'cell_report', array('converts'=>json_encode($converts)));
+									}
+								}
+							}
+
 							$this->session->set('cell_attendance', '');
 							$this->session->set('cell_convert', '');
 							
@@ -2275,6 +2329,61 @@ class Accounts extends BaseController {
 								$at['attendant'] = $this->session->get('cell_attendance');
 								$at['reg_date'] = date(fdate);
 								$this->Crud->create('attendance', $at);
+
+								//Create Follow up
+								$first = json_decode($times, true);
+								$converts = json_decode($converts, true);
+								
+								$ins['source_type'] = 'cell';
+								$ins['source_id'] = $ins_rec;
+								$ins['ministry_id'] = $ministry_id;
+								$ins['church_id'] = $church_id;
+								$ins['visit_date'] = $dates;
+
+								if (!empty($first)) {
+									$ins['category'] = 'first_timer';
+								
+									foreach ($first as $f => $f_value) {
+										// Preparing data for insertion
+										$ins['fullname'] = $f_value['fullname'];
+										$ins['email'] = $f_value['email'];
+										$ins['phone'] = $f_value['phone'];
+										$ins['dob'] = $f_value['dob'];
+										$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
+										$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
+										$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
+								
+										// Inserting the record into 'visitors' table
+										$ins_recs = $this->Crud->create('visitors', $ins);
+								
+										// Assuming $ins_rec contains the newly inserted record ID
+										if ($ins_recs) {
+											// Add the new ID to the array
+											$first[$f]['id'] = $ins_recs;
+											$this->Crud->updates('id', $ins_rec, 'cell_report', array('timers'=>json_encode($first)));
+										}
+									}
+								}
+								
+
+								if(!empty($converts)){
+									$ins['category'] = 'new_convert';
+									foreach($converts as $f => $f_value){
+										$ins['fullname'] = $f_value['fullname'];
+										$ins['email'] = $f_value['email'];
+										$ins['phone'] = $f_value['phone'];
+										$ins['dob'] = $f_value['dob'];
+										$ins['reg_date'] = date(fdate);
+
+										$ins_recs = $this->Crud->create('visitors', $ins);
+										if ($ins_recs) {
+											// Add the new ID to the array
+											$converts[$f]['id'] = $ins_recs;
+											$this->Crud->updates('id', $ins_rec, 'cell_report', array('converts'=>json_encode($converts)));
+										}
+									}
+								}
+
 								$this->session->set('cell_attendance', '');
 								$this->session->set('cell_convert', '');
 								$this->session->set('cell_timers', '');
@@ -3134,7 +3243,7 @@ class Accounts extends BaseController {
 									<span class="text-dark">' . ucwords($partnership) . '</span>
 								</td>
 								<td>
-									<span class="text-dark">'.curr . number_format($amount_paid,2) . '</span>
+									<span class="text-dark">'.$this->session->get('currency') . number_format($this->Crud->cur_exchange($amount_paid),2) . '</span>
 								</td>
 								<td>
 									<span class="text-dark">' . ($st) . '</span>
@@ -5115,6 +5224,126 @@ class Accounts extends BaseController {
             'file'    => $dir . $save_name,
         ];
     }
+
+	public function update_visitor(){
+		$cells = $this->Crud->read_order('cell_report', 'date', 'asc');
+		$service = $this->Crud->read_order('service_report', 'date', 'asc');
+
+		if(!empty($cells)){
+			foreach($cells as $cell){
+				$first = json_decode($cell->timers, true);
+				$converts = json_decode($cell->converts, true);
+				
+				$ins['source_type'] = 'cell';
+				$ins['source_id'] = $cell->id;
+				$ins['ministry_id'] = $cell->ministry_id;
+				$ins['church_id'] = $cell->church_id;
+				$ins['visit_date'] = $cell->date;
+
+				if (!empty($first)) {
+					$ins['category'] = 'first_timer';
+				
+					foreach ($first as $f => $f_value) {
+						// Preparing data for insertion
+						$ins['fullname'] = $f_value['fullname'];
+						$ins['email'] = $f_value['email'];
+						$ins['phone'] = $f_value['phone'];
+						$ins['dob'] = $f_value['dob'];
+						$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
+						$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
+						$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
+				
+						// Inserting the record into 'visitors' table
+						$ins_rec = $this->Crud->create('visitors', $ins);
+				
+						// Assuming $ins_rec contains the newly inserted record ID
+						if ($ins_rec) {
+							// Add the new ID to the array
+							$first[$f]['id'] = $ins_rec;
+							$this->Crud->updates('id', $cell->id, 'cell_report', array('timers'=>json_encode($first)));
+						}
+					}
+				}
+				
+
+				if(!empty($converts)){
+					$ins['category'] = 'new_convert';
+					foreach($converts as $f => $f_value){
+						$ins['fullname'] = $f_value['fullname'];
+						$ins['email'] = $f_value['email'];
+						$ins['phone'] = $f_value['phone'];
+						$ins['dob'] = $f_value['dob'];
+						$ins['reg_date'] = date(fdate);
+
+						$ins_rec = $this->Crud->create('visitors', $ins);
+						if ($ins_rec) {
+							// Add the new ID to the array
+							$converts[$f]['id'] = $ins_rec;
+							$this->Crud->updates('id', $cell->id, 'cell_report', array('converts'=>json_encode($converts)));
+						}
+					}
+				}
+
+			}
+			// print_r($first);
+		}
+
+		if(!empty($service)){
+			foreach($service as $cell){
+				$first = json_decode($cell->timers, true);
+				$converts = json_decode($cell->converts, true);
+				
+				$ins['source_type'] = 'service';
+				$ins['source_id'] = $cell->id;
+				$ins['ministry_id'] = $cell->ministry_id;
+				$ins['church_id'] = $cell->church_id;
+				$ins['visit_date'] = $cell->date;
+
+				if(!empty($first)){
+					$ins['category'] = 'first_timer';
+					foreach($first as $f => $f_value){
+						$ins['fullname'] = $f_value['fullname'];
+						$ins['email'] = $f_value['email'];
+						$ins['phone'] = $f_value['phone'];
+						$ins['dob'] = $f_value['dob'];
+						$ins['family_position'] = isset($f_value['family_position']) ? $f_value['family_position'] : null; 
+						$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null; 
+						$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null; 
+						$ins['gender'] = isset($f_value['gender']) ? $f_value['gender'] : null; 
+						$ins['reg_date'] = date(fdate);
+
+						$ins_rec = $this->Crud->create('visitors', $ins);
+
+						if ($ins_rec) {
+							// Add the new ID to the array
+							$first[$f]['id'] = $ins_rec;
+							$this->Crud->updates('id', $cell->id, 'service_report', array('timers'=>json_encode($first)));
+						}
+					}
+				}
+
+				if(!empty($converts)){
+					$ins['category'] = 'new_convert';
+					foreach($converts as $f => $f_value){
+						$ins['fullname'] = $f_value['fullname'];
+						$ins['email'] = $f_value['email'];
+						$ins['phone'] = $f_value['phone'];
+						$ins['dob'] = $f_value['dob'];
+						$ins['reg_date'] = date(fdate);
+
+						$ins_rec = $this->Crud->create('visitors', $ins);
+						if ($ins_rec) {
+							// Add the new ID to the array
+							$converts[$f]['id'] = $ins_rec;
+							$this->Crud->updates('id', $cell->id, 'service_report', array('converts'=>json_encode($converts)));
+						}
+					}
+				}
+
+			}
+			// print_r($first);
+		}
+	}
 
 
 }
