@@ -4244,6 +4244,31 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
+
+	public function cur_exchange($amount=0){
+		if(session()->get('td_id')){
+			$log_id = session()->get('td_id');
+			$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+			$country_id = $this->read_field('id', $church_id, 'church', 'country_id');
+			$rate = $this->read_field('country_id', $country_id, 'currency', 'rate');
+			$default_currency = $this->read_field('id', $church_id, 'church', 'default_currency');
+			
+			if($default_currency > 0){
+				$result = $amount;
+			} else {
+				if($rate){
+					$result = (float)$amount / (float)$rate;
+				} else{
+					$result = (float)$amount / 1;
+				}
+				
+			}
+		} else {
+			$result = 0;
+		}
+
+		return $result;
+	}
 	
 
     //////////////////// MODULE ///////////////////////

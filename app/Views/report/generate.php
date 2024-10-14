@@ -167,9 +167,9 @@ if($ministry_id > 0){
                                                             <td class="text-capitalize"><?=$this->Crud->read_field('id', $rec->type, 'service_type', 'name'); ?></td>
                                                             <td><?=number_format($rec->attendance); ?></td>
                                                             <td><?=number_format($absent); ?></td>
-                                                            <td ><?=$this->session->get('currency').number_format((float)$rec->offering,2); ?></td>
-                                                            <td><?=$this->session->get('currency').number_format((float)$rec->tithe,2); ?></td>
-                                                            <td><?=$this->session->get('currency').number_format((float)$rec->partnership,2); ?></td>
+                                                            <td ><?=$this->session->get('currency').number_format($this->Crud->cur_exchange((float)$rec->offering),2); ?></td>
+                                                            <td><?=$this->session->get('currency').number_format($this->Crud->cur_exchange((float)$rec->tithe),2); ?></td>
+                                                            <td><?=$this->session->get('currency').number_format($this->Crud->cur_exchange((float)$rec->partnership),2); ?></td>
                                                             <td><?=number_format($rec->new_convert); ?></td>
                                                             <td><?=number_format($rec->first_timer); ?></td>
                                                     
@@ -190,9 +190,9 @@ if($ministry_id > 0){
                                                     <tr>
                                                         <td colspan="5" class="text-sm-end">Member Present <br><b  class="text-danger"><?=number_format($total_present);?></b></td>
                                                         <td>Member Absent <br><b class="text-danger"><?=number_format($total_absent);?></b></td>
-                                                        <td >Offering <br><b class="text-danger"><?=$this->session->get('currency').number_format($total_offering,2);?></b></td>
-                                                        <td >TIthe <br><b class="text-danger"><?=$this->session->get('currency').number_format($total_tithe,2);?></b></td>
-                                                        <td >Partnership <br><b  class="text-danger"><?=$this->session->get('currency').number_format($total_partnership,2);?></b></td>
+                                                        <td >Offering <br><b class="text-danger"><?=$this->session->get('currency').number_format($this->Crud->cur_exchange($total_offering),2);?></b></td>
+                                                        <td >TIthe <br><b class="text-danger"><?=$this->session->get('currency').number_format($this->Crud->cur_exchange($total_tithe),2);?></b></td>
+                                                        <td >Partnership <br><b  class="text-danger"><?=$this->session->get('currency').number_format($this->Crud->cur_exchange($total_partnership),2);?></b></td>
                                                         <td>New Converts <br><b class="text-danger"><?=number_format($total_convert);?></b></td>
                                                         <td>First Timer <br><b class="text-danger"><?=number_format($total_timer);?></b></td>
                                                     </tr>

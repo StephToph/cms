@@ -4508,7 +4508,7 @@ class Accounts extends BaseController {
 										<span class="tb-lead">' .$this->session->get('currency'). number_format($given,2) . '</span>
 									</td>
 									<td>
-										<span class="tb-lead">' .$this->session->get('currency').number_format($balance,2) . '</span>
+										<span class="tb-lead">' .$this->session->get('currency').number_format($this->Crud->cur_exchange($balance),2) . '</span>
 									</td>
 									<td >' . $all_btn . '</td>
 								</tr><!-- .nk-tb-item -->

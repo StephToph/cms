@@ -458,9 +458,16 @@
                 </div>
                 <div id="bb_ajax_msgs"></div>
                     <!-- Chat icon at the bottom-right corner -->
-                    <div id="chat-icon" class="position-fixed bg-primary text-white d-flex justify-content-center align-items-center rounded-circle shadow" 
-                        onclick="toggleChat()" style="width: 60px; height: 60px; bottom: 20px; right: 20px; cursor: pointer; background-image: url('<?=site_url('assets/angel-logo.png'); ?>'); background-size: cover; background-position: center;">
-                    </div>
+                    <div id="chat-icon" class="position-fixed text-white d-flex justify-content-center align-items-center rounded-circle shadow" 
+                    onclick="toggleChat()" 
+                    style="width: 60px; height: 60px; bottom: 20px; right: 20px; cursor: pointer; 
+                        background-image: url('<?=site_url('assets/angel-logo.png'); ?>'); 
+                        background-size: 50%; /* Adjust the size of the image relative to the div */
+                        background-repeat: no-repeat; /* Prevents repeating */
+                        background-position: center; /* Centers the image */
+                        background-color: #eee; border: 2px solid blue;">
+                </div>
+
 
 
                     <!-- Chat window -->
