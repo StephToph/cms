@@ -246,7 +246,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'accounts/first_timer/load' + methods,
+            url: site_url + 'accounts/timers/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {

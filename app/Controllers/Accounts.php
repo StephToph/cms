@@ -651,7 +651,7 @@ class Accounts extends BaseController {
 		}
 	}
 
-	public function first_timer($param1='', $param2='', $param3='') {
+	public function timers($param1='', $param2='', $param3='') {
 		// check session login
 		if($this->session->get('td_id') == ''){
 			$request_uri = uri_string();
@@ -659,9 +659,27 @@ class Accounts extends BaseController {
 			return redirect()->to(site_url('auth'));
 		} 
 
-        $mod = 'accounts/first_timer';
-
+        $mod = 'accounts/timers';
+		$switch_id = $this->session->get('switch_church_id');
         $log_id = $this->session->get('td_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+            $church_id = $switch_id ;
+        }
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
@@ -742,6 +760,37 @@ class Accounts extends BaseController {
 						}
 					}
 				} 
+
+				if($param2 == 'view') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fullname'] = $e->fullname;
+								$data['e_phone'] = $e->phone;
+								$data['e_email'] = $e->email;
+								$data['e_dob'] = $e->dob;
+								$data['e_gender'] = $e->gender;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_title'] = $e->title;
+								$data['e_is_member'] = $e->is_member;
+								$data['e_user_no'] = $e->user_no;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_source_type'] = $e->source_type;
+								$data['e_source_id'] = $e->source_id;
+								$data['e_invited_by'] = $e->invited_by;
+								$data['e_channel'] = $e->channel;
+								$data['e_assigned_to'] = $e->assigned_to;
+								$data['e_foundation_school'] = $e->foundation_school;
+								$data['e_foundation_weeks'] = $e->foundation_weeks;
+								$data['e_visit_date'] = $e->visit_date;
+								$data['e_reg_date'] = $e->reg_date;
+							}
+						}
+					}
+				} 
 				
 				if($this->request->getMethod() == 'post'){
 					$edit_id = $this->request->getPost('edit_id');
@@ -759,6 +808,65 @@ class Accounts extends BaseController {
 
 					if(empty($is_assign)){
 						$assigned_to = [];
+					}
+
+					if($is_member){
+						$nameParts = explode(' ', trim($fullname));
+						$firstname = isset($nameParts[0]) ? $nameParts[0] : ''; // First part is the first name
+						$lastname = isset($nameParts[1]) ? $nameParts[1] : ''; 
+
+						$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+						$source_type = $this->Crud->read_field('id', $edit_id, 'visitors', 'source_type');
+						$source_id = $this->Crud->read_field('id', $edit_id, 'visitors', 'source_id');
+						$cell_id = $this->Crud->read_field('id', $source_id, 'cell_report', 'cell_id');
+						if($source_type == 'cell'){
+							$mem_data['cell_id'] = $cell_id;
+						}
+						$mem_data['title'] = $title;
+						$mem_data['firstname'] = $firstname;
+						$mem_data['surname'] = $lastname;
+						$mem_data['email'] = $email;
+						$mem_data['phone'] = $phone;
+						$mem_data['gender'] = $gender;
+						$mem_data['foundation_school'] = $foundation_school;
+						$mem_data['dob'] = $dob;
+						$mem_data['ministry_id'] = $this->Crud->read_field('id', $edit_id, 'visitors', 'ministry_id');
+						$mem_data['church_id'] = $this->Crud->read_field('id', $edit_id, 'visitors', 'church_id');
+						$mem_data['is_member'] = 1;
+						$mem_data['role_id'] = $role_id;
+						$user_nos =  $this->Crud->read_field('id', $edit_id, 'visitors', 'user_no');
+						$mem_data['activate'] = 1;
+						$mem_data['reg_date'] = date(fdate);
+						if(empty($user_nos)){
+							$mem_rec = $this->Crud->create('user', $mem_data);
+						}
+						if($mem_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $mem_rec, 'user', 'surname');
+							$this->Crud->updates('id', $mem_rec, 'user', array('user_no'=>'CEAM-00'.$mem_rec));
+							$password = '12345';
+							$user_no = 'CEAM-00'.$mem_rec;
+
+							$action = $by.' created Membership ('.$code.') Record';
+							$this->Crud->activity('user', $mem_rec, $action);
+							$name = ucwords($firstname.' '.$lastname);
+							$body = '
+								Dear '.$name.', <br><br>
+									A Membership Account Has been Created with This Email on Chrsit Embassy  Platform;<br>
+									Below are your login Credentials:<br><br>
+
+									Website: '.site_url().'
+									Membership ID: '.$user_no.'<br>
+									Email: '.$email.'<br>
+									Phone: '.$phone.'<br>
+									Password: '.$password.'<br><br>
+									Do not disclose your Login credentials with anyone to avoid unauthorized access.
+									
+							';
+							$this->Crud->send_email($email, 'Membership Account', $body);
+							$ins_data['user_no'] = $user_no;
+						} 	
 					}
 					$ins_data['fullname'] = $fullname;
 					$ins_data['email'] = $email;
@@ -799,7 +907,7 @@ class Accounts extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}
@@ -847,6 +955,9 @@ class Accounts extends BaseController {
 						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
 						$ministry = $this->Crud->read_field('id', $q->ministry_id, 'ministry', 'name');
 						
+						if($church_id > 0){
+							$church = '';
+						}
 						if($source_type == 'cell'){
 							$cell_id = $this->Crud->read_field('id', $source_id, 'cell_report', 'cell_id');
 							$cell = '-'.$this->Crud->read_field('id', $cell_id, 'cells', 'name');
@@ -883,6 +994,7 @@ class Accounts extends BaseController {
 						} else {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $fullname . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="follow_up(' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Follow Up') . '</span></a></li>
 								
@@ -4182,7 +4294,7 @@ class Accounts extends BaseController {
 									$name = ucwords($firstname.' '.$othername.' '.$surname);
 									$body = '
 										Dear '.$name.', <br><br>
-											A Membership Account Has been Created with This Email on Chrsit Embassy Aurora Platform;<br>
+											A Membership Account Has been Created with This Email on Chrsit Embassy  Platform;<br>
 											Below are your login Credentials:<br><br>
 
 											Website: '.site_url().'
@@ -4491,7 +4603,7 @@ class Accounts extends BaseController {
 							$name = ucwords($firstname.' '.$othername.' '.$lastname);
 							$body = '
 								Dear '.$name.', <br><br>
-									A Membership Account Has been Created with This Email on Chrsit Embassy Aurora Platform;<br>
+									A Membership Account Has been Created with This Email on Chrsit Embassy  Platform;<br>
 									Below are your login Credentials:<br><br>
 
 									Website: '.site_url().'
