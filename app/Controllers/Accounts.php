@@ -2354,8 +2354,12 @@ class Accounts extends BaseController {
 										$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
 								
 										// Inserting the record into 'visitors' table
-										$ins_recs = $this->Crud->create('visitors', $ins);
-								
+										if(!empty($first[$f]['id'])){
+											$this->Crud->updates('id', $first[$f]['id'], 'visitors', $ins);
+											$ins_recs = $first[$f]['id'];
+										} else{
+											$ins_recs = $this->Crud->create('visitors', $ins);
+										}
 										// Assuming $ins_rec contains the newly inserted record ID
 										if ($ins_recs) {
 											// Add the new ID to the array
@@ -2374,8 +2378,13 @@ class Accounts extends BaseController {
 										$ins['phone'] = $f_value['phone'];
 										$ins['dob'] = $f_value['dob'];
 										$ins['reg_date'] = date(fdate);
-
-										$ins_recs = $this->Crud->create('visitors', $ins);
+										
+										if(!empty($first[$f]['id'])){
+											$this->Crud->updates('id', $first[$f]['id'], 'visitors', $ins);
+											$ins_recs = $first[$f]['id'];
+										} else{
+											$ins_recs = $this->Crud->create('visitors', $ins);
+										}
 										if ($ins_recs) {
 											// Add the new ID to the array
 											$converts[$f]['id'] = $ins_recs;
