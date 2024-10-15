@@ -23,6 +23,161 @@
         </div>
     <?php } ?>
 
+    <?php if ($param2 == 'view') { ?>
+    <div class="row">
+        <div class="col-sm-12 mb-3 table-responsive">
+            
+            <table class="table table-hovered table-borderless">
+                <tr>
+                    <td><b>Ministry</b></td>
+                    <td><?=$this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name');?></td>
+                </tr>
+                <tr>
+                    <td><b>Church</b></td>
+                    <td><?=ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name'));?> </td>
+                </tr>
+                <tr>
+                    <td><b>Source Type</b></td>
+                    <td><?=ucwords($e_source_type);?></td>
+                </tr>
+                <tr>
+                    <td><b>Source</b></td>
+                    <td><?php 
+                        if($e_source_type == 'cell'){
+                            $type = $this->Crud->read_field('id', $e_source_id, 'cell_report', 'type');
+                            if($type == 'wk1')$source = 'WK1 - Prayer and Planning';
+							if($type == 'wk2')$source = 'Wk2 - Bible Study';
+							if($type == 'wk3')$source = 'Wk3 - Bible Study';
+							if($type == 'wk4')$source = 'Wk4 - Fellowship / Outreach';
+							if($type == 'wk5')$source = 'Wk5 - Fellowship';
+                            echo ucwords($source);
+                        }
+                        if($e_source_type == 'service'){
+                            $type = $this->Crud->read_field('id', $e_source_id, 'service_report', 'type');
+                            
+							$source = $this->Crud->read_field('id', $type, 'service_type', 'name');
+                            echo ucwords($source);
+                        }
+                        ?> </td>
+                </tr>
+                <tr>
+                <td><b>Visit Date</b></td>
+                    <td><?=date('d F Y', strtotime($e_visit_date));?></td>
+                </tr>
+                <tr>
+                    <td><b>Title</b></td>
+                    <td><?=ucwords($e_title);?></td>
+                </tr>
+                <tr>
+                    <td><b>Full Name</b></td>
+                    <td><?=ucwords($e_fullname);?></td>
+                </tr>
+                <tr>
+                    <td><b>Email</b></td>
+                    <td><?=($e_email);?> </td>
+                </tr>
+                <tr>
+                    <td><b>Phone</b></td>
+                    <td><?=$e_phone;?></td>
+                </tr>
+                <tr>
+                    <td><b>Gender</b></td>
+                    <td><?=ucwords($e_gender);?> </td>
+                </tr>
+                <tr>
+                    <td><b>DOB</b></td>
+                    <td><?=($e_dob);?> </td>
+                </tr>
+               
+                <tr>
+                    <td><b>Invited By</b></td>
+                    <td><?=ucwords($e_invited_by);?></td>
+                </tr>
+                
+                <tr>
+                    <td><b>Channel</b></td>
+                    <td><?php if($e_invited_by == 'Member'){
+                            $channel = $this->Crud->read_field('id', $e_channel, 'user', 'firstname').' '.$this->Crud->read_field('id', $e_channel, 'user', 'surname');
+                        } else{
+                            $channel = $e_channel;
+                        }
+                        echo ucwords($channel);
+                    ?></td>
+                </tr>
+                
+                <tr>
+                    <td><b>Foundation School</b></td>
+                    <td><?php 
+                        if($e_foundation_school == 1){
+                            echo 'Student';
+                        } elseif($e_foundation_school == 2){
+                            echo 'Graduate';
+                        } else{
+                            echo 'Prospective Student';
+                        }
+                    ?> </td>
+                </tr>
+                <?php 
+                        if($e_foundation_school == 1){?>
+                <tr>
+                    <td><b>Foundation Week</b></td>
+                    <td><?=ucwords($e_foundation_weeks);?></td>
+                </tr>
+                <?php } ?>
+                <tr>
+                    <td><b>Assigned To</b></td>
+                    <td><?php
+                        $assigned = json_decode($e_assigned_to);
+                        if(!empty($assigned)){
+                            foreach($assigned as $as){
+                                $names = $this->Crud->read_field('id', $as, 'user', 'firstname').' '.$this->Crud->read_field('id', $as, 'user', 'surname');
+                                $phone = $this->Crud->read_field('id', $as, 'user', 'phone');
+                                echo '
+                                    <div class="user-card mx-2">
+										<div class="user-info">
+											<span class="tb-lead">' . ucwords($names) . ' </span><br>
+											<span class="small text-info">' . ucwords($phone) . '</span>
+										</div>
+									</div>
+                                ';
+                            }
+                        } else{
+                            echo 'Not Assigned to Leader';
+                        }
+                    ?> </td>
+                </tr>
+               
+                <tr>
+                    <td><b>Membership</b></td>
+                    <td><?php
+                        if(!empty($e_is_member)){
+                            echo 'Now a Member';
+                        } else{
+                            echo 'Not yet a Member';
+                        }
+                    ?></td>
+                </tr>
+                <?php
+                    if(!empty($e_is_member)){?>
+                <tr>
+                    <td><b>Membership ID</b></td>
+                    <td><?=($e_user_no);?> </td>
+                </tr>
+                <?php } ?>
+               
+                
+                <tr>
+                    <td><b>Created At</b></td>
+                    <td><?=date('d F Y h:i:sA', strtotime($e_reg_date));?></td>
+                </tr>
+
+            </table>
+        </div>
+
+    </div>
+
+<?php } ?>
+
     <!-- insert/edit view -->
     
     <?php if($param2 == 'edit' || $param2 == '') { ?>
@@ -151,15 +306,17 @@
                     </select>
                 </div>
             </div>
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label>Move to Membership</label>
-                    <select class="js-select2" name="is_member" id="is_member" data-placeholder="Select" >
-                        <option value="0" <?php if(!empty($e_is_member)){if($e_is_member ==  '0'){echo 'selected';}}; ?>>No - Do Not Move</option>
-                        <option value="1" <?php if(!empty($e_is_member)){if($e_is_member ==  '1'){echo 'selected';}}; ?>>Yes - Move</option>
-                    </select>
+            <?php if(empty($e_is_member)){if($e_is_member ==  '0'){?>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label>Move to Membership</label>
+                        <select class="js-select2" name="is_member" id="is_member" data-placeholder="Select" >
+                            <option value="0" <?php if(!empty($e_is_member)){if($e_is_member ==  '0'){echo 'selected';}}; ?>>No - Do Not Move</option>
+                            <option value="1" <?php if(!empty($e_is_member)){if($e_is_member ==  '1'){echo 'selected';}}; ?>>Yes - Move</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            <?php } }?>
             <div class="col-sm-12 text-center">
                 <hr />
                 <button class="btn btn-primary bb_form_bt" type="submit">
