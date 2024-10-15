@@ -58,7 +58,7 @@ class Accounts extends BaseController {
 					if($_POST){
 						$del_id = $this->request->getPost('d_user_id');
 						$code = $this->Crud->read_field('id', $del_id, 'user', 'fullname');
-						if($this->Crud->delete('id', $del_id, $table) > 0) {
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
 							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
 
 							///// store activities
@@ -402,7 +402,7 @@ class Accounts extends BaseController {
 					if($_POST){
 						$del_id = $this->request->getPost('d_user_id');
 						$code = $this->Crud->read_field('id', $del_id, 'user', 'fullname');
-						if($this->Crud->delete('id', $del_id, $table) > 0) {
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
 							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
 
 							///// store activities
@@ -702,14 +702,14 @@ class Accounts extends BaseController {
 					}
 					
 					if($_POST){
-						$del_id = $this->request->getPost('d_user_id');
-						$code = $this->Crud->read_field('id', $del_id, 'user', 'fullname');
-						if($this->Crud->delete('id', $del_id, $table) > 0) {
+						$del_id = $this->request->getPost('d_id');
+						$code = $this->Crud->read_field('id', $del_id, 'visitors', 'fullname');
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
 							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
 
 							///// store activities
-							$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
-							$action = $by.' deleted Administrator ('.$code.')';
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by.' deleted First Timer ('.$code.')';
 							$this->Crud->activity('user', $del_id, $action);
 
 							echo '<script>location.reload(false);</script>';
