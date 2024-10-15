@@ -20,9 +20,9 @@
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?=translate_phrase('Cell');?></h3>
+                            <h3 class="nk-block-title page-title"><?=translate_phrase('First Timer');?></h3>
                             <div class="nk-block-des text-soft">
-                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('cell(s).');?></p>
+                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('first timer(s).');?></p>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
@@ -40,12 +40,7 @@
                                             <li>
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
-                                            <?php if(empty($switch_id)){?>
-                                            <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
-                                                <a href="javascript:;" pageTitle="Add Cell" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('accounts/cell/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
-                                            </li><!-- li -->
-                                            <?php } ?>
+                                            
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
@@ -60,6 +55,17 @@
                             </div><!-- .card-inner -->
                             <div class="card-inner table-responsive p-0">
                                 <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Contact</th>
+                                            <th>Source</th>
+                                            <th>Invited By</th>
+                                            <th>Follow Up</th>
+                                            <th>First Visit</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="load_data"></tbody>
                                     <tfoot id="loadmore"></tfoot>
                                 </table>
@@ -131,7 +137,7 @@
                                                 <th>Name</th>
                                                 <th>Email</th>
                                                 <th>Phone</th>
-                                                <th>Role</th>
+                                                <th>Source</th>
                                                 <th>Address</th>
                                                 <th>Date</th>
                                                 <th></th>
@@ -240,7 +246,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'accounts/cell/load' + methods,
+            url: site_url + 'accounts/first_timer/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {
