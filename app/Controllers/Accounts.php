@@ -994,7 +994,7 @@ class Accounts extends BaseController {
 						} else {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
-								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $fullname . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $fullname . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="follow_up(' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Follow Up') . '</span></a></li>
 								
@@ -1077,6 +1077,350 @@ class Accounts extends BaseController {
 			$data['page_active'] = $mod;
 			return view($mod, $data);
 		}
+	}
+
+	public function follows($param1 = '', $param2 = '', $param3 = ''){
+		// check session login
+		if ($this->session->get('td_id') == '') {
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		}
+
+		$mod = 'accounts/follows';
+		$switch_id = $this->session->get('switch_church_id');
+
+		$log_id = $this->session->get('td_id');
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		if (!empty($switch_id)) {
+			$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+			if ($church_type == 'region') {
+				$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'zone') {
+				$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'group') {
+				$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'church') {
+				$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+			}
+		}
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if ($role_r == 0) {
+			// return redirect()->to(site_url('dashboard'));	
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+
+		$data['current_language'] = $this->session->get('current_language');
+		$table = 'follow_up';
+		$form_link = site_url($mod);
+		if ($param1) {
+			$form_link .= '/' . $param1;
+		}
+		if ($param2) {
+			$form_link .= '/' . $param2 . '/';
+		}
+		if ($param3) {
+			$form_link .= $param3;
+		}
+
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+
+		$visitor_id = $this->session->get('visitor_id');
+		// manage record
+		if ($param1 == 'manage') {
+			// prepare for delete
+			if ($param2 == 'delete') {
+				if ($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if ($_POST) {
+						$del_id = $this->request->getPost('d_user_id');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'firstname');
+						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by . ' deleted Pastor (' . $code . ')';
+							$this->Crud->activity('user', $del_id, $action);
+							echo '<script>
+								load_pastor("","",' . $visitor_id . ');
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+						}
+						exit;
+					}
+				}
+			} else {
+				// prepare for edit
+				if ($param2 == 'edit') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_type'] = $e->type;
+								$data['e_notes'] = $e->notes;
+								$data['e_date'] = $e->date;
+							}
+						}
+					}
+				}
+
+				if ($param2 == 'view') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_type'] = $e->type;
+								$data['e_notes'] = $e->notes;
+								$data['e_date'] = $e->date;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_visitor_id'] = $e->visitor_id;
+								$data['e_member_id'] = $e->member_id;
+								$data['e_reg_date'] = $e->reg_date;
+							}
+						}
+					}
+				}
+
+				if ($this->request->getMethod() == 'post') {
+					$user_id = $this->request->getPost('user_id');
+					$type = $this->request->getPost('type');
+					$date = $this->request->getPost('date');
+					$notes = $this->request->getPost('notes');
+
+
+					if (empty($type) || $type == ' ') {
+						echo $this->Crud->msg('danger', 'Select Foolow Up Type');
+						die;
+					}
+
+					$ins_data['type'] = $type;
+					$ins_data['date'] = $date;
+					$ins_data['notes'] = $notes;
+					$ins_data['visitor_id'] = $visitor_id;
+					$ins_data['member_id'] = $log_id;
+					$ins_data['church_id'] = $this->Crud->read_field('id', $visitor_id, 'visitors', 'church_id') ;
+					$ins_data['ministry_id'] = $this->Crud->read_field('id', $visitor_id, 'visitors', 'ministry_id') ;
+
+					// do create or update
+					if ($user_id) {
+						$upd_rec = $this->Crud->updates('id', $user_id, $table, $ins_data);
+						if ($upd_rec > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Follow Up Record Updated'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $visitor_id, 'visitors', 'fullname');
+							$action = $by . ' updated Follow Up (' . $code . ') Record';
+							$this->Crud->activity('follow_up', $user_id, $action);
+							echo '<script>
+									load_follow("","",' . $visitor_id . ');
+									$("#modal").modal("hide");
+								</script>';
+						} else {
+							echo $this->Crud->msg('info', translate_phrase('No Changes'));
+						}
+					} else {
+						if ($this->Crud->check2('visitor_id', $visitor_id, 'notes', $notes, $table) > 0) {
+							echo $this->Crud->msg('warning', ('Follow Up Record Already Exist'));
+						} else {
+							$ins_data['reg_date'] = date(fdate);
+
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if ($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Follow Up Record Created'));
+								
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $visitor_id, 'visitors', 'fullname');
+								$action = $by . ' created Follow Up for (' . $code . ')';
+								$this->Crud->activity('follow_up', $ins_rec, $action);
+
+								echo '<script>
+									load_follow("","",' . $visitor_id . ');
+									$("#modal").modal("hide");
+								</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+							}
+						}
+					}
+					exit;
+				}
+			}
+		}
+
+
+		// record listing
+		if ($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+			if (empty($limit)) {
+				$limit = $rec_limit;
+			}
+			if (empty($offset)) {
+				$offset = 0;
+			}
+
+
+			if (!empty($this->request->getPost('status'))) {
+				$status = $this->request->getPost('status');
+			} else {
+				$status = '';
+			}
+			$search = $this->request->getPost('search');
+			$visitor_id = $this->request->getPost('id');
+			$this->session->set('visitor_id', $visitor_id);
+
+			
+			$items = '
+					
+			';
+			$a = 1;
+
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			if (!$log_id) {
+				$item = '<div class="text-center text-muted">' . translate_phrase('Session Timeout! - Please login again') . '</div>';
+			} else {
+				
+				$all_rec = $this->Crud->filter_follow_up('', '', $log_id, $search, $visitor_id);
+				// $all_rec = json_decode($all_rec);
+				if (!empty($all_rec)) {
+					$counts = count($all_rec);
+				} else {
+					$counts = 0;
+				}
+
+				$query = $this->Crud->filter_follow_up($limit, $offset, $log_id, $search, $visitor_id);
+				$data['count'] = $counts;
+
+
+				if (!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$date = $q->date;
+						$type = $q->type;
+						$notes = $q->notes;
+						$member_id = $q->member_id;
+						$member = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $q->member_id, 'user', 'surname');
+						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
+						$date = date('M d, Y', strtotime($q->date));
+
+				
+
+						// add manage buttons
+						if (!empty($switch_id)) {
+							$all_btn = '
+								
+								
+							';
+						} else {
+							$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="View " pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>' . translate_phrase('View') . '</span></a></li>
+								
+							';
+
+						}
+
+
+
+						$item .= '
+							<tr>
+								
+								<td><span class=" small">' . $date . '</span></td>
+								<td><span class=" small">' . ucwords($type) . '</span></td>
+								<td>
+									<div class="user-card">
+										<div class="user-info">
+											<span class="tb-lead small">' . ucwords($member) . ' </span>
+										</div>
+									</div>
+								</td>
+								<td style="word-wrap: break-word; max-width: 300px;"><span class=" small">' . ucwords($notes) . '</span></td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+
+			}
+
+			if (empty($item)) {
+				$resp['item'] = $items . '
+					<tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-user-add" style="font-size:150px;"></i><br/><br/>' . translate_phrase('No Follow Up Returned') . '
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if ($offset >= 25) {
+					$resp['item'] = $item;
+				}
+
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if ($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if ($param1 == 'manage') { // view for form data posting
+			return view('accounts/follows_form', $data);
+		}
+
 	}
 
 	//Customer

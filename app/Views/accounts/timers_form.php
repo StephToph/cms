@@ -31,16 +31,14 @@
                 <tr>
                     <td><b>Ministry</b></td>
                     <td><?=$this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name');?></td>
-                </tr>
-                <tr>
+                
                     <td><b>Church</b></td>
                     <td><?=ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name'));?> </td>
                 </tr>
                 <tr>
                     <td><b>Source Type</b></td>
                     <td><?=ucwords($e_source_type);?></td>
-                </tr>
-                <tr>
+                
                     <td><b>Source</b></td>
                     <td><?php 
                         if($e_source_type == 'cell'){
@@ -63,33 +61,28 @@
                 <tr>
                 <td><b>Visit Date</b></td>
                     <td><?=date('d F Y', strtotime($e_visit_date));?></td>
-                </tr>
-                <tr>
+                
                     <td><b>Title</b></td>
                     <td><?=ucwords($e_title);?></td>
                 </tr>
                 <tr>
                     <td><b>Full Name</b></td>
                     <td><?=ucwords($e_fullname);?></td>
-                </tr>
-                <tr>
+                
                     <td><b>Email</b></td>
                     <td><?=($e_email);?> </td>
                 </tr>
                 <tr>
                     <td><b>Phone</b></td>
                     <td><?=$e_phone;?></td>
-                </tr>
-                <tr>
+                
                     <td><b>Gender</b></td>
                     <td><?=ucwords($e_gender);?> </td>
                 </tr>
                 <tr>
                     <td><b>DOB</b></td>
                     <td><?=($e_dob);?> </td>
-                </tr>
-               
-                <tr>
+                
                     <td><b>Invited By</b></td>
                     <td><?=ucwords($e_invited_by);?></td>
                 </tr>
@@ -103,13 +96,11 @@
                         }
                         echo ucwords($channel);
                     ?></td>
-                </tr>
                 
-                <tr>
                     <td><b>Foundation School</b></td>
                     <td><?php 
                         if($e_foundation_school == 1){
-                            echo 'Student';
+                            echo 'Student - Week {'.$e_foundation_weeks.'}';
                         } elseif($e_foundation_school == 2){
                             echo 'Graduate';
                         } else{
@@ -117,13 +108,6 @@
                         }
                     ?> </td>
                 </tr>
-                <?php 
-                        if($e_foundation_school == 1){?>
-                <tr>
-                    <td><b>Foundation Week</b></td>
-                    <td><?=ucwords($e_foundation_weeks);?></td>
-                </tr>
-                <?php } ?>
                 <tr>
                     <td><b>Assigned To</b></td>
                     <td><?php
@@ -146,27 +130,20 @@
                         }
                     ?> </td>
                 </tr>
-               
                 <tr>
                     <td><b>Membership</b></td>
                     <td><?php
                         if(!empty($e_is_member)){
-                            echo 'Now a Member';
+                            echo 'Now a Member - {'.$e_user_no.'}';
                         } else{
                             echo 'Not yet a Member';
                         }
                     ?></td>
                 </tr>
-                <?php
-                    if(!empty($e_is_member)){?>
                 <tr>
-                    <td><b>Membership ID</b></td>
-                    <td><?=($e_user_no);?> </td>
-                </tr>
-                <?php } ?>
-               
+                    <td><b>Follow Up</b></td>
+                    <td><?=$this->Crud->check('id', $e_id, 'follow_up');?></td>
                 
-                <tr>
                     <td><b>Created At</b></td>
                     <td><?=date('d F Y h:i:sA', strtotime($e_reg_date));?></td>
                 </tr>
