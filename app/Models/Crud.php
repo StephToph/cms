@@ -2501,6 +2501,49 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
+
+	
+	
+	public function filter_visitors($limit='', $offset='', $log_id, $search='', $type='') {
+        $db = db_connect();
+        $builder = $db->table('visitors');
+
+        // build query
+		$builder->orderBy('id', 'desc');
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			if($role == 'ministry administrator'){
+				$builder->where('ministry_id', $ministry_id);
+			}else {
+				$builder->where('church_id', $church_id);
+			}
+			
+		} 
+		$builder->where('category', $type);
+        if(!empty($search)) {
+            $builder->groupStart()
+				->like('fullname', $search)
+				->orLike('email', $search)
+				->orLike('phone', $search)
+				->groupEnd();
+        }
+		
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
     public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $region_id = '', $zone_id = '', $group_id = '', $church_id = '', $level = '') {
         $db = db_connect();
         $builder = $db->table('cell_report');

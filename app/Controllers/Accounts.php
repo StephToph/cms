@@ -651,6 +651,322 @@ class Accounts extends BaseController {
 		}
 	}
 
+	public function first_timer($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'accounts/first_timer';
+
+        $log_id = $this->session->get('td_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+        $data['current_language'] = $this->session->get('current_language');
+		$table = 'visitors';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+		
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($_POST){
+						$del_id = $this->request->getPost('d_user_id');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'fullname');
+						if($this->Crud->delete('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'fullname');
+							$action = $by.' deleted Administrator ('.$code.')';
+							$this->Crud->activity('user', $del_id, $action);
+
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fullname'] = $e->fullname;
+								$data['e_phone'] = $e->phone;
+								$data['e_email'] = $e->email;
+								$data['e_dob'] = $e->dob;
+								$data['e_gender'] = $e->gender;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_title'] = $e->title;
+								$data['e_is_member'] = $e->is_member;
+								$data['e_assigned_to'] = $e->assigned_to;
+								$data['e_foundation_school'] = $e->foundation_school;
+								$data['e_foundation_weeks'] = $e->foundation_weeks;
+							}
+						}
+					}
+				} 
+				
+				if($this->request->getMethod() == 'post'){
+					$edit_id = $this->request->getPost('edit_id');
+					$fullname = $this->request->getPost('fullname');
+					$phone = $this->request->getPost('phone');
+					$email = $this->request->getPost('email');
+					$gender = $this->request->getPost('gender');
+					$dob = $this->request->getPost('dob');
+					$title = $this->request->getPost('title');
+					$foundation_school = $this->request->getPost('foundation_school');
+					$foundation_weeks = $this->request->getPost('foundation_weeks');
+					$is_member = $this->request->getPost('is_member');
+					$is_assign = $this->request->getPost('is_assign');
+					$assigned_to = $this->request->getPost('assigned_to');
+
+					if(empty($is_assign)){
+						$assigned_to = [];
+					}
+					$ins_data['fullname'] = $fullname;
+					$ins_data['email'] = $email;
+					$ins_data['phone'] = $phone;
+					$ins_data['title'] = $title;
+					$ins_data['gender'] = $gender;
+					$ins_data['dob'] = $dob;
+					$ins_data['foundation_school'] = $foundation_school;
+					$ins_data['foundation_weeks'] = $foundation_weeks;
+					$ins_data['assigned_to'] = json_encode($assigned_to);
+					$ins_data['is_member'] = $is_member;
+
+					// do create or update
+					if($edit_id) {
+						$upd_rec = $this->Crud->updates('id', $edit_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							echo $this->Crud->msg('success', translate_phrase('First Timer Record Updated'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $edit_id, 'visitors', 'fullname');
+							$action = $by.' updated First Timer ('.$code.') Record';
+							$this->Crud->activity('first_timer', $edit_id, $action);
+
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', translate_phrase('No Changes'));	
+						}
+					} 
+					exit;	
+				}
+			}
+		}
+		
+
+		// record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			if(!empty($this->request->getVar('start_date'))){$start_date = $this->request->getVar('start_date');}else{$start_date = '';}
+			if(!empty($this->request->getVar('end_date'))){$end_date = $this->request->getVar('end_date');}else{$end_date = '';}
+
+			if(!empty($this->request->getPost('role_id'))) { $role_id = $this->request->getPost('role_id'); } else { $role_id = ''; }
+			if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
+			$search = $this->request->getPost('search');
+
+			if(empty($ref_status))$ref_status = 0;
+			$items = ' ';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
+
+				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, 'first_timer', $start_date, $end_date);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, 'first_timer', $start_date, $end_date);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$fullname = $q->fullname;
+						$email = $q->email;
+						$phone = $q->phone;
+						$invited_by = $q->invited_by;
+						$source_type = $q->source_type;
+						$source_id = $q->source_id;
+						$invited_by = $q->invited_by;
+						$assigned_to = $q->assigned_to;
+						$is_member = $q->is_member;
+						$foundation_school = $q->foundation_school;
+						$channel = $q->channel;
+						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+						$ministry = $this->Crud->read_field('id', $q->ministry_id, 'ministry', 'name');
+						
+						if($source_type == 'cell'){
+							$cell_id = $this->Crud->read_field('id', $source_id, 'cell_report', 'cell_id');
+							$cell = '-'.$this->Crud->read_field('id', $cell_id, 'cells', 'name');
+							$type = $this->Crud->read_field('id', $source_id, 'cell_report', 'type');
+							$source = '';
+							if($type == 'wk1')$source = 'WK1 - Prayer and Planning';
+							if($type == 'wk2')$source = 'Wk2 - Bible Study';
+							if($type == 'wk3')$source = 'Wk3 - Bible Study';
+							if($type == 'wk4')$source = 'Wk4 - Fellowship / Outreach';
+							if($type == 'wk5')$source = 'Wk5 - Fellowship';
+							
+						}
+
+						$follow_up = $this->Crud->check('visitor_id', $id, 'follow_up');
+
+						if($source_type == 'service'){
+							$cell_id = $this->Crud->read_field('id', $source_id, 'cell_report', 'cell_id');
+							$cell = '';
+							$type = $this->Crud->read_field('id', $source_id, 'service_report', 'type');
+							$source = $this->Crud->read_field('id', $type, 'service_type', 'name');
+							
+						}
+
+						if($invited_by == 'Member'){
+							$channel = $this->Crud->read_field('id', $q->channel, 'user', 'firstname').' '.$this->Crud->read_field('id', $q->channel, 'user', 'surname');
+						}
+						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
+						$visit_date = date('M d, Y', strtotime($q->visit_date));
+
+
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+								<li><a href="javascript:;" onclick="follow_up(' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Follow Up') . '</span></a></li>
+								
+								
+							';
+						}
+
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-info">
+											<span class="tb-lead">' . ucwords($fullname) . ' </span><br>
+											<span class="small text-info">' . ucwords($church) . ' <b>'.$cell.'</b> </span>
+										</div>
+									</div>
+								</td>
+								<td><span class="tb-lead small">' . $email . '</span><br><span class="tb-lead small">' . $phone . '</span> </td>
+								<td><span class="tb-lead small">' . ucwords($source_type) . '</span><br><span class="tb-lead small">' . ucwords($source) . '</span></td>
+								<td><span class="tb-lead small">' . $invited_by . '</span><br><span class="tb-lead small">' . ucwords($channel) . '</span></td>
+								<td><span class="tb-lead small">' . $follow_up . '</span></td>
+								<td><span class="tb-lead small">' . $visit_date . '</span></td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<tr><td colspan="8">
+					<div class="text-center text-muted col-sm-12">
+						<br/><br/>
+						<i class="icon ni ni-users " style="font-size:120px;"></i><br/>No Leadership Returned
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('First Timers').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+	}
+
 	//Customer
 	public function dept($param1='', $param2='', $param3='') {
 		// check session login
@@ -5264,7 +5580,7 @@ class Accounts extends BaseController {
 				
 						// Inserting the record into 'visitors' table
 						$ins_rec = $this->Crud->create('visitors', $ins);
-				
+						
 						// Assuming $ins_rec contains the newly inserted record ID
 						if ($ins_rec) {
 							// Add the new ID to the array
