@@ -2311,6 +2311,7 @@ class Accounts extends BaseController {
 						} else {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $fullname . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								<li><a href="javascript:;" onclick="follow_up(' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Follow Up') . '</span></a></li>
 								
 								
 							';
