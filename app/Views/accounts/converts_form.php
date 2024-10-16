@@ -242,14 +242,16 @@
             <div class="col-sm-6 mb-3" style="display:none;" id="foundation_resp">
                 <div class="form-group">    
                     <label class="form-label">Foundation Week</label>    
-                    <div class="form-control-wrap number-spinner-wrap">        
-                        <button  type="button" class="btn btn-icon btn-outline-light decrease number-spinner-btn number-minus" data-number="minus">
+                    <div class="input-group mb-3">
+                        <button class="btn btn-outline-secondary decrease" type="button" id="button-minus">
                             <em class="icon ni ni-minus"></em>
-                        </button>        
-                        <input type="number" class="form-control number-spinner"  name="foundation_weeks"  id="spinner" max="7" min="0" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '0';}; ?>">         
-                        <button type="button"  class="btn btn-icon btn-outline-light increase number-spinner-btn number-plus" data-number="plus">
+                        </button>
+                        
+                        <input type="number" class="form-control text-center" name="foundation_weeks" id="spinner" max="7" min="1" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '1';}; ?>">
+                        
+                        <button class="btn btn-outline-secondary increase" type="button" id="button-plus">
                             <em class="icon ni ni-plus"></em>
-                        </button>    
+                        </button>
                     </div>
                 </div> 
             </div>
@@ -283,7 +285,7 @@
                     </select>
                 </div>
             </div>
-            <?php if(empty($e_is_member)){if($e_is_member ==  '0'){?>
+            <?php if($e_is_member ==  '0' && $e_is_visitor ==  '0'){?>
                 <div class="col-sm-6 mb-3">
                     <div class="form-group">
                         <label>Move to Membership</label>
@@ -293,7 +295,26 @@
                         </select>
                     </div>
                 </div>
-            <?php } }?>
+
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label>Move to Visitor</label>
+                        <select class="js-select2" name="is_visitor" id="is_visitor" data-placeholder="Select" >
+                            <option value="0" <?php if(!empty($e_is_visitor)){if($e_is_visitor ==  '0'){echo 'selected';}}; ?>>No - Do Not Move</option>
+                            <option value="1" <?php if(!empty($e_is_visitor)){if($e_is_visitor ==  '1'){echo 'selected';}}; ?>>Yes - Move</option>
+                        </select>
+                    </div>
+                </div>
+            <?php  }?>
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label>Follow-Up Status</label>
+                    <select class="js-select2" name="follow_status" id="follow_status" data-placeholder="Select" >
+                        <option value="0" <?php if(!empty($e_follow_status)){if($e_follow_status ==  '0'){echo 'selected';}}; ?>>In-Progress</option>
+                        <option value="1" <?php if(!empty($e_follow_status)){if($e_follow_status ==  '1'){echo 'selected';}}; ?>>Completed</option>
+                    </select>
+                </div>
+            </div>
             <div class="col-sm-12 text-center">
                 <hr />
                 <button class="btn btn-primary bb_form_bt" type="submit">

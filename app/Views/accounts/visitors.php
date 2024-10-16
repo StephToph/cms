@@ -20,9 +20,9 @@
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?=translate_phrase('Archived');?></h3>
+                            <h3 class="nk-block-title page-title"><?=translate_phrase('Visitors');?></h3>
                             <div class="nk-block-des text-soft">
-                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('archive(s).');?></p>
+                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('visitor(s).');?></p>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
@@ -106,7 +106,16 @@
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
-                                            
+                                            <?php if(empty($switch_id)){?>
+                                            <li class="btn-toolbar-sep"></li><!-- li -->
+                                            <li>
+                                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Add Follow Up" pageTitle="Add Follow Up"
+                                                    class="btn btn-outline-primary btn-icon pop"
+                                                    pageName="<?= site_url('accounts/follows/manage'); ?>"><em
+                                                        class="icon ni ni-plus-c"></em></a>
+                                            </li><!-- li -->
+                                            <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
@@ -235,7 +244,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'accounts/archive/load' + methods,
+            url: site_url + 'accounts/visitors/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {
