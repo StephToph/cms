@@ -5661,6 +5661,7 @@ class Accounts extends BaseController {
 								$data['e_employer_address'] = $e->employer_address;
 								$data['e_baptism'] = $e->baptism;
 								$data['e_foundation_school'] = $e->foundation_school;
+								$data['e_foundation_weeks'] = $e->foundation_weeks;
 								$data['e_chat_handle'] = $e->chat_handle;
 								$data['e_dob'] = $e->dob;
 								$data['e_family_status'] = $e->family_status;
@@ -5704,6 +5705,7 @@ class Accounts extends BaseController {
 					$employer_address = $this->request->getVar('employer_address');
 					$baptism = $this->request->getVar('baptism');
 					$foundation_school = $this->request->getVar('foundation_school');
+					$foundation_weeks = $this->request->getVar('foundation_weeks');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
 					
@@ -5723,6 +5725,7 @@ class Accounts extends BaseController {
 					$ins_data['employer_address'] = $employer_address;
 					$ins_data['baptism'] = $baptism;
 					$ins_data['foundation_school'] = $foundation_school;
+					$ins_data['foundation_weeks'] = $foundation_weeks;
 					$ins_data['chat_handle'] = $chat_handle;
 					$ins_data['dob'] = $dob;
 					$ins_data['family_status'] = $family_status;

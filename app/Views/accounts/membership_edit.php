@@ -387,18 +387,28 @@
                                 </div>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group">
-                                        <div class="col-sm-12 mb-2">
-                                            <label>Foundation School?</label><br>
-                                            <div class="custom-control custom-radio">    
-                                                <input type="radio" id="customRadio1" name="foundation_school" class="custom-control-input" <?php if(!empty($e_foundation_school)){if($e_foundation_school == 'yes'){echo 'checked';}} ?>  value="yes">    
-                                                <label class="custom-control-label" for="customRadio1">Yes</label>
-                                            </div>
-                                            <div class="custom-control custom-radio">     
-                                                <input type="radio" id="customRadio2" name="foundation_school" class="custom-control-input" <?php if(!empty($e_foundation_school)){if($e_foundation_school == 'no'){echo 'checked';}} ?> value="no">    
-                                                <label class="custom-control-label" for="customRadio2">No</label>
-                                            </div>
-                                        </div>
+                                        <label>Foundation School</label>
+                                        <select class="js-select2" name="foundation_school" id="foundation_school" data-placeholder="Select" >
+                                            <option value="0" <?php if(!empty($e_foundation_school)){if($e_foundation_school ==  '0'){echo 'selected';}}; ?>>Prospective Student</option>
+                                            <option value="1" <?php if(!empty($e_foundation_school)){if($e_foundation_school ==  '1'){echo 'selected';}}; ?>>Student</option>
+                                            <option value="2" <?php if(!empty($e_foundation_school)){if($e_foundation_school ==  '2'){echo 'selected';}}; ?>>Graduate</option>
+                                        </select>
                                     </div>
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4 col-xxl-3" style="display:none;" id="foundation_resp">
+                                    <div class="form-group">    
+                                        <label class="form-label">Foundation Week</label>    
+                                        <div class="form-control-wrap number-spinner-wrap">        
+                                            <button  type="button" class="btn btn-icon btn-outline-light decrease number-spinner-btn number-minus" data-number="minus">
+                                                <em class="icon ni ni-minus"></em>
+                                            </button>        
+                                            <input type="number" class="form-control number-spinner"  name="foundation_weeks"  id="spinner" max="7" min="1" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '0';}; ?>">         
+                                            <button type="button"  class="btn btn-icon btn-outline-light increase number-spinner-btn number-plus" data-number="plus">
+                                                <em class="icon ni ni-plus"></em>
+                                            </button>    
+                                        </div>
+                                    </div> 
                                 </div>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group">
@@ -450,6 +460,64 @@
                 $('#marriedDiv').show(500);
             } else {
                 $('#marriedDiv').hide(500);
+            }
+        });
+        $('#foundation_school').on('change', function () {
+            var selectedType = $(this).val();
+            if (selectedType == '1') {
+                $('#foundation_resp').show(500);
+            } else{
+                $('#foundation_resp').hide(500);
+            }
+            
+        });
+        $('#foundation_school').trigger('change');
+
+        $('.increase').on('click', function() {
+            let spinner = $('#spinner');
+            let currentValue = parseInt(spinner.val());
+            let max = parseInt(spinner.attr('max'));
+
+            if (!isNaN(currentValue) && currentValue < max) {
+                spinner.val(currentValue + 1);
+            }
+        });
+
+        // Decrease button functionality
+        $('.decrease').on('click', function() {
+            let spinner = $('#spinner');
+            let currentValue = parseInt(spinner.val());
+            let min = parseInt(spinner.attr('min'));
+
+            if (!isNaN(currentValue) && currentValue > min) {
+                spinner.val(currentValue - 1);
+            }
+        });
+
+        $('#spinner').on('input', function() {
+            let value = parseInt($(this).val());
+
+            // If input is not a number, set it to 0
+            if (isNaN(value)) {
+                $(this).val(0);
+                return;
+            }
+
+            // Ensure the value is between 0 and 7
+            if (value < 0) {
+                $(this).val(0);
+            } else if (value > 7) {
+                $(this).val(7);
+            }
+        });
+
+        // Prevent entering non-numeric characters
+        $('#spinner').on('keypress', function(e) {
+            let keyCode = e.which;
+
+            // Allow only numbers (keycode for 0-9 is between 48 and 57)
+            if (keyCode < 48 || keyCode > 57) {
+                e.preventDefault();
             }
         });
     });

@@ -246,7 +246,7 @@
                         <button  type="button" class="btn btn-icon btn-outline-light decrease number-spinner-btn number-minus" data-number="minus">
                             <em class="icon ni ni-minus"></em>
                         </button>        
-                        <input type="number" class="form-control number-spinner"  name="foundation_weeks"  id="spinner" max="7" min="0" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '0';}; ?>">         
+                        <input type="number" class="form-control number-spinner"  name="foundation_weeks"  id="spinner" max="7" min="1" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '0';}; ?>">         
                         <button type="button"  class="btn btn-icon btn-outline-light increase number-spinner-btn number-plus" data-number="plus">
                             <em class="icon ni ni-plus"></em>
                         </button>    
