@@ -20,9 +20,9 @@
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?=translate_phrase('New Convert');?></h3>
+                            <h3 class="nk-block-title page-title"><?=translate_phrase('Archived Visitors');?></h3>
                             <div class="nk-block-des text-soft">
-                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('new convert(s).');?></p>
+                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('archive(s).');?></p>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
@@ -101,7 +101,7 @@
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Back to New Convert" class="btn btn-outline-danger btn-icon"
+                                                    title="Back to First Timer" class="btn btn-outline-danger btn-icon"
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
@@ -243,7 +243,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'accounts/converts/load' + methods,
+            url: site_url + 'accounts/archive/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {

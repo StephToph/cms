@@ -2504,7 +2504,7 @@ class Crud extends Model {
 
 	
 	
-	public function filter_visitors($limit='', $offset='', $log_id, $search='', $type='') {
+	public function filter_visitors($limit='', $offset='', $log_id, $search='', $type='', $is_member=0) {
         $db = db_connect();
         $builder = $db->table('visitors');
 
@@ -2522,7 +2522,8 @@ class Crud extends Model {
 			}
 			
 		} 
-		$builder->where('category', $type);
+		if(!empty($type))$builder->where('category', $type);
+		$builder->where('is_member', $is_member);
         if(!empty($search)) {
             $builder->groupStart()
 				->like('fullname', $search)
