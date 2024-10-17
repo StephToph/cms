@@ -333,6 +333,29 @@ class Crud extends Model {
         $db->close();
 	}
 
+	public function read3_order($field, $value, $field2, $value2,$field3, $value3, $table, $or_field='id', $or_value='DESC', $limit='', $offset='') {
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		$builder->orderBy($or_field, $or_value);
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+		$builder->where($field3, $value3);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+
 	public function read2_order_like($field, $value, $field2, $value2, $table, $or_field='id', $or_value='DESC', $search_field, $search_value, $limit='', $offset='') {
 		$db = db_connect();
         $builder = $db->table($table);

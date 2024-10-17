@@ -277,8 +277,7 @@ $this->Crud = new Crud();
         if ($ministry_id > 0) { ?>
             <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
            <?php if($church_id > 0){?>
-
-                <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
+                <input type="hidden" id="church_id" name="church_id[]" value="<?php echo $church_id; ?>">
             <?php } ?>
         <?php } else { ?>
             <div class="col-sm-6 mb-3">
@@ -348,14 +347,35 @@ $this->Crud = new Crud();
             </div>
         </div>
 
-        <div class="col-sm-6 mb-3 joint_resp" style="display:none;">
+        <div class="col-sm-12 mb-3 joint_resp" style="display:none;">
             <div class="form-group">
                 <label  class="form-label">Church</label>
-                <select class="js-select2" data-search="on" name="church_id" id="church_id">
+                <select class="js-select2" data-search="on" multiple name="church_id[]" id="church_id">
                     <option value="">Select</option>
 
                 </select>
             </div>
+        </div>
+
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label  class="form-label" for="active">Active Status</label>
+                <select class="js-select2" data-search="on" id="active" name="active" required>
+                    <option value="0"<?php if (!empty($e_active)) {
+                        if ($e_active == 0) {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Disabled</option>
+                    <option value="1"<?php if (!empty($e_active)) {
+                        if ($e_active == 1) {
+                            echo 'selected';
+                        }
+                    }
+                    ; ?>>Active</option>
+                </select>
+            </div>
+            
         </div>
 
 
@@ -464,5 +484,45 @@ $this->Crud = new Crud();
         });
     });
 
+     // Event listener for church level change
+     $('#level').on('change', function() {
+        let selectedLevel = $(this).val();
+        var ministry_id = $('#ministry_id').val();
+        let logChurchId = <?php echo $log_church_id; ?>;  // You already fetched this in your PHP
+
+        if (selectedLevel !== '') {
+            $.ajax({
+                url: site_url + 'foundation/records/get_church', // Replace with your controller's path
+                method: 'POST',
+                data: {
+                    level: selectedLevel,
+                    ministry_id: ministry_id 
+                },
+                success: function(response) {
+                    let churches = JSON.parse(response);
+                    
+                    // Clear existing options in the Church dropdown
+                    $('#church_id').empty();
+
+                    // Append the default "Select" option
+                    $('#church_id').append('<option value="">Select Church</option>');
+
+                    // Append the churches returned from the server
+                    $.each(churches, function(index, church) {
+                        $('#church_id').append('<option value="' + church.id + '">' + church.name + ' (' + church.type + ')</option>');
+                    });
+
+                    // Show the church dropdown
+                    $('.joint_resp').show();
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                }
+            });
+        } else {
+            // Hide the church dropdown if no level is selected
+            $('.joint_resp').hide();
+        }
+    });
 
 </script>
