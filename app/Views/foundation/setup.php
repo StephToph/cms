@@ -41,9 +41,9 @@ $switch_id = $this->session->get('switch_church_id');
                                             <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
-                                                <a href="javascript:;" pageTitle="Add Church"
+                                                <a href="javascript:;" pageTitle="Add Setup"
                                                     class="btn btn-outline-primary btn-icon pop"
-                                                    pageName="<?= site_url('church/regional/manage'); ?>"><em
+                                                    pageName="<?= site_url('foundation/setup/manage'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
                                                 <?php } ?>
