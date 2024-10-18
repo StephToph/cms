@@ -5991,7 +5991,46 @@ class Accounts extends BaseController {
 					}
 					die;
 				}
-			}else {
+			} elseif($param2 == 'leaders'){
+				// prepare for edit
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_is_leader'] = $e->is_leader;
+						}
+					}
+				}
+			
+
+				if($this->request->getMethod() == 'post'){
+					$edit_id = $this->request->getVar('edit_id');
+					$is_leader = $this->request->getVar('is_leader');
+					
+					
+					$ins_data['is_leader'] = $is_leader;
+					
+					// do create or update
+					if($edit_id) {
+						$upd_rec = $this->Crud->updates('id', $edit_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $edit_id, 'user', 'firstname');
+							$action = $by.' updated User ('.$code.') Record';
+							$this->Crud->activity('user', $edit_id, $action);
+
+							echo $this->Crud->msg('success', 'Record Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+					} 
+
+					die;	
+				}
+			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
 					if($param3) {
@@ -6437,6 +6476,7 @@ class Accounts extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Records').'</span></a></li>
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
+								<li><a href="javascript:;" class="text-dark pop" pageTitle="Leader ' . $name . '" pageName="' . site_url($mod . '/manage/leaders/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leader').'</span></a></li>
 								
 								
 							';

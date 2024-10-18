@@ -5,7 +5,7 @@ $this->Crud = new Crud();
 ?>
 <?php echo form_open_multipart($form_link, array('id'=>'bb_ajax_form', 'class'=>'')); ?>
     <!-- delete view -->
-    <?php if($param2 == 'delete') { ?>
+    <?php if($param2 == 'delete') {?>
         <div class="row">
             <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
         </div>
@@ -175,6 +175,33 @@ $this->Crud = new Crud();
             <div class="col-sm-12 mt-3 text-center">
                 <button class="btn btn-primary bb_fo_btn" type="submit">
                     <i class="ri-save-line"></i> <?=translate_phrase('Save Record');?>
+                </button>
+            </div>
+        </div>
+    <?php } ?>
+    <?php if($param2 == 'leaders') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+        
+        <div class="row">
+            <input type="hidden" name="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+            
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Make this Member a Leader');?></label>
+                    <select class="form-control js-select2" data-toggle="select2" id="is_leader" name="is_leader" required>
+                        <option value="1" <?php if(!empty($e_is_leader)){if($e_is_leader == 1){echo 'selected';}} ?>><?=translate_phrase('Yes - Make a Leader');?></option>
+                        <option value="0" <?php if(!empty($e_is_leader)){if($e_is_leader == 0){echo 'selected';}} ?>><?=translate_phrase('No - Remove from Leadership');?></option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 mt-3 text-center">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-save"></i> <?=translate_phrase('Update Record');?>
                 </button>
             </div>
         </div>
