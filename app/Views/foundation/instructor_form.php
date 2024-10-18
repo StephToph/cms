@@ -42,44 +42,80 @@
                     </tr>
                 </thead>
                 <tbody id="instructor-body">
-                    <!-- Start with Week 1 to Week 7 -->
-                    <?php for ($i = 1; $i <= 7; $i++): ?>
-                    <tr>
-                        <td width="130px">
-                            <input type="text" name="weeks[]" value="Week <?php echo $i; ?>" class="form-control" readonly>
-                        </td>
-                        <td>
-                            <select name="courses[]" data-search="on" class="form-control js-select2 course-select" required>
-                                <option value="">-- Select Course --</option>
-                                <?php
-                                // Fetch available courses from the database
-                                $courses = $this->Crud->read_order('foundation_courses', 'name', 'asc');
-                                foreach ($courses as $course) {
-                                    echo '<option value="' . $course->id . '">' . $course->name . '</option>';
-                                }
-                                ?>
-                                <option value="new">+ Add New Course</option>
-                            </select>
-                            <input type="text" name="new_courses[]" class="form-control new-course mt-2" style="display:none;" placeholder="Enter new course name">
-                   
-                        </td>
-                        <td>
-                            <select name="instructors[]" data-search="on" class="form-control js-select2" required>
-                                <option value="">-- Select Instructor --</option>
-                                <?php
-                                // Fetch available instructors from the database
-                                $instructors = $this->Crud->read_single_order('is_leader', 1, 'user', 'surname', 'asc');
-                                foreach ($instructors as $instructor) {
-                                    echo '<option value="' . $instructor->id . '">' . ucwords($instructor->surname.' '.$instructor->firstname) . '</option>';
-                                }
-                                ?>
-                            </select>
-                        </td>
-                        <td>
-                            
-                        </td>
-                    </tr>
-                    <?php endfor; ?>
+                    <?php if(!empty($e_teacher_course)) {
+                       foreach($e_teacher_course as $index => $course) { ?>
+                        <tr>
+                            <td width="130px">
+                                <input type="text" name="weeks[]" value="Week <?php echo $index + 1; ?>" class="form-control" readonly>
+                            </td>
+                            <td>
+                                <select name="courses[]" data-search="on" class="form-control js-select2 course-select" required>
+                                    <option value="">-- Select Course --</option>
+                                    <?php
+                                    // Fetch available courses from the database
+                                    $courses = $this->Crud->read_order('foundation_courses', 'name', 'asc');
+                                    foreach ($courses as $c) {
+                                        echo '<option value="' . $c->id . '"' . ($c->id == $course->course_id ? ' selected' : '') . '>' . $c->name . '</option>';
+                                    }
+                                    ?>
+                                    <option value="new">+ Add New Course</option>
+                                </select>
+                                <input type="text" name="new_courses[]" class="form-control new-course mt-2" style="display:none;" placeholder="Enter new course name">
+                            </td>
+                            <td>
+                                <select name="instructors[]" data-search="on" class="form-control js-select2" required>
+                                    <option value="">-- Select Instructor --</option>
+                                    <?php
+                                    // Fetch available instructors from the database
+                                    $instructors = $this->Crud->read_single_order('is_leader', 1, 'user', 'surname', 'asc');
+                                    foreach ($instructors as $instructor) {
+                                        echo '<option value="' . $instructor->id . '"' . ($instructor->id == $course->instructor_id ? ' selected' : '') . '>' . ucwords($instructor->surname.' '.$instructor->firstname) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </td>
+                        </tr>
+                    <?php } }else {?>
+                        <!-- Start with Week 1 to Week 7 -->
+                        <?php for ($i = 1; $i <= 7; $i++): ?>
+                        <tr>
+                            <td width="130px">
+                                <input type="text" name="weeks[]" value="Week <?php echo $i; ?>" class="form-control" readonly>
+                            </td>
+                            <td>
+                                <select name="courses[]" data-search="on" class="form-control js-select2 course-select" required>
+                                    <option value="">-- Select Course --</option>
+                                    <?php
+                                    // Fetch available courses from the database
+                                    $courses = $this->Crud->read_order('foundation_courses', 'name', 'asc');
+                                    foreach ($courses as $course) {
+                                        echo '<option value="' . $course->id . '">' . $course->name . '</option>';
+                                    }
+                                    ?>
+                                    <option value="new">+ Add New Course</option>
+                                </select>
+                                <input type="text" name="new_courses[]" class="form-control new-course mt-2" style="display:none;" placeholder="Enter new course name">
+                    
+                            </td>
+                            <td>
+                                <select name="instructors[]" data-search="on" class="form-control js-select2" required>
+                                    <option value="">-- Select Instructor --</option>
+                                    <?php
+                                    // Fetch available instructors from the database
+                                    $instructors = $this->Crud->read_single_order('is_leader', 1, 'user', 'surname', 'asc');
+                                    foreach ($instructors as $instructor) {
+                                        echo '<option value="' . $instructor->id . '">' . ucwords($instructor->surname.' '.$instructor->firstname) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </td>
+                            <td>
+                                
+                            </td>
+                        </tr>
+                        <?php endfor; ?>
+                    <?php } ?>
+                    
                 </tbody>
                 <tfoot>
                     <tr><td colspan="7">

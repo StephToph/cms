@@ -112,8 +112,9 @@ class Foundation extends BaseController{
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_location'] = $e->location;
 								$data['e_is_joint'] = $e->is_joint;
-								$data['e_church_id'] = $e->church_id;
-								$data['e_weekly_time'] = $e->weekly_time;
+								$data['e_church_type'] = $e->church_type;
+								$data['e_church_id'] = json_decode($e->church_id);
+								$data['e_weekly_time'] = json_decode($e->weekly_time, true);
 								$data['e_active'] = $e->active;
 							}
 						}
@@ -129,9 +130,13 @@ class Foundation extends BaseController{
 					$location = $this->request->getVar('location');
 					$days = $this->request->getVar('days');
 					$times = $this->request->getVar('times');
+					$level = $this->request->getVar('level');
 					$is_joint = $this->request->getVar('is_joint');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
+					$church_ids = $this->request->getVar('church_ids');
+					if(empty($church_ids))$church_ids = 0;
+
 					$active = $this->request->getVar('active');
 
 					$weekly_time = [];
@@ -146,15 +151,20 @@ class Foundation extends BaseController{
 							}
 						}
 					}
+					$churchs = ($church_id);
+					if($is_joint == 0){
+						$churchs[] = $church_ids;
+					}
 
 					$ins_data['quarter'] = $quarter;
 					$ins_data['year'] = $year;
 					$ins_data['start_date'] = $start_date;
 					$ins_data['end_date'] = $end_date;
+					$ins_data['church_type'] = $level;
 					$ins_data['location'] = $location;
 					$ins_data['weekly_time'] = json_encode($weekly_time);
 					$ins_data['is_joint'] = $is_joint;
-					$ins_data['church_id'] = json_encode($church_id);
+					$ins_data['church_id'] = json_encode($churchs);
 					$ins_data['active'] = 1;
 					$ins_data['ministry_id'] = $ministry_id;
 
@@ -515,7 +525,7 @@ class Foundation extends BaseController{
 		$data['param3'] = $param3;
 		$data['form_link'] = $form_link;
 
-		$church_id = $this->session->get('church_id');
+		$foundation_id = $this->session->get('foundation_id');
 		// manage record
 		if ($param1 == 'manage') {
 			// prepare for delete
@@ -528,25 +538,6 @@ class Foundation extends BaseController{
 						}
 					}
 
-					if ($_POST) {
-						$del_id = $this->request->getPost('d_user_id');
-						$code = $this->Crud->read_field('id', $del_id, 'user', 'firstname');
-						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
-							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
-
-							///// store activities
-							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$action = $by . ' deleted Pastor (' . $code . ')';
-							$this->Crud->activity('user', $del_id, $action);
-							echo '<script>
-								load_pastor("","",' . $church_id . ');
-								$("#modal").modal("hide");
-							</script>';
-						} else {
-							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
-						}
-						exit;
-					}
 				}
 			} else {
 				// prepare for edit
@@ -556,14 +547,7 @@ class Foundation extends BaseController{
 						if (!empty($edit)) {
 							foreach ($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_surname'] = $e->surname;
-								$data['e_firstname'] = $e->firstname;
-								$data['e_phone'] = $e->phone;
-								$data['e_address'] = $e->address;
-								$data['e_activate'] = $e->activate;
-								$data['e_title'] = $e->title;
-								$data['e_email'] = $e->email;
-								$data['e_role_id'] = $e->role_id;
+								$data['e_teacher_course'] = json_decode($e->teacher_course);
 							}
 						}
 					}
@@ -702,7 +686,7 @@ class Foundation extends BaseController{
 			} else {
 				$role_ids = $this->Crud->read_field('name', 'Pastor', 'access_role', 'id');
 
-				$all_rec = $this->Crud->filter_church_pastor('', '', $log_id, $status, $search, $church_id);
+				$all_rec = $this->Crud->filter_church_pastor('', '', $log_id, $status, $search, '');
 				// $all_rec = json_decode($all_rec);
 				if (!empty($all_rec)) {
 					$counts = count($all_rec);
@@ -734,7 +718,7 @@ class Foundation extends BaseController{
 							';
 						} else {
 							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $week . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/'.$foundation_id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
 								
 							';
 
@@ -771,13 +755,11 @@ class Foundation extends BaseController{
 					<tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<i class="ni ni-users" style="font-size:150px;"></i><br/><br/>' . translate_phrase('No Instructor Returned') . '
-					</div></td></tr>
+					</div></td></tr><script>$("#instructor_resp").show(500);</script>
 				';
 			} else {
-				$resp['item'] = $items . $item;
-				if ($offset >= 25) {
-					$resp['item'] = $item;
-				}
+				$resp['item'] = $items . $item.' <script>$("#instructor_resp").hide(500);</script>';
+				
 
 			}
 

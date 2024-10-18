@@ -88,9 +88,7 @@ $switch_id = $this->session->get('switch_church_id');
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title" id="church_title">
                                 <?= translate_phrase('Instructors'); ?></h3>
-                            <div class="nk-block-des text-soft">
-                                <p><?= ('You have total'); ?> <span id="admin_counta">0</span> <?= ('instructor.'); ?></p>
-                            </div>
+                            
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
@@ -115,16 +113,18 @@ $switch_id = $this->session->get('switch_church_id');
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
-                                            <?php if(empty($switch_id)){?>
-                                            <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
-                                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Instructor" pageTitle="Instructors"
-                                                    class="btn btn-outline-primary btn-icon pop"
-                                                    pageName="<?= site_url('foundation/instructor/manage'); ?>" pageSize="modal-lg"><em
-                                                        class="icon ni ni-plus-c"></em></a>
-                                            </li><!-- li -->
-                                                <?php } ?>
+                                            <?php if(empty($switch_id)){
+                                                
+                                                ?>
+                                                <li class="btn-toolbar-sep"></li><!-- li -->
+                                                <li id="instructor_resp">
+                                                    <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="Instructor" pageTitle="Instructors"
+                                                        class="btn btn-outline-primary btn-icon pop"
+                                                        pageName="<?= site_url('foundation/instructor/manage'); ?>" pageSize="modal-lg"><em
+                                                            class="icon ni ni-plus-c"></em></a>
+                                                </li><!-- li -->
+                                            <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
