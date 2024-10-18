@@ -333,6 +333,29 @@ class Crud extends Model {
         $db->close();
 	}
 
+	public function read3_order($field, $value, $field2, $value2,$field3, $value3, $table, $or_field='id', $or_value='DESC', $limit='', $offset='') {
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		$builder->orderBy($or_field, $or_value);
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+		$builder->where($field3, $value3);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+
 	public function read2_order_like($field, $value, $field2, $value2, $table, $or_field='id', $or_value='DESC', $search_field, $search_value, $limit='', $offset='') {
 		$db = db_connect();
         $builder = $db->table($table);
@@ -2848,6 +2871,46 @@ class Crud extends Model {
 		if (!empty($start_date) && !empty($end_date)) {
             $builder->where("DATE_FORMAT(start_datetime,'%Y-%m-%d') >=", $start_date);
             $builder->where("DATE_FORMAT(end_datetime,'%Y-%m-%d') <=", $end_date);
+        }
+    
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
+
+	public function filter_foundation_setup($limit='', $offset='', $log_id, $search='', $switch_id='', $start_date = '', $end_date = '') {
+        $db = db_connect();
+        $builder = $db->table('foundation_setup');
+
+        // build query
+		$builder->orderBy('id', 'desc');
+		
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+	
+		if($role != 'developer' && $role != 'administrator'){
+			if($role == 'ministry_administrator'){
+				$builder->like('ministry_id', $ministry_id);
+			} else{
+				$builder->where("JSON_CONTAINS(church_id, '\"$church_id\"')");
+			}
+		} 
+		
+		if (!empty($start_date) && !empty($end_date)) {
+            $builder->where("DATE_FORMAT(start_date,'%Y-%m-%d') >=", $start_date);
+            $builder->where("DATE_FORMAT(end_date,'%Y-%m-%d') <=", $end_date);
         }
     
         // limit query

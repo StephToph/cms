@@ -1921,7 +1921,7 @@ class Accounts extends BaseController {
 					<tr><td colspan="8">
 					<div class="text-center text-muted col-sm-12">
 						<br/><br/>
-						<i class="icon ni ni-users " style="font-size:120px;"></i><br/>No Archive Returned
+						<i class="icon ni ni-users " style="font-size:120px;"></i><br/>No Visitors Returned
 					</div></td></tr>
 				';
 			} else {
