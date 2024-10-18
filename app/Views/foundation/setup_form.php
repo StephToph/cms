@@ -220,30 +220,53 @@ $this->Crud = new Crud();
             <div class="form-group">
                 <label class="form-label">Day(s) of the Week and Time</label>
                 <div id="day-time-fields">
-                    <div class="row day-time-field mb-2">
-                        <!-- Day Select Field -->
-                        <div class="col-sm-6">
-                            <select name="days[]" class="js-select2" required>
-                                <option value="">-- Select Day --</option>
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                                <option value="Sunday">Sunday</option>
-                            </select>
-                        </div>
+                    <?php if (!empty($e_weekly_time)): // Assuming $e_times is the array of day/time data ?>
+                        <?php 
+                            foreach ($e_weekly_time as $entry): ?>
+                            <div class="row day-time-field mb-2">
+                                <!-- Day Select Field -->
+                                <div class="col-sm-6">
+                                    <select name="days[]" class="js-select2" required>
+                                        <option value="">-- Select Day --</option>
+                                        <option value="Monday" <?php echo ($entry['day'] == 'Monday') ? 'selected' : ''; ?>>Monday</option>
+                                        <option value="Tuesday" <?php echo ($entry['day'] == 'Tuesday') ? 'selected' : ''; ?>>Tuesday</option>
+                                        <option value="Wednesday" <?php echo ($entry['day'] == 'Wednesday') ? 'selected' : ''; ?>>Wednesday</option>
+                                        <option value="Thursday" <?php echo ($entry['day'] == 'Thursday') ? 'selected' : ''; ?>>Thursday</option>
+                                        <option value="Friday" <?php echo ($entry['day'] == 'Friday') ? 'selected' : ''; ?>>Friday</option>
+                                        <option value="Saturday" <?php echo ($entry['day'] == 'Saturday') ? 'selected' : ''; ?>>Saturday</option>
+                                        <option value="Sunday" <?php echo ($entry['day'] == 'Sunday') ? 'selected' : ''; ?>>Sunday</option>
+                                    </select>
+                                </div>
 
-                        <!-- Time Input Field -->
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control time-picker" name="times[]" placeholder="Enter Time" required
-                                value="<?php if (!empty($e_times)) {
-                                    echo date('h:i A', strtotime($e_times));
-                                } ?>">
+                                <!-- Time Input Field -->
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control time-picker" name="times[]" placeholder="Enter Time" required
+                                        value="<?php echo !empty($entry['time']) ? $entry['time'] : ''; ?>">
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Default empty fields if no data available -->
+                        <div class="row day-time-field mb-2">
+                            <div class="col-sm-6">
+                                <select name="days[]" class="js-select2" required>
+                                    <option value="">-- Select Day --</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                    <option value="Sunday">Sunday</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <input type="text" class="form-control time-picker" name="times[]" placeholder="Enter Time" required>
+                            </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
+
 
                 <!-- Button to add more day-time fields -->
                 <button type="button" id="add-day-time" class="btn btn-primary mt-2">Add Another Day & Time</button>
@@ -277,7 +300,7 @@ $this->Crud = new Crud();
         if ($ministry_id > 0) { ?>
             <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
            <?php if($church_id > 0){?>
-                <input type="hidden" id="church_id" name="church_id[]" value="<?php echo $church_id; ?>">
+                <input type="hidden" id="church_id" name="church_ids" value="<?php echo $church_id; ?>">
             <?php } ?>
         <?php } else { ?>
             <div class="col-sm-6 mb-3">
@@ -483,12 +506,16 @@ $this->Crud = new Crud();
             $(this).closest('.day-time-field').remove();
         });
     });
-
+    <?php $e_church_ids = !empty($e_church_id) ? json_encode($e_church_id) : '[]'; ?>
+            
      // Event listener for church level change
-     $('#level').on('change', function() {
+    $('#level').on('change', function() {
         let selectedLevel = $(this).val();
         var ministry_id = $('#ministry_id').val();
-       
+        var eChurchId = <?php echo $e_church_ids; ?>;
+        if (typeof eChurchId === 'string') {
+            eChurchId = JSON.parse(eChurchId); // Parse JSON string to array
+        }
         if (selectedLevel !== '') {
             $.ajax({
                 url: site_url + 'foundation/records/get_church', // Replace with your controller's path
@@ -508,7 +535,10 @@ $this->Crud = new Crud();
 
                     // Append the churches returned from the server
                     $.each(churches, function(index, church) {
-                        $('#church_id').append('<option value="' + church.id + '">' + church.name + ' (' + church.type + ')</option>');
+                        var selected = eChurchId.includes(church.id) ? 'selected="selected"' : '';
+    
+                                
+                        $('#church_id').append('<option value="' + church.id + '" '+selected+'>' + church.name + ' (' + church.type + ')</option>');
                     });
 
                     // Show the church dropdown
@@ -523,5 +553,7 @@ $this->Crud = new Crud();
             $('.joint_resp').hide();
         }
     });
+    
+    $('#level').trigger('change');
 
 </script>

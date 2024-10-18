@@ -112,8 +112,9 @@ class Foundation extends BaseController{
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_location'] = $e->location;
 								$data['e_is_joint'] = $e->is_joint;
-								$data['e_church_id'] = $e->church_id;
-								$data['e_weekly_time'] = $e->weekly_time;
+								$data['e_church_type'] = $e->church_type;
+								$data['e_church_id'] = json_decode($e->church_id);
+								$data['e_weekly_time'] = json_decode($e->weekly_time, true);
 								$data['e_active'] = $e->active;
 							}
 						}
@@ -129,9 +130,13 @@ class Foundation extends BaseController{
 					$location = $this->request->getVar('location');
 					$days = $this->request->getVar('days');
 					$times = $this->request->getVar('times');
+					$level = $this->request->getVar('level');
 					$is_joint = $this->request->getVar('is_joint');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
+					$church_ids = $this->request->getVar('church_ids');
+					if(empty($church_ids))$church_ids = 0;
+
 					$active = $this->request->getVar('active');
 
 					$weekly_time = [];
@@ -146,15 +151,20 @@ class Foundation extends BaseController{
 							}
 						}
 					}
+					$churchs = ($church_id);
+					if($is_joint == 0){
+						$churchs[] = $church_ids;
+					}
 
 					$ins_data['quarter'] = $quarter;
 					$ins_data['year'] = $year;
 					$ins_data['start_date'] = $start_date;
 					$ins_data['end_date'] = $end_date;
+					$ins_data['church_type'] = $level;
 					$ins_data['location'] = $location;
 					$ins_data['weekly_time'] = json_encode($weekly_time);
 					$ins_data['is_joint'] = $is_joint;
-					$ins_data['church_id'] = json_encode($church_id);
+					$ins_data['church_id'] = json_encode($churchs);
 					$ins_data['active'] = 1;
 					$ins_data['ministry_id'] = $ministry_id;
 
