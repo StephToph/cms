@@ -70,7 +70,7 @@
                                 // Fetch available instructors from the database
                                 $instructors = $this->Crud->read_single_order('is_leader', 1, 'user', 'surname', 'asc');
                                 foreach ($instructors as $instructor) {
-                                    echo '<option value="' . $instructor->id . '">' . $instructor->surname . '</option>';
+                                    echo '<option value="' . $instructor->id . '">' . ucwords($instructor->surname.' '.$instructor->firstname) . '</option>';
                                 }
                                 ?>
                             </select>
@@ -151,7 +151,7 @@
                     <select name="instructors[]" class="form-control" required>
                         <option value="">-- Select Instructor --</option>
                         <?php foreach ($instructors as $instructor): ?>
-                            <option value="<?php echo $instructor->id; ?>"><?php echo $instructor->name; ?></option>
+                            <option value="<?php echo $instructor->id; ?>"><?php echo ucwords($instructor->surname.' '.$instructor->firstname); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </td>

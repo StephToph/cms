@@ -497,7 +497,7 @@ class Foundation extends BaseController{
 		$data['role_c'] = $role_c;
 
 		$data['current_language'] = $this->session->get('current_language');
-		$table = 'user';
+		$table = 'foundation_setup';
 		$form_link = site_url($mod);
 		if ($param1) {
 			$form_link .= '/' . $param1;
@@ -548,64 +548,6 @@ class Foundation extends BaseController{
 						exit;
 					}
 				}
-			} elseif ($param2 == 'admin_send') {
-				if ($param3) {
-					$admin_id = $param3;
-					if ($admin_id) {
-						$surname = $this->Crud->read_field('id', $admin_id, 'user', 'surname');
-						$firstname = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
-						$role_id = $this->Crud->read_field('id', $admin_id, 'user', 'role_id');
-						$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
-						$othername = $this->Crud->read_field('id', $admin_id, 'user', 'othername');
-						$user_no = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
-						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
-						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
-						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
-						$church_id = $this->Crud->read_field('id', $admin_id, 'user', 'church_id');
-						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
-
-						$name = ucwords($firstname . ' ' . $othername . ' ' . $surname);
-						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
-						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
-						$body = '
-							Dear ' . $name . ', <br><br>
-								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
-    							Below are your Account Details:<br><br>
-
-								Website: ' . site_url() . '
-								Membership ID: ' . $user_no . '<br>
-								Email: ' . $email . '<br>
-								Phone: ' . $phone . '<br>
-								
-								<p>To ensure the security of your account, please set your password by clicking the link below:</p>
-    
-
-								' . $link . '
-
-								<p>This link will direct you to a secure page where you can choose your own password. If you encounter any issues or have questions, please feel free to contact our support team.</p>
-								<p><strong>Important:</strong> Do not disclose your login credentials to anyone to avoid unauthorized access.</p>
-								<p>Welcome aboard, and we look forward to your participation!</p>
-								<p>Best regards,<br>
-								
-						';
-						if ($this->request->getMethod() == 'post') {
-							$head = 'Welcome to ' . $ministry . ' - Set Your Password';
-							$email_status = $this->Crud->send_email($email, $head, $body);
-							if ($email_status > 0) {
-								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
-								echo '<script>
-										load_pastor("","",' . $church_id . ');
-										$("#modal").modal("hide");
-									</script>';
-							} else {
-								echo $this->Crud->msg('danger', 'Error Sending Email');
-							}
-							die;
-						}
-
-					}
-
-				}
 			} else {
 				// prepare for edit
 				if ($param2 == 'edit') {
@@ -629,96 +571,93 @@ class Foundation extends BaseController{
 
 				if ($this->request->getMethod() == 'post') {
 					$user_id = $this->request->getPost('user_id');
-					$surname = $this->request->getPost('surname');
-					$firstname = $this->request->getPost('firstname');
-					$phone = $this->request->getPost('phone');
-					$email = $this->request->getPost('email');
-					$title = $this->request->getPost('title');
-					$address = $this->request->getPost('address');
-					$activate = $this->request->getPost('activate');
-					$urole_id = $this->request->getPost('role_id');
-					$password = $this->request->getPost('password');
+					$foundation_id = $this->session->get('foundation_id');
+					$weeks = $this->request->getPost('weeks');
+					$courses = $this->request->getPost('courses');
+					$new_courses = $this->request->getPost('new_courses');
+					$instructors = $this->request->getPost('instructors');
 
+					$new_course_ids = [];
+					
+					$instructor_assignments = [];
+					// Handle new courses (if any)
+					if (!empty($new_courses)) {
+						foreach ($new_courses as $index => $new_course) {
+							if (!empty($new_course)) {
+								// Insert new course into the database
+								$new_course_data = [
+									'name' => $new_course,
+									'reg_date' => date(fdate), // You may want to associate it with the foundation school
+								];
 
-					$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
-					$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
-					$member_role = $this->Crud->read_field('name', 'Pastor', 'access_role', 'id');
-					$urole = $this->Crud->read_field('id', $urole_id, 'access_role', 'name');
-					if ($urole == 'Pastor-in-Charge') {
-						$rolesa = $this->Crud->read2('role_id', $urole_id, 'church_id', $church_id, 'user');
-						if (!empty($rolesa)) {
-							foreach ($rolesa as $r) {
-								$this->Crud->updates('id', $r->id, 'user', array('role_id' => $member_role));
+								// Insert the new course and get the inserted course ID
+								if($this->Crud->check('name', $new_course, 'foundation_courses') == 0){
+									$new_course_id = $this->Crud->create('foundation_courses', $new_course_data);
+								} else{
+									$new_course_id = $this->Crud->read_field('name', $new_course, 'foundation_courses', 'id');
+								}
+								// Store the new course ID at the correct index to use later
+								$new_course_ids[$index] = $new_course_id;
+							}
+						}
+					}
+
+					
+					// Loop through the submitted weeks and assign instructors to courses
+					if (!empty($weeks) && !empty($courses) && !empty($instructors)) {
+						foreach ($weeks as $index => $week) {
+							// If the course at this index is "new", use the corresponding new course ID
+							if ($courses[$index] == 'new') {
+								// Use the new course ID from the array we created earlier
+								$course_id = isset($new_course_ids[$index]) ? $new_course_ids[$index] : null;
+							} else {
+								// Use the existing course ID from the dropdown
+								$course_id = $courses[$index];
+							}
+							// Only proceed if we have a valid course ID and instructor for this entry
+							if ($course_id && !empty($instructors[$index])) {
+								// Prepare the data for the instructor assignment
+								$assign_data = [
+									'foundation_id' => $foundation_id,
+									'week' => $week,
+									'course_id' => $course_id,
+									'instructor_id' => $instructors[$index],
+								];
+
+								// Add this data to the final array for json_encode
+								$instructor_assignments[] = $assign_data;
 							}
 						}
 
-					}
 
+						// Convert the final assignments array to JSON
+						$json_data = json_encode($instructor_assignments);
+						echo $json_data.' -';
+						$ins_data['teacher_course'] = $json_data;
 
-					if (empty($title) || $title == ' ') {
-						echo $this->Crud->msg('danger', 'Select Title');
+						if ($foundation_id) {
+							$upd_rec = $this->Crud->updates('id', $foundation_id, $table, $ins_data);
+							if ($upd_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Instructor Record Updated'));
+	
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $foundation_id, 'foundation_setup', 'quarter');
+								$action = $by . ' updated Instructor Record for (' . $code . ') Session';
+								$this->Crud->activity('foundation_setup', $foundation_id, $action);
+								echo '<script>
+										load_admin("","",' . $foundation_id . ');
+										$("#modal").modal("hide");
+									</script>';
+							} else {
+								echo $this->Crud->msg('info', translate_phrase('No Changes'));
+							}
+						} 
+					} else{
+						echo $this->Crud->msg('danger', 'Enter all Details');
 						die;
 					}
 
-					$ins_data['surname'] = $surname;
-					$ins_data['firstname'] = $firstname;
-					$ins_data['email'] = $email;
-					$ins_data['phone'] = $phone;
-					$ins_data['activate'] = $activate;
-					$ins_data['title'] = $title;
-					$ins_data['address'] = $address;
-					$ins_data['role_id'] = $urole_id;
-					if ($password) {
-						$ins_data['password'] = md5($password);
-					}
-
-					// do create or update
-					if ($user_id) {
-						$upd_rec = $this->Crud->updates('id', $user_id, $table, $ins_data);
-						if ($upd_rec > 0) {
-							echo $this->Crud->msg('success', translate_phrase('Pastor Record Updated'));
-
-							///// store activities
-							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
-							$action = $by . ' updated Pastor (' . $code . ') Record';
-							$this->Crud->activity('user', $user_id, $action);
-							echo '<script>
-									load_pastor("","",' . $church_id . ');
-									$("#modal").modal("hide");
-								</script>';
-						} else {
-							echo $this->Crud->msg('info', translate_phrase('No Changes'));
-						}
-					} else {
-						if ($this->Crud->check('email', $email, $table) > 0 || $this->Crud->check('phone', $phone, $table) > 0) {
-							echo $this->Crud->msg('warning', ('Email and/or Phone Already Exist'));
-						} else {
-							$ins_data['ministry_id'] = $ministry_id;
-							$ins_data['church_id'] = $church_id;
-							$ins_data['is_pastor'] = 1;
-							$ins_data['reg_date'] = date(fdate);
-
-							$ins_rec = $this->Crud->create($table, $ins_data);
-							if ($ins_rec > 0) {
-								echo $this->Crud->msg('success', translate_phrase('Pastor Record Created'));
-								$this->Crud->updates('id', $ins_rec, 'user', array('user_no' => 'CEAM-00' . $ins_rec));
-
-								///// store activities
-								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-								$code = $this->Crud->read_field('id', $ins_rec, 'user', 'firstname');
-								$action = $by . ' created Pastor (' . $code . ')';
-								$this->Crud->activity('user', $ins_rec, $action);
-
-								echo '<script>
-									load_pastor("","",' . $church_id . ');
-									$("#modal").modal("hide");
-								</script>';
-							} else {
-								echo $this->Crud->msg('danger', translate_phrase('Please try later'));
-							}
-						}
-					}
 					exit;
 				}
 			}
@@ -746,8 +685,8 @@ class Foundation extends BaseController{
 				$status = '';
 			}
 			$search = $this->request->getPost('search');
-			$church_id = $this->request->getPost('id');
-			$this->session->set('church_id', $church_id);
+			$foundation_id = $this->request->getPost('id');
+			$this->session->set('foundation_id', $foundation_id);
 
 			if (empty($ref_status))
 				$ref_status = 0;
@@ -771,46 +710,31 @@ class Foundation extends BaseController{
 					$counts = 0;
 				}
 
-				$query = $this->Crud->filter_church_pastor($limit, $offset, $log_id, $status, $search, $church_id);
+				$query = json_decode($this->Crud->read_field('id', $foundation_id, 'foundation_setup', 'teacher_course'));
 				$data['count'] = $counts;
 
-
+				// print_r($query);
 				if (!empty($query)) {
-					foreach ($query as $q) {
-						$id = $q->id;
-						$fullname = $q->firstname . ' ' . $q->surname;
-						$email = $q->email;
-						$phone = $q->phone;
-						$address = $q->address;
-						$img = $this->Crud->image($q->img_id, 'big');
-						$activate = $q->activate;
-						$u_role = $this->Crud->read_field('id', $q->role_id, 'access_role', 'name');
-						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
-
-						$referral = '';
-
-						$approved = '';
-						if ($activate == 1) {
-							$a_color = 'success';
-							$approve_text = 'Account Activated';
-							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> ';
-						} else {
-							$a_color = 'danger';
-							$approve_text = 'Account Deactivated';
-							$approved = '<span class="text-danger"><i class="ri-check-circle-line"></i></span> ';
-						}
-
+					foreach ($query as $index => $entry) {
+						$id = $index;
+						$week = $entry->week;
+						$course_id = $entry->course_id;
+						$instructor_id = $entry->instructor_id;
+					
+						// Assuming you have functions to get course name and instructor name by ID
+						$course_name = $this->Crud->read_field('id', $course_id, 'foundation_courses', 'name');  // Replace with the actual function to get course name
+						$instructor_name = $this->Crud->read_field('id', $instructor_id, 'user', 'surname').' '.$this->Crud->read_field('id', $instructor_id, 'user', 'firstname');  // Replace with actual function to get instructor name
+					
+						
 						// add manage buttons
 						if (!empty($switch_id)) {
 							$all_btn = '
-								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								
 								
 							';
 						} else {
 							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
-								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>' . translate_phrase('Delete') . '</span></a></li>
-								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $week . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
 								
 							';
 
@@ -820,23 +744,9 @@ class Foundation extends BaseController{
 
 						$item .= '
 							<tr>
-								<td>
-									<div class="user-card">
-										<div class="user-avatar ">
-											<img alt="" src="' . site_url($img) . '" height="40px"/>
-										</div>
-										<div class="user-info">
-											<span class="tb-lead small">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
-											<br>
-											
-										</div>
-									</div>
-								</td>
-								<td><span class=" small">' . $email . '</span></td>
-								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
-								<td><span class=" small">' . $u_role . '</span></td>
-								<td><span class=" small">' . ucwords($address) . '</span></td>
-								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
+								<td>' . $week . '</td>
+								<td>' . ucwords($course_name) . '</td>
+								<td>' . ucwords($instructor_name) . '</td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
