@@ -215,6 +215,8 @@ class Foundation extends BaseController{
 			}
 
 			$search = $this->request->getPost('search');
+			$start_date = $this->request->getPost('start_date');
+			$end_date = $this->request->getPost('end_date');
 
 			$items = '
 				
@@ -228,7 +230,7 @@ class Foundation extends BaseController{
 				$item = '<div class="text-center text-muted">' . translate_phrase('Session Timeout! - Please login again') . '</div>';
 			} else {
 				$type = 'region';
-				$all_rec = $this->Crud->filter_church('', '', $log_id, $search, $type, $switch_id);
+				$all_rec = $this->Crud->filter_foundation_setup('', '', $log_id, $search, $switch_id, $start_date, $end_date);
 				// $all_rec = json_decode($all_rec);
 				if (!empty($all_rec)) {
 					$counts = count($all_rec);
@@ -236,7 +238,7 @@ class Foundation extends BaseController{
 					$counts = 0;
 				}
 
-				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type, $switch_id);
+				$query = $this->Crud->filter_foundation_setup($limit, $offset, $log_id, $search, $switch_id, $start_date, $end_date);
 				$data['count'] = $counts;
 
 				$switch_id = $this->session->get('switch_church_id');
@@ -244,39 +246,30 @@ class Foundation extends BaseController{
 				if (!empty($query)) {
 					foreach ($query as $q) {
 						$id = $q->id;
-						$name = $q->name;
-						$email = $q->email;
-						$phone = $q->phone;
-						$logo = $q->logo;
-						$ministry_id = $q->ministry_id;
-						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
-						$address = $q->address;
+						$year = $q->year;
+						$quarter = $q->quarter;
+						$start_date = $q->start_date;
+						$end_date = $q->end_date;
+						$location = $q->location;
+						$ministry = $this->Crud->read_field('id', $q->ministry_id, 'ministry', 'name');
+						$is_joint = $q->is_joint;
+						$active = $q->active;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 
-						if (!empty($logo)) {
-							$img = '<img height="40px" src="' . site_url($logo) . '">';
-						} else {
-							$img = $this->Crud->image_name($name);
-						}
+						
 						// add manage buttons
 						if ($role_u != 1) {
 							$all_btn = '';
 						} else {
 							if (!empty($switch_id)) {
 								$all_btn = '
-								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int) $id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Admin') . '</span></a></li>
-								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Pastors') . '</span></a></li>
 								
 								
 							';
 							} else {
 								$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
-								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>' . translate_phrase('Delete') . '</span></a></li>
-								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int) $id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Admin') . '</span></a></li>
-								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Pastors') . '</span></a></li>
-								<li><a href="javascript:;" onclick="church_login(' . (int) $id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>' . translate_phrase('Login to Church') . '</span></a></li>
-								
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete " pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>' . translate_phrase('Delete') . '</span></a></li>
 								
 							';
 
@@ -288,20 +281,17 @@ class Foundation extends BaseController{
 							<tr>
 								<td>
 									<div class="user-card">
-								      	<div class="user-avatar">            
-									  		' . $img . '      
-										</div>        
-										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span> <br>
-											<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>        
+								      	<div class="user-name">            
+											<span class="tb-lead">' . ucwords($quarter) . '- '.$year.'</span> <br>
+											<span class="tb-lead text-primary">' . ucwords('Mr John') . '</span>        
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark ">' . $email . '</span><br>
-									<span class="small text-dark ">' . $phone . '</span>
+									<span class="small text-dark ">' . $start_date . ' &rarr; '.$end_date.'</span>
 								</td>
-								<td><span class="small text-dark ">' . $address . '</span></td>
+								<td><span class="small text-dark ">' . $is_joint . '</span></td>
+								<td><span class="small text-dark ">' . $active . '</span></td>
 								<td><span class="small text-dark ">' . $reg_date . '</span></td>
 								<td>
 									<div class="drodown">
@@ -326,7 +316,7 @@ class Foundation extends BaseController{
 				$resp['item'] = $items . '
 					<Tr><td colspan="8"><div class="text-center text-muted">
 						<br/><br/><br/>
-						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>' . translate_phrase('No Regional Church Returned') . '
+						<i class="ni ni-gear" style="font-size:150px;"></i><br/><br/>' . translate_phrase('No Foundation Setup Returned') . '
 					</div></td></tr>
 				';
 			} else {

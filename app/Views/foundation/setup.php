@@ -66,10 +66,11 @@ $switch_id = $this->session->get('switch_church_id');
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Name</th>
-                                                <th>Contact</th>
-                                                <th>Address</th>
+                                                <th>Quarter</th>
                                                 <th>Date</th>
+                                                <th>Joint Class Status</th>
+                                                <th>Status</th>
+                                                <th>Reg Date</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
