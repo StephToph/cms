@@ -70,7 +70,6 @@ $switch_id = $this->session->get('switch_church_id');
                                                 <th>Date</th>
                                                 <th>Joint Class Status</th>
                                                 <th>Status</th>
-                                                <th>Reg Date</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
