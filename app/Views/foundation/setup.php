@@ -87,9 +87,9 @@ $switch_id = $this->session->get('switch_church_id');
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title" id="church_title">
-                                <?= translate_phrase('Church Administrator'); ?></h3>
+                                <?= translate_phrase('Instructors'); ?></h3>
                             <div class="nk-block-des text-soft">
-                                <p><?= ('You have total'); ?> <span id="admin_counta">0</span> <?= ('admin.'); ?></p>
+                                <p><?= ('You have total'); ?> <span id="admin_counta">0</span> <?= ('instructor.'); ?></p>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
@@ -111,7 +111,7 @@ $switch_id = $this->session->get('switch_church_id');
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Back to Churches" class="btn btn-outline-danger btn-icon"
+                                                    title="Back to Setup" class="btn btn-outline-danger btn-icon"
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
@@ -119,9 +119,9 @@ $switch_id = $this->session->get('switch_church_id');
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Add Administrator" pageTitle="Add Admin"
+                                                    title="Instructor" pageTitle="Instructors"
                                                     class="btn btn-outline-primary btn-icon pop"
-                                                    pageName="<?= site_url('church/administrator/manage'); ?>"><em
+                                                    pageName="<?= site_url('foundation/instructor/manage'); ?>" pageSize="modal-lg"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
                                                 <?php } ?>
@@ -144,14 +144,11 @@ $switch_id = $this->session->get('switch_church_id');
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Phone</th>
-                                                <th>Role</th>
-                                                <th>Address</th>
-                                                <th>Date</th>
+                                                <th>Week</th>
+                                                <th>Course</th>
+                                                <th>Instructor</th>
                                                 <th></th>
-                                            </tr>
+                                            </th>
                                         </thead>
                                         <tbody id="load_admin"></tbody>
                                         <tfoot id="admin_more"></tfoot>
@@ -179,17 +176,14 @@ $switch_id = $this->session->get('switch_church_id');
         $('#church_resp').show(500);
         $('#admin_resp').hide(500);
         
-        $('#pastor_resp').hide(500);
         load('', '');
 
     } 
 
-    function church_admin(page, id) {
-        $('#church_title').html(page + "`s Church Administrator");
+    function church_admin(id) {
         $('#church_resp').hide(500);
         $('#admin_resp').show(500);
         
-        $('#pastor_resp').hide(500);
         $('#admin_search').on('input', function () {
             load_admin('', '', id);
         });
@@ -216,7 +210,7 @@ $switch_id = $this->session->get('switch_church_id');
         //alert(status);
 
         $.ajax({
-            url: site_url + 'church/administrator/load' + methods,
+            url: site_url + 'foundation/instructor/load' + methods,
             type: 'post',
             data: { search: search, id: id },
             success: function (data) {
