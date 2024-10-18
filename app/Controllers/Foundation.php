@@ -83,13 +83,13 @@ class Foundation extends BaseController{
 						$del_id = $this->request->getVar('d_id');
 						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-						$code = $this->Crud->read_field('id', $del_id, 'church', 'name');
-						$action = $by . ' deleted Church (' . $code . ') Record';
+						$code = $this->Crud->read_field('id', $del_id, 'foundation_setup', 'quarter');
+						$action = $by . ' deleted Foundation Setup (' . $code . ') Record';
 
 						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
 
-							$this->Crud->activity('user', $del_id, $action);
-							echo $this->Crud->msg('success', 'Church Deleted');
+							$this->Crud->activity('foundation_setup', $del_id, $action);
+							echo $this->Crud->msg('success', 'Foundation Setup Deleted');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('danger', 'Please try later');
@@ -121,7 +121,7 @@ class Foundation extends BaseController{
 				}
 
 				if ($this->request->getMethod() == 'post') {
-					$edit_id = $this->request->getVar('edit_id');
+					$edit_id = $this->request->getVar('e_id');
 					$quarter = $this->request->getVar('quarter');
 					$year = $this->request->getVar('year');
 					$start_date = $this->request->getVar('start_date');
@@ -168,7 +168,7 @@ class Foundation extends BaseController{
 							$action = $by . ' updated Foundation Setup (' . $code . ') Record';
 							$this->Crud->activity('foundation_setup', $edit_id, $action);
 
-							echo $this->Crud->msg('success', 'Church Updated');
+							echo $this->Crud->msg('success', 'Foundation Setup Updated');
 							echo '<script>location.reload(false);</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');
@@ -251,12 +251,28 @@ class Foundation extends BaseController{
 						$start_date = $q->start_date;
 						$end_date = $q->end_date;
 						$location = $q->location;
+						$principals = $this->Crud->read_field('id', $q->principal, 'user', 'firstname').' '.$this->Crud->read_field('id', $q->principal, 'user', 'surname');
 						$ministry = $this->Crud->read_field('id', $q->ministry_id, 'ministry', 'name');
 						$is_joint = $q->is_joint;
 						$active = $q->active;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 
-						
+						$joint = '
+							<span class="text-info">Personal Church</span>
+						';
+						$actives = '
+								<span class="text-danger">Disabled</span>
+							';
+						if($is_joint > 0){
+							$joint = '
+								<span class="text-success">Joint School</span>
+							';
+						}
+						if($active > 0){
+							$actives = '
+								<span class="text-success">Active</span>
+							';
+						}
 						// add manage buttons
 						if ($role_u != 1) {
 							$all_btn = '';
@@ -283,16 +299,15 @@ class Foundation extends BaseController{
 									<div class="user-card">
 								      	<div class="user-name">            
 											<span class="tb-lead">' . ucwords($quarter) . '- '.$year.'</span> <br>
-											<span class="tb-lead text-primary">' . ucwords('Mr John') . '</span>        
+											<span class="tb-lead text-primary">' . ucwords($principals) . '</span>        
 										</div>    
 									</div>  
 								</td>
 								<td>
 									<span class="small text-dark ">' . $start_date . ' &rarr; '.$end_date.'</span>
 								</td>
-								<td><span class="small text-dark ">' . $is_joint . '</span></td>
-								<td><span class="small text-dark ">' . $active . '</span></td>
-								<td><span class="small text-dark ">' . $reg_date . '</span></td>
+								<td><span class="small text-dark ">' . $joint . '</span></td>
+								<td><span class="small text-dark ">' . $actives . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>

@@ -488,8 +488,7 @@ $this->Crud = new Crud();
      $('#level').on('change', function() {
         let selectedLevel = $(this).val();
         var ministry_id = $('#ministry_id').val();
-        let logChurchId = <?php echo $log_church_id; ?>;  // You already fetched this in your PHP
-
+       
         if (selectedLevel !== '') {
             $.ajax({
                 url: site_url + 'foundation/records/get_church', // Replace with your controller's path
