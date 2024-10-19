@@ -4192,6 +4192,23 @@ class Crud extends Model {
         $db->close();
     }
 
+	public function check_json($table, $church_ids_json, $year, $quarter){
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		// Check if the church_id already exists in the same year and quarter
+		$builder->where("year", $year)
+		->where("quarter", $quarter)
+		->where("JSON_CONTAINS(church_id, '$church_ids_json')");
+		// Use countAllResults to get the number of matching records
+		$count = $builder->countAllResults();  // Store result in $count variable
+
+		// Close the database connection
+		$db->close();
+	
+		// Return the count
+		return $count;
+	}
 	
 	/// timspan
 	public function timespan($datetime) {
