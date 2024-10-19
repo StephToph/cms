@@ -134,6 +134,7 @@ class Foundation extends BaseController{
 					$is_joint = $this->request->getVar('is_joint');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
+					$active = $this->request->getVar('active');
 					$church_ids = $this->request->getVar('church_ids');
 					if(empty($church_ids))$church_ids = 0;
 
@@ -165,7 +166,7 @@ class Foundation extends BaseController{
 					$ins_data['weekly_time'] = json_encode($weekly_time);
 					$ins_data['is_joint'] = $is_joint;
 					$ins_data['church_id'] = json_encode($churchs);
-					$ins_data['active'] = 1;
+					$ins_data['active'] = $active;
 					$ins_data['ministry_id'] = $ministry_id;
 
 					// do create or update
@@ -184,23 +185,31 @@ class Foundation extends BaseController{
 							echo $this->Crud->msg('info', 'No Changes');
 						}
 					} else {
-						if ($this->Crud->check3('church_id', json_encode($church_id), 'year', $year, 'quarter', $quarter, $table) > 0) {
-							echo $this->Crud->msg('warning', 'Foundation Setup Already Exist');
+						$church_ids_json = json_encode($churchs);
+
+						$result = $this->Crud->check_json('foundation_setup', $church_ids_json, $year, $quarter);
+						if ($result > 0) {
+							// If church_id exists for the same year and quarter, prevent insertion
+							echo $this->Crud->msg('warning', 'Foundation Setup for the selected Church, Year, and Quarter Already Exists');
+							die;
 						} else {
-
-							$ins_data['reg_date'] = date(fdate);
-							$ins_rec = $this->Crud->create($table, $ins_data);
-							if ($ins_rec > 0) {
-								///// store activities
-								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-								$code = $this->Crud->read_field('id', $ins_rec, 'foundation_setup', 'quarter');
-								$action = $by . ' created Foundation Setup (' . $code . ') Record';
-								$this->Crud->activity('foundation_setup', $ins_rec, $action);
-
-								echo $this->Crud->msg('success', 'Foundation Setup Created');
-								echo '<script>location.reload(false);</script>';
+							if ($this->Crud->check3('church_id', json_encode($church_id), 'year', $year, 'quarter', $quarter, $table) > 0) {
+								echo $this->Crud->msg('warning', 'Foundation Setup for the selected Church, Year, and Quarter Already Exists');
 							} else {
-								echo $this->Crud->msg('danger', 'Please try later');
+								$ins_data['reg_date'] = date(fdate);
+								$ins_rec = $this->Crud->create($table, $ins_data);
+								if ($ins_rec > 0) {
+									///// store activities
+									$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+									$code = $this->Crud->read_field('id', $ins_rec, 'foundation_setup', 'quarter');
+									$action = $by . ' created Foundation Setup (' . $code . ') Record';
+									$this->Crud->activity('foundation_setup', $ins_rec, $action);
+
+									echo $this->Crud->msg('success', 'Foundation Setup Created');
+									echo '<script>location.reload(false);</script>';
+								} else {
+									echo $this->Crud->msg('danger', 'Please try later');
+								}
 							}
 						}
 					}
