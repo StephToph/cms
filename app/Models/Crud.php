@@ -4078,26 +4078,14 @@ class Crud extends Model {
     }
 
 	//////////////////////////filter partner//////////////////////////////////
-    public function filter_partner($limit='', $offset='', $log_id, $state_id='', $status='', $search='') {
+    public function filter_foundation_students($limit='', $offset='', $log_id, $foundation_id='', $search='') {
         $db = db_connect();
-        $builder = $db->table('user');
+        $builder = $db->table('foundation_student');
 
         // build query
 		$builder->orderBy('id', 'DESC');
 		//$builder->where('role_id', 3);
-		$builder->where('is_partner', 1);
-
-		if(!empty($status)){
-			if($status != 'all') { 
-				if($status == 'activated')$builder->where('activate', 1);
-				if($status == 'pending')$builder->where('activate', 0);
-			}
-		} 
-		
-        if(!empty($search)) {
-            $builder->like('fullname', $search);
-			$builder->like('email', $search);
-        }
+		$builder->where('foundation_id', $foundation_id);
 		
         // limit query
         if($limit && $offset) {

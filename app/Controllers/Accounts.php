@@ -978,6 +978,12 @@ class Accounts extends BaseController {
 							
 						}
 
+						$foundation_btn = '';
+						if($foundation_school == 0){
+							$foundation_btn = '<li><a href="javascript:;" class="text-secondary pop" pageTitle="Enroll ' . $fullname . ' to Foundation School" pageName="' . site_url($mod . '/manage/enroll/' . $id) . '"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Enroll to Foundation School').'</span></a></li>
+								';
+						}
+
 						$follow_up = $this->Crud->check('visitor_id', $id, 'follow_up');
 
 						if($source_type == 'service'){
@@ -1004,8 +1010,6 @@ class Accounts extends BaseController {
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $fullname . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="follow_up(' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Follow Up') . '</span></a></li>
-								
-								
 							';
 						}
 
@@ -1399,6 +1403,12 @@ class Accounts extends BaseController {
 						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
 						$ministry = $this->Crud->read_field('id', $q->ministry_id, 'ministry', 'name');
 						
+						$foundation_btn = '';
+						if($foundation_school == 0){
+							$foundation_btn = '<li><a href="javascript:;" class="text-secondary pop" pageTitle="Enroll ' . $fullname . ' to Foundation School" pageName="' . site_url($mod . '/manage/enroll/' . $id) . '"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Enroll to Foundation School').'</span></a></li>
+								';
+						}
+
 						if($church_id > 0){
 							$church = '';
 						}
@@ -1845,6 +1855,8 @@ class Accounts extends BaseController {
 							if($type == 'wk5')$source = 'Wk5 - Fellowship';
 							
 						}
+
+						
 
 						$follow_up = $this->Crud->check('visitor_id', $id, 'follow_up');
 
