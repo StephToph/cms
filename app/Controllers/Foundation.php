@@ -1212,19 +1212,30 @@ class Foundation extends BaseController{
 						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
 						$update_at = date('M d, Y h:ia', strtotime($q->updated_at));
 
-						$all_btn = '';
+						$all_btn = '
+							
+							
+						';
 
-						
+						if($user_type == 'member'){
+							$user = $this->Crud->read_field('id', $user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $user_id, 'user', 'surname');
+						}
+						if($user_type == 'visitor'){
+							$user = $this->Crud->read_field('id', $user_id, 'visitors', 'fullname');
+						}
 						// add manage buttons
-						
-
+						$stat = '<span class="text-danger">Not Enrolled</span>';
+						if($status > 0){
+							$stat = '<span class="text-success">Enrolled</span>';
+						}
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 
 
 						$item .= '
 							<tr>
-								<td><span class=" small">' . $user_id . '</span><br><span class="">'.$user_type.'</span></td>
-								<td><span class="text-dark small"><b>' . $church_id . '</b></span></td>
-								<td><span class=" small">' . $status . '</span></td>
+								<td><span class="text-primary small">' . ucwords($user) . '</span><br><span class="small">'.ucwords($user_type).'</span></td>
+								<td><span class="text-dark small"><b>' . $church . '</b></span></td>
+								<td><span class=" small">' . $stat . '</span></td>
 								<td><span class="tb-amount small">' . $update_at . ' </span></td>
 								<td>
 									<div class="drodown">
