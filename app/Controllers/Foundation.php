@@ -1210,58 +1210,22 @@ class Foundation extends BaseController{
 						$status = $q->status;
 						$church_id = $q->church_id;
 						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
-						$update_at = date('M d, Y h:ia', strtotime($q->update_at));
+						$update_at = date('M d, Y h:ia', strtotime($q->updated_at));
 
-						$referral = '';
+						$all_btn = '';
 
-						$approved = '';
-						if ($activate == 1) {
-							$a_color = 'success';
-							$approve_text = 'Account Activated';
-							$approved = '<span class="text-primary"><i class="ri-check-circle-line"></i></span> ';
-						} else {
-							$a_color = 'danger';
-							$approve_text = 'Account Deactivated';
-							$approved = '<span class="text-danger"><i class="ri-check-circle-line"></i></span> ';
-						}
-
+						
 						// add manage buttons
-						if (!empty($switch_id)) {
-							$all_btn = '
-								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
-								
-							';
-						} else {
-							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
-								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>' . translate_phrase('Delete') . '</span></a></li>
-								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
-								
-							';
-
-						}
+						
 
 
 
 						$item .= '
 							<tr>
-								<td>
-									<div class="user-card">
-										<div class="user-avatar ">
-											<img alt="" src="' . site_url($img) . '" height="40px"/>
-										</div>
-										<div class="user-info">
-											<span class="tb-lead small">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
-											<br>
-											
-										</div>
-									</div>
-								</td>
-								<td><span class=" small">' . $email . '</span></td>
-								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
-								<td><span class=" small">' . $u_role . '</span></td>
-								<td><span class=" small">' . ucwords($address) . '</span></td>
-								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
+								<td><span class=" small">' . $user_id . '</span><br><span class="">'.$user_type.'</span></td>
+								<td><span class="text-dark small"><b>' . $church_id . '</b></span></td>
+								<td><span class=" small">' . $status . '</span></td>
+								<td><span class="tb-amount small">' . $update_at . ' </span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
