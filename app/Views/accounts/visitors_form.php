@@ -241,15 +241,17 @@
             </div>
             <div class="col-sm-6 mb-3" style="display:none;" id="foundation_resp">
                 <div class="form-group">    
-                    <label class="form-label">Foundation Week</label>    
-                    <div class="form-control-wrap number-spinner-wrap">        
-                        <button  type="button" class="btn btn-icon btn-outline-light decrease number-spinner-btn number-minus" data-number="minus">
+                    <label class="form-label">Foundation Week</label>
+                    <div class="input-group mb-3">
+                        <button class="btn btn-outline-secondary decrease" type="button" id="button-minus">
                             <em class="icon ni ni-minus"></em>
-                        </button>        
-                        <input type="number" class="form-control number-spinner"  name="foundation_weeks"  id="spinner" max="7" min="0" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '0';}; ?>">         
-                        <button type="button"  class="btn btn-icon btn-outline-light increase number-spinner-btn number-plus" data-number="plus">
+                        </button>
+                        
+                        <input type="number" class="form-control text-center" name="foundation_weeks" id="spinner" max="7" min="1" step="1" value="<?php if(!empty($e_foundation_weeks)){echo $e_foundation_weeks;}else{echo '1';}; ?>">
+                        
+                        <button class="btn btn-outline-secondary increase" type="button" id="button-plus">
                             <em class="icon ni ni-plus"></em>
-                        </button>    
+                        </button>
                     </div>
                 </div> 
             </div>

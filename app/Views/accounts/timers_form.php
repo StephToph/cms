@@ -23,6 +23,25 @@
         </div>
     <?php } ?>
 
+    <?php if($param2 == 'enroll') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <h4><b><?=translate_phrase('Do you want enroll this user for Foundation School?'); ?></b></h4>
+                <input type="hidden" name="d_id" value="<?php if(!empty($d_id)){echo $d_id;} ?>" />
+            </div>
+            
+            <div class="col-sm-12 text-center">
+                <button class="btn btn-secondary text-uppercase" type="submit">
+                    <i class="icon ni ni-save"></i> <?=translate_phrase('Yes - Enroll'); ?>
+                </button>
+            </div>
+        </div>
+    <?php } ?>
+
     <?php if ($param2 == 'view') { ?>
     <div class="row">
         <div class="col-sm-12 mb-3 table-responsive">
