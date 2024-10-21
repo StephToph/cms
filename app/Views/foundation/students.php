@@ -45,7 +45,6 @@ $switch_id = $this->session->get('switch_church_id');
                                                 <th>Church</th>
                                                 <th>Status</th>
                                                 <th>Updated At</th>
-                                                <th>Updated At</th>
                                                 <th></th>
                                             </tr>
                                         </thead>

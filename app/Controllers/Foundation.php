@@ -1482,6 +1482,57 @@ class Foundation extends BaseController{
 			}
 		}
 
+		if($param1 == 'enroll'){
+			if($this->request->getMethod() == 'post'){
+				$ministry_id = $this->request->getPost('ministry_id');
+				$church_id = $this->request->getPost('church_id');
+				$user_id = $this->request->getPost('user_id');
+				$source = $this->request->getPost('source');
+				$year = $this->request->getPost('year');
+				$quarter = $this->request->getPost('quarter');
+				
+
+				$query = $this->Crud->read2('year', $year, 'quarter', $quarter, 'foundation_setup');
+				if(empty($query)){
+					echo $this->Crud->msg('danger', 'Foundation School Session Not Set up. Try again later');
+				} else{
+					$foundation_id = 0;
+					foreach($query as $q){
+						if(!in_array($church_id, json_decode($q->church_id))){continue;}else{$foundation_id = $q->id;}
+					}
+
+					$ins['ministry_id'] = $ministry_id;
+					$ins['church_id'] = $church_id;
+					$ins['user_id'] = $user_id;
+					$ins['user_type'] = $source;
+					$ins['foundation_id'] = $foundation_id;
+					$ins['status'] = 1;
+					$ins['reg_date'] = date(fdate);
+					$ins['updated_at'] = date(fdate);
+
+					if(empty($foundation_id)){
+						echo $this->Crud->msg('danger', 'No Foundation School Session Found. Try again later');
+						die;
+					}
+					
+					$ins_rec = $this->Crud->create('foundation_student', $ins);
+					if($ins_rec > 0){
+						if($source == 'member'){
+							$this->Crud->updates('id', $user_id, 'user',  array('foundation_school'=>1,'foundation_weeks'=>1));
+						} else {
+							$this->Crud->updates('id', $user_id, 'visitors', array('foundation_school'=>1,'foundation_weeks'=>1));
+						}
+						echo $this->Crud->msg('success', 'Student Enrolled');
+						echo '<script>$("#modal").modal("hide");load();</script>';
+					} else{
+						echo $this->Crud->msg('warning', 'Try Again Later');
+					}
+				}
+				die;
+				
+			}
+		}
+
 
 		if ($param1 == 'load') {
 			$limit = $param2;
@@ -1582,7 +1633,7 @@ class Foundation extends BaseController{
 								<td>' . ucwords($name) . '<br><span class="text-dark small">' . ucwords($source) . '</span></td>
 								<td>' . ucwords($church) . '</td>
 								<td>
-									
+									<a href="javascript:;" class="btn btn-primary pop" pageSize="modal-md" pageTitle="Enroll" pageName="'.site_url($mod.'/enroll/'. $source.'/'.$id).'"><em class="icon ni ni-user-add"></em><span>Enroll</span></a>
 								</td>
 							</tr>
 						';
@@ -1626,8 +1677,8 @@ class Foundation extends BaseController{
 			die;
 		}
 
-		if ($param1 == 'manage') { // view for form data posting
-			return view('foundation/student_form', $data);
+		if ($param1 == 'enroll') { // view for form data posting
+			return view('foundation/prospective_form', $data);
 		} else {
 			
 			$data['title'] = translate_phrase('Foundation Prospective Student') . ' - ' . app_name;
