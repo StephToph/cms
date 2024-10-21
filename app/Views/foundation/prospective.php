@@ -20,7 +20,7 @@ $switch_id = $this->session->get('switch_church_id');
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?= translate_phrase('Foundation Students'); ?></h3>
+                            <h3 class="nk-block-title page-title"><?= translate_phrase('Foundation Prospective Students'); ?></h3>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
@@ -41,11 +41,8 @@ $switch_id = $this->session->get('switch_church_id');
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Students</th>
+                                                <th>Prospective Students</th>
                                                 <th>Church</th>
-                                                <th>Status</th>
-                                                <th>Updated At</th>
-                                                <th>Updated At</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -82,40 +79,7 @@ $switch_id = $this->session->get('switch_church_id');
 
     } 
 
-    function enroll(id) {
-        $('#church_resp').hide(500);
-        $('#admin_resp').hide(500);
-        $('#attendance_resp').hide(500);
-        $('#enroll_resp').show(500);
-        
-        $('#enroll_search').on('input', function () {
-            load_enroll('', '', id);
-        });
-        load_enroll('', '', id);
-
-    }
-
-    function attendance(id) {
-        $('#church_resp').hide(500);
-        $('#admin_resp').hide(500);
-        $('#enroll_resp').hide(500);
-        $('#attendance_resp').show(500);
-        
-        load_attendance('', '', id);
-
-    }
-
-    function church_admin(id) {
-        $('#church_resp').hide(500);
-        $('#admin_resp').show(500);
-        
-        $('#admin_search').on('input', function () {
-            load_admin('', '', id);
-        });
-        load_admin('', '', id);
-
-    }
-
+  
     function load(x, y) {
         var more = 'no';
         var methods = '';
@@ -135,7 +99,7 @@ $switch_id = $this->session->get('switch_church_id');
         //alert(status);
 
         $.ajax({
-            url: site_url + 'foundation/students/load' + methods,
+            url: site_url + 'foundation/prospective/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {

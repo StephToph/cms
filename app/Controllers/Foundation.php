@@ -1300,6 +1300,344 @@ class Foundation extends BaseController{
 	}
 
 
+	public function prospective($param1 = '', $param2 = '', $param3 = '')
+	{
+		// check session login
+		if ($this->session->get('td_id') == '') {
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		}
+
+		$mod = 'foundation/prospective';
+		$switch_id = $this->session->get('switch_church_id');
+
+		$log_id = $this->session->get('td_id');
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		if (!empty($switch_id)) {
+			$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+			if ($church_type == 'region') {
+				$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'zone') {
+				$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'group') {
+				$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'church') {
+				$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+			}
+		}
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if ($role_r == 0) {
+			// return redirect()->to(site_url('dashboard'));	
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+
+		$data['current_language'] = $this->session->get('current_language');
+		$table = 'foundation_student';
+		$form_link = site_url($mod);
+		if ($param1) {
+			$form_link .= '/' . $param1;
+		}
+		if ($param2) {
+			$form_link .= '/' . $param2 . '/';
+		}
+		if ($param3) {
+			$form_link .= $param3;
+		}
+
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+
+		$foundation_id = $this->session->get('foundation_id');
+		// manage record
+		if ($param1 == 'manage') {
+			// prepare for delete
+			if ($param2 == 'delete') {
+				if ($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+				}
+			} else {
+				// prepare for edit
+				if ($param2 == 'edit') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_teacher_course'] = json_decode($e->teacher_course);
+							}
+						}
+					}
+				}
+
+				if ($this->request->getMethod() == 'post') {
+					$user_id = $this->request->getPost('user_id');
+					$foundation_id = $this->session->get('foundation_id');
+					$weeks = $this->request->getPost('weeks');
+					$courses = $this->request->getPost('courses');
+					$new_courses = $this->request->getPost('new_courses');
+					$instructors = $this->request->getPost('instructors');
+
+					$new_course_ids = [];
+					
+					$instructor_assignments = [];
+					// Handle new courses (if any)
+					if (!empty($new_courses)) {
+						foreach ($new_courses as $index => $new_course) {
+							if (!empty($new_course)) {
+								// Insert new course into the database
+								$new_course_data = [
+									'name' => $new_course,
+									'reg_date' => date(fdate), // You may want to associate it with the foundation school
+								];
+
+								// Insert the new course and get the inserted course ID
+								if($this->Crud->check('name', $new_course, 'foundation_courses') == 0){
+									$new_course_id = $this->Crud->create('foundation_courses', $new_course_data);
+								} else{
+									$new_course_id = $this->Crud->read_field('name', $new_course, 'foundation_courses', 'id');
+								}
+								// Store the new course ID at the correct index to use later
+								$new_course_ids[$index] = $new_course_id;
+							}
+						}
+					}
+
+					
+					// Loop through the submitted weeks and assign instructors to courses
+					if (!empty($weeks) && !empty($courses) && !empty($instructors)) {
+						foreach ($weeks as $index => $week) {
+							// If the course at this index is "new", use the corresponding new course ID
+							if ($courses[$index] == 'new') {
+								// Use the new course ID from the array we created earlier
+								$course_id = isset($new_course_ids[$index]) ? $new_course_ids[$index] : null;
+							} else {
+								// Use the existing course ID from the dropdown
+								$course_id = $courses[$index];
+							}
+							// Only proceed if we have a valid course ID and instructor for this entry
+							if ($course_id && !empty($instructors[$index])) {
+								// Prepare the data for the instructor assignment
+								$assign_data = [
+									'foundation_id' => $foundation_id,
+									'week' => $week,
+									'course_id' => $course_id,
+									'instructor_id' => $instructors[$index],
+								];
+
+								// Add this data to the final array for json_encode
+								$instructor_assignments[] = $assign_data;
+							}
+						}
+
+
+						// Convert the final assignments array to JSON
+						$json_data = json_encode($instructor_assignments);
+						echo $json_data.' -';
+						$ins_data['teacher_course'] = $json_data;
+
+						if ($foundation_id) {
+							$upd_rec = $this->Crud->updates('id', $foundation_id, $table, $ins_data);
+							if ($upd_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Instructor Record Updated'));
+	
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $foundation_id, 'foundation_setup', 'quarter');
+								$action = $by . ' updated Instructor Record for (' . $code . ') Session';
+								$this->Crud->activity('foundation_setup', $foundation_id, $action);
+								echo '<script>
+										load_admin("","",' . $foundation_id . ');
+										$("#modal").modal("hide");
+									</script>';
+							} else {
+								echo $this->Crud->msg('info', translate_phrase('No Changes'));
+							}
+						} 
+					} else{
+						echo $this->Crud->msg('danger', 'Enter all Details');
+						die;
+					}
+
+					exit;
+				}
+			}
+		}
+
+
+		if ($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+			if (empty($limit)) {
+				$limit = $rec_limit;
+			}
+			if (empty($offset)) {
+				$offset = 0;
+			}
+
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			if (!$log_id) {
+				$item = '<div class="text-center text-muted">' . translate_phrase('Session Timeout! - Please login again') . '</div>';
+			} else {
+				$foundation_id = $this->request->getPost('foundation_id');
+				
+				$counts = 0;
+				$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+				$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+				
+				//First get record from users
+				$student_array = array();
+				if($role != 'developer' && $role != 'administrator'){
+					if($church_id > 0){
+						$members = $this->Crud->read3('is_member', 1, 'foundation_school', 0, 'church_id', $church_id, 'user');
+						$visitors = $this->Crud->read2('foundation_school', 0, 'church_id', $church_id, 'visitors');
+				
+					} else {
+						$members = $this->Crud->read3('is_member', 1, 'foundation_school', 0, 'ministry_id', $ministry_id, 'user');
+						$visitors = $this->Crud->read2('foundation_school', 0, 'ministry_id', $ministry_id, 'visitors');
+				
+					}
+				} else {
+					$members = $this->Crud->read2('is_member', 1, 'foundation_school', 0, 'user');
+					$visitors = $this->Crud->read_single('foundation_school', 0, 'visitors');
+				
+				}
+				
+				if(!empty($members)){
+					foreach($members as $member){
+						$mem['id'] = $member->id;
+						$mem['source'] = 'member';
+						$student_array[] = $mem;
+					}
+				}
+
+				if(!empty($visitors)){
+					foreach($visitors as $visitor){
+						$mem['id'] = $visitor->id;
+						$mem['source'] = 'visitor';
+
+						$student_array[] = $mem;
+					}
+				}
+
+				
+
+				$all_rec = $student_array;
+
+				
+				// $all_rec = json_decode($all_rec);
+				if (!empty($all_rec)) {
+					$counts = count($all_rec);
+				} else {
+					$counts = 0;
+				}
+
+				// echo $limit;
+				$query = array_slice($student_array, $offset, $limit);
+				$data['count'] = $counts;
+				// print_r($query);
+
+				if (!empty($query)) {
+					$a = 1;
+					foreach ($query as $index => $student) {  // $index is the array index
+						$id = $student['id'];
+						$source = $student['source'];
+					
+						if ($source == 'visitor') {
+							$name = $this->Crud->read_field('id', $id, 'visitors', 'fullname');
+							$church_id = $this->Crud->read_field('id', $id, 'visitors', 'church_id');
+						}
+						if ($source == 'member') {
+							$name = $this->Crud->read_field('id', $id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $id, 'user', 'surname');
+							$church_id = $this->Crud->read_field('id', $id, 'user', 'church_id');
+						}
+					
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+						
+						// Use the array index `$index` to create a unique ID for each checkbox
+						$item .= '
+							<tr>
+								<td>' . ucwords($name) . '<br><span class="text-dark small">' . ucwords($source) . '</span></td>
+								<td>' . ucwords($church) . '</td>
+								<td>
+									
+								</td>
+							</tr>
+						';
+						$a++;
+					}
+					
+				
+
+				}
+				
+
+			}
+
+			if (empty($item)) {
+				$resp['item'] = '
+					<tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-users" style="font-size:150px;"></i><br/><br/>' . translate_phrase('No Students Returned') . '
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item.'';
+				
+
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if ($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if ($param1 == 'manage') { // view for form data posting
+			return view('foundation/student_form', $data);
+		} else {
+			
+			$data['title'] = translate_phrase('Foundation Prospective Student') . ' - ' . app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+
+	}
+
+
 	public function attendance($param1 = '', $param2 = '', $param3 = '', $param4 = '')
 	{
 		// check session login
