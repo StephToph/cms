@@ -1914,6 +1914,9 @@ class Service extends BaseController {
 					$data = [];
 					$attendant = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'attendant'));
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					if(empty($church_id)){
+						$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					}
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
 
 

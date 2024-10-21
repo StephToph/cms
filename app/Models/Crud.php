@@ -4168,7 +4168,7 @@ class Crud extends Model {
         // build query
 		$builder->orderBy('id', 'DESC');
 		//$builder->where('role_id', 3);
-		$builder->where('foundation_id', $foundation_id);
+		if(!empty($foundation_id))$builder->where('foundation_id', $foundation_id);
 		if(!empty($status)){
 			
 			$builder->where('status', $status);
