@@ -82,7 +82,7 @@ $this->session = \Config\Services::session();
                             <label class="fw-bold">Offering</label>
                         </div>
                         <div class="col-sm-9 mb-3">
-                            <p><?='$'.number_format($r->offering, 2); ?></p>
+                            <p><?=$this->session->get('currency').number_format($r->offering, 2); ?></p>
                         </div>
                         
                         <div class="col-sm-3 mb-3">
@@ -129,41 +129,50 @@ $this->session = \Config\Services::session();
                     ';
                 } else {
                     $attendant = json_decode($r->attendant);
-                    echo '<div class="row"> 
+                    $ats = 0;
+                    $mems = 0;
+                    $gst = 0;
+
+                    if(!empty($r->attendance))$ats = $r->attendance;
+                    if(!empty($attendant->member))$mems =$attendant->member;
+                    if(!empty($attendant->guest))$gst = $attendant->guest;
+                    echo '
+                    <div class="row"> 
                         <div class="col-sm-3  mb-3">
                             <label class="fw-bold">Total Attendance</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>'.$r->attendance.'</p>
+                            <p>'.$ats.'</p>
                         </div>
                         <div class="col-sm-3  mb-3">
                         <label class="fw-bold">Member</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>'.$attendant->member.'</p>
+                            <p>'.$mems.'</p>
                         </div>
                         <div class="col-sm-3  mb-3">
                             <label class="fw-bold">First Timer</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>'.$attendant->guest.'</p>
+                            <p>'.$gst.'</p>
                         </div>
                         
                         ';
                    
+                       
+                    if(!empty($attendant->attendant)){
                         $attendant = $attendant->attendant;
-                    if(!empty($attendant)){
-                      
                         foreach($attendant as $at => $val){
                             $name = $this->Crud->read_field('id', $val, 'user', 'firstname').' '.$this->Crud->read_field('id', $val, 'user', 'surname');
                          ?>
                         <div class="col-sm-4 mb-2 border"><?=strtoupper($name); ?></div>
-                     <?php } echo '</div>';
+                     <?php } 
                     } else {
                         echo '
                             <div class="col-sm-12">No Attendance Record</div>
                         ';
                     }
+                    echo '</div>';
                 }?>
             </div>    
             <div class="tab-pane" id="tabItem3">        
@@ -267,41 +276,49 @@ $this->session = \Config\Services::session();
                     ';
                 } else {
                     $tithers = json_decode($r->tithers);
+                    $tos = 0;
+                    $tmem = 0;
+                    $tgst = 0;
+
+                    if(!empty($tithers->total))$tos = $tithers->total;
+                    if(!empty($tithers->member))$tmem = $tithers->member;
+                    if(!empty($tithers->guest))$tgst = $tithers->guest;
                     echo '<div class="row"> 
                         <div class="col-sm-3  mb-3">
                             <label class="fw-bold">Total</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>$'.number_format($tithers->total,2).'</p>
+                            <p>'.$this->session->get('currency').number_format($tos,2).'</p>
                         </div>
                         <div class="col-sm-3  mb-3">
                         <label class="fw-bold">Member</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>$'.number_format($tithers->member,2).'</p>
+                            <p>'.$this->session->get('currency').number_format($tmem,2).'</p>
                         </div>
                         <div class="col-sm-3  mb-3">
                             <label class="fw-bold">Guest</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>$'.number_format($tithers->guest,2).'</p>
+                            <p>'.$this->session->get('currency').number_format($tgst,2).'</p>
                         </div>
                         
                         ';
                    
+                       
+                    if(!empty($tithers->list)){
                         $attendant = $tithers->list;
-                    if(!empty($attendant)){
                     //   print_r($attendant);
                         foreach($attendant as $at => $val){
                             $name = $this->Crud->read_field('id', $at, 'user', 'firstname').' '.$this->Crud->read_field('id', $at, 'user', 'surname');
                          ?>
-                        <div class="col-sm-4 mb-2 border"><?=strtoupper($name); ?> => $<?=number_format($val,2); ?></div>
-                     <?php } echo '</div>';
+                        <div class="col-sm-4 mb-2 border"><?=strtoupper($name); ?> => <?=$this->session->get('currency').number_format($val,2); ?></div>
+                     <?php }
                     } else {
                         echo '
                             <div class="col-sm-12">No Tither Record</div>
                         ';
-                    }
+                    } echo '</div>';
                 }?>
             </div>   
             <div class="tab-pane" id="tabItem6">        
@@ -311,30 +328,39 @@ $this->session = \Config\Services::session();
                     ';
                 } else {
                     $attendant = json_decode($r->partners);
+                    $tpart = 0;
+                    $mpart = 0;
+                    $gpart = 0;
+
+                    if(!empty($attendant->total_part))$tpart = $attendant->total_part;
+                    if(!empty($attendant->member_part))$mpart = $attendant->member_part;
+                    if(!empty($attendant->guest_part))$gpart = $attendant->guest_part;
+                    
                     echo '<div class="row"> 
                         <div class="col-sm-3  mb-3">
                             <label class="fw-bold">Total</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>$'.number_format($attendant->total_part,2).'</p>
+                            <p>'.$this->session->get('currency').number_format($tpart,2).'</p>
                         </div>
                         <div class="col-sm-3  mb-3">
                         <label class="fw-bold">Member</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>$'.$attendant->member_part.'</p>
+                            <p>'.$this->session->get('currency').$mpart.'</p>
                         </div>
                         <div class="col-sm-3  mb-3">
                             <label class="fw-bold">First Timer</label>
                         </div>
                         <div class="col-sm-9  mb-3">
-                            <p>$'.$attendant->guest_part.'</p>
+                            <p>'.$this->session->get('currency').$gpart.'</p>
                         </div>
                         
                     ';
                 
-                    $attendant = $attendant->partnership;
-                    if(!empty($attendant)){
+                    if(!empty($attendant->partnership)){
+                        
+                        $attendant = $attendant->partnership;
                         $name = '';
                         $partners = (array)$attendant;
                         foreach($attendant as $at => $val){
