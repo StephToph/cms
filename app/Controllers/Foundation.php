@@ -1290,11 +1290,15 @@ class Foundation extends BaseController{
 
 		if ($param1 == 'manage') { // view for form data posting
 			return view('foundation/student_form', $data);
+		} else {
+			
+			$data['title'] = translate_phrase('Foundation Student') . ' - ' . app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
 		}
 
 	}
 
-	
 
 	public function attendance($param1 = '', $param2 = '', $param3 = '', $param4 = '')
 	{
