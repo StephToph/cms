@@ -1190,7 +1190,7 @@ class Foundation extends BaseController{
 				$item = '<div class="text-center text-muted">' . translate_phrase('Session Timeout! - Please login again') . '</div>';
 			} else {
 				$role_ids = $this->Crud->read_field('name', 'Pastor', 'access_role', 'id');
-
+				
 				$all_rec = $this->Crud->filter_foundation_students('', '', $log_id, $foundation_id, $search);
 				// $all_rec = json_decode($all_rec);
 				if (!empty($all_rec)) {

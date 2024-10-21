@@ -4167,10 +4167,21 @@ class Crud extends Model {
 
         // build query
 		$builder->orderBy('id', 'DESC');
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			if($role == 'ministry administrator'){
+				$builder->where('ministry_id', $ministry_id);
+			} else {
+				$builder->where('church_id', $church_id);
+			}
+		}
+
 		//$builder->where('role_id', 3);
 		if(!empty($foundation_id))$builder->where('foundation_id', $foundation_id);
 		if(!empty($status)){
-			
 			$builder->where('status', $status);
 		}
         // limit query
