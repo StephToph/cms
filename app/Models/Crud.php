@@ -447,6 +447,31 @@ class Crud extends Model {
         $db->close();
 	}
     
+	public function read5($field, $value, $field2, $value2, $field3, $value3,$field4, $value4,$field5, $value5, $table, $limit='', $offset='') {
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		$builder->orderBy('id', 'DESC');
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+        $builder->where($field3, $value3);
+        $builder->where($field4, $value4);
+        $builder->where($field5, $value5);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+    
 
     public function read_field_like($field, $value, $table,$or_field, $or_value, $call) {
 		$return_call = '';
@@ -518,6 +543,17 @@ class Crud extends Model {
     public function read_field4($field, $value, $field2, $value2, $field3, $value3,$field4, $value4, $table, $call) {
 		$return_call = '';
 		$getresult = $this->read4($field, $value, $field2, $value2, $field3, $value3,$field4, $value4, $table);
+		if(!empty($getresult)) {
+			foreach($getresult as $result)  {
+				$return_call = $result->$call;
+			}
+		}
+		return $return_call;
+	}
+	
+    public function read_field5($field, $value, $field2, $value2, $field3, $value3,$field4, $value4,$field5, $value5, $table, $call) {
+		$return_call = '';
+		$getresult = $this->read5($field, $value, $field2, $value2, $field3, $value3,$field4, $value4, $field5, $value5, $table);
 		if(!empty($getresult)) {
 			foreach($getresult as $result)  {
 				$return_call = $result->$call;

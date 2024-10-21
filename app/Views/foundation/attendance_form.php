@@ -88,7 +88,13 @@
                     
                 </tfoot>
             </table>
-        
+                    
+            <div class="col-sm-12 text-center my-2">
+                <hr />
+                <button class="btn btn-primary bb_for_btn" id="ajaxBtn" type="submit">
+                    <i class="icon ni ni-save"></i> Submit
+                </button>
+            </div>
         </div>
 
     </div>
@@ -158,16 +164,21 @@
         $(document).on('change', '[id^=customSwitch]', function() {
             var studentId = $(this).data('id');
             var source = $(this).data('source');
-            var isEnrolled = $(this).is(':checked') ? 1 : 0;  // 1 if checked, 0 if unchecked
-            console.log('test');
+            var isEnrolled = $(this).is(':checked') ? 1 : 0;  // 1 if checked, 0 if unchecked  
+            var foundation_id = $('#foundation_id').val();
+            var week = $('#week').val();
+            var class_no = $('#class_no').val();
+            var dateHeld = $('#date_held').val();
+
             // Send AJAX request to update enrollment status
             $.ajax({
-                url: '<?= site_url("foundation/students/enroll_student") ?>',  // Replace with your actual controller method
+                url: '<?= site_url("foundation/attendance/mark") ?>',  // Replace with your actual controller method
                 type: 'POST',
                 data: {
                     id: studentId,
                     source: source,
-                    enroll: isEnrolled
+                    enroll: isEnrolled,
+                    foundation_id: foundation_id, week:week,class_no:class_no,date_held:dateHeld
                 }
                 
             });
@@ -196,7 +207,11 @@
             }
         }
 
-       
+        $('#ajaxBtn').click(function() {
+            var foundation_id = $('#foundation_id').val();
+            $('#modal').modal('hide');
+            load_attendance('','', foundation_id);
+        });
     });
 
 </script>

@@ -1482,39 +1482,47 @@ class Foundation extends BaseController{
 			}
 		}
 
-		if($param1 == 'enroll_student'){
-			$id = $this->request->getPost('id');
+		if($param1 == 'mark'){
+			$user_id = $this->request->getPost('id');
 			$source = $this->request->getPost('source');
 			$enroll = $this->request->getPost('enroll');  // 1 if enrolled, 0 if not
+			$week = $this->request->getPost('week');
+			$class_no = $this->request->getPost('class_no');  
+			$date_held = $this->request->getPost('date_held');  
+			$courses = json_decode($this->Crud->read_field('id', $foundation_id, 'foundation_setup', 'teacher_course'), true);
+			$course_id = 0;
 
-			if ($source == 'visitor') {
-				// Update the 'enrolled' field in the 'visitors' table
-				$ind['ministry_id'] = $this->Crud->read_field('id', $id, 'visitors', 'ministry_id');
-				$ind['church_id'] = $this->Crud->read_field('id', $id, 'visitors', 'church_id');
-				$ind['user_type'] = $source;
-				
-				$this->Crud->updates('id', $id, 'visitors', array('foundation_school'=>$enroll,'foundation_weeks'=>1));
-			} else if ($source == 'member') {
-				$ind['ministry_id'] = $this->Crud->read_field('id', $id, 'user', 'ministry_id');
-				$ind['church_id'] = $this->Crud->read_field('id', $id, 'user', 'church_id');
-				$ind['user_type'] = $source;
-				
-				$this->Crud->updates('id', $id, 'user',  array('foundation_school'=>$enroll,'foundation_weeks'=>1));
+			if (!empty($courses)) {
+				// Iterate over the course assignments
+				foreach ($courses as $course) {
+					// Check if the 'week' matches the selected week from the request
+					if ($course['week'] === $week) {
+						// If the week matches, set the course_id
+						$course_id = $course['course_id'];
+						break; // Exit loop once we find the match
+					}
+				}
 			}
 
-			$ind['user_id'] = $id;
+			$ind['week'] = $week;
+			$ind['date_held'] = $date_held;
+			$ind['class_no'] = $class_no;
+			$ind['user_id'] = $user_id;
+			$ind['user_type'] = $source;
 			$ind['foundation_id'] = $foundation_id; 
 			$ind['status'] = $enroll;
+			$ind['marked_by'] = $log_id;
+			$ind['course_id'] = $course_id;
 
-			$edit_id = $this->Crud->read_field3('foundation_id', $foundation_id, 'user_id', $id, 'user_type', $source, 'foundation_student', 'id');
+			$edit_id = $this->Crud->read_field5('foundation_id', $foundation_id, 'user_id', $user_id, 'user_type', $source, 'week', $week, 'class_no', $class_no, 'foundation_attendance', 'id');
 			if($edit_id > 0){
 				$ind['updated_at'] = date(fdate);
-				$this->Crud->updates('id', $edit_id, 'foundation_student', $ind);
+				$this->Crud->updates('id', $edit_id, 'foundation_attendance', $ind);
 			} else {
 				
 				$ind['updated_at'] = date(fdate);
 				$ind['reg_date'] = date(fdate);
-				$this->Crud->create('foundation_student', $ind);
+				$this->Crud->create('foundation_attendance', $ind);
 			}
 
 		}
@@ -1573,8 +1581,8 @@ class Foundation extends BaseController{
 						
 						// Use the array index `$index` to create a unique ID for each checkbox
 						$check = '';
-						if($this->Crud->read_field4('foundation_id', $foundation_id, 'week', $week, 'class_no', $class_no, 'user_id', $user_id, 'foundation_attendance', 'status') > 0){
-
+						if($this->Crud->read_field5('foundation_id', $foundation_id, 'week', $week, 'class_no', $class_no, 'user_id', $user_id, 'user_type', $user_type, 'foundation_attendance', 'status') > 0){
+							$check = 'checked';
 						}
 
 						$item .= '
@@ -1677,7 +1685,7 @@ class Foundation extends BaseController{
 						if($weeks_time > 1){
 							for($i=1;$i <= $weeks_time;$i++){
 								$present = $this->Crud->check4('foundation_id', $foundation_id, 'status', 1, 'week', $week, 'class_no', $i, 'foundation_attendance');
-								$date_held = date('d F Y h:iA', strtotime($this->Crud->read_field4('foundation_id', $foundation_id, 'status', 1, 'week', $week, 'class_no', $i, 'foundation_attendance', 'date_held')));
+								$date_held = date('d F Y', strtotime($this->Crud->read_field4('foundation_id', $foundation_id, 'status', 1, 'week', $week, 'class_no', $i, 'foundation_attendance', 'date_held')));
 								if($present == 0){
 									$date_held = '<span class="text-danger">Class not Held</span>';
 								}
@@ -1713,7 +1721,7 @@ class Foundation extends BaseController{
 
 						} else {
 							$present = $this->Crud->check3('foundation_id', $foundation_id, 'status', 1, 'week', $week, 'foundation_attendance');
-							$date_held = date('d F Y h:iA', strtotime($this->Crud->read_field3('foundation_id', $foundation_id, 'status', 1, 'week', $week, 'foundation_attendance', 'date_held')));
+							$date_held = date('d F Y', strtotime($this->Crud->read_field3('foundation_id', $foundation_id, 'status', 1, 'week', $week, 'foundation_attendance', 'date_held')));
 							if($present == 0){
 								$date_held = '<span class="text-danger">Class not Held</span>';
 							}
