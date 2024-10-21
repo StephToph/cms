@@ -238,6 +238,59 @@ $switch_id = $this->session->get('switch_church_id');
                     </div><!-- .card -->
                 </div><!-- .nk-block -->
             </div>
+            <div class="nk-content-body" id="attendance_resp" style="display:none;">
+                <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between">
+                        <div class="nk-block-head-content">
+                            <h3 class="nk-block-title page-title" id="church_title">
+                                <?= translate_phrase('Attendance'); ?></h3>
+                            
+                        </div><!-- .nk-block-head-content -->
+                    </div><!-- .nk-block-between -->
+                </div><!-- .nk-block-head -->
+                <div class="nk-block">
+                    <div class="card card-bordered card-stretch">
+                        <div class="card-inner-group">
+                            <div class="card-inner position-relative card-tools-toggle">
+                                <div class="card-title-group">
+                                    <div class="card-tools">
+
+                                    </div><!-- .card-tools -->
+                                    <div class="card-tools me-n1">
+                                        <ul class="btn-toolbar gx-1">
+                                           <li>
+                                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Back to Setup" class="btn btn-outline-danger btn-icon"
+                                                    onclick="church_back();"><em
+                                                        class="icon ni ni-curve-down-left"></em></a>
+                                            </li>
+                                        </ul><!-- .btn-toolbar -->
+                                    </div><!-- .card-tools -->
+                                </div>
+                            </div><!-- .card-inner -->
+                            <div class="card-inner ">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Week</th>
+                                                <th>No of Class</th>
+                                                <th>Total Student</th>
+                                                <th>Present</th>
+                                                <th>Absent</th>
+                                                <th>Date Held</th>
+                                                <th></th>
+                                            </th>
+                                        </thead>
+                                        <tbody id="load_attendance"></tbody>
+                                        <tfoot id="attendance_more"></tfoot>
+                                    </table>
+                                </div>
+                            </div><!-- .card-inner -->
+                        </div><!-- .card-inner-group -->
+                    </div><!-- .card -->
+                </div><!-- .nk-block -->
+            </div>
         </div>
     </div>
 </div>
@@ -256,6 +309,7 @@ $switch_id = $this->session->get('switch_church_id');
         $('#admin_resp').hide(500);
         
         $('#enroll_resp').hide(500);
+        $('#attendance_resp').hide(500);
         
         load('', '');
 
@@ -264,12 +318,23 @@ $switch_id = $this->session->get('switch_church_id');
     function enroll(id) {
         $('#church_resp').hide(500);
         $('#admin_resp').hide(500);
+        $('#attendance_resp').hide(500);
         $('#enroll_resp').show(500);
         
         $('#enroll_search').on('input', function () {
             load_enroll('', '', id);
         });
         load_enroll('', '', id);
+
+    }
+
+    function attendance(id) {
+        $('#church_resp').hide(500);
+        $('#admin_resp').hide(500);
+        $('#enroll_resp').hide(500);
+        $('#attendance_resp').show(500);
+        
+        load_attendance('', '', id);
 
     }
 
@@ -283,6 +348,51 @@ $switch_id = $this->session->get('switch_church_id');
         load_admin('', '', id);
 
     }
+
+    function load_attendance(x, y, id) {
+        var more = 'no';
+        var methods = '';
+        if (parseInt(x) > 0 && parseInt(y) > 0) {
+            more = 'yes';
+            methods = '/' + x + '/' + y;
+        }
+
+        if (more == 'no') {
+            $('#load_attendance').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
+        } else {
+            $('#attendance_more').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
+        }
+
+
+        var search = $('#enroll_search').val();
+        //alert(status);
+
+        $.ajax({
+            url: site_url + 'foundation/attendance/load' + methods,
+            type: 'post',
+            data: { search: search, id: id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                if (more == 'no') {
+                    $('#load_attendance').html(dt.item);
+                } else {
+                    $('#load_attendance').append(dt.item);
+                }
+                $('#admin_counta').html(dt.count);
+                if (dt.offset > 0) {
+                    $('#attendance_more').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load_attendance(' + dt.limit + ', ' + dt.offset + ', '+id+');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
+                } else {
+                    $('#attendance_more').html('');
+                }
+            },
+            complete: function () {
+                $.getScript(site_url + '/assets/js/jsmodal.js');
+            }
+        });
+    }
+
+
+
 
     function load_enroll(x, y, id) {
         var more = 'no';
@@ -315,7 +425,7 @@ $switch_id = $this->session->get('switch_church_id');
                 }
                 $('#admin_counta').html(dt.count);
                 if (dt.offset > 0) {
-                    $('#enroll_more').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load_admin(' + dt.limit + ', ' + dt.offset + ', '+id+');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
+                    $('#enroll_more').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load_enroll(' + dt.limit + ', ' + dt.offset + ', '+id+');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
                 } else {
                     $('#enroll_more').html('');
                 }
