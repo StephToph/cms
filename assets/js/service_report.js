@@ -714,33 +714,39 @@
     $('#mem_btn').click(function() {
         // Create a new row
         const newRow = $('<tr></tr>');
-
+    
         // Create a select element for church members
-        const memberSelect = $('<select  class="js-select2 members" name="members[]" id="members" required></select>');
+        const memberSelect = $('<select class="js-selects2 members" name="members[]" required></select>');
         
+        // Check if church members are available and append them to the select
         if (churchMembers && churchMembers.length > 0) {
             churchMembers.forEach(function(member) {
                 memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
             });
-        } 
-        // Initialize Select2 for this individual element
-        memberSelect.select2();
-
+        }
+        
+        // Append the select2-enabled memberSelect to the new row
         newRow.append($('<td width="250px;"></td>').append(memberSelect));
-
+    
         // Add input textboxes for each partnership
         partnerships.forEach(function(partnership) {
             newRow.append(`
                 <td>
-                    <input type="text" style="width:100px;" class="form-control members_amount" oninput=" bindInputEvents();" name="${partnership}_member[]" placeholder="0">
+                    <input type="text" style="width:100px;" class="form-control members_amount" oninput="bindInputEvents();" name="${partnership}_member[]" placeholder="0">
                 </td>
             `);
         });
+    
         // Append the new row to the table body
         $('#member_partner_list').append(newRow);
-
-        
+    
+        // Initialize select2 for the new element only
+        memberSelect.select2(); // This applies to the new dynamically added select element
+    
+        // Reinitialize select2 for any previously existing elements if necessary
+        $('.js-selects2').select2(); // Re-apply select2 to all select elements with this class
     });
+    
     
     
     let titheRowIndex = 0;

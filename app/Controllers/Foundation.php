@@ -1693,7 +1693,7 @@ class Foundation extends BaseController{
 
 								$all_btn = '
 									<li><a href="javascript:;" class="text-primary pop" pageTitle="Mark Attendance " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/mark/'.$week.'/'.$i) . '"><em class="icon ni ni-list-check"></em><span>' . translate_phrase('Mark Attendance') . '</span></a></li>
-									<li><a href="javascript:;" class="text-info pop" pageTitle="Edit " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/'.$week.'/'.$i) . '"><em class="icon ni ni-eye"></em><span>' . translate_phrase('View Attendance') . '</span></a></li>
+									<li><a href="javascript:;" class="text-info pop" pageTitle="View " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/'.$week.'/'.$i) . '"><em class="icon ni ni-eye"></em><span>' . translate_phrase('View Attendance') . '</span></a></li>
 																
 								';
 								$item .= '
@@ -1729,7 +1729,7 @@ class Foundation extends BaseController{
 
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Mark Attendance " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/mark/'.$week) . '"><em class="icon ni ni-list-check"></em><span>' . translate_phrase('Mark Attendance') . '</span></a></li>
-								<li><a href="javascript:;" class="text-info pop" pageTitle="Edit " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/'.$week) . '"><em class="icon ni ni-eye"></em><span>' . translate_phrase('View Attendance') . '</span></a></li>
+								<li><a href="javascript:;" class="text-info pop" pageTitle="View " pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/'.$week) . '"><em class="icon ni ni-eye"></em><span>' . translate_phrase('View Attendance') . '</span></a></li>
 															
 							';
 							$item .= '
