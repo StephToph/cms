@@ -41,10 +41,10 @@ $switch_id = $this->session->get('switch_church_id');
                                     <table class="table table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Quarter</th>
-                                                <th>Date</th>
-                                                <th>Joint Class Status</th>
+                                                <th>Students</th>
+                                                <th>Church</th>
                                                 <th>Status</th>
+                                                <th>Updated At</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
