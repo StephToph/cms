@@ -423,6 +423,30 @@ class Crud extends Model {
         $db->close();
 	}
     
+	public function read4($field, $value, $field2, $value2, $field3, $value3,$field4, $value4, $table, $limit='', $offset='') {
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		$builder->orderBy('id', 'DESC');
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+        $builder->where($field3, $value3);
+        $builder->where($field4, $value4);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+    
 
     public function read_field_like($field, $value, $table,$or_field, $or_value, $call) {
 		$return_call = '';
@@ -484,6 +508,16 @@ class Crud extends Model {
     public function read_field3($field, $value, $field2, $value2, $field3, $value3, $table, $call) {
 		$return_call = '';
 		$getresult = $this->read3($field, $value, $field2, $value2, $field3, $value3, $table);
+		if(!empty($getresult)) {
+			foreach($getresult as $result)  {
+				$return_call = $result->$call;
+			}
+		}
+		return $return_call;
+	}
+    public function read_field4($field, $value, $field2, $value2, $field3, $value3,$field4, $value4, $table, $call) {
+		$return_call = '';
+		$getresult = $this->read4($field, $value, $field2, $value2, $field3, $value3,$field4, $value4, $table);
 		if(!empty($getresult)) {
 			foreach($getresult as $result)  {
 				$return_call = $result->$call;
@@ -607,6 +641,19 @@ class Crud extends Model {
         $builder->where($field, $value);
         $builder->where($field2, $value2);
         $builder->where($field3, $value3);
+
+        return $builder->countAllResults();
+        $db->close();
+	}
+
+	public function check4($field, $value, $field2, $value2, $field3, $value3, $field4, $value4, $table){
+		$db = db_connect();
+        $builder = $db->table($table);
+        
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+        $builder->where($field3, $value3);
+        $builder->where($field4, $value4);
 
         return $builder->countAllResults();
         $db->close();
@@ -4078,7 +4125,7 @@ class Crud extends Model {
     }
 
 	//////////////////////////filter partner//////////////////////////////////
-    public function filter_foundation_students($limit='', $offset='', $log_id, $foundation_id='', $search='') {
+    public function filter_foundation_students($limit='', $offset='', $log_id, $foundation_id='', $search='', $status='') {
         $db = db_connect();
         $builder = $db->table('foundation_student');
 
@@ -4086,7 +4133,10 @@ class Crud extends Model {
 		$builder->orderBy('id', 'DESC');
 		//$builder->where('role_id', 3);
 		$builder->where('foundation_id', $foundation_id);
-		
+		if(!empty($status)){
+			
+			$builder->where('status', $status);
+		}
         // limit query
         if($limit && $offset) {
 			$query = $builder->get($limit, $offset);
