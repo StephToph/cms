@@ -1914,6 +1914,7 @@ class Service extends BaseController {
 					$data = [];
 					$attendant = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'attendant'));
 					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					// echo $church_id;
 					if(empty($church_id)){
 						$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 					}
@@ -1951,6 +1952,8 @@ class Service extends BaseController {
 							unset($church_memberss[$key]); // Remove the member
 						}
 					}
+					// print_r($church_memberss);
+
 
 					
 					$table = '';
@@ -2563,11 +2566,11 @@ class Service extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_service_report('', '', $search);
+				$all_rec = $this->Crud->filter_service_report('', '', $search, $log_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_service_report($limit, $offset, $search);
+				$query = $this->Crud->filter_service_report($limit, $offset, $search, $log_id);
 				$data['count'] = $counts;
 				
 

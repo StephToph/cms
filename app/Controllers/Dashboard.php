@@ -332,6 +332,9 @@ class Dashboard extends BaseController {
         }
          $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 
+        $prospective = 0;
+        $student = 0;
+        $graduate = 0;
         $tithe = 0;
         $tithe_part = 0;
         $partnership = 0;
@@ -609,10 +612,49 @@ class Dashboard extends BaseController {
                 $col = array_values($col);
             }
         }
+
+        $student_array = array();
+        if($role != 'developer' && $role != 'administrator'){
+            if($church_id > 0){
+                $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'church_id', $church_id, 'user');
+                $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'church_id', $church_id, 'visitors');
+                $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'church_id', $church_id, 'user');
+                $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'church_id', $church_id, 'visitors');
+                $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'church_id', $church_id, 'user');
+                $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'church_id', $church_id, 'visitors');
+                
+            } else {
+                $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'ministry_id', $ministry_id, 'user');
+                $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'ministry_id', $ministry_id, 'visitors');
+                $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'ministry_id', $ministry_id, 'user');
+                $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'ministry_id', $ministry_id, 'visitors');
+                $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'ministry_id', $ministry_id, 'user');
+                $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'ministry_id', $ministry_id, 'visitors');
+        
+            }
+        } else {
+            $pmembers = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'user');
+            $pvisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'visitors');
+            $smembers = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'user');
+            $svisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'visitors');
+            $gmembers = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'user');
+            $gvisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'visitors');
+        
+        }
+
+        $prospective += $pmembers;
+        $prospective += $pvisitors;
+        $student += $smembers;
+        $student += $svisitors;
+        $graduate += $gmembers;
+        $graduate += $gvisitors;
            
        
         $resp['tithe'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($tithe),2);
         $resp['tithe_part'] = number_format($tithe_part);
+        $resp['prospective'] = number_format($prospective);
+        $resp['student'] = number_format($student);
+        $resp['graduate'] = number_format($graduate);
         $resp['membership'] = number_format($membership);
         $resp['first_timer'] = number_format($first_timer);
         $resp['new_convert'] = number_format($new_convert);
@@ -711,15 +753,30 @@ class Dashboard extends BaseController {
                 $service_date = $type.' - '.date('d F Y', strtotime($u->date));
                 $attend = $u->attendance;
                 $attendance = $u->attendant;
-                $attendant = json_decode($attendance);
-                $attendant = (array)$attendant;
+                $attendant = json_decode($attendance, true);  // Decode JSON as an associative array
+
+                if (!empty($attendant)) {
+                    // Check if 'male' index exists
+                    if (isset($attendant['male'])) {
+                        $male = $attendant['male'];
+                    } else {
+                        $male = 0;  // Default value if 'male' index does not exist
+                    }
                 
-                if(!empty($attendant)){
-                    // echo $attendant['male'];
-                    $male = $attendant['male'];
-                    $female = $attendant['female'];
-                    $children = $attendant['children'];
-                    
+                    // Check if 'female' index exists
+                    if (isset($attendant['female'])) {
+                        $female = $attendant['female'];
+                    } else {
+                        $female = 0;  // Default value if 'female' index does not exist
+                    }
+                
+                    // Check if 'children' index exists
+                    if (isset($attendant['children'])) {
+                        $children = $attendant['children'];
+                    } else {
+                        $children = 0;  // Default value if 'children' index does not exist
+                    }
+                
                     $ft = $u->first_timer;
     
                     $male_per = ((int)$male * 100)/(int)$attend;
