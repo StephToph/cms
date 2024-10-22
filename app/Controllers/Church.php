@@ -110,6 +110,7 @@ class Church extends BaseController{
 								$data['e_phone'] = $e->phone;
 								$data['e_address'] = $e->address;
 								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_country_id'] = $e->country_id;
 								$data['e_img'] = $e->logo;
 							}
 						}
@@ -124,6 +125,7 @@ class Church extends BaseController{
 					$address = $this->request->getVar('address');
 					$img_id = $this->request->getVar('img');
 					$ministry_id = $this->request->getVar('ministry_id');
+					$country_id = $this->request->getVar('country_id');
 
 
 					//// Image upload
@@ -146,6 +148,7 @@ class Church extends BaseController{
 					$ins_data['phone'] = $phone;
 					$ins_data['type'] = 'region';
 					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['country_id'] = $country_id;
 					if (!empty($img_id) || !empty($getImg->path))
 						$ins_data['logo'] = $img_id;
 
@@ -241,6 +244,8 @@ class Church extends BaseController{
 						$logo = $q->logo;
 						$ministry_id = $q->ministry_id;
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						$country_id = $q->country_id;
+						$country = $this->Crud->read_field('id', $country_id, 'country', 'name');
 						$address = $q->address;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 
@@ -292,7 +297,7 @@ class Church extends BaseController{
 									<span class="small text-dark ">' . $email . '</span><br>
 									<span class="small text-dark ">' . $phone . '</span>
 								</td>
-								<td><span class="small text-dark ">' . $address . '</span></td>
+								<td><span class="small text-dark ">' . $address . '</span><br><span class="text-info small">'.$country.'</span></td>
 								<td><span class="small text-dark ">' . $reg_date . '</span></td>
 								<td>
 									<div class="drodown">
@@ -459,6 +464,7 @@ class Church extends BaseController{
 								$data['e_email'] = $e->email;
 								$data['e_phone'] = $e->phone;
 								$data['e_address'] = $e->address;
+								$data['e_country_id'] = $e->country_id;
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_regional_id'] = $e->regional_id;
 								$data['e_img'] = $e->logo;
@@ -476,6 +482,7 @@ class Church extends BaseController{
 					$regional_id = $this->request->getVar('region_id');
 					$img_id = $this->request->getVar('img');
 					$ministry_id = $this->request->getVar('ministry_id');
+					$country_id = $this->request->getVar('country_id');
 
 
 					//// Image upload
@@ -498,6 +505,7 @@ class Church extends BaseController{
 					$ins_data['phone'] = $phone;
 					$ins_data['type'] = 'zone';
 					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['country_id'] = $country_id;
 					$ins_data['regional_id'] = $regional_id;
 					if (!empty($img_id) || !empty($getImg->path))
 						$ins_data['logo'] = $img_id;
@@ -593,6 +601,8 @@ class Church extends BaseController{
 						$logo = $q->logo;
 						$address = $q->address;
 						$ministry_id = $q->ministry_id;
+						$country_id = $q->country_id;
+						$country = $this->Crud->read_field('id', $country_id, 'country', 'name');
 						$regional_id = $q->regional_id;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
@@ -647,7 +657,8 @@ class Church extends BaseController{
 								<span class="small text-dark">' . $email . '</span><br>
 								<span class="small text-dark">' . $phone . '</span>
 							</td>
-							<td><span class="small text-dark">' . $address . '</span></td>
+							<td><span class="small text-dark">' . $address . '</span><br>
+								<span class="small text-info">' . $country . '</span></td>
 							<td><span class="small text-dark">' . $mins . '</span></td>
 							<td>
 								<div class="drodown">
@@ -817,6 +828,7 @@ class Church extends BaseController{
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_regional_id'] = $e->regional_id;
 								$data['e_zonal_id'] = $e->zonal_id;
+								$data['e_country_id'] = $e->country_id;
 								$data['e_img'] = $e->logo;
 							}
 						}
@@ -833,6 +845,7 @@ class Church extends BaseController{
 					$zonal_id = $this->request->getVar('zonal_id');
 					$img_id = $this->request->getVar('img');
 					$ministry_id = $this->request->getVar('ministry_id');
+					$country_id = $this->request->getVar('country_id');
 
 
 					//// Image upload
@@ -867,6 +880,7 @@ class Church extends BaseController{
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['regional_id'] = $regional_id;
 					$ins_data['zonal_id'] = $zonal_id;
+					$ins_data['country_id'] = $country_id;
 					if (!empty($img_id) || !empty($getImg->path))
 						$ins_data['logo'] = $img_id;
 
@@ -962,10 +976,12 @@ class Church extends BaseController{
 						$logo = $q->logo;
 						$address = $q->address;
 						$ministry_id = $q->ministry_id;
+						$country_id = $q->country_id;
 						$regional_id = $q->regional_id;
 						$zonal_id = $q->zonal_id;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						$country = $this->Crud->read_field('id', $country_id, 'country', 'name');
 						$mins = '';
 
 						if (!empty($regional_id))
@@ -1022,7 +1038,8 @@ class Church extends BaseController{
 									<span class="small text-dark">' . $email . '</span><br>
 									<span class="small text-dark">' . $phone . '</span>
 								</td>
-								<td><span class="small text-dark">' . $address . '</span></td>
+								<td><span class="small text-dark">' . $address . '</span><br>
+								<span class="small text-info">' . $country . '</span></td>
 								<td><span class="small text-dark">' . $mins . '</span></td>
 								<td>
 									<div class="drodown">
@@ -1194,6 +1211,7 @@ class Church extends BaseController{
 								$data['e_regional_id'] = $e->regional_id;
 								$data['e_zonal_id'] = $e->zonal_id;
 								$data['e_group_id'] = $e->group_id;
+								$data['e_country_id'] = $e->country_id;
 								$data['e_img'] = $e->logo;
 							}
 						}
@@ -1211,6 +1229,7 @@ class Church extends BaseController{
 					$group_id = $this->request->getVar('group_id');
 					$img_id = $this->request->getVar('img');
 					$ministry_id = $this->request->getVar('ministry_id');
+					$country_id = $this->request->getVar('country_id');
 
 
 					//// Image upload
@@ -1250,6 +1269,7 @@ class Church extends BaseController{
 					$ins_data['regional_id'] = $regional_id;
 					$ins_data['zonal_id'] = $zonal_id;
 					$ins_data['group_id'] = $group_id;
+					$ins_data['country_id'] = $country_id;
 					if (!empty($img_id) || !empty($getImg->path))
 						$ins_data['logo'] = $img_id;
 
@@ -1348,6 +1368,7 @@ class Church extends BaseController{
 						$group_id = $q->group_id;
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						$country = $this->Crud->read_field('id', $q->country_id, 'country', 'name');
 						$mins = '';
 
 						if (!empty($regional_id))
@@ -1404,7 +1425,8 @@ class Church extends BaseController{
 									<span class="small text-dark">' . $email . '</span><br>
 									<span class="small text-dark">' . $phone . '</span>
 								</td>
-								<td><span class="small text-dark">' . $address . '</span></td>
+								<td><span class="small text-dark">' . $address . '</span><br>
+								<span class="small text-info">' . $country . '</span></td>
 								<td><span class="small text-dark">' . $mins . '</span></td>
 								<td>
 									<div class="drodown">

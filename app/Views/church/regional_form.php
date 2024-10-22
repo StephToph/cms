@@ -31,7 +31,7 @@ $this->Crud = new Crud();
         <div class="row">
             <input type="hidden" name="dept_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
             <div class="col-sm-12 mb-3">
-                <div class="form-group"><b>Ministry Logo</b><br>
+                <div class="form-group"><b>Church Logo</b><br>
                     <label for="img-upload" class="pointer text-center" style="width:100%;">
                         <input type="hidden" name="img" value="<?php if(!empty($e_img)){echo $e_img;} ?>" />
                         <img id="img" src="<?php if(!empty($e_img)){echo site_url( $e_img);} ?>" style="max-width:100%;" />
@@ -69,6 +69,29 @@ $this->Crud = new Crud();
                 </div>
             </div>
 
+            <div class="col-sm-6 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Country'); ?></label>
+                    <select id="country_id" name="country_id" class="js-select2">
+                        
+                        <option value="">Select</option>
+                        <?php
+                            $part = $this->Crud->read_order('country', 'name', 'asc');
+                            if(!empty($part)){
+                                foreach($part as $p){
+                                    $sel = '';
+                                    if(!empty($e_country_id)){
+                                        if($e_country_id == $p->id){
+                                            $sel = 'selected';
+                                        }
+                                    }
+                                    echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name).'</option>';
+                                }
+                            }
+                        ?>
+                    </select>
+                </div>
+            </div>
             <?php if($role == 'developer' || $role == 'administrator'){?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
