@@ -52,431 +52,433 @@ $this->session = \Config\Services::session();
         </ul>
         <div class="tab-content">    
             <div class="tab-pane active" id="tabItem1">    
-                <?php 
-                    $r_id = $param3;
-                    $reports = $this->Crud->read_single('id', $r_id, 'service_report');
-                    if(empty($reports)){
+                <div class="row">
+                    <?php 
+                        $r_id = $param3;
+                        $reports = $this->Crud->read_single('id', $r_id, 'service_report');
+                        if(empty($reports)){
+                            echo '
+                                <div class="col-sm-12">No Record</div>
+                            ';
+                        } else {
+                            foreach($reports as $r){
+                            $types = $this->Crud->read_field('id', $r->type, 'service_type', 'name'); ?>    
+                                
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">Meeting Date</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=date('d F Y', strtotime($r->date)); ?></p>
+                                </div>
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">Meeting</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=$types; ?></p>
+                                </div>
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">Offering</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=$this->session->get('currency').number_format($r->offering, 2); ?></p>
+                                </div>
+                                
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">Attendance</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=$r->attendance; ?></p>
+                                </div>
+                                
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">First Timer</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=$r->first_timer; ?></p>
+                                </div>
+                                
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">New Converts</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=$r->new_convert; ?></p>
+                                </div>
+                                
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">Note</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=ucwords($r->note); ?></p>
+                                </div>
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">Input Date</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=date('d M Y h:iA', strtotime($r->reg_date)); ?></p>
+                                </div>
+                                <?php
+                                    $attendant = json_decode($r->attendant);
+                                    $ats = 0;
+                                    $mems = 0;
+                                    $gst = 0;
+                
+                                    if(!empty($r->attendance))$ats = $r->attendance;
+                                    if(!empty($attendant->member))$mems =$attendant->member;
+                                    if(!empty($attendant->guest))$gst = $attendant->guest;
+                                ?>
+                                <div class="col-sm-3  mb-3">
+                                    <label class="fw-bold">Total Attendance</label>
+                                </div>
+                                <div class="col-sm-9  mb-3">
+                                    <p><?=$ats;?></p>
+                                </div>
+                                <div class="col-sm-3  mb-3">
+                                    <label class="fw-bold">Member</label>
+                                </div>
+                                <div class="col-sm-9  mb-3">
+                                    <p><?=$mems;?></p>
+                                </div>
+                                <div class="col-sm-3  mb-3">
+                                    <label class="fw-bold">First Timer</label>
+                                </div>
+                                <div class="col-sm-9  mb-3">
+                                    <p><?=$gst;?></p>
+                                </div>
+                                <div class="col-sm-3 mb-3">
+                                    <label class="fw-bold">New Convert</label>
+                                </div>
+                                <div class="col-sm-9 mb-3">
+                                    <p><?=$r->new_convert; ?></p>
+                                </div>
+                                <?php
+                                    $tithers = json_decode($r->tithers);
+                                    $tos = 0;
+                                    $tmem = 0;
+                                    $tgst = 0;
+            
+                                    if(!empty($tithers->total))$tos = $tithers->total;
+                                    if(!empty($tithers->member))$tmem = $tithers->member;
+                                    if(!empty($tithers->guest))$tgst = $tithers->guest;?>
+                                    
+                                    <div class="col-sm-3  mb-3">
+                                        <label class="fw-bold">Total</label>
+                                    </div>
+                                    <div class="col-sm-9  mb-3">
+                                        <p><?=$this->session->get('currency').number_format($tos,2); ?></p>
+                                    </div>
+                                    <div class="col-sm-3  mb-3">
+                                    <label class="fw-bold">Member</label>
+                                    </div>
+                                    <div class="col-sm-9  mb-3">
+                                        <p><?=$this->session->get('currency').number_format($tmem,2); ?></p>
+                                    </div>
+                                    <div class="col-sm-3  mb-3">
+                                        <label class="fw-bold">Guest</label>
+                                    </div>
+                                    <div class="col-sm-9  mb-3">
+                                        <p><?=$this->session->get('currency').number_format($tgst,2); ?></p>
+                                    </div>
+                                    
+                                    <?php 
+                                        $attendant = json_decode($r->partners);
+                                        $tpart = 0;
+                                        $mpart = 0;
+                                        $gpart = 0;
+                
+                                        if(!empty($attendant->total_part))$tpart = $attendant->total_part;
+                                        if(!empty($attendant->member_part))$mpart = $attendant->member_part;
+                                        if(!empty($attendant->guest_part))$gpart = $attendant->guest_part;?>
+                                         
+                                        <div class="col-sm-3  mb-3">
+                                            <label class="fw-bold">Total</label>
+                                        </div>
+                                        <div class="col-sm-9  mb-3">
+                                            <p><?=$this->session->get('currency').number_format($tpart,2); ?></p>
+                                        </div>
+                                        <div class="col-sm-3  mb-3">
+                                        <label class="fw-bold">Member</label>
+                                        </div>
+                                        <div class="col-sm-9  mb-3">
+                                            <p><?=$this->session->get('currency').$mpart; ?></p>
+                                        </div>
+                                        <div class="col-sm-3  mb-3">
+                                            <label class="fw-bold">First Timer</label>
+                                        </div>
+                                        <div class="col-sm-9  mb-3">
+                                            <p><?=$this->session->get('currency').$gpart; ?></p>
+                                        </div>
+                                        
+                                    
+                                    
+                    <?php   } 
+                        } ?>
+                </div>
+            </div>    
+            <div class="tab-pane" id="tabItem2">  
+                <div class="row">      
+                    <?php if(empty($reports)){
                         echo '
                             <div class="col-sm-12">No Record</div>
                         ';
-                    } else{
-                        foreach($reports as $r){
-                           $types = $this->Crud->read_field('id', $r->type, 'service_type', 'name');
+                    } else {           
+                        $attendant = json_decode($r->attendant);  // Decode the JSON
 
-                            
-                ?>    
-                    <div class="row">
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Meeting Date</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=date('d F Y', strtotime($r->date)); ?></p>
-                        </div>
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Meeting</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=$types; ?></p>
-                        </div>
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Offering</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=$this->session->get('currency').number_format($r->offering, 2); ?></p>
-                        </div>
-                        
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Attendance</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=$r->attendance; ?></p>
-                        </div>
-                        
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">First Timer</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=$r->first_timer; ?></p>
-                        </div>
-                        
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">New Converts</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=$r->new_convert; ?></p>
-                        </div>
-                        
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Note</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=ucwords($r->note); ?></p>
-                        </div>
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Input Date</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p><?=date('d M Y h:iA', strtotime($r->reg_date)); ?></p>
-                        </div>
-                        
-                    </div>
-                <?php } } ?>
-            </div>    
-            <div class="tab-pane" id="tabItem2">        
-                <?php if(empty($reports)){
-                    echo '
-                        <div class="col-sm-12">No Record</div>
-                    ';
-                } else {
-                    $attendant = json_decode($r->attendant);
-                    $ats = 0;
-                    $mems = 0;
-                    $gst = 0;
+                        if (!empty($attendant->list)) {  // Check if there is any attendance data
+                            $attendant_list = $attendant->list;  // Access the 'list' object
 
-                    if(!empty($r->attendance))$ats = $r->attendance;
-                    if(!empty($attendant->member))$mems =$attendant->member;
-                    if(!empty($attendant->guest))$gst = $attendant->guest;
-                    echo '
-                    <div class="row"> 
-                        <div class="col-sm-3  mb-3">
-                            <label class="fw-bold">Total Attendance</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$ats.'</p>
-                        </div>
-                        <div class="col-sm-3  mb-3">
-                        <label class="fw-bold">Member</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$mems.'</p>
-                        </div>
-                        <div class="col-sm-3  mb-3">
-                            <label class="fw-bold">First Timer</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$gst.'</p>
-                        </div>
-                        
-                        ';
-                   
-                       
-                    if(!empty($attendant->attendant)){
-                        $attendant = $attendant->attendant;
-                        foreach($attendant as $at => $val){
-                            $name = $this->Crud->read_field('id', $val, 'user', 'firstname').' '.$this->Crud->read_field('id', $val, 'user', 'surname');
-                         ?>
-                        <div class="col-sm-4 mb-2 border"><?=strtoupper($name); ?></div>
-                     <?php } 
-                    } else {
-                        echo '
-                            <div class="col-sm-12">No Attendance Record</div>
-                        ';
-                    }
-                    echo '</div>';
-                }?>
-            </div>    
-            <div class="tab-pane" id="tabItem3">        
-                <?php if(empty($reports)){
-                    echo '
-                        <div class="col-sm-12">No Record</div>
-                    ';
-                } else {
-                    echo '<div class="row"> 
-                        <div class="col-sm-2 mb-3">
-                            <label class="fw-bold">First Timer</label>
-                        </div>
-                        <div class="col-sm-10 mb-3">
-                            <p>'.$r->first_timer.'</p>
-                        </div></div>';
-                    $timers = json_decode($r->timers);
-                    if(!empty($timers)){
-                        foreach($timers as $at => $val){
-                            $time = (array)$val;
-                           
-                        ?>
-                        <div class="row border mb-2 p-2"> 
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Name</label>
-                                <p><?=ucwords($time['fullname']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Email</label>
-                                <p><?=ucwords($time['email']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Phone</label>
-                                <p><?=ucwords($time['phone']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Birthday</label>
-                                <p><?=ucwords($time['dob']); ?></p>
-                            </div>
-                        </div>
-                    <?php }
-                    } else {
-                        echo '
-                            <div class="col-sm-12">No First Timer Record</div>
-                        ';
-                    }
-                }?>  
-            </div>    
-            <div class="tab-pane" id="tabItem4">        
-            <?php if(empty($reports)){
-                    echo '
-                        <div class="col-sm-12">No Record</div>
-                    ';
-                } else {
-                    echo '<div class="row"> 
-                        <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">New Convert</label>
-                        </div>
-                        <div class="col-sm-9 mb-3">
-                            <p>'.$r->new_convert.'</p>
-                        </div></div>';
-                    $timers = json_decode($r->converts);
-                    if(!empty($timers)){
-                        foreach($timers as $at => $val){
-                            $time = (array)$val;
-                           
-                        ?>
-                        <div class="row border mb-2 p-2"> 
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Name</label>
-                                <p><?=ucwords($time['fullname']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Email</label>
-                                <p><?=ucwords($time['email']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Phone</label>
-                                <p><?=ucwords($time['phone']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Birthday</label>
-                                <p><?=ucwords($time['dob']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Invited By</label>
-                            </div>
-                            
-                        </div>
-                    <?php }
-                    } else {
-                        echo '
-                            <div class="col-sm-12">No New Convert Record</div>
-                        ';
-                    }
-                }?>     
-            </div>
-            <div class="tab-pane" id="tabItem5">        
-                <?php if(empty($reports)){
-                    echo '
-                        <div class="col-sm-12">No Record</div>
-                    ';
-                } else {
-                    $tithers = json_decode($r->tithers);
-                    $tos = 0;
-                    $tmem = 0;
-                    $tgst = 0;
+                            // Handle 'present' attendees
+                            if (!empty($attendant_list->present)) {
+                                foreach ($attendant_list->present as $present) {
+                                    $name = $this->Crud->read_field('id', $present->id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $present->id, 'user', 'surname');
+                                    ?>
+                                    <div class="col-sm-4 mb-2 border"><?= strtoupper($name); ?> (Present)</div>
+                                    <?php
+                                }
+                            }
 
-                    if(!empty($tithers->total))$tos = $tithers->total;
-                    if(!empty($tithers->member))$tmem = $tithers->member;
-                    if(!empty($tithers->guest))$tgst = $tithers->guest;
-                    echo '<div class="row"> 
-                        <div class="col-sm-3  mb-3">
-                            <label class="fw-bold">Total</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$this->session->get('currency').number_format($tos,2).'</p>
-                        </div>
-                        <div class="col-sm-3  mb-3">
-                        <label class="fw-bold">Member</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$this->session->get('currency').number_format($tmem,2).'</p>
-                        </div>
-                        <div class="col-sm-3  mb-3">
-                            <label class="fw-bold">Guest</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$this->session->get('currency').number_format($tgst,2).'</p>
-                        </div>
-                        
-                        ';
-                   
-                       
-                    if(!empty($tithers->list)){
-                        $attendant = $tithers->list;
-                    //   print_r($attendant);
-                        foreach($attendant as $at => $val){
-                            $name = $this->Crud->read_field('id', $at, 'user', 'firstname').' '.$this->Crud->read_field('id', $at, 'user', 'surname');
-                         ?>
-                        <div class="col-sm-4 mb-2 border"><?=strtoupper($name); ?> => <?=$this->session->get('currency').number_format($val,2); ?></div>
-                     <?php }
-                    } else {
-                        echo '
-                            <div class="col-sm-12">No Tither Record</div>
-                        ';
-                    } echo '</div>';
-                }?>
-            </div>   
-            <div class="tab-pane" id="tabItem6">        
-                <?php if(empty($reports)){
-                    echo '
-                        <div class="col-sm-12">No Record</div>
-                    ';
-                } else {
-                    $attendant = json_decode($r->partners);
-                    $tpart = 0;
-                    $mpart = 0;
-                    $gpart = 0;
-
-                    if(!empty($attendant->total_part))$tpart = $attendant->total_part;
-                    if(!empty($attendant->member_part))$mpart = $attendant->member_part;
-                    if(!empty($attendant->guest_part))$gpart = $attendant->guest_part;
-                    
-                    echo '<div class="row"> 
-                        <div class="col-sm-3  mb-3">
-                            <label class="fw-bold">Total</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$this->session->get('currency').number_format($tpart,2).'</p>
-                        </div>
-                        <div class="col-sm-3  mb-3">
-                        <label class="fw-bold">Member</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$this->session->get('currency').$mpart.'</p>
-                        </div>
-                        <div class="col-sm-3  mb-3">
-                            <label class="fw-bold">First Timer</label>
-                        </div>
-                        <div class="col-sm-9  mb-3">
-                            <p>'.$this->session->get('currency').$gpart.'</p>
-                        </div>
-                        
-                    ';
-                
-                    if(!empty($attendant->partnership)){
-                        
-                        $attendant = $attendant->partnership;
-                        $name = '';
-                        $partners = (array)$attendant;
-                        foreach($attendant as $at => $val){
+                            // Handle 'absent' attendees
+                            if (!empty($attendant_list->absent)) {
+                                foreach ($attendant_list->absent as $absent) {
+                                    $name = $this->Crud->read_field('id', $absent->id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $absent->id, 'user', 'surname');
+                                    ?>
+                                    <div class="col-sm-4 mb-2 border"><?= strtoupper($name); ?> (Absent - Reason: <?= $absent->reason; ?>)</div>
+                                    <?php
+                                }
+                            }
+                        } else {
                             echo '
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
+                                <div class="col-sm-12">No Attendance Record</div>
                             ';
-                            if($at == 'guest'){
-                                echo '
-                                    <tr>
-                                        <td><b>GUEST</b></td>
-                                    </tr>
-                                    <tr>
-                                        <th>NAME</th>
-                                    ';
-                                    $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                    if(!empty($parts)){
-                                        foreach($parts as $index => $pp){
-                                            $name = $pp->name;
-                                            if(strtoupper($pp->name) == 'BIBLE SPONSOR')$name = 'Bible';
-                                            if(strtoupper($pp->name) == 'CHILDREN MINISTRY')$name = 'Children';
-                                            if(strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')$name = 'H.S.M';
-                                            if(strtoupper($pp->name) == 'HEALING STREAM')$name = 'H.S';
-                                            if(strtoupper($pp->name) == 'LOVEWORLD LWUSA')$name = 'lwusa';
-                                            if(strtoupper($pp->name) == 'MINISTRY PROGRAM')$name = 'Ministry';
-                                            // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
-                                            
-                                            echo ' <th >'.strtoupper($name).'</th>';
-                                        }
-                                    }
-                                    echo '</tr>';
-
-                                    if(!empty($val)){
-                                        $vals = (array)$val;
-                                        foreach($vals as $v => $am){
-                                            $ams = (array)$am;
-                                            
-                                            echo '<tr>
-                                                    <td>'.strtoupper($v).'</td> ';
-                                            ?>
-                                            <?php  
-                                                $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                                if(!empty($parts)){
-                                                    foreach($parts as $index => $pp){
-                                                        $pps = 0;
-                                                        if(!empty($ams[$pp->id])){
-                                                            $pps =  $ams[$pp->id];
-                                                        }
-                                                        echo ' <td>'.($pps).'</td>';
-                                                    }
-                                                }
-                                            echo '</tr>';
-                                        }
-                                    }
-                            }
-                            if($at == 'member'){
-                                echo '
-                                    <tr>
-                                        <td><b>MEMBER</b></td>
-                                    </tr>
-                                    <tr>
-                                        <th>NAME</th>
-                                    ';
-                                    $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                    if(!empty($parts)){
-                                        foreach($parts as $index => $pp){
-                                            $name = $pp->name;
-                                            if(strtoupper($pp->name) == 'BIBLE SPONSOR')$name = 'Bible';
-                                            if(strtoupper($pp->name) == 'CHILDREN MINISTRY')$name = 'Children';
-                                            if(strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')$name = 'H.S.M';
-                                            if(strtoupper($pp->name) == 'HEALING STREAM')$name = 'H.S';
-                                            if(strtoupper($pp->name) == 'LOVEWORLD LWUSA')$name = 'lwusa';
-                                            if(strtoupper($pp->name) == 'MINISTRY PROGRAM')$name = 'Ministry';
-                                            // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
-                                            
-                                            echo ' <th >'.strtoupper($name).'</th>';
-                                        }
-                                    }
-                                    echo '</tr>';
-
-                                    if(!empty($val)){
-                                        $vals = (array)$val;
-                                        foreach($vals as $v => $am){
-                                            $ams = (array)$am;
-                                            $vname = $this->Crud->read_field('id', $v, 'user', 'firstname').' '.$this->Crud->read_field('id', $v, 'user', 'surname');
-                                            echo '<tr>
-                                                    <td>'.strtoupper($vname).'</td> ';
-                                            ?>
-                                            <?php  
-                                                $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                                if(!empty($parts)){
-                                                    foreach($parts as $index => $pp){
-                                                        $pps = 0;
-                                                        if(!empty($ams[$pp->id])){
-                                                            $pps =  $ams[$pp->id];
-                                                        }
-                                                        echo ' <td>'.($pps).'</td>';
-                                                    }
-                                                }
-                                            echo '</tr>';
-                                        }
-                                    }
-                            }
-                           
-                         ?>
-                        
-                            <?php echo '
-                                    </table>
-                                </div>';
-                        } 
-                    } else {
+                        }
+                    }?>
+                </div>
+            </div>    
+            <div class="tab-pane" id="tabItem3">  
+                <div class="row">      
+                    <?php if(empty($reports)){
                         echo '
-                            <div class="col-sm-12">No Attendance Record</div>
+                            <div class="col-sm-12">No Record</div>
                         ';
+                    } else {
+                        $timers = json_decode($r->timers);
+                        if(!empty($timers)){
+                            foreach($timers as $at => $val){
+                                $time = (array)$val;
+                            
+                            ?>
+                            
+                            <div class="col-sm-4 mb-2 ">
+                                <label class="fw-bold">Name</label>
+                                <p><?=ucwords($time['fullname']); ?></p>
+                            </div>
+                            <div class="col-sm-4 mb-2 ">
+                                <label class="fw-bold">Email</label>
+                                <p><?=ucwords($time['email']); ?></p>
+                            </div>
+                            <div class="col-sm-4 mb-2 ">
+                                <label class="fw-bold">Phone</label>
+                                <p><?=ucwords($time['phone']); ?></p>
+                            </div>
+                            <div class="col-sm-4 mb-2 ">
+                                <label class="fw-bold">Birthday</label>
+                                <p><?=ucwords($time['dob']); ?></p>
+                            </div>
+                            <hr>
+                        <?php }
+                        } else {
+                            echo '
+                                <div class="col-sm-12 my-2">No First Timer Record</div>
+                            ';
+                        }
+                    }?>  
+                </div>
+            </div>    
+            <div class="tab-pane" id="tabItem4">  
+                <div class="row">      
+                    <?php if(empty($reports)){
+                        echo '
+                            <div class="col-sm-12">No Record</div>
+                        ';
+                    } else {
+                        
+                        $timers = json_decode($r->converts);
+                        if(!empty($timers)){
+                            foreach($timers as $at => $val){
+                                $time = (array)$val;
+                            
+                            ?>
+                                <div class="col-sm-4 mb-2 ">
+                                    <label class="fw-bold">Name</label>
+                                    <p><?=ucwords($time['fullname']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2 ">
+                                    <label class="fw-bold">Email</label>
+                                    <p><?=ucwords($time['email']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2 ">
+                                    <label class="fw-bold">Phone</label>
+                                    <p><?=ucwords($time['phone']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2 ">
+                                    <label class="fw-bold">Birthday</label>
+                                    <p><?=ucwords($time['dob']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2 ">
+                                    <label class="fw-bold">Invited By</label>
+                                </div>
+                                <hr>
+                        <?php }
+                        } else {
+                            echo '
+                                <div class="col-sm-12">No New Convert Record</div>
+                            ';
+                        }
+                    }?>  
+                </div>   
+            </div>
+            <div class="tab-pane" id="tabItem5">   
+                <div class="row">     
+                    <?php if(empty($reports)){
+                        echo '
+                            <div class="col-sm-12">No Record</div>
+                        ';
+                    } else {
+                        if(!empty($tithers->list)){
+                            $attendant = $tithers->list;
+                        //   print_r($attendant);
+                            foreach($attendant as $at => $val){
+                                $name = $this->Crud->read_field('id', $at, 'user', 'firstname').' '.$this->Crud->read_field('id', $at, 'user', 'surname');
+                            ?>
+                            <div class="col-sm-4 mb-2 border"><?=strtoupper($name); ?> => <?=$this->session->get('currency').number_format($val,2); ?></div>
+                        <?php }
+                        } else {
+                            echo '
+                                <div class="col-sm-12">No Tither Record</div>
+                            ';
                     }
                 }?>
+                </div>
+            </div>   
+            <div class="tab-pane" id="tabItem6">   
+                <div class="row">     
+                    <?php if(empty($reports)){
+                        echo '
+                            <div class="col-sm-12">No Record</div>
+                        ';
+                    } else {
+                       
+                        if (!empty($r->partners)) {
+                            $attendant = json_decode($r->partners);  // Decode the JSON
+                            $name = '';
+                        
+                            if (!empty($attendant->partnership)) {
+                                // Loop through each group (guest, member)
+                                foreach ($attendant->partnership as $at => $val) {
+                                    echo '
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                    ';
+                                    
+                                    // Check if the group is guest or member
+                                    if ($at == 'guest') {
+                                        echo '
+                                            <tr>
+                                                <td><b>GUEST</b></td>
+                                            </tr>
+                                            <tr>
+                                                <th>NAME</th>
+                                        ';
+                        
+                                        // Fetch partnership types
+                                        $parts = $this->Crud->read_order('partnership', 'name', 'asc');
+                                        if (!empty($parts)) {
+                                            foreach ($parts as $index => $pp) {
+                                                $name = $pp->name;
+                                                // Adjust partnership names for display
+                                                if (strtoupper($pp->name) == 'BIBLE SPONSOR') $name = 'Bible';
+                                                if (strtoupper($pp->name) == 'CHILDREN MINISTRY') $name = 'Children';
+                                                if (strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE') $name = 'H.S.M';
+                                                if (strtoupper($pp->name) == 'HEALING STREAM') $name = 'H.S';
+                                                if (strtoupper($pp->name) == 'LOVEWORLD LWUSA') $name = 'lwusa';
+                                                if (strtoupper($pp->name) == 'MINISTRY PROGRAM') $name = 'Ministry';
+                                                
+                                                echo '<th>' . strtoupper($name) . '</th>';
+                                            }
+                                        }
+                                        echo '</tr>';
+                        
+                                        // Now handle guest records
+                                        if (!empty($val)) {
+                                            foreach ($val as $guest_name => $am) {
+                                                echo '<tr><td>' . strtoupper($guest_name) . '</td>';
+                                                
+                                                $ams = (array)$am;
+                                                foreach ($parts as $pp) {
+                                                    $pps = !empty($ams[$pp->id]) ? $ams[$pp->id] : 0;
+                                                    echo '<td>' . ($pps) . '</td>';
+                                                }
+                                                
+                                                echo '</tr>';
+                                            }
+                                        }
+                                    }
+                        
+                                    if ($at == 'member') {
+                                        echo '
+                                            <tr>
+                                                <td><b>MEMBER</b></td>
+                                            </tr>
+                                            <tr>
+                                                <th>NAME</th>
+                                        ';
+                        
+                                        // Fetch partnership types for members
+                                        if (!empty($parts)) {
+                                            foreach ($parts as $index => $pp) {
+                                                $name = $pp->name;
+                                                // Adjust partnership names for display
+                                                if (strtoupper($pp->name) == 'BIBLE SPONSOR') $name = 'Bible';
+                                                if (strtoupper($pp->name) == 'CHILDREN MINISTRY') $name = 'Children';
+                                                if (strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE') $name = 'H.S.M';
+                                                if (strtoupper($pp->name) == 'HEALING STREAM') $name = 'H.S';
+                                                if (strtoupper($pp->name) == 'LOVEWORLD LWUSA') $name = 'lwusa';
+                                                if (strtoupper($pp->name) == 'MINISTRY PROGRAM') $name = 'Ministry';
+                                                
+                                                echo '<th>' . strtoupper($name) . '</th>';
+                                            }
+                                        }
+                                        echo '</tr>';
+                        
+                                        // Handle member records
+                                        if (!empty($val)) {
+                                            foreach ($val as $member_id => $am) {
+                                                $vname = $this->Crud->read_field('id', $member_id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $member_id, 'user', 'surname');
+                                                echo '<tr><td>' . strtoupper($vname) . '</td>';
+                        
+                                                $ams = (array)$am;
+                                                foreach ($parts as $pp) {
+                                                    $pps = !empty($ams[$pp->id]) ? $ams[$pp->id] : 0;
+                                                    echo '<td>' . ($pps) . '</td>';
+                                                }
+                        
+                                                echo '</tr>';
+                                            }
+                                        }
+                                    }
+                        
+                                    echo '
+                                            </table>
+                                        </div>';
+                                }
+                            }
+                        }
+                        else {
+                            echo '
+                                <div class="col-sm-12">No Patrtnership Record</div>
+                            ';
+                        }
+                    }?>
+                </div>
             </div>   
         </div>
     <?php } ?>
