@@ -144,7 +144,7 @@
                                                     title="<?=translate_phrase('Prospective Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="prospective"> 30 </span></div>
+                                        <div class="card-amount"><span class="amount" id="prospective"> 0 </span></div>
                                         
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@
                                                     title="<?=translate_phrase('Total Foundation Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="students"> 60 <span
+                                        <div class="card-amount"><span class="amount" id="students"> 0 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -179,7 +179,7 @@
                                                     title="<?=translate_phrase('Total Graduates'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="graduates"> 45 <span
+                                        <div class="card-amount"><span class="amount" id="graduates"> 0 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -289,7 +289,7 @@
                                                     title="<?=translate_phrase('Prospective Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="prospective"> 30 </span></div>
+                                        <div class="card-amount"><span class="amount" id="prospective"> 0 </span></div>
                                         
                                     </div>
                                 </div>
@@ -306,7 +306,7 @@
                                                     title="<?=translate_phrase('Total Foundation Students'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="students"> 60 <span
+                                        <div class="card-amount"><span class="amount" id="students"> 0 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -324,7 +324,7 @@
                                                     title="<?=translate_phrase('Total Graduates'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="graduates"> 55 <span
+                                        <div class="card-amount"><span class="amount" id="graduates"> 0 <span
                                                     class="currency currency-usd"></span></span></div>
                                         
                                     </div>
@@ -931,6 +931,9 @@
         $('#partnership').html(
             '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
             );
+            $('#prospective').html(
+            '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+            );
         $('#partnership_part').html(
             '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
             );
@@ -961,6 +964,12 @@
         $('#new_convert').html(
         '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
         );
+        $('#students').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
+        $('#graduates').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
         var date_type = $('#date_type').val();
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
@@ -988,6 +997,9 @@
                 $('#membership').html(dt.membership);
                 $('#new_convert').html(dt.new_convert);
                 $('#first_timer').html(dt.first_timer);
+                $('#prospective').html(dt.prospective);
+                $('#students').html(dt.student);
+                $('#graduates').html(dt.graduate);
                 
                 //Progress plugins
                 NioApp.BS.progress('[data-progress]');

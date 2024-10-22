@@ -650,12 +650,13 @@
             url: site_url + 'service/report/records/get_members_attendance/'+id, // Adjust the URL according to your API
             type: 'get',
             success: function (data) {
-                var mems = JSON.parse(data); // Assuming the response is JSON formatted
-    
-                // console.log(mems.members_part);
-                $('#member_attendance_list').html(mems.members_part).fadeIn(500);
-                if (Array.isArray(mems.members)) {
-                    churchMembers = mems.members;
+                var membersObject = JSON.parse(data); // Assuming the response is JSON formatted
+                let mems = Object.values(membersObject.members);
+
+                // console.log(mems);
+                $('#member_attendance_list').html(mems).fadeIn(500);
+                if (Array.isArray(mems)) {
+                    churchMembers = mems;
                 
                     // Clear the select element before adding new options
                     $('#present_members').empty();

@@ -2777,7 +2777,7 @@ class Crud extends Model {
         $db->close();
         return $query->getResult();
     }
-	public function filter_service_report($limit='', $offset='', $search='') {
+	public function filter_service_report($limit='', $offset='', $search='', $log_id) {
         $db = db_connect();
         $builder = $db->table('service_report');
 
@@ -2787,7 +2787,19 @@ class Crud extends Model {
         if(!empty($search)) {
             $builder->like('type', $search);
         }
-
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+        $ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+        $church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
+        $role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+    
+        // Apply filters based on user role
+        if ($role != 'developer' && $role != 'administrator') {
+            if ($role == 'ministry administrator') {
+                $builder->where('ministry_id', $ministry_id);
+            } elseif ( $role == 'church leader') {
+                $builder->where('church_id', $church_id_user);
+            }
+        }
 		
         // limit query
         if($limit && $offset) {

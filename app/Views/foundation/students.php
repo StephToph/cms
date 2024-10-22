@@ -42,6 +42,7 @@ $switch_id = $this->session->get('switch_church_id');
                                         <thead>
                                             <tr>
                                                 <th>Students</th>
+                                                <th>Source</th>
                                                 <th>Church</th>
                                                 <th>Status</th>
                                                 <th>Updated At</th>
@@ -134,7 +135,7 @@ $switch_id = $this->session->get('switch_church_id');
         //alert(status);
 
         $.ajax({
-            url: site_url + 'foundation/students/load' + methods,
+            url: site_url + 'foundation/students/load_student' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {

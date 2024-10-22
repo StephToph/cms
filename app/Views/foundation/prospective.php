@@ -21,6 +21,9 @@ $switch_id = $this->session->get('switch_church_id');
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title"><?= translate_phrase('Foundation Prospective Students'); ?></h3>
+                            <div class="nk-block-des text-soft">
+                                <p>You have total <span id="counta"></span> propective student.</p>
+                            </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
@@ -42,6 +45,7 @@ $switch_id = $this->session->get('switch_church_id');
                                         <thead>
                                             <tr>
                                                 <th>Prospective Students</th>
+                                                <th>Source</th>
                                                 <th>Church</th>
                                                 <th></th>
                                             </tr>
