@@ -161,19 +161,19 @@ $this->session = \Config\Services::session();
                                     if(!empty($tithers->guest))$tgst = $tithers->guest;?>
                                     
                                     <div class="col-sm-3  mb-3">
-                                        <label class="fw-bold">Total</label>
+                                        <label class="fw-bold">Total Tithe</label>
                                     </div>
                                     <div class="col-sm-9  mb-3">
                                         <p><?=$this->session->get('currency').number_format($tos,2); ?></p>
                                     </div>
                                     <div class="col-sm-3  mb-3">
-                                    <label class="fw-bold">Member</label>
+                                    <label class="fw-bold">Member Tithe</label>
                                     </div>
                                     <div class="col-sm-9  mb-3">
                                         <p><?=$this->session->get('currency').number_format($tmem,2); ?></p>
                                     </div>
                                     <div class="col-sm-3  mb-3">
-                                        <label class="fw-bold">Guest</label>
+                                        <label class="fw-bold">Guest Tithe</label>
                                     </div>
                                     <div class="col-sm-9  mb-3">
                                         <p><?=$this->session->get('currency').number_format($tgst,2); ?></p>
@@ -190,19 +190,19 @@ $this->session = \Config\Services::session();
                                         if(!empty($attendant->guest_part))$gpart = $attendant->guest_part;?>
                                          
                                         <div class="col-sm-3  mb-3">
-                                            <label class="fw-bold">Total</label>
+                                            <label class="fw-bold">Total Partnership</label>
                                         </div>
                                         <div class="col-sm-9  mb-3">
                                             <p><?=$this->session->get('currency').number_format($tpart,2); ?></p>
                                         </div>
                                         <div class="col-sm-3  mb-3">
-                                        <label class="fw-bold">Member</label>
+                                        <label class="fw-bold">Member Partnership</label>
                                         </div>
                                         <div class="col-sm-9  mb-3">
                                             <p><?=$this->session->get('currency').$mpart; ?></p>
                                         </div>
                                         <div class="col-sm-3  mb-3">
-                                            <label class="fw-bold">First Timer</label>
+                                            <label class="fw-bold">First Timer Partnership</label>
                                         </div>
                                         <div class="col-sm-9  mb-3">
                                             <p><?=$this->session->get('currency').$gpart; ?></p>
