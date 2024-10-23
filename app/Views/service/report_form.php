@@ -231,7 +231,7 @@ $this->session = \Config\Services::session();
                                 foreach ($attendant_list->present as $present) {
                                     $name = $this->Crud->read_field('id', $present->id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $present->id, 'user', 'surname');
                                     ?>
-                                    <div class="col-sm-4 mb-2 border"><?= strtoupper($name); ?> (Present)</div>
+                                    <div class="col-sm-4 mb-2 border small"><?= strtoupper($name); ?> <span class="text-success">(Present)</span></div>
                                     <?php
                                 }
                             }
@@ -241,7 +241,7 @@ $this->session = \Config\Services::session();
                                 foreach ($attendant_list->absent as $absent) {
                                     $name = $this->Crud->read_field('id', $absent->id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $absent->id, 'user', 'surname');
                                     ?>
-                                    <div class="col-sm-4 mb-2 border"><?= strtoupper($name); ?> (Absent - Reason: <?= $absent->reason; ?>)</div>
+                                    <div class="col-sm-4 mb-2 border small"><?= strtoupper($name); ?> <span class="text-danger">(Absent - Reason: <?= $absent->reason; ?>)</span></div>
                                     <?php
                                 }
                             }
