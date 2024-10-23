@@ -654,7 +654,7 @@
                 let mems = Object.values(membersObject.members);
 
                 // console.log(mems);
-                $('#member_attendance_list').html(mems).fadeIn(500);
+                $('#member_attendance_list').html(membersObject.members_part).fadeIn(500);
                 if (Array.isArray(mems)) {
                     churchMembers = mems;
                 

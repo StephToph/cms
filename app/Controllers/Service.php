@@ -1933,7 +1933,6 @@ class Service extends BaseController {
 						}
 					}
 					
-
 					// Extract IDs from the attendant list
 					$attendant_ids = [];
 					if (isset($attendant->list) && !empty($attendant->list)) {
@@ -1952,86 +1951,80 @@ class Service extends BaseController {
 							unset($church_memberss[$key]); // Remove the member
 						}
 					}
-					// print_r($church_memberss);
 
-
-					
+					// Generate the table
 					$table = '';
 
-					if(isset($attendant->list) && !empty($attendant->list)){
+					if (isset($attendant->list) && !empty($attendant->list)) {
 						$attendants = $attendant->list;
-						// print_r($attendants);
 
-						foreach($attendants as $at => $attend){
-							if($at == 'present'){
-								if(!empty($attend)){
-									foreach($attend as $at_index => $at_val){
-										$id = $at_val->id;
-										$name = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname'); 
-										$reason = $at_val->reason;
-										$to = 'data-bs-toggle="collapse" ';
-										$ico = '<span class="accordion-icon"></span>';
-										if(empty($reason)){
-											$reason = '';$to ='';$ico = '';
-										}
-										$table .= '
-											<div class="col-sm-4 mb-3">
-												<div id="accordion-'.$id.'" class="accordion accordion-s3">
-													<div class="accordion-item"> <a href="javascript:;" class="accordion-head collapsed" '.$to.'
-															data-bs-target="#accordion-item-'.$id.'-1">
-															<h6 class="title">'.ucwords($name).' <span class="badge bg-success">Present</span></h6>'.$ico.' 
-														</a>
-														<div class="accordion-body collapse" id="accordion-item-'.$id.'-1"
-															data-bs-parent="#accordion-'.$id.'">
-															<div class="accordion-inner">
-																<p>'.ucwords($reason).'</p>
-															</div>
+						foreach ($attendants as $at => $attend) {
+							if ($at == 'present' && !empty($attend)) {
+								foreach ($attend as $at_index => $at_val) {
+									$id = $at_val->id;
+									$name = $this->Crud->read_field('id', $id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $id, 'user', 'surname');
+									$reason = $at_val->reason;
+									$to = 'data-bs-toggle="collapse" ';
+									$ico = '<span class="accordion-icon"></span>';
+									if (empty($reason)) {
+										$reason = '';
+										$to = '';
+										$ico = '';
+									}
+									$table .= '
+										<div class="col-sm-4 mb-3">
+											<div id="accordion-' . $id . '" class="accordion accordion-s3">
+												<div class="accordion-item"> <a href="javascript:;" class="accordion-head collapsed" ' . $to . '
+														data-bs-target="#accordion-item-' . $id . '-1">
+														<h6 class="title">' . ucwords($name) . ' <span class="badge bg-success">Present</span></h6>' . $ico . '
+													</a>
+													<div class="accordion-body collapse" id="accordion-item-' . $id . '-1"
+														data-bs-parent="#accordion-' . $id . '">
+														<div class="accordion-inner">
+															<p>' . ucwords($reason) . '</p>
 														</div>
 													</div>
 												</div>
 											</div>
-										';
-
-									}
+										</div>
+									';
 								}
-								
 							}
 
-							if($at == 'absent'){
-								if(!empty($attend)){
-									foreach($attend as $at_index => $at_val){
-										$id = $at_val->id;
-										$name = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname'); 
-										$reason = $at_val->reason;
-										$to = 'data-bs-toggle="collapse" ';
-										$ico = '<span class="accordion-icon"></span>';
-										if(empty($reason)){
-											$reason = '';$to ='';$ico = '';
-										}
-										$table .= '
-											<div class="col-sm-4 mb-3">
-												<div id="accordion-'.$id.'" class="accordion accordion-s3">
-													<div class="accordion-item"> <a href="javascript:;" class="accordion-head collapsed" '.$to.'
-															data-bs-target="#accordion-item-'.$id.'-1">
-															<h6 class="title">'.ucwords($name).' <span class="badge bg-danger">Absent</span></h6>'.$ico.' 
-														</a>
-														<div class="accordion-body collapse" id="accordion-item-'.$id.'-1"
-															data-bs-parent="#accordion-'.$id.'">
-															<div class="accordion-inner">
-																<p>'.ucwords($reason).'</p>
-															</div>
+							if ($at == 'absent' && !empty($attend)) {
+								foreach ($attend as $at_index => $at_val) {
+									$id = $at_val->id;
+									$name = $this->Crud->read_field('id', $id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $id, 'user', 'surname');
+									$reason = $at_val->reason;
+									$to = 'data-bs-toggle="collapse" ';
+									$ico = '<span class="accordion-icon"></span>';
+									if (empty($reason)) {
+										$reason = '';
+										$to = '';
+										$ico = '';
+									}
+									$table .= '
+										<div class="col-sm-4 mb-3">
+											<div id="accordion-' . $id . '" class="accordion accordion-s3">
+												<div class="accordion-item"> <a href="javascript:;" class="accordion-head collapsed" ' . $to . '
+														data-bs-target="#accordion-item-' . $id . '-1">
+														<h6 class="title">' . ucwords($name) . ' <span class="badge bg-danger">Absent</span></h6>' . $ico . '
+													</a>
+													<div class="accordion-body collapse" id="accordion-item-' . $id . '-1"
+														data-bs-parent="#accordion-' . $id . '">
+														<div class="accordion-inner">
+															<p>' . ucwords($reason) . '</p>
 														</div>
 													</div>
 												</div>
 											</div>
-										';
-
-									}
+										</div>
+									';
 								}
 							}
-							
 						}
 					}
+
 								
 					$data['members'] = ($church_memberss);
 					$data['members_part'] = $table;
