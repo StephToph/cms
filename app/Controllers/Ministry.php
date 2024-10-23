@@ -2438,6 +2438,102 @@ class Ministry extends BaseController {
 			}
 		}
 
+		
+		// manage record
+		if($param1 == 'share') {
+			$table = 'form_link';
+			// prepare for delete
+			if($param3 == 'share_link') {
+				if($param4) {
+					$edit = $this->Crud->read_single('id', $param4, $table);
+					//echo var_dump($edit);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+							$data['e_unique_link'] = $e->unique_link;
+						}
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param3 == 'edit') {
+					if($param4) {
+						$edit = $this->Crud->read_single('id', $param4, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fields'] = json_decode($e->fields);
+								
+							}
+						}
+					}
+				}
+
+				// prepare for view
+				if($param3 == 'view') {
+					if($param4) {
+						$edit = $this->Crud->read_single('id', $param4, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fields'] = json_decode($e->fields);
+								$data['e_reg_date'] = $e->reg_date;
+							}
+						}
+					}
+				}
+				
+				if($this->request->getMethod() == 'post'){
+					$e_id =  $this->request->getVar('e_id');
+					$form_id =  $this->request->getVar('form_id');
+					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					$ministry_id = $this->Crud->read_field('id', $form_id, 'form', 'ministry_id');
+					$type = 0;
+					$uniqueLink = uniqid();
+
+					$ins_data['form_id'] = $form_id;
+					$ins_data['user_id'] = $log_id;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['type'] = $type;
+					$ins_data['unique_link'] = $uniqueLink;
+					$ins_data['reg_date'] = date(fdate);
+						
+					$churchs = json_decode($this->Crud->read_field('id', $form_id, 'form', 'church_id'));
+					if(!empty($churchs)){
+						if(!in_array($church_id, $churchs)){
+							echo $this->Crud->msg('danger', translate_phrase('You are not authorized to generate a link for this form as you are not a member of the church associated with it.'));
+							die;
+						}
+					}
+
+					if($this->Crud->check3('user_id', $log_id, 'type', $type, 'form_id', $form_id, 'form_link') > 0) {
+						echo $this->Crud->msg('warning', translate_phrase('Your shareable Link has been generated already'));
+					} else {
+						$ins_rec = $this->Crud->create('form_link', $ins_data);
+						if($ins_rec > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Form Link Generated'));
+							
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $ins_rec, 'form', 'name');
+							$action = $by.' genearted a Form Link for Form ('.$code.')';
+							$this->Crud->activity('form_link', $ins_rec, $action);
+
+							echo '<script>
+								load_share("","",'.$form_id.');
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+						}	
+					}
+				
+					die;	
+				}
+			}
+		}
+
 		// record listing
 		if($param1 == 'load') {
 			$limit = $param2;
@@ -2515,16 +2611,14 @@ class Ministry extends BaseController {
 							if(!empty($switch_id)){
 								$all_btn = '
 									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-									<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
-									
+									<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.');"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
 								'.$feed_btn;
 							} else {
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-warning pop" pageTitle="View Responses" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/responses/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Responses').'</span></a></li>
-								
+								<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.');"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
 							'.$feed_btn;
 
 							}
@@ -2536,7 +2630,7 @@ class Ministry extends BaseController {
 						if($q->event_id == 0){
 							$events = '-';
 						}
-						$responses = 0;
+						$link = $this->Crud->check2('form_id', $id, 'type', 'form', 'form_link');
 						$item .= '
 							<tr>
 								<td>
@@ -2551,10 +2645,10 @@ class Ministry extends BaseController {
 									<span class="small text-dark">'.ucwords($church_type).' Churches</span>
 								</td>
 								<td>'.ucwords($events).'</td>
-								<td>'.number_format($responses).'</td>
+								<td>'.number_format($link).'</td>
 								<td>
 									<div class="drodown">
-										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<a href="javascript:;" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
 										<div class="dropdown-menu dropdown-menu-end">
 											<ul class="link-list-opt no-bdr">
 												' . $all_btn . '
@@ -2726,10 +2820,143 @@ class Ministry extends BaseController {
 			die;
 		}
 	
+		// record listing
+		if($param1 == 'share_load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+
+			if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			
+			$form_id = $this->request->getPost('id');
+
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			$log_church_id = $this->Crud->read_field('id',  $log_id, 'user', 'church_id');
+				
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
+			} else {
+				$all_rec = $this->Crud->filter_form_link('', '', $log_id, $form_id,$switch_id, 0);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+				$query = $this->Crud->filter_form_link($limit, $offset, $log_id, $form_id,$switch_id, 0);
+
+				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'region_id');
+				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zone_id');
+				$log_group_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'group_id');
+
+				if(!empty($query)) {
+					foreach($query as $q) {
+						$id = $q->id;
+						$unique_link = $q->unique_link;
+						$reg_date =  date('M d, Y h:i A', strtotime($q->reg_date));
+						$title = $this->Crud->read_field('id', $q->form_id, 'form', 'name');
+						$member = $this->Crud->read_field('id', $q->user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $q->user_id, 'user', 'surname');
+						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+						
+						$response = $this->Crud->check('link_id', $id, 'form_response');
+
+						// add manage buttons
+						if($role_u != 1) {
+							$all_btn = '';
+						} else {
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Share Link ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Share Form').'</span></a></li>
+								
+							';
+							} else {
+								$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Share Link ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Share Form').'</span></a></li>
+								
+							';
+
+							}
+							
+						}
+
+						
+						$item .= '
+							<tr>
+								<td>
+									<span class="tb-lead small">' . ucwords($member) . '</span>  
+								</td>
+								<td>
+									<span class="small text-dark">'.ucwords($church).' </span>
+								</td>
+								<td>
+									<span class="small text-dark">'.ucwords($unique_link).' </span>
+								</td>
+								<td>
+									<span class="small text-dark">'.ucwords($response).' </span>
+								</td>
+								<td><span class="small text-dark">'.ucwords($reg_date).'</span></td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+						';
+
+						
+					}
+				}
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = '
+					<tr><td colspan="8"><div class="text-center text-muted">
+						<br/>
+						<i class="ni ni-share-alt" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Form Link Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			if($this->Crud->check3('user_id', $log_id, 'type', 'form', 'form_id', $form_id, 'form_link') == 0){
+				$statuses = false;
+			} else {
+				$statuses = true;
+			} 
+			$resp['statuses'] = $statuses;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+	
+
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} elseif($param1 == 'extension'){ 
 			return view('ministry/extension_form', $data);
+		} elseif($param1 == 'share'){ 
+			return view('ministry/share_form', $data);
 		}else { // view for main page
 			
 			$data['title'] = 'Form - '.app_name;
