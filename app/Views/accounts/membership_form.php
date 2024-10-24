@@ -110,74 +110,6 @@ $this->Crud = new Crud();
             <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
         </div>
 
-        
-        <div class="row">
-            <input type="hidden" name="user_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
-            
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label for="activate"><?=translate_phrase('Ban');?></label>
-                    <select class="form-control js-select2" data-toggle="select2" id="ban" name="ban" required>
-                        <option value="1" <?php if(!empty($e_activate)){if($e_activate == 1){echo 'selected';}} ?>><?=translate_phrase('No');?></option>
-                        <option value="0" <?php if(empty($e_activate)){if($e_activate == 0){echo 'selected';}} ?>><?=translate_phrase('Yes');?></option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="form-group" id="">
-                    <label for="activate"><?=translate_phrase('Role');?></label>
-                    <select class="form-select js-select2" data-search="on" id="role" name="role">
-                        <option value=" ">Select</option>
-                        <?php $cat = $this->Crud->read_single_order('name!=', 'Developer', 'access_role', 'name', 'asc');
-                            foreach ($cat as $ca) {
-                                // if($ca->name == 'Administrator') continue;
-                                if($role == 'manager' && $ca->name == 'Manager') continue;
-                                ?>
-                                <option value="<?=$ca->id;?>" <?php if(!empty($e_role_id)){if($e_role_id == $ca->id){echo 'selected';}} ?>><?=ucwords($ca->name); ?></option>
-                            <?php }?>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <div class="form-label-group">
-                        <label class="form-label">Trade/Business Type <span class="text-danger">*</span></label>
-                    </div>
-                    <div class="form-control-group">
-                        <select class="form-control form-control-lg js-select2" id="trade" data-search="on" name="trade"  required>
-                            <option value="0"><?=translate_phrase('--Select Trade Type--'); ?></option>
-                            <?php
-                                $country = $this->Crud->read_order('trade', 'name', 'asc');
-                                if(!empty($country)){
-                                    foreach($country as $c){
-                                        $sels = '';
-                                        // if($sel == $c->id)$sels = 'selected';
-                                        if(!empty($e_trade))if($e_trade == $c->id)$sels='selected';
-                                        echo '<option value="'.$c->id.'" '.$sels.'>'.$c->name.'</option>';
-                                    }
-                                } 
-                            ?>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label for="password"><?=translate_phrase('Reset Password');?></label>
-                    <input class="form-control" type="text" id="password" name="password">
-                </div>
-            </div>
-            
-
-            <div class="col-sm-12 mt-3 text-center">
-                <button class="btn btn-primary bb_fo_btn" type="submit">
-                    <i class="ri-save-line"></i> <?=translate_phrase('Save Record');?>
-                </button>
-            </div>
-        </div>
     <?php } ?>
     <?php if($param2 == 'leaders') { ?>
         <div class="row">
@@ -202,6 +134,37 @@ $this->Crud = new Crud();
             <div class="col-sm-12 mt-3 text-center">
                 <button class="btn btn-primary bb_fo_btn" type="submit">
                     <i class="icon ni ni-save"></i> <?=translate_phrase('Update Record');?>
+                </button>
+            </div>
+        </div>
+    <?php } ?>
+    
+    <?php if($param2 == 'message') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+        
+        <div class="row">
+            <input type="hidden" name="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+            
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Subject');?></label>
+                    <input type='text' class="form-control" name='subject' id='subject' required>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Message');?></label>
+                    <textarea class="form-control"name='message' id='message' rows="5" required></textarea>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 mt-3 text-center">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-send"></i> <?=translate_phrase('Send Message');?>
                 </button>
             </div>
         </div>
