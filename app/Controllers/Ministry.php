@@ -2231,8 +2231,14 @@ class Ministry extends BaseController {
 						echo $this->Crud->msg('warning', 'Enter the Field of the Form yo want to Create');
 						die;
 					}
-					
 
+
+					
+					if(empty($send_type))$send_type = 'individual';
+					if(empty($church_type))$church_type = 'specific';
+					if(empty($level) && $church_type == 'specific'){
+						$level = '';
+					}
 					$ins_data['name'] = $title;
 					$ins_data['description'] = $description;
 					$ins_data['fields'] = json_encode($fields);
@@ -2471,12 +2477,15 @@ class Ministry extends BaseController {
 
 				// prepare for view
 				if($param3 == 'view') {
+					$table = 'form_response';
 					if($param4) {
 						$edit = $this->Crud->read_single('id', $param4, $table);
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_fields'] = json_decode($e->fields);
+								$data['e_email'] = $e->email;
+								$data['e_phone'] = $e->phone;
+								$data['e_response'] = json_decode($e->response,true);
 								$data['e_reg_date'] = $e->reg_date;
 							}
 						}
@@ -2611,14 +2620,14 @@ class Ministry extends BaseController {
 							if(!empty($switch_id)){
 								$all_btn = '
 									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-									<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.');"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
+									<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.', 0);"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
 								'.$feed_btn;
 							} else {
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.');"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
+								<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.', 0);"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
 							'.$feed_btn;
 
 							}
@@ -2741,14 +2750,14 @@ class Ministry extends BaseController {
 							if(!empty($switch_id)){
 								$all_btn = '
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								
+								<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.', 1);"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
 							';
 							} else {
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit " pageSize="modal-lg" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete " pageSize="modal-lg" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/extension/'.$q->form_id.'/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								
+								<li><a href="javascript:;" class="text-secondary" onclick="form_share('.$id.', 1);"><em class="icon ni ni-share-alt"></em><span>'.translate_phrase('Form Share').'</span></a></li>
 							';
 
 							}
@@ -2833,6 +2842,7 @@ class Ministry extends BaseController {
 			
 			
 			$form_id = $this->request->getPost('id');
+			$type = $this->request->getPost('type');
 
 			//echo $status;
 			$log_id = $this->session->get('td_id');
@@ -2841,12 +2851,12 @@ class Ministry extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
 			} else {
-				$all_rec = $this->Crud->filter_form_link('', '', $log_id, $form_id,$switch_id, 0);
+				$all_rec = $this->Crud->filter_form_link('', '', $log_id, $form_id,$switch_id, $type);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$query = $this->Crud->filter_form_link($limit, $offset, $log_id, $form_id,$switch_id, 0);
+				$query = $this->Crud->filter_form_link($limit, $offset, $log_id, $form_id,$switch_id, $type);
 
-				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'region_id');
-				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zone_id');
+				$log_region_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'regional_id');
+				$log_zone_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'zonal_id');
 				$log_group_id = $this->Crud->read_field('id',  $log_church_id, 'church', 'group_id');
 
 				if(!empty($query)) {
@@ -2868,14 +2878,14 @@ class Ministry extends BaseController {
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Share Link ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Share Form').'</span></a></li>
 								<li><a href="' . site_url('ministry/forms/'.$q->unique_link) . '" class="text-dark" target="_blank"><em class="icon ni ni-card-view"></em><span>'.translate_phrase('Preview Form').'</span></a></li>
-								<li><a href="javascript:;" class="text-success pop" pageTitle="View Response ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('View Response').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View Response ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/share/'.$q->form_id.'/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Response').'</span></a></li>
 								
 							';
 							} else {
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Share Link ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Share Form').'</span></a></li>
 								<li><a href="' . site_url('ministry/forms/'.$q->unique_link) . '" class="text-dark" target="_blank"><em class="icon ni ni-card-view"></em><span>'.translate_phrase('Preview Form').'</span></a></li>
-								<li><a href="javascript:;" class="text-success pop" pageTitle="View Response ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('View Response').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View Response ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/share/'.$q->form_id.'/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Response').'</span></a></li>
 							';
 
 							}
@@ -2931,7 +2941,7 @@ class Ministry extends BaseController {
 				
 			}
 
-			if($this->Crud->check3('user_id', $log_id, 'type', 'form', 'form_id', $form_id, 'form_link') == 0){
+			if($this->Crud->check3('user_id', $log_id, 'type', $type, 'form_id', $form_id, 'form_link') == 0){
 				$statuses = false;
 			} else {
 				$statuses = true;

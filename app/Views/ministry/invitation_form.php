@@ -325,7 +325,7 @@ $this->Crud = new Crud();
 
         if ($ministry_id > 0) { ?>
             <input type="hidden" name="ministry_id" value="<?php echo $ministry_id; ?>">
-            <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+            <input type="hidden" name="church_id[]" value="<?php echo $church_id; ?>">
         <?php } else { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
@@ -353,7 +353,7 @@ $this->Crud = new Crud();
 
         <?php } ?>
 
-        <?php if ($role != 'Church Leader') { ?>
+        <?php if ($role != 'church leader') { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label>Church Level</label>
@@ -434,80 +434,82 @@ $this->Crud = new Crud();
                     </select>
                 </div>
             </div>
-            <div class="col-sm-12 mb-3">
-                <div class="form-group">
-                    <label>Event Associated To</label>
-                    <select class="js-select2" data-search="on" name="event_id" id="event_id">
-                        <option value="0">Not Associated</option>
-                        <?php
-                            
-                            $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
-                            $log_ministry_id = $this->Crud->read_field('id', $log_id, 'user',  'ministry_id');
-                            $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
-
-                            $events = $this->Crud->read_single_order('ministry_id', $log_ministry_id, 'events', 'title', 'asc');
-                            if($role == 'developer' || $role == 'administrator'){
-                                $events = $this->Crud->read('events');
-                            }
-                            if(!empty($events)){
-                                foreach ($events as $event) {
-                                    if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
-                                        if($event->church_type != 'all'){
-                                            if($event->church_type == 'region' && $event->event_for == 'general'){
-                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'regional_id');
-                                                if(!in_array($log_region_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-                                            } else {
-                                                if(!in_array($log_church_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-
-                                            }
-                                           
-                                            if($event->church_type == 'zone' && $event->event_for == 'general'){
-                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'zonal_id');
-                                                if(!in_array($log_region_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-                                            } else {
-                                                if(!in_array($log_church_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-
-                                            }
-                                            if($event->church_type == 'group' && $event->event_for == 'general'){
-                                                $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'group_id');
-                                                if(!in_array($log_region_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-                                            } else {
-                                                if(!in_array($log_church_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-
-                                            }
-                                           
-                                            if($event->church_type == 'church' && $event->event_for == 'general'){
-                                                if(!in_array($log_church_id, json_decode($event->church_id))){
-                                                    continue;
-                                                }
-
-                                            }
-                                           
-                                        }
-                                    }
-
-                                    echo '<option value="'.$event->id.'">'.ucwords($event->title).'</option>';
-                                }
-                            }
-                         ?>
-                        
-                    </select>
-                </div>
-            </div>
 
         <?php } ?>
+
+        
+        <div class="col-sm-12 mb-3">
+            <div class="form-group">
+                <label>Event Associated To</label>
+                <select class="js-select2" data-search="on" name="event_id" id="event_id">
+                    <option value="0">Not Associated</option>
+                    <?php
+                        
+                        $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                        $log_ministry_id = $this->Crud->read_field('id', $log_id, 'user',  'ministry_id');
+                        $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
+
+                        $events = $this->Crud->read_single_order('ministry_id', $log_ministry_id, 'events', 'title', 'asc');
+                        if($role == 'developer' || $role == 'administrator'){
+                            $events = $this->Crud->read('events');
+                        }
+                        if(!empty($events)){
+                            foreach ($events as $event) {
+                                if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
+                                    if($event->church_type != 'all'){
+                                        if($event->church_type == 'region' && $event->event_for == 'general'){
+                                            $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'regional_id');
+                                            if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+                                        } else {
+                                            if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+
+                                        }
+                                        
+                                        if($event->church_type == 'zone' && $event->event_for == 'general'){
+                                            $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'zonal_id');
+                                            if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+                                        } else {
+                                            if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+
+                                        }
+                                        if($event->church_type == 'group' && $event->event_for == 'general'){
+                                            $log_region_id = $this->Crud->read_field('id', $log_church_id, 'church', 'group_id');
+                                            if(!in_array($log_region_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+                                        } else {
+                                            if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+
+                                        }
+                                        
+                                        if($event->church_type == 'church' && $event->event_for == 'general'){
+                                            if(!in_array($log_church_id, json_decode($event->church_id))){
+                                                continue;
+                                            }
+
+                                        }
+                                        
+                                    }
+                                }
+
+                                echo '<option value="'.$event->id.'">'.ucwords($event->title).'</option>';
+                            }
+                        }
+                        ?>
+                    
+                </select>
+            </div>
+        </div>
 
         <div class="col-sm-12 mb-3 " >
             <?php
