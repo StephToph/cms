@@ -2867,12 +2867,15 @@ class Ministry extends BaseController {
 							if(!empty($switch_id)){
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Share Link ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Share Form').'</span></a></li>
+								<li><a href="' . site_url('ministry/forms/'.$q->unique_link) . '" class="text-dark" target="_blank"><em class="icon ni ni-card-view"></em><span>'.translate_phrase('Preview Form').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View Response ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('View Response').'</span></a></li>
 								
 							';
 							} else {
 								$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Share Link ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Share Form').'</span></a></li>
-								
+								<li><a href="' . site_url('ministry/forms/'.$q->unique_link) . '" class="text-dark" target="_blank"><em class="icon ni ni-card-view"></em><span>'.translate_phrase('Preview Form').'</span></a></li>
+								<li><a href="javascript:;" class="text-success pop" pageTitle="View Response ' . $title . '" pageSize="modal-md" pageName="' . site_url($mod . '/share/'.$q->form_id.'/share_link/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('View Response').'</span></a></li>
 							';
 
 							}
@@ -3032,6 +3035,88 @@ class Ministry extends BaseController {
             'file'    => $dir . $save_name,
         ];
     }
+
+	public function forms($param1='', $param2='', $param3='', $param4='') {
+
+		$mod = 'ministry/forms';
+
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['param4'] = $param4;
+		$data['current_language'] = $this->session->get('current_language');
+	
+		if($param1 == 'validate'){
+			if($this->request->getMethod() == 'post'){
+				$form_id = $this->request->getPost('form_id');
+				$link = $this->request->getPost('link');
+				$email = $this->request->getPost('email');
+				$phone = $this->request->getPost('phone');
+				$link_id = $this->Crud->read_field('unique_link', $link, 'form_link', 'id');
+				if($this->Crud->check2( 'phone', $phone, 'link_id', $link_id, 'form_response') > 0){
+					echo $this->Crud->msg('warning', 'You are already submitted this Form');
+				} else {
+					$this->session->set('form_email', $email);
+					$this->session->set('form_phone', $phone);
+					
+					echo $this->Crud->msg('success', 'Welcome!!');
+					echo '<script>$("#validate_view").hide(500);$("#form_resp").show(500);</script>';
+				}
+				die;
+			}
+		}
+
+		if($param1 == 'submit'){
+			if($this->request->getMethod() == 'post'){
+				$form_id = $this->request->getPost('form_id');
+				$link = $this->request->getPost('link');
+				$email = $this->session->get('form_email');
+				$phone = $this->session->get('form_phone');
+				$formData = $this->request->getPost();
+    
+				// Filter out empty or undefined values
+				$filteredData = array_filter($formData, function($value) {
+					return !is_null($value) && $value !== '' && $value !== 'undefined';
+				});
+				
+				// Convert the filtered form data to JSON format
+				$response = json_encode($filteredData);
+			
+				$link_id = $this->Crud->read_field('unique_link', $link, 'form_link', 'id');
+				
+				$ins['link_id'] = $link_id;
+				$ins['response'] = $response;
+				$ins['email'] = $email;
+				$ins['phone'] = $phone;
+				$ins['reg_date'] = date(fdate);
+				
+				if($this->Crud->check2('link_id', $link_id, 'phone', $phone, 'form_response') > 0){
+					echo $this->Crud->msg('danger', 'You have Already Filled this Form. Thank You.');
+				} else {
+					$ins_rec = $this->Crud->create('form_response', $ins);
+					if($ins_rec > 0){
+						echo $this->Crud->msg('success', 'Form Submitted Successfully.<br> Thank you For Filling this form.');
+						echo '<script>location.reload(false);</script>';
+					} else{
+						echo $this->Crud->msg('danger', 'Try Again Later.');
+					}
+				}
+
+				die;
+			}
+		}
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = 'Form - '.app_name;
+			$data['page_active'] = $mod;
+
+			return view($mod, $data);
+		}
+	}
 
 
 }
