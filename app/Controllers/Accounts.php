@@ -6042,6 +6042,65 @@ class Accounts extends BaseController {
 
 					die;	
 				}
+			} elseif($param2 == 'message'){
+				// prepare for edit
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_is_leader'] = $e->is_leader;
+						}
+					}
+				}
+			
+
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getVar('edit_id');
+					$message = $this->request->getVar('message');
+					$subject = $this->request->getVar('subject');
+					
+					$ministry_id = $this->Crud->read_field('id', $user_id, 'user', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $user_id, 'user', 'church_id');
+					$firstname = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+					$surname = $this->Crud->read_field('id', $user_id, 'user', 'surname');
+					$email = $this->Crud->read_field('id', $user_id, 'user', 'email');
+					
+
+					
+					$ins_data['subject'] = $subject;
+					$ins_data['message'] = $message;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['from_id'] = $log_id;
+					$ins_data['to_id'] = $user_id;
+					$ins_data['reg_date'] = date(fdate);
+					
+					// do create or update
+					$upd_rec = $this->Crud->create('message', $ins_data);
+					if($upd_rec > 0) {
+						$this->Crud->notify($log_id, $user_id, $message, 'message', $upd_rec);
+						$name = ucwords($firstname.' '.$surname);
+							$body = '
+								Dear '.$name.', <br><br>
+							'.$message;
+							$this->Crud->send_email($email, ucwords($subject), $body);
+
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+						$action = $by.' Sent a message to User ('.$code.')';
+						$this->Crud->activity('user', $user_id, $action);
+
+						echo $this->Crud->msg('success', 'Message Sent');
+						echo '<script>location.reload(false);</script>';
+					} else {
+						echo $this->Crud->msg('info', 'Try Again Later');	
+					}
+				
+
+					die;	
+				}
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -6477,8 +6536,9 @@ class Accounts extends BaseController {
 						} else {
 							if(!empty($switch_id)){
 								$all_btn = '
-								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Records').'</span></a></li>
+								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								
 								
 							';
@@ -6486,9 +6546,10 @@ class Accounts extends BaseController {
 								$all_btn = '
 								<li><a href="' . site_url($mod . '/manages/edit/' . $id) . '" class="text-info" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manages/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Records').'</span></a></li>
+								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark pop" pageTitle="Leader ' . $name . '" pageName="' . site_url($mod . '/manage/leaders/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leader').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								
 								
 							';
