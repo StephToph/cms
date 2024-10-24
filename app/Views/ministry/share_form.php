@@ -57,73 +57,61 @@ $this->Crud = new Crud();
     <div class="row">
         <?php 
             $e_title = $this->Crud->read_field('id', $param2, 'form', 'name');
-            $e_form_fields = json_decode($this->Crud->read_field('id', $param2, 'form', 'fields'));
-        ?>
-        <div class="col-sm-12 mb-3 table-responsive">
-            <h5 class="text-center text-info"><?= ucwords($e_title); ?></h5>
-            <table class="table table-hover">
-                <tr>
-                    <td colspan="5" class=" text-cente"><b class="text-danger">Form Fields</b></td>
-                </tr>
-                <?php 
-                    
-                    if(!empty($e_form_fields)){
-                        foreach($e_form_fields as $f => $field){
-                            $type = str_replace('_', ' ',  $field->type);
-                            $opts = '';
-                            if($field->type == 'single_choice' || $field->type == 'multiple_choice'){
-                                $opt = '';
-                                $options = $field->options;
-                                foreach($options as $op => $option){
-                                    $opt .= $option.', ';
-                                }
-                                
-                                $optaa = rtrim($opt, ', ');
-                                $opta = '<span class="text-info">{'.ucwords($opt).'}</span>';
-                            } else{
-                                $opta = '';
-                            }
-                            $opts = $opta;
-                            ?>
-                            <tr>
-                                <td colspan="2"><b><?=ucwords($field->label);?></b></td>
-                                <td colspan="3"><?=ucwords($type).' '.$opts;?></td>
-                            </tr>
-                        <?php }
-                    }
-                     
-                    if(!empty($e_fields)){
+            $form_fields = json_decode($this->Crud->read_field('id', $param2, 'form', 'fields'), true);
+            $link_id = $param4;
+            $query = $this->Crud->read_single('link_id', $link_id, 'form_response');
+            $labels = [];
+
+            // Loop through the decoded array to extract labels
+            foreach ($form_fields as $field) {
+                $labels[] = $field['label']; // Add each label to the labels array
+            }
+
+            ?>
+            <div class="col-sm-12 mb-3 table-responsive">
+                <h5 class="text-center text-info"><?= ucwords($e_title); ?> Response</h5>
+                <table class="table table-hover">
+                    <?php if(empty($query)){
                         echo '
-                             <tr>
-                                <td colspan="5" class=" text-cente"><b class="text-danger">Form Extension Fields</b></td>
+                            <tr>
+                                <td colspan="8">No Response</td>
                             </tr>
                         ';
-                        foreach($e_fields as $f => $field){
-                            $type = str_replace('_', ' ',  $field->type);
-                            $opts = '';
-                            if($field->type == 'single_choice' || $field->type == 'multiple_choice'){
-                                $opt = '';
-                                $options = $field->options;
-                                foreach($options as $op => $option){
-                                    $opt .= $option.', ';
+                    } else {
+                        echo '
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Phone</th>';
+                                    foreach ($labels as $header){
+                                        echo '<th>'.str_replace('_', ' ', ucwords($header)).'</th>';
+                                    }
+                                echo '</tr>
+                            </thead>
+                            <tbody>
+                        ';
+                        foreach($query as $q){ 
+                            $responses = json_decode($q->response, true);
+                            $email = $q->email;
+                            $phone = $q->phone;
+                            echo '<tr>
+                                    <td>'.$q->email.'</td>
+                                    <td>'.$q->phone.'</td>
+                                ';
+                                foreach ($responses as $key => $value) {
+                                    if ($key !== 'form_id' && $key !== 'link') {
+                                        // If the value is an array (like Department), convert it to a comma-separated string
+                                        if (is_array($value)) {
+                                            $value = implode(", ", $value);
+                                        }
+                                        echo '<td>' . htmlspecialchars($value) . '</td>';
+                                    }
                                 }
                                 
-                                $optaa = rtrim($opt, ', ');
-                                $opta = '<span class="text-info">{'.ucwords($opt).'}</span>';
-                            } else{
-                                $opta = '';
-                            }
-                            $opts = $opta;
-                            ?>
-                            <tr>
-                                <td colspan="2"><b><?=ucwords($field->label);?></b></td>
-                                <td colspan="3"><?=ucwords($type).' '.$opts;?></td>
-                            </tr>
-                        <?php }
-                    }
-                    
-                ?>
-
+                            echo '</tr>';
+                        } 
+                        echo '</tbody>'; 
+                    } ?>
             </table>
         </div>
 

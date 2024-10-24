@@ -215,12 +215,12 @@
     }
 
     
-    function form_share(id){
+    function form_share(id, type){
         $('#share_resp').show(500);
         $('#extension_resp').hide(500);
         $('#form_resp').hide(500);
         $('#share_btn').attr('pageName',site_url + 'ministry/invitation/share/'+id);
-        load_share('','',id);
+        load_share('','',id, type);
         
     }
 
@@ -319,7 +319,7 @@
     }
 
 
-    function load_share(x, y, id) {
+    function load_share(x, y, id, type) {
         var more = 'no';
         var methods = '';
         if (parseInt(x) > 0 && parseInt(y) > 0) {
@@ -337,7 +337,7 @@
         $.ajax({
             url: site_url + 'ministry/invitation/share_load' + methods,
             type: 'post',
-            data: {id: id },
+            data: {id: id, type:type },
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
