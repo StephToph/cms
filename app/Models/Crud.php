@@ -2340,7 +2340,7 @@ class Crud extends Model {
 
 			$church_ids = array_column($churches, 'id');
 			$church_ids[] = $church_id;
-		} elseif ($role === 'church assembly') {
+		} elseif ($role === 'church leader') {
 			$church_ids[] = $church_id;
 		}
 	
@@ -2386,6 +2386,7 @@ class Crud extends Model {
 		
 		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
 		if (!empty($switch_id)) {
 			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
@@ -2451,7 +2452,7 @@ class Crud extends Model {
 
 			$church_ids = array_column($churches, 'id');
 			$church_ids[] = $church_id;
-		} elseif ($role === 'church assembly') {
+		} elseif ($role === 'church leader') {
 			$church_ids[] = $church_id;
 		}
 	
@@ -3299,7 +3300,7 @@ class Crud extends Model {
 	
 				$church_ids = array_column($churches, 'id');
 				$church_ids[] = $church_id;
-			} elseif ($role === 'church assembly') {
+			} elseif ($role === 'church leader') {
 				$church_ids[] = $church_id;
 			}
 	
