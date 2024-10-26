@@ -190,18 +190,19 @@ $this->Crud = new Crud();
                         </select>
                     </div>
                 </div>
-                <div class="col-sm-12 mb-2">
-                    <div class="form-group">
-                        <label for="activate"><?=translate_phrase('Member');?></label>
-                        <select class="form-control js-select2" multiple data-search="on" data-toggle="select2" id="member_id" name="member_id[]">
-                           
-                        </select>
-                    </div>
-                </div>
+                
                 
             <?php } else { ?>
                 <input type="hidden" id="include_church" value="false" />
             <?php } ?>
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Member');?></label>
+                    <select class="form-control js-select2" multiple data-search="on" data-toggle="select2" id="member_id" name="member_id[]">
+                        
+                    </select>
+                </div>
+            </div>
             <div class="col-sm-12 mb-2">
                 <div class="form-group">
                     <label for="activate"><?=translate_phrase('Subject');?></label>
