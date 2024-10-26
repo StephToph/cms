@@ -6101,6 +6101,82 @@ class Accounts extends BaseController {
 
 					die;	
 				}
+			} elseif($param2 == 'bulk_message'){
+				// prepare for edit
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_is_leader'] = $e->is_leader;
+						}
+					}
+				}
+			
+
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getVar('edit_id');
+					$message = $this->request->getVar('message');
+					$member_id = $this->request->getVar('member_id');
+					$subject = $this->request->getVar('subject');
+					
+					if(empty($member_id)){
+						echo $this->Crud-msg('danger', 'Select Member you want to send Message to');
+						die;
+					}
+					$scount = 0;
+					$fcount = 0;
+					$ins_data['subject'] = $subject;
+					$ins_data['message'] = $message;
+					$ins_data['from_id'] = $log_id;
+					$ins_data['reg_date'] = date(fdate);
+					if(!empty($member_id)){
+						foreach($member_id as $member){
+
+							$ministry_id = $this->Crud->read_field('id', $member, 'user', 'ministry_id');
+							$church_id = $this->Crud->read_field('id', $member, 'user', 'church_id');
+							$firstname = $this->Crud->read_field('id', $member, 'user', 'firstname');
+							$surname = $this->Crud->read_field('id', $member, 'user', 'surname');
+							$email = $this->Crud->read_field('id', $member, 'user', 'email');
+							
+							$ins_data['church_id'] = $church_id;
+							$ins_data['ministry_id'] = $ministry_id;
+							$ins_data['to_id'] = $member;
+						
+							
+							// do create or update
+							$upd_rec = $this->Crud->create('message', $ins_data);
+							if($upd_rec > 0) {
+								$scount++;
+								$this->Crud->notify($log_id, $user_id, $message, 'message', $upd_rec);
+								$name = ucwords($firstname.' '.$surname);
+									$body = '
+										Dear '.$name.', <br><br>
+									'.$message;
+									$this->Crud->send_email($email, ucwords($subject), $body);
+
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+								$action = $by.' Sent a message to User ('.$code.')';
+								$this->Crud->activity('user', $user_id, $action);
+							} else {
+								$scount++;	
+							}
+
+						}
+					}
+					
+					if($scount == 0){
+						echo $this->Crud->msg('info', 'Try Again Later');
+					} else {
+						echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
+						echo '<script>location.reload(false);</script>';
+						
+					}
+
+					die;	
+				}
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -6456,6 +6532,25 @@ class Accounts extends BaseController {
 				echo json_encode($resp);
 				die;
 			}
+		}
+
+		if($param1 == 'get_member'){
+			$includeChurch = $this->request->getGet('include_church') === 'true';
+
+			$member = '';
+			$members = $this->Crud->filter_membership('', '', $log_id, '', '', $includeChurch);
+            if(!empty($members)){
+				foreach($members as $mem){
+					$church = '';
+					if($includeChurch == 'true'){
+						$church = ' - '.$this->Crud->read_field('id', $mem->church_id, 'church', 'name');
+					}
+					$member .= '
+						<option value="'.$mem->id.'">'.ucwords($mem->firstname.' '.$mem->surname).' - '.$mem->phone.$church.'</option>';
+				}
+			}
+			echo $member;
+			die;
 		}
 
         // record listing
