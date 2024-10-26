@@ -45,6 +45,11 @@
                                             <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
+                                                <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/membership/manage/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
+
+                                            </li><!-- li -->
+                                            <li class="btn-toolbar-sep"></li><!-- li -->
+                                            <li>
                                                 <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Membership Bulk Upload" pageName="<?=site_url('accounts/membership/manage/upload'); ?>" pageSize="modal-md" pageTitle="Upload Membership" class="btn  btn-outline-success pop btn-icon"><em class="icon ni ni-upload-cloud"></em></a>
 
                                             </li><!-- li -->
