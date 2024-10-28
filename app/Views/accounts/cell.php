@@ -41,10 +41,15 @@
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
                                             <?php if(empty($switch_id)){?>
-                                            <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
-                                                <a href="javascript:;" pageTitle="Add Cell" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('accounts/cell/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
-                                            </li><!-- li -->
+                                                <li class="btn-toolbar-sep"></li><!-- li -->
+                                                <li>
+                                                    <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/cell/manage/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
+
+                                                </li>
+                                                <li class="btn-toolbar-sep"></li><!-- li -->
+                                                <li>
+                                                    <a href="javascript:;" pageTitle="Add Cell" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('accounts/cell/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
+                                                </li><!-- li -->
                                             <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->

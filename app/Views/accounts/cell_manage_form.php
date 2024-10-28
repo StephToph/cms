@@ -171,7 +171,7 @@ $this->session = \Config\Services::session();
             
             <div class="col-sm-12 mb-2">
                 <div class="form-group">
-                    <label for="activate"><?=translate_phrase('Send to all Member?');?></label>
+                    <label for="activate"><?=translate_phrase('Send to all Cell Member?');?></label>
                     <select class="form-control js-select2" id="send_type" name="send_type">
                         <option value="executives"><?= translate_phrase('No - Cell Executives Only'); ?></option>
                         <option value="all"><?= translate_phrase('Yes - All Cell Members'); ?></option>
