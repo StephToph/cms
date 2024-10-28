@@ -340,6 +340,101 @@ $this->Crud = new Crud();
         </div>
     </div>
 <?php } ?>
+    
+    <?php if($param2 == 'cell_message') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+        
+        <div class="row">
+            <input type="hidden" name="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Message all Members?');?></label>
+                    <select class="form-control js-select2" data-toggle="select2" id="type" name="type">
+                        <option value="true"><?=translate_phrase('Yes - All Members in Cell'); ?></option>
+                        <option value="false"><?=translate_phrase('No - Only Cell Executives'); ?></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Subject');?></label>
+                    <input type='text' class="form-control" name='subject' id='subject' required>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Message');?></label>
+                    <textarea class="form-control"name='message' id='message' rows="5" required></textarea>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 mt-3 text-center">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-send"></i> <?=translate_phrase('Send Message');?>
+                </button>
+            </div>
+        </div>
+    <?php } ?>
+    
+    
+    <?php if($param2 == 'bulk_message') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+
+        
+        <div class="row">
+            <input type="hidden" name="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+            <?php $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                if($church_id <= 0){?>
+                <div class="col-sm-12 mb-2">
+                    <div class="form-group">
+                        <label for="activate"><?=translate_phrase('Show all Members?');?></label>
+                        <select class="form-control js-select2" data-toggle="select2" id="include_church" name="include_church">
+                            <option value="false"><?=translate_phrase('No - Display only members I oversee'); ?></option>
+                            <option value="true"><?=translate_phrase('Yes - Display all members within my church and affiliated branches'); ?></option>
+                        </select>
+                    </div>
+                </div>
+                
+                
+            <?php } else { ?>
+                <input type="hidden" id="include_church" value="false" />
+            <?php } ?>
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Member');?></label>
+                    <select class="form-control js-select2" multiple data-search="on" data-toggle="select2" id="member_id" name="member_id[]">
+                        
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Subject');?></label>
+                    <input type='text' class="form-control" name='subject' id='subject' required>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="activate"><?=translate_phrase('Message');?></label>
+                    <textarea class="form-control"name='message' id='message' rows="5" required></textarea>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 mt-3 text-center">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-send"></i> <?=translate_phrase('Send Message');?>
+                </button>
+            </div>
+        </div>
+    <?php } ?>
 <?php echo form_close(); ?>
 <script>
     $('.js-select2').select2();

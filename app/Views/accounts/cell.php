@@ -108,6 +108,11 @@
                                                     pageName="<?= site_url('accounts/cell/manage_member'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
+                                            <li class="btn-toolbar-sep"></li><!-- li -->
+                                            <li>
+                                                <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/cell/manage_member/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
+
+                                            </li>
                                             <?php } ?>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->

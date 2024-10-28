@@ -3383,7 +3383,7 @@ class Accounts extends BaseController {
 		$data['param1'] = $param1;
 		$data['param2'] = $param2;
 		$data['param3'] = $param3;
-		$data['form_link'] = $form_link;
+		$data['form_link'] = rtrim($form_link, '/');
         $data['current_language'] = $this->session->get('current_language');
 		
 		// manage record
@@ -3415,6 +3415,172 @@ class Accounts extends BaseController {
 						}
 						exit;	
 					}
+				}
+			} elseif($param2 == 'cell_message'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+						}
+					}
+				}
+				if($this->request->getMethod() == 'post'){
+					$cell_id = $this->request->getVar('edit_id');
+					$message = $this->request->getVar('message');
+					$type = $this->request->getVar('type');
+					$subject = $this->request->getVar('subject');
+					
+					$ministry_id = $this->Crud->read_field('id', $cell_id, 'cells', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $cell_id, 'cells', 'church_id');
+					$name = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+					
+					$members = [];
+					$query = $this->Crud->filter_cell_members('', '',$log_id, 'all', '', $cell_id);
+
+					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+					$cell_leader = $this->Crud->read_field('name', 'Cell Leader', 'access_role', 'id');
+					$cell_leader_assist = $this->Crud->read_field('name', 'Assistant Cell Leader', 'access_role', 'id');
+					$cell_executive = $this->Crud->read_field('name', 'Cell Executive', 'access_role', 'id');
+					foreach($query as $q){
+						if($type == 'false'){
+							if($q->cell_role == $cell_member)continue;
+						}
+						$members[] = $q->id;
+
+					}
+					
+					if(empty($members)){
+						echo $this->Crud->msg('danger', 'No User Found for this Selection');
+						die;
+					}
+
+					$ins_data['subject'] = $subject;
+					$ins_data['message'] = $message;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['cell_id'] = $cell_id;
+					$ins_data['from_id'] = $log_id;
+					$ins_data['reg_date'] = date(fdate);
+					$scount = 0;
+					$fcount = 0;
+
+					if(!empty($members)){
+						foreach($members as $to_id){
+							$ins_data['to_id'] = $to_id;
+							$firstname = $this->Crud->read_field('id', $to_id, 'user', 'firstname');
+							$surname = $this->Crud->read_field('id', $to_id, 'user', 'surname');
+							$email = $this->Crud->read_field('id', $to_id, 'user', 'email');
+							
+							// do create or update
+							$upd_rec = $this->Crud->create('message', $ins_data);
+							if($upd_rec > 0) {
+								$scount++;
+								$this->Crud->notify($log_id, $to_id, $message, 'message', $upd_rec);
+								$name = ucwords($firstname.' '.$surname);
+									$body = '
+										Dear '.$name.', <br><br>
+									'.$message;
+									$this->Crud->send_email($email, ucwords($subject), $body);
+
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $to_id, 'user', 'firstname');
+								$action = $by.' Sent a message to User ('.$code.')';
+								$this->Crud->activity('user', $to_id, $action);
+							} else {
+								$scount++;	
+							}
+							
+							
+						}
+					}
+
+					
+					if($scount == 0){
+						echo $this->Crud->msg('info', 'Try Again Later');
+					} else {
+						echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
+						echo '<script>location.reload(false);</script>';
+						
+					}
+					die;	
+				}
+			} elseif($param2 == 'bulk_message'){
+				// prepare for edit
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_is_leader'] = $e->is_leader;
+						}
+					}
+				}
+			
+
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getVar('edit_id');
+					$message = $this->request->getVar('message');
+					$member_id = $this->request->getVar('member_id');
+					$subject = $this->request->getVar('subject');
+					
+					if(empty($member_id)){
+						echo $this->Crud-msg('danger', 'Select Member you want to send Message to');
+						die;
+					}
+					$scount = 0;
+					$fcount = 0;
+					$ins_data['subject'] = $subject;
+					$ins_data['message'] = $message;
+					$ins_data['from_id'] = $log_id;
+					$ins_data['reg_date'] = date(fdate);
+					if(!empty($member_id)){
+						foreach($member_id as $member){
+
+							$ministry_id = $this->Crud->read_field('id', $member, 'user', 'ministry_id');
+							$church_id = $this->Crud->read_field('id', $member, 'user', 'church_id');
+							$firstname = $this->Crud->read_field('id', $member, 'user', 'firstname');
+							$surname = $this->Crud->read_field('id', $member, 'user', 'surname');
+							$email = $this->Crud->read_field('id', $member, 'user', 'email');
+							
+							$ins_data['church_id'] = $church_id;
+							$ins_data['ministry_id'] = $ministry_id;
+							$ins_data['to_id'] = $member;
+						
+							
+							// do create or update
+							$upd_rec = $this->Crud->create('message', $ins_data);
+							if($upd_rec > 0) {
+								$scount++;
+								$this->Crud->notify($log_id, $user_id, $message, 'message', $upd_rec);
+								$name = ucwords($firstname.' '.$surname);
+									$body = '
+										Dear '.$name.', <br><br>
+									'.$message;
+									$this->Crud->send_email($email, ucwords($subject), $body);
+
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+								$action = $by.' Sent a message to User ('.$code.')';
+								$this->Crud->activity('user', $user_id, $action);
+							} else {
+								$scount++;	
+							}
+
+						}
+					}
+					
+					if($scount == 0){
+						echo $this->Crud->msg('info', 'Try Again Later');
+					} else {
+						echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
+						echo '<script>location.reload(false);</script>';
+						
+					}
+
+					die;	
 				}
 			} else {
 				// prepare for edit
@@ -3504,6 +3670,43 @@ class Accounts extends BaseController {
 			}
 		}
 
+		if($param1 == 'getMembers'){
+			// Example controller method for fetching members dynamically
+			$cell_id = $this->session->get('cell_id'); 
+			$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+			$cell_leader = $this->Crud->read_field('name', 'Cell Leader', 'access_role', 'id');
+			$cell_leader_assist = $this->Crud->read_field('name', 'Assistant Cell Leader', 'access_role', 'id');
+			$cell_executive = $this->Crud->read_field('name', 'Cell Executive', 'access_role', 'id');
+			$type = $param2;
+
+			$all_members = [];
+			$executives = [];
+			$member = $this->Crud->filter_cell_members('', '',$log_id, 'all', '', $cell_id);
+			if(!empty($member)){
+				foreach($member as $mem){
+					$name = $mem->firstname.' '.$mem->surname;
+					$all_member['id'] = $mem->id;
+					$all_member['name'] = $name;
+					if($mem->cell_role != $cell_member){
+						$executive['id'] = $mem->id;
+						$executive['name'] = $name;
+						
+						$executives[] = $executive;
+					}
+					$all_members[] = $all_member;
+
+				}
+			}// Assuming you're passing the cell ID for filtering
+			if ($type === "executives") {
+				$members = $executives;
+			} else {
+				$members = $all_members;
+			}
+			echo json_encode($members);
+			die;
+
+		}
+
 		// manage record
 		if($param1 == 'manage_member') {
 			// prepare for delete
@@ -3534,6 +3737,128 @@ class Accounts extends BaseController {
 						exit;	
 					}
 				}
+			} elseif($param2 == 'message'){
+				
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getVar('edit_id');
+					$message = $this->request->getVar('message');
+					$subject = $this->request->getVar('subject');
+					
+					$ministry_id = $this->Crud->read_field('id', $user_id, 'user', 'ministry_id');
+					$church_id = $this->Crud->read_field('id', $user_id, 'user', 'church_id');
+					$cell_id = $this->Crud->read_field('id', $user_id, 'user', 'cell_id');
+					$firstname = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+					$surname = $this->Crud->read_field('id', $user_id, 'user', 'surname');
+					$email = $this->Crud->read_field('id', $user_id, 'user', 'email');
+
+				
+					$ins_data['subject'] = $subject;
+					$ins_data['message'] = $message;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['cell_id'] = $cell_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['from_id'] = $log_id;
+					$ins_data['to_id'] = $user_id;
+					$ins_data['reg_date'] = date(fdate);
+					
+					// do create or update
+					$upd_rec = $this->Crud->create('message', $ins_data);
+					if($upd_rec > 0) {
+						$this->Crud->notify($log_id, $user_id, $message, 'message', $upd_rec);
+						$name = ucwords($firstname.' '.$surname);
+							$body = '
+								Dear '.$name.', <br><br>
+							'.$message;
+							$this->Crud->send_email($email, ucwords($subject), $body);
+
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname');
+						$action = $by.' Sent a message to User ('.$code.')';
+						$this->Crud->activity('user', $user_id, $action);
+
+						echo $this->Crud->msg('success', 'Message Sent');
+						echo '<script>
+								load_leadership("","",'.$cell_id.');
+								$("#modal").modal("hide");
+							</script>';
+					} else {
+						echo $this->Crud->msg('info', 'Try Again Later');	
+					}
+				
+
+					die;	
+				}
+			} elseif($param2 == 'bulk_message'){
+
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getVar('edit_id');
+					$cell_id = $this->request->getVar('cell_id');
+					$message = $this->request->getVar('message');
+					$member_id = $this->request->getVar('member_id');
+					$subject = $this->request->getVar('subject');
+					
+					if(empty($member_id)){
+						echo $this->Crud-msg('danger', 'Select Member you want to send Message to');
+						die;
+					}
+					$scount = 0;
+					$fcount = 0;
+					$ins_data['subject'] = $subject;
+					$ins_data['message'] = $message;
+					$ins_data['from_id'] = $log_id;
+					$ins_data['cell_id'] = $cell_id;
+					$ins_data['reg_date'] = date(fdate);
+
+					if(!empty($member_id)){
+						foreach($member_id as $member){
+							// echo $member.' ';
+
+							$ministry_id = $this->Crud->read_field('id', $member, 'user', 'ministry_id');
+							$church_id = $this->Crud->read_field('id', $member, 'user', 'church_id');
+							$firstname = $this->Crud->read_field('id', $member, 'user', 'firstname');
+							$surname = $this->Crud->read_field('id', $member, 'user', 'surname');
+							$email = $this->Crud->read_field('id', $member, 'user', 'email');
+							
+							// echo $member.' '.$email;
+							$ins_data['church_id'] = $church_id;
+							$ins_data['ministry_id'] = $ministry_id;
+							$ins_data['to_id'] = $member;
+						
+							
+							// do create or update
+							$upd_rec = $this->Crud->create('message', $ins_data);
+							if($upd_rec > 0) {
+								$scount++;
+								$this->Crud->notify($log_id, $member, $message, 'message', $upd_rec);
+								$name = ucwords($firstname.' '.$surname);
+									$body = '
+										Dear '.$name.', <br><br>
+									'.$message;
+									$this->Crud->send_email($email, ucwords($subject), $body);
+
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $member_id, 'user', 'firstname');
+								$action = $by.' Sent a message to User ('.$code.')';
+								$this->Crud->activity('user', $member_id, $action);
+							} else {
+								$scount++;	
+							}
+
+						}
+					}
+					
+					if($scount == 0){
+						echo $this->Crud->msg('info', 'Try Again Later');
+					} else {
+						echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
+						echo '<script>location.reload(false);</script>';
+						
+					}
+
+					die;	
+				}
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -3542,7 +3867,8 @@ class Accounts extends BaseController {
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_cell_role_id'] = $e->cell_role;
+								$data['e_cell_id'] = $e->cell_id;
+								$data['e_cell_role'] = $e->cell_role;
 								$data['e_status'] = $e->activate;
 								
 							}
@@ -3551,8 +3877,8 @@ class Accounts extends BaseController {
 				} 
 
 				if($this->request->getMethod() == 'post'){
+					$member_ids = $this->request->getVar('member_id');
 					$cell_id = $this->request->getVar('cell_id');
-					$member_id = $this->request->getVar('member_id');
 					$members = $this->request->getVar('members');
 					$status = $this->request->getVar('status');
 					$cell_role_id = $this->request->getVar('cell_role_id');
@@ -3560,7 +3886,7 @@ class Accounts extends BaseController {
 					
 					
 					// do create or update
-					if($member_id) {
+					if($member_ids) {
 						$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
 						$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
 						$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
@@ -3597,13 +3923,13 @@ class Accounts extends BaseController {
 						$ins_data['activate'] = $status;
 						$ins_data['cell_role'] = $cell_role_id;
 						
-						$upd_rec = $this->Crud->updates('id', $member_id, 'user', $ins_data);
+						$upd_rec = $this->Crud->updates('id', $member_ids, 'user', $ins_data);
 						if($upd_rec > 0) {
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$code = $this->Crud->read_field('id', $member_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $member_ids, 'user', 'firstname');
 							$action = $by.' updated User ('.$code.') Record';
-							$this->Crud->activity('user', $member_id, $action);
+							$this->Crud->activity('user', $member_ids, $action);
 
 							echo $this->Crud->msg('success', 'Record Updated');
 							echo '<script>
@@ -3706,6 +4032,7 @@ class Accounts extends BaseController {
 								$all_btn = '
 								
 								<li><a href="javascript:;" onclick="church_leadership(\'' . addslashes(ucwords($name)) . ' Cell\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Members').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/cell_message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								
 								
 							';
@@ -3714,6 +4041,7 @@ class Accounts extends BaseController {
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" onclick="church_leadership(\'' . addslashes(ucwords($name)) . ' Cell\', ' . (int)$id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Members').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/cell_message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								
 								
 							';
@@ -3807,7 +4135,6 @@ class Accounts extends BaseController {
 			if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
 			$search = $this->request->getPost('search');
 			$church_id = $this->request->getPost('id');
-			$this->session->set('church_id', $church_id);
 			$this->session->set('cell_id', $church_id);
 			
 			if(empty($ref_status))$ref_status = 0;
@@ -3861,6 +4188,7 @@ class Accounts extends BaseController {
 						if(empty($switch_id)){
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage_member/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-info pop" pageTitle="Send Message to ' . $fullname . '" pageName="' . site_url($mod . '/manage_member/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								
 							';
 						}
@@ -6620,6 +6948,10 @@ class Accounts extends BaseController {
 							$cell = $this->Crud->read_field('id', $q->cell_id, 'cells', 'name');
 						}
 						$name = $firstname.' '.$othername.' '.$surname;
+						$names = '<a href="' . site_url('account/membership/view/' . $id) . '" class="text-primary">
+							<b>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)) . '</b></span>
+						</a>';
+
 
 						if(empty($phone))$phone = '-';
 						if(empty($email))$email = '-';
@@ -6659,7 +6991,7 @@ class Accounts extends BaseController {
 								</td>
 								<td>
 									<div class="user-info">
-										<span class="tb-lead"><b>' . ucwords(strtolower($name)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
+										<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
 									</div>
 								</td>
 								<td>
