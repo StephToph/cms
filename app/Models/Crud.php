@@ -4859,4 +4859,28 @@ class Crud extends Model {
 			return $minutes . ' mins';
 		}
 	}
+
+	public function get_sub_churches($id){
+		$sub_churches = [];
+
+		$church_type = $this->read_field('id', $id, 'church', 'type');
+		$type = '';
+		if($church_type == 'region'){
+			$church = $this->read_single('regional_id', $id, 'church');
+		}
+		if($church_type == 'zone'){
+			$church = $this->read_single('zonal_id', $id, 'church');
+		}
+		if($church_type == 'group'){
+			$church = $this->read_single('group_id', $id, 'church');
+		}
+
+		if(!empty($church)){
+			foreach($church as $c){
+				$sub_churches[] = $c->id;
+			}
+		}
+
+		return $sub_churches;
+	}
 }
