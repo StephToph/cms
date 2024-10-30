@@ -8,6 +8,7 @@
     $username = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
     $log_name = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
     $email = $this->Crud->read_field('id', $log_id, 'user', 'email');
+    $log_user_img = $this->Crud->read_field('id', $log_id, 'user', 'img_id');
     if(empty($switch_id)){
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
@@ -35,9 +36,9 @@
         $church_id = $switch_id;
     }
     $log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
-    $log_user_img_id = 0;
-    $log_user_img = $this->Crud->image($log_user_img_id, 'big');
-    
+    if (empty($log_user_img) && !file_exists($log_user_img)) {
+        $log_user_img = 'assets/images/avatar.png';
+    }
     $logo = 'assets/new_logo1.png';
     $min_title = $title;
     if($ministry_id > 0){
@@ -308,7 +309,7 @@
                                         <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                             <div class="user-toggle">
                                                 <div class="user-avatar sm">
-                                                    <em class="icon ni ni-user-alt"></em>
+                                                    <img src="<?=site_url($log_user_img); ?>">
                                                 </div>
                                                 <div class="user-info d-none d-md-block">
                                                     <div class="user-status user-status-verified">
@@ -322,7 +323,7 @@
                                             <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
                                                 <div class="user-card">
                                                     <div class="user-avatar">
-                                                        <em class="icon ni ni-user-alt"></em>
+                                                        <img src="<?=site_url($log_user_img); ?>">
                                                     </div>
                                                     <div class="user-info">
                                                         <span class="lead-text"><?=ucwords($username); ?></span>
