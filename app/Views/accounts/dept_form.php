@@ -541,6 +541,26 @@ $this->Crud = new Crud();
             }
         });
 
+        let roleIndex = $("#container .input-group").length; // Tracks number of roles
+
+        // Add more roles button functionality
+        $('#addMore').on('click', function() {
+            roleIndex++; // Increment role index
+            const newRole = `
+                <div class="col-sm-12 mb-3">
+                    <div class="form-group input-group">
+                        <input class="form-control" type="text" id="role" placeholder="Enter Department Roles" name="roles[]" required>
+                        <button class="btn btn-icon btn-outline-danger deleteBtn" type="button"><i class="icon ni ni-trash"></i></button>
+                    </div>
+                </div>`;
+            
+            $('#container').append(newRole); // Append new role input group
+        });
+
+        // Remove role input functionality
+        $('#container').on('click', '.deleteBtn', function() {
+            $(this).closest('.col-sm-12').remove(); // Remove the closest role container
+        });
     });
 </script>
 
