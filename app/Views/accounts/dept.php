@@ -43,7 +43,7 @@
                                             <?php if(empty($switch_id)){?> 
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
                                                 <li>
-                                                    <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/dept/manage/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
+                                                    <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/dept/manage/bulk_message'); ?>" pageSize="modal-lg" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
 
                                                 </li>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
