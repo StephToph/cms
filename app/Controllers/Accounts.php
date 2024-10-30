@@ -2804,7 +2804,7 @@ class Accounts extends BaseController {
 		$data['param1'] = $param1;
 		$data['param2'] = $param2;
 		$data['param3'] = $param3;
-		$data['form_link'] = $form_link;
+		$data['form_link'] = rtrim($form_link, '/');
         $data['current_language'] = $this->session->get('current_language');
 		
 		// manage record
@@ -2837,7 +2837,7 @@ class Accounts extends BaseController {
 						exit;	
 					}
 				}
-			}  elseif($param2 == 'message'){
+			} elseif($param2 == 'message'){
 				if($param3) {
 					$edit = $this->Crud->read_single('id', $param3, $table);
 					if(!empty($edit)) {
@@ -2944,7 +2944,7 @@ class Accounts extends BaseController {
 					
 					$memb = $filtered_members;
 					
-					
+
 					$ins_data['subject'] = $subject;
 					$ins_data['message'] = $message;
 					$ins_data['dept_id'] = $dept_id;
@@ -2999,121 +2999,161 @@ class Accounts extends BaseController {
 					die;	
 				}
 			} elseif($param2 == 'bulk_message'){
-				// prepare for edit
-				if($param3) {
-					$edit = $this->Crud->read_single('id', $param3, $table);
-					if(!empty($edit)) {
-						foreach($edit as $e) {
-							$data['e_id'] = $e->id;
-							$data['e_is_leader'] = $e->is_leader;
-						}
-					}
-				}
-			
-
+				
 				if($this->request->getMethod() == 'post'){
-					$user_id = $this->request->getVar('edit_id');
+					$dept_ids = $this->request->getVar('dept_id');
 					$message = $this->request->getVar('message');
-					$member_id = $this->request->getVar('member_id');
-					$cell_id = $this->request->getVar('cell_id');
+					$dept_role = $this->request->getVar('dept_role');
 					$type = $this->request->getVar('type');
 					$subject = $this->request->getVar('subject');
+					$ministry_id = $this->request->getVar('ministry_id');
+					$send_type = $this->request->getVar('send_type');
+					$church_id = $this->request->getVar('church_id');
 					
-					if(empty($cell_id)){
-						echo $this->Crud-msg('danger', 'Select Cell you want to send Message to');
+					if (empty($church_id) || !is_array($church_id)) {
+						echo $this->Crud->msg('warning', 'Select valid Church ID(s)');
 						die;
 					}
 
-					
-					$scount = 0;
-					$fcount = 0;
+					if (empty($dept_ids) || !is_array($dept_ids)) {
+						echo $this->Crud->msg('warning', 'Select valid Department(s)');
+						die;
+					}
+					$filtered_members = [];
+
+					$memberss = []; // Initialize to store all members based on dept_id
+
+					// Loop through each department ID to retrieve members
+					foreach ($dept_ids as $dept_id) {
+						$dept_members = $this->Crud->read_single_order('dept_id', $dept_id, 'user', 'firstname', 'asc');
+						$memberss = array_merge($memberss, $dept_members); // Combine members from all departments
+					}
+
+					if ($send_type == 'general') {
+						// Means sending to Selected Role
+						if (!empty($church_id) && is_array($church_id)) {
+							// Loop through each selected church ID
+							foreach ($church_id as $id) {
+								// Get the church type for the current church ID
+								$church_type = $this->Crud->read_field('id', $id, 'church', 'type');
+
+								// If the church type is not "church assembly," get all sub-churches under this church
+								if ($church_type != 'church') {
+									$sub_churches = $this->Crud->get_sub_churches($id); // Assuming a method to get sub-church IDs
+									$all_church_ids = array_merge([$id], $sub_churches);
+								} else {
+									$all_church_ids = [$id];
+								}
+
+								// Retrieve members from the department in each church in all_church_ids
+								foreach ($all_church_ids as $church) {
+									foreach ($dept_ids as $dept_id) {
+										$members = $this->Crud->read2_order('church_id', $church, 'dept_id', $dept_id, 'user', 'firstname', 'asc');
+										$filtered_members = array_merge($filtered_members, $members);
+									}
+								}
+							}
+						}
+						$memberss = $filtered_members;
+					}
+
+					if ($type == 'true') {
+						// Means all members
+						$filtered_members = array_filter($memberss, function($member) use ($church_id) {
+							// Check if member's church_id exists in the selected church_id array
+							return isset($member->church_id) && in_array($member->church_id, $church_id);
+						});
+
+						if (empty($filtered_members)) {
+							echo $this->Crud->msg('warning', 'No members found for the selected church ID(s).');
+							die;
+						}
+					}
+
+					if ($type == 'false') {
+						// Means sending to Selected Role
+						if (empty($dept_role) || !is_array($dept_role)) {
+							echo $this->Crud->msg('warning', 'Select Department Role(s)');
+							die;
+						}
+
+						$church_id = $this->request->getVar('church_id');
+						if (empty($church_id) || !is_array($church_id)) {
+							echo $this->Crud->msg('warning', 'Select valid Church ID(s)');
+							die;
+						}
+
+						// Step 1: Filter members based on selected church_id array
+						$church_filtered_members = array_filter($memberss, function($member) use ($church_id) {
+							return isset($member->church_id) && in_array($member->church_id, $church_id);
+						});
+
+						// Step 2: Filter the church-filtered members based on dept_role array
+						$filtered_members = array_filter($church_filtered_members, function($member) use ($dept_role) {
+							return isset($member->dept_role) && in_array($member->dept_role, $dept_role);
+						});
+
+						// Check if there are any members left after filtering
+						if (empty($filtered_members)) {
+							echo $this->Crud->msg('warning', 'No members found with the selected church ID(s) and department role(s).');
+							die;
+						}
+					}
+
+					$memb = $filtered_members;
 					
 					$ins_data['subject'] = $subject;
 					$ins_data['message'] = $message;
 					$ins_data['from_id'] = $log_id;
 					$ins_data['reg_date'] = date(fdate);
+					$scount = 0;
+					$fcount = 0;
 
-					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
-					$cell_leader = $this->Crud->read_field('name', 'Cell Leader', 'access_role', 'id');
-					$cell_leader_assist = $this->Crud->read_field('name', 'Assistant Cell Leader', 'access_role', 'id');
-					$cell_executive = $this->Crud->read_field('name', 'Cell Executive', 'access_role', 'id');
+					if(!empty($memb)){
+						foreach($memb as $mem){
+							
+							$ins_data['dept_id'] = $mem->dept_id;
+							$ins_data['church_id'] = $mem->church_id;
+							$ins_data['ministry_id'] = $mem->ministry_id;
+							
+							$to_id = $mem->id;
+							$ins_data['to_id'] = $to_id;
+							$firstname = $mem->firstname;
+							$surname = $mem->surname;
+							$email = $mem->email;
+							
+							// do create or update
+							$upd_rec = $this->Crud->create('message', $ins_data);
+							if($upd_rec > 0) {
+								$scount++;
+								$this->Crud->notify($log_id, $to_id, $message, 'message', $upd_rec);
+								$name = ucwords($firstname.' '.$surname);
+									$body = '
+										Dear '.$name.', <br><br>
+									'.$message;
+									$this->Crud->send_email($email, ucwords($subject), $body);
 
-					if(!empty($cell_id)){
-						foreach($cell_id as $cell){
-							$ministry_id = $this->Crud->read_field('id', $cell, 'cells', 'ministry_id');
-							$church_id = $this->Crud->read_field('id', $cell, 'cells', 'church_id');
-
-							// echo $cell.' ';
-							$all_members = [];
-							$executives = [];
-							$memberss = $this->Crud->filter_cell_members('', '',$log_id, 'all', '', $cell);
-
-							if(!empty($memberss)){
-								foreach($memberss as $mem){
-									$name = $mem->firstname.' '.$mem->surname;
-									$all_members[] = $mem->id;
-									if($mem->cell_role != $cell_member){
-										$executives[] = $mem->id;
-									}
-									
-								}
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $to_id, 'user', 'firstname');
+								$action = $by.' Sent a message to User ('.$code.')';
+								$this->Crud->activity('user', $to_id, $action);
+							} else {
+								$scount++;	
 							}
 							
-							$ins_data['cell_id'] = $cell;
-							$ins_data['church_id'] = $church_id;
-							$ins_data['ministry_id'] = $ministry_id;
-
-							if($type == 'false'){
-								$members = $executives;
-							}
-							if($type == 'true'){
-								$members = $all_members;
-							}
-
-							if(!empty($members)){
-								foreach($members as $member){
-									// echo $member.' ';
-									$firstname = $this->Crud->read_field('id', $member, 'user', 'firstname');
-									$surname = $this->Crud->read_field('id', $member, 'user', 'surname');
-									$email = $this->Crud->read_field('id', $member, 'user', 'email');
-									
-									$ins_data['to_id'] = $member;
-								
-									
-									// do create or update
-									$upd_rec = $this->Crud->create('message', $ins_data);
-									if($upd_rec > 0) {
-										$scount++;
-										$this->Crud->notify($log_id, $member, $message, 'message', $upd_rec);
-										$name = ucwords($firstname.' '.$surname);
-											$body = '
-												Dear '.$name.', <br><br>
-											'.$message;
-											$this->Crud->send_email($email, ucwords($subject), $body);
-
-										///// store activities
-										$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-										$code = $this->Crud->read_field('id', $member, 'user', 'firstname');
-										$action = $by.' Sent a message to User ('.$code.')';
-										$this->Crud->activity('user', $member, $action);
-									} else {
-										$scount++;	
-									}
-								}
-							}
-
+							
 						}
 					}
+
 					
 					if($scount == 0){
 						echo $this->Crud->msg('info', 'Try Again Later');
-						echo $this->Crud->msg('danger', $fcount.' Message Failed');
 					} else {
 						echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
 						echo '<script>location.reload(false);</script>';
 						
 					}
-
 					die;	
 				}
 			} else {
