@@ -433,6 +433,15 @@
                                         <input class="form-control" type="text" id="password" name="password" <?php if(empty($e_id)) { echo 'required'; } ?>>
                                     </div>
                                 </div>
+                                <div class="mb-2 col-md-6 col-lg-4 col-xxl-3">
+                                    <label for="img-upload" class="pointer text-center" style="width:50%;">
+                                        <input type="hidden" name="img_id" value="<?php if(!empty($e_img_id)){echo $e_img_id;} ?>" />
+                                        <img id="img0" src="<?php if(!empty($e_img_id) && file_exists($e_img_id)){echo site_url($e_img_id);} else {echo site_url('assets/images/avatar.png');} ?>" style="max-width:100%;" />
+                                        <span class="btn btn-default btn-block no-mrg-btm d-grid btn btn-secondary waves-effect"><i class="mdi mdi-cloud-upload me-1"></i><?=translate_phrase('Choose Image'); ?></span>
+                                        <input class="d-none" type="file" name="pics" id="img-upload" accept="image/*">
+                                        
+                                    </label>
+                                </div>
                                 <div class="col-sm-12 mb-3 text-center">
                                     <div class="form-group  mt-4"><button type="submit"
                                             class="btn btn-primary">Save Membership</button></div>
@@ -455,6 +464,23 @@
 <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script>
+    function readURL(input, id) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                if(id != 'vid') {
+                    $('#' + id).attr('src', e.target.result);
+                } else {
+                    $('#' + id).show(500);
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    $("#img-upload").change(function(){
+        readURL(this, 'img0');
+    });
     $(function() {
         $('#family_status').on('change', function(){
             var selectedValue = $(this).val();

@@ -7031,6 +7031,7 @@ class Accounts extends BaseController {
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
 								$data['e_church_id'] = $e->church_id;
+								$data['e_img_id'] = $e->img_id;
 								
 							}
 						}
@@ -7065,7 +7066,16 @@ class Accounts extends BaseController {
 					$foundation_weeks = $this->request->getVar('foundation_weeks');
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
-					
+					$img_id = $this->request->getVar('img_id');
+	
+					//// Image upload
+					if(file_exists($this->request->getFile('pics'))) {
+						$path = 'assets/images/users/';
+						$file = $this->request->getFile('pics');
+						$getImg = $this->Crud->img_upload($path, $file);
+						
+						if(!empty($getImg->path)) $img_id = $getImg->path;
+					}
 					// echo $baptism;
 					// die;
 					$ins_data['title'] = $title;
@@ -7076,6 +7086,7 @@ class Accounts extends BaseController {
 					$ins_data['phone'] = $phone;
 					$ins_data['gender'] = $gender;
 					$ins_data['address'] = $address;
+					$ins_data['img_id'] = $img_id;
 					$ins_data['marriage_anniversary'] = $marriage_anniversary;
 					$ins_data['job_type'] = $job_type;
 					$ins_data['is_member'] = 1;
@@ -7268,7 +7279,7 @@ class Accounts extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}
@@ -7324,6 +7335,10 @@ class Accounts extends BaseController {
 						$cell_id = $q->cell_id;
 						$title = $q->title;
 						$activate = $q->activate;
+						$img = $q->img_id;
+						if (empty($img) && !file_exists($img)) {
+							$img = 'assets/images/avatar.png';
+						}
 						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 						$cell = '-';
 						if(!empty($q->cell_id)){
@@ -7372,8 +7387,13 @@ class Accounts extends BaseController {
 									<span class="text-dark">' . ucwords(strtolower($title)) . '</span>
 								</td>
 								<td>
-									<div class="user-info">
-										<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
+									<div class="user-card">
+										<div class="user-avatar ">
+											<img alt="" src="' . site_url($img) . '" height="40px" width="50px"/>
+										</div>
+										<div class="user-info">
+											<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
+										</div>
 									</div>
 								</td>
 								<td>
