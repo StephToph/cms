@@ -7846,8 +7846,8 @@ class Accounts extends BaseController {
 
 						// Check if decoding was successful
 						if (is_null($attendant)) {
-							echo "Failed to decode JSON data.";
-							exit;
+							continue;
+							
 						}
 						
 						// Initialize a variable to store the result

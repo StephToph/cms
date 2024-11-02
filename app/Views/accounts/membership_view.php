@@ -318,6 +318,87 @@
                                             </div><!-- .nk-block -->
                                             
                                         </div>
+                                        <div class="tab-pane" id="cell">
+                                            <div class="nk-block">
+                                                <div class="nk-block-head">
+                                                    <h5 class="title"><?=translate_phrase('Cell Information');?></h5>
+                                                </div><!-- .nk-block-head -->
+                                                <div class="profile-ud-list">
+                                                    <?php 
+                                                        $cell_id = $v_cell_id; 
+                                                        $cell = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+                                                        $location = $this->Crud->read_field('id', $cell_id, 'cells', 'location');
+                                                        $phone = $this->Crud->read_field('id', $cell_id, 'cells', 'phone');
+                                                        $phone = $this->Crud->read_field('id', $cell_id, 'cells', 'phone');
+                                                        $data = json_decode($this->Crud->read_field('id', $cell_id, 'cells', 'time'), true);
+                                                        $cell_role = 'Cell Member';
+                                                        if(!empty($v_cell_role)){
+                                                            $cell_role = $this->Crud->read_field('id', $v_cell_role, 'access_role', 'name');
+                                                        }
+                                                        
+                                                    ?>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Cell');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($cell); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Role');?></span>
+                                                            <span class="profile-ud-value"><?=($cell_role); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Location');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($location); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Phone');?></span>
+                                                            <span class="profile-ud-value"><?=$phone; ?> </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Meeting Time');?></span>
+                                                            <span class="profile-ud-value"><?php 
+                                                                if ($data !== null) {
+                                                                    echo "<ul>";
+                                                                    foreach ($data as $day => $time) {
+                                                                        $timestamp = strtotime($time);
+        
+                                                                        // Check if strtotime was successful
+                                                                        if ($timestamp !== false) {
+                                                                            // Format the time as desired (e.g., 12-hour format with AM/PM)
+                                                                            echo "<li>$day: " . date('h:i A', $timestamp) . "</li>";
+                                                                        } else {
+                                                                            echo "<li>$day: Invalid time format</li>";
+                                                                        }
+                                                                    }
+                                                                    echo "</ul>";
+                                                                }
+                                                            ?></span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div><!-- .profile-ud-list -->
+                                                <div class="rounded table-responsive my-4">
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                            <th>Date</th>
+                                                            <th>Service</th>
+                                                            <th>Status</th>
+                                                        </thead>
+                                                        <tbody  id="cell_data"></tbody>
+                                                        <tfoot id="cell_more"></tfoot>
+                                                    </table>
+                                                </div>
+                                            </div><!-- .nk-block -->
+                                            
+                                        </div>
                                         <div class="tab-pane" id="service">
                                             <div class="nk-block-head">
                                                 <h5 class="title"><?=$fullname;?>'s <?=translate_phrase('Service History');?></h5>
@@ -445,9 +526,45 @@
         wallet('', '');
         activity('', '');
         service('', '');
+        cell('', '');
     });
 
     
+
+    function cell(x, y) {
+        var more = 'no';
+        var methods = '';
+        if (parseInt(x) > 0 && parseInt(y) > 0) {
+            more = 'yes';
+            methods = '/' + x + '/' + y;
+        }
+
+        if (more == 'no') {
+            $('#cell_data').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        } else {
+            $('#cell_more').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        }
+
+        var u_id = $('#u_id').val();
+        $.ajax({
+            url: site_url + 'accounts/customer_details/cell/load' + methods,
+            type: 'post',
+            data: {u_id: u_id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                if (more == 'no') {
+                    $('#cell_data').html(dt.item);
+                } else {
+                    $('#cell_data').append(dt.item);
+                }
+                if (dt.offset > 0) {
+                    $('#cell_more').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="activity(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
+                } else {
+                    $('#cell_more').html('');
+                }
+            }
+        });
+    }
 
     function service(x, y) {
         var more = 'no';
@@ -483,6 +600,7 @@
             }
         });
     }
+
     function activity(x, y) {
         var more = 'no';
         var methods = '';
