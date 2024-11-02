@@ -38,12 +38,24 @@
                                     <li class="nav-item">
                                         <a class="nav-link active" data-bs-toggle="tab" href="#personal-info"><em class="icon ni ni-user-circle"></em><span><?=translate_phrase('Personal');?></span></a>
                                     </li>
-                                    <!-- <li class="nav-item">
-                                        <a class="nav-link" data-bs-toggle="tab" href="#notification"><em class="icon ni ni-bell"></em><span><?=translate_phrase('Partnership');?></span></a>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#church"><em class="icon ni ni-home-alt"></em><span><?=translate_phrase('Church');?></span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#service"><em class="icon ni ni-linux-server"></em><span><?=translate_phrase('Service');?></span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#cell"><em class="icon ni ni-cc-alt2"></em><span><?=translate_phrase('Cell Ministry');?></span></a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#notification"><em class="icon ni ni-bell"></em><span><?=translate_phrase('Notification');?></span></a>
+                                    </li>
+                                    <<li class="nav-item">
+                                        <a class="nav-link" data-bs-toggle="tab" href="#wallet"><em class="icon ni ni-wallet"></em><span><?=translate_phrase('Finance');?></span></a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="nav-link"  data-bs-toggle="tab" href="#activity"><em class="icon ni ni-activity"></em><span><?=translate_phrase('Activities');?></span></a>
-                                    </li> -->
+                                    </li>
                                     <li class="nav-item nav-item-trigger d-xxl-none">
                                         <a href="#" class="toggle btn btn-icon btn-trigger" data-target="userAside"><em class="icon ni ni-user-list-fill"></em></a>
                                     </li>
@@ -107,7 +119,7 @@
                                                     <div class="profile-ud-item">
                                                         <div class="profile-ud wider">
                                                             <span class="profile-ud-label"><?=translate_phrase('Marital Status');?></span>
-                                                            <span class="profile-ud-value"><?=$v_family_status; ?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($v_family_status); ?></span>
                                                         </div>
                                                     </div>
                                                     <div class="profile-ud-item">
@@ -149,13 +161,13 @@
                                                     <div class="profile-ud-item">
                                                         <div class="profile-ud wider">
                                                             <span class="profile-ud-label"><?=translate_phrase('Cell Role');?></span>
-                                                            <span class="profile-ud-value"><?=ucwords($v_cell_role); ?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($this->Crud->read_field('id', $v_cell_role, 'access_role', 'name')); ?></span>
                                                         </div>
                                                     </div>
                                                     <div class="profile-ud-item">
                                                         <div class="profile-ud wider">
                                                             <span class="profile-ud-label"><?=translate_phrase('Job Type');?></span>
-                                                            <span class="profile-ud-value"><?=ucwords($v_job_type); ?></span>
+                                                            <span class="profile-ud-value"><?=ucwords(strtolower($v_job_type)); ?></span>
                                                         </div>
                                                     </div>
                                                     <div class="profile-ud-item">
@@ -166,8 +178,30 @@
                                                     </div>
                                                     <div class="profile-ud-item">
                                                         <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Employer Address');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($v_employer_address); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
                                                             <span class="profile-ud-label"><?=translate_phrase('Foundation School');?></span>
-                                                            <span class="profile-ud-value"><?=ucwords($v_foundation_school); ?></span>
+                                                            <span class="profile-ud-value"><?php 
+                                                                if($v_foundation_school == 0){
+                                                                    echo 'Prospective Student';
+                                                                }
+                                                                if($v_foundation_school == 1){
+                                                                    echo 'Foundation Student';
+                                                                }
+                                                                if($v_foundation_school == 2){
+                                                                    echo 'Graduate';
+                                                                }
+                                                             ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Foundation Week');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($v_foundation_weeks); ?></span>
                                                         </div>
                                                     </div>
                                                     <div class="profile-ud-item">
@@ -186,79 +220,172 @@
                                             </div><!-- .nk-block -->
                                             
                                         </div>
-                                        <div class="tab-pane" id="order">
+                                        <div class="tab-pane" id="church">
+                                            <div class="nk-block">
+                                                <div class="nk-block-head">
+                                                    <h5 class="title"><?=translate_phrase('Church Information');?></h5>
+                                                </div><!-- .nk-block-head -->
+                                                <div class="profile-ud-list">
+                                                    <?php 
+                                                        $church_id = $v_church_id; 
+                                                        $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+                                                        $ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+                                                        $church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+                                                        $type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+                                                        $email = $this->Crud->read_field('id', $church_id, 'church', 'email');
+                                                        $phone = $this->Crud->read_field('id', $church_id, 'church', 'phone');
+                                                        $address = $this->Crud->read_field('id', $church_id, 'church', 'address');
+                                                        $regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+                                                        $zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+                                                        $group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+                                                        $pastor_id = $this->Crud->read_field('name', 'Pastor-in-Charge', 'access_role', 'id');
+                                                        $pastor_title = $this->Crud->read_field2('role_id', $pastor_id, 'church_id', $church_id, 'user', 'title');
+                                                        $pastor_firstname = $this->Crud->read_field2('role_id', $pastor_id, 'church_id', $church_id, 'user', 'firstname');
+                                                        $pastor_surname = $this->Crud->read_field2('role_id', $pastor_id, 'church_id', $church_id, 'user', 'surname');
+                                                        
+                                                    ?>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Ministry');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($ministry); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Church');?></span>
+                                                            <span class="profile-ud-value"><?=($church); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Type');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($type); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <?php if($regional_id > 0){
+                                                        $region = $this->Crud->read_field('id', $regional_id, 'church', 'name'); ?>
+                                                        <div class="profile-ud-item">
+                                                            <div class="profile-ud wider">
+                                                                <span class="profile-ud-label"><?=translate_phrase('Region');?></span>
+                                                                <span class="profile-ud-value"><?=ucwords($region); ?></span>
+                                                            </div>
+                                                        </div>
+                                                    <?php } ?>
+                                                    <?php if($zonal_id > 0){
+                                                        $zone = $this->Crud->read_field('id', $zonal_id, 'church', 'name'); ?>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Zone');?></span>
+                                                            <span class="profile-ud-value"><?=$zone; ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <?php } ?>
+                                                    <?php if($group_id > 0){
+                                                        $group = $this->Crud->read_field('id', $group_id, 'church', 'name'); ?>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Group');?></span>
+                                                            <span class="profile-ud-value"><?=$group; ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <?php } ?>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Email');?></span>
+                                                            <span class="profile-ud-value"><?=$email; ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Phone');?></span>
+                                                            <span class="profile-ud-value"><?=$phone; ?> </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Address');?></span>
+                                                            <span class="profile-ud-value"><?=$address; ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('Pastor in Charge');?></span>
+                                                            <span class="profile-ud-value"><?=ucwords($pastor_title.' '.$pastor_firstname.' '.$pastor_surname); ?></span>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                </div><!-- .profile-ud-list -->
+                                            </div><!-- .nk-block -->
+                                            
+                                        </div>
+                                        <div class="tab-pane" id="service">
                                             <div class="nk-block-head">
-                                                <h5 class="title"><?=$fullname;?>'s <?=translate_phrase('Transaction History');?></h5>
+                                                <h5 class="title"><?=$fullname;?>'s <?=translate_phrase('Service History');?></h5>
                                             </div><!-- .nk-block-head -->
-                                            <div class="nk-tb-list border border-light rounded overflow-hidden is-compact" id="transaction_data">
+                                            <div class="rounded table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <th>Date</th>
+                                                        <th>Service</th>
+                                                        <th>Status</th>
+                                                    </thead>
+                                                    <tbody  id="service_data"></tbody>
+                                                    <tfoot id="service_more"></tfoot>
+                                                </table>
                                             </div>
-                                            <div id="transaction_more"></div><!-- .nk-block -->
                                         </div>
                                         <div class="tab-pane" id="wallet">
                                             <div class="nk-block">
                                                 <div class="nk-block-head">
-                                                    <h5 class="title"><?=translate_phrase('Wallet History');?></h5>
+                                                    <h5 class="title"><?=translate_phrase('Finance History');?></h5>
                                                 </div><!-- .nk-block-head -->
                                                 <div class="nk-block mb-3">
-                                                    <div class="row g-3">
-                                                        <div class="col-sm-4">
-                                                            <div class="card bg-success">
-                                                                <div class="nk-wgw sm">
-                                                                    <a class="nk-wgw-inner mb-3 pb-1" href="javascript:;">
-                                                                        <div class="nk-wgw-name">
-                                                                            <div class="nk-wgw-icon">
-                                                                                <em class="icon ni ni-sign-kobo"></em>
-                                                                            </div>
-                                                                            <h5 class="nk-wgw-title title text-white"><?=translate_phrase('Available Balance');?></h5>
+                                                    <div class="row g-gs">
+                                                        <div class="col-md-4">
+                                                            <div class="card card-bordered  card-full">
+                                                                <div class="card-inner">
+                                                                    <div class="card-title-group align-start mb-0">
+                                                                        <div class="card-title">
+                                                                            <h6 class="title"><?=translate_phrase('Total Offering'); ?></h6>
                                                                         </div>
-                                                                        <div class="nk-wgw-balance ">
-                                                                            
-                                                                            <div class="amount text-white">&#8358;<?='-';?></div>
-                                                                        </div>
-                                                                    </a>
+                                                                    </div>
+                                                                    <div class="card-amount">
+                                                                        <span class="amount" id="offering"> 0 <span class="currency currency-usd"></span></span>
+                                                                    </div>
+                                                                    
                                                                 </div>
                                                             </div>
-                                                        </div><!-- .col -->
-                                                        <div class="col-sm-4">
-                                                            <div class="card bg-danger text-light">
-                                                                <div class="nk-wgw sm">
-                                                                    <a class="nk-wgw-inner mb-3 pb-1" href="javascript:;">
-                                                                        <div class="nk-wgw-name">
-                                                                            <div class="nk-wgw-icon">
-                                                                                <em class="icon ni ni-sign-kobo"></em>
-                                                                            </div>
-                                                                            <h5 class="nk-wgw-title title text-white"><?=translate_phrase('Total Withdrawal');?></h5>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="card card-bordered  card-full">
+                                                                <div class="card-inner">
+                                                                    <div class="card-title-group align-start mb-0">
+                                                                        <div class="card-title">
+                                                                            <h6 class="title"><?=translate_phrase('Total Tithe'); ?></h6>
                                                                         </div>
-                                                                        <div class="nk-wgw-balance ">
-                                                                            <?php
-                                                                                
-                                                                            ?>
-                                                                            <div class="amount text-white">&#8358;<?='-';?></div>
-                                                                        </div>
-                                                                    </a>
+                                                                    </div>
+                                                                    <div class="card-amount">
+                                                                        <span class="amount" id="tithe"> 0 <span class="currency currency-usd"></span></span>
+                                                                    </div>
+                                                                    
                                                                 </div>
                                                             </div>
-                                                        </div><!-- .col -->
-                                                        <div class="col-sm-4">
-                                                            <div class="card bg-info text-light">
-                                                                <div class="nk-wgw sm">
-                                                                    <a class="nk-wgw-inner mb-3 pb-1" href="javascript:;">
-                                                                        <div class="nk-wgw-name">
-                                                                            <div class="nk-wgw-icon">
-                                                                                <em class="icon ni ni-sign-kobo"></em>
-                                                                            </div>
-                                                                            <h5 class="nk-wgw-title title text-white"><?=translate_phrase('Total Credit');?></h5>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="card card-bordered  card-full">
+                                                                <div class="card-inner">
+                                                                    <div class="card-title-group align-start mb-0">
+                                                                        <div class="card-title">
+                                                                            <h6 class="title"><?=translate_phrase('Total Partnership'); ?></h6>
                                                                         </div>
-                                                                        <div class="nk-wgw-balance ">
-                                                                            <?php
-                                                                                
-                                                                            ?>
-                                                                            <div class="amount text-white">&#8358;<?='-';?></div>
-                                                                        </div>
-                                                                    </a>
+                                                                    </div>
+                                                                    <div class="card-amount">
+                                                                        <span class="amount" id="partnership"> 0.00 <span class="currency currency-usd"></span></span>
+                                                                    </div>
+                                                                    
                                                                 </div>
                                                             </div>
-                                                        </div><!-- .col -->
+                                                        </div>
                                                     </div><!-- .row -->
                                                 </div> 
                                                 <div class="nk-tb-list border border-light rounded overflow-hidden is-compact" id="wallet_data">
@@ -317,8 +444,45 @@
         notification('', '');
         wallet('', '');
         activity('', '');
+        service('', '');
     });
 
+    
+
+    function service(x, y) {
+        var more = 'no';
+        var methods = '';
+        if (parseInt(x) > 0 && parseInt(y) > 0) {
+            more = 'yes';
+            methods = '/' + x + '/' + y;
+        }
+
+        if (more == 'no') {
+            $('#service_data').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        } else {
+            $('#service_more').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        }
+
+        var u_id = $('#u_id').val();
+        $.ajax({
+            url: site_url + 'accounts/customer_details/service/load' + methods,
+            type: 'post',
+            data: {u_id: u_id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                if (more == 'no') {
+                    $('#service_data').html(dt.item);
+                } else {
+                    $('#service_data').append(dt.item);
+                }
+                if (dt.offset > 0) {
+                    $('#service_more').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="activity(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
+                } else {
+                    $('#service_more').html('');
+                }
+            }
+        });
+    }
     function activity(x, y) {
         var more = 'no';
         var methods = '';
