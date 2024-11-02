@@ -646,13 +646,11 @@
         <script src="<?php echo base_url(); ?>/assets/js/libs/fullcalendar.js"></script>
         <script src="<?php echo base_url(); ?>/assets/js/apps/activity_calendar.js?v=<?=time();?>"></script>
     <?php } ?>
-<link rel="stylesheet" href="<?php echo site_url(); ?>assets/css/editors/summernote.css">
-<script src="<?php echo site_url(); ?>assets/js/libs/editors/summernote.js"></script>
-<script src="<?php echo site_url(); ?>assets/js/editors.js"></script>
+    <link rel="stylesheet" href="<?php echo site_url(); ?>assets/css/editors/summernote.css">
+    <script src="<?php echo site_url(); ?>assets/js/libs/editors/summernote.js"></script>
+    <script src="<?php echo site_url(); ?>assets/js/editors.js"></script>
     <?php if(!empty($table_rec)){ ?>
-        <!-- <script src="<?=site_url();?>assets/backend/vendors/datatables/jquery.dataTables.min.js"></script>
-            <script src="<?=site_url();?>assets/backend/vendors/datatables/dataTables.bootstrap.min.js"></script>
-            <script src="<?=site_url();?>assets/backend/js/pages/datatables.js"></script> -->
+
         <script type="text/javascript">
         $(document).ready(function() {
             //datatables

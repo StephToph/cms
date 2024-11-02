@@ -66,6 +66,28 @@ class Crud extends Model {
         $db->close();
 	}
 
+	public function read_like2($table, $or_field, $or_value,$or_field2, $or_value2, $limit='', $offset='') {
+		$db = db_connect();
+        $builder = $db->table($table);
+
+		$builder->orderBy('id', 'DESC');
+        $builder->like($or_field, $or_value);
+        $builder->orLike($or_field2, $or_value2);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+
     public function read_order($table, $field, $type, $limit='', $offset='') {
         $db = db_connect();
         $builder = $db->table($table);

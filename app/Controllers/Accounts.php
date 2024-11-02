@@ -7477,6 +7477,7 @@ class Accounts extends BaseController {
 				$role = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
 				$data['role'] = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
 				$data['v_phone'] = $this->Crud->read_field('id', $user_id, 'user', 'phone');
+				$data['v_church_id'] = $this->Crud->read_field('id', $user_id, 'user', 'church_id');
 				$data['v_dob'] = $this->Crud->read_field('id', $user_id, 'user', 'dob');
 				$data['v_user_no'] = $this->Crud->read_field('id', $user_id, 'user', 'user_no');
 				$data['v_gender'] = $this->Crud->read_field('id', $user_id, 'user', 'gender');
@@ -7492,6 +7493,7 @@ class Accounts extends BaseController {
 				$data['v_job_type'] = $this->Crud->read_field('id', $user_id, 'user', 'job_type');
 				$data['v_employer_address'] = $this->Crud->read_field('id', $user_id, 'user', 'employer_address');
 				$data['v_foundation_school'] = $this->Crud->read_field('id', $user_id, 'user', 'foundation_school');
+				$data['v_foundation_weeks'] = $this->Crud->read_field('id', $user_id, 'user', 'foundation_weeks');
 				$data['v_baptism'] = $this->Crud->read_field('id', $user_id, 'user', 'baptism');
 				$data['reg_date'] = date('F, d Y h:ia',strtotime($this->Crud->read_field('id', $user_id, 'user', 'reg_date')));
 				$data['v_email'] = $this->Crud->read_field('id', $user_id, 'user', 'email');
@@ -7732,7 +7734,7 @@ class Accounts extends BaseController {
 		if($param1 == 'activity' && $param2 == 'load') {
 			$limit = $param3;
 			$offset = $param4;
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if($limit == '') {$limit = $rec_limit;}
 			if($offset == '') {$offset = 0;}
@@ -7745,8 +7747,8 @@ class Accounts extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
-				$query = $this->Crud->filter_activity($limit, $offset, $user_id, $search, $start_date, $end_date);
-				$all_rec = $this->Crud->filter_activity('', '', $user_id, $search, $start_date, $end_date);
+				$query = $this->Crud->read_like2('activity', 'user_id', $user_id, 'item_id', $user_id, $limit, $offset);
+				$all_rec = $this->Crud->read_like2('activity', 'user_id', $user_id, 'item_id', $user_id, '', '');
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 				
 				if(!empty($query)) {
@@ -7815,10 +7817,120 @@ class Accounts extends BaseController {
 			
 		}
 
+		if($param1 == 'service' && $param2 == 'load') {
+			$limit = $param3;
+			$offset = $param4;
+			$rec_limit = 150;
+			$item = '';
+            if($limit == '') {$limit = $rec_limit;}
+			if($offset == '') {$offset = 0;}
+			
+			$search = $this->request->getVar('search');
+			$user_id = $this->request->getVar('u_id');
+			$church_id = $this->Crud->read_field('id', $user_id, 'user', 'church_id');
+			$counts = 0;
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$query = $this->Crud->read_single('church_id', $church_id, 'service_report', $limit, $offset);
+				$all_rec = $this->Crud->read_single('church_id', $church_id, 'service_report');
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+				
+				if(!empty($query)) {
+					foreach($query as $q) {
+						$id = $q->id;
+						$type = $q->type;
+						$attendant = json_decode($q->attendant, true);
+						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
+						$date = date('M d, Y', strtotime($q->date));
+
+						// Check if decoding was successful
+						if (is_null($attendant)) {
+							echo "Failed to decode JSON data.";
+							exit;
+						}
+						
+						// Initialize a variable to store the result
+						$result = null;
+
+						// Check if 'list' and 'present' keys exist and are arrays
+						if (isset($attendant['list']['present']) && is_array($attendant['list']['present'])) {
+							// Check in the 'present' list
+							foreach ($attendant['list']['present'] as $entry) {
+								if (isset($entry['id']) && $entry['id'] === $user_id) {
+									$result = [
+										'status' => $entry['status'] ?? null,
+										'reason' => $entry['reason'] ?? null
+									];
+									break;
+								}
+							}
+						}
+
+						// If not found in 'present', check in 'absent'
+						if (!$result && isset($attendant['list']['absent']) && is_array($attendant['list']['absent'])) {
+							foreach ($attendant['list']['absent'] as $entry) {
+								if (isset($entry['id']) && $entry['id'] === $user_id) {
+									$result = [
+										'status' => $entry['status'] ?? null,
+										'reason' => $entry['reason'] ?? null
+									];
+									break;
+								}
+							}
+						}
+
+						if(empty($result))continue;
+
+						$service = $this->Crud->read_field('id', $type, 'service_type', 'name');
+
+						$item .= '
+							<tr >
+								<td >
+									'.$date.'
+								</td>
+								<td >
+									<span>'.$service.'</span>
+								</td>
+								<td >
+									<span class="text-success">'. ucwords($result['status'] .' ' . $result['reason']) .'</span>
+								</td>
+							</tr>    
+						';
+					}
+				}
+			}
+			if(empty($item)) {
+				$resp['item'] = '
+					<div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<em class="icon ni ni-linux-server" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Service Record Returned').'
+					</div>
+				';
+			} else {
+				$resp['item'] = $item;
+			}
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			
+		}
+
 		if($param1 == 'notification' && $param2 == 'load') {
 			$limit = $param3;
 			$offset = $param4;
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if($limit == '') {$limit = $rec_limit;}
 			if($offset == '') {$offset = 0;}
@@ -7831,8 +7943,8 @@ class Accounts extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
-				$query = $this->Crud->read_single('to_id', $user_id, 'notify', $limit, $offset);
-				$all_rec = $this->Crud->read_single('to_id', $user_id, 'notify', '', '');
+				$query = $this->Crud->read_like2('notify', 'to_id', $user_id, 'from_id', $user_id, $limit, $offset);
+				$all_rec = $this->Crud->read_like2('notify', 'to_id', $user_id, 'from_id', $user_id, '', '');
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 				
 				if(!empty($query)) {
@@ -7844,7 +7956,7 @@ class Accounts extends BaseController {
 						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
 						$from = 'Admin';
 						if($from_id != 0){
-							$from = $this->Crud->read_field('id', $from_id, 'user', 'fullname');
+							$from = $this->Crud->read_field('id', $from_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $from_id, 'user', 'surname');
 						}
 						$item .= '
 							<tr class="nk-tb-item">
