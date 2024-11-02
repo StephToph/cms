@@ -7846,8 +7846,8 @@ class Accounts extends BaseController {
 
 						// Check if decoding was successful
 						if (is_null($attendant)) {
-							echo "Failed to decode JSON data.";
-							exit;
+							continue;
+							
 						}
 						
 						// Initialize a variable to store the result
@@ -7905,6 +7905,86 @@ class Accounts extends BaseController {
 					<div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<em class="icon ni ni-linux-server" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Service Record Returned').'
+					</div>
+				';
+			} else {
+				$resp['item'] = $item;
+			}
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			
+		}
+
+		if($param1 == 'cell' && $param2 == 'load') {
+			$limit = $param3;
+			$offset = $param4;
+			$rec_limit = 150;
+			$item = '';
+            if($limit == '') {$limit = $rec_limit;}
+			if($offset == '') {$offset = 0;}
+			
+			$search = $this->request->getVar('search');
+			$user_id = $this->request->getVar('u_id');
+			$cell_id = $this->Crud->read_field('id', $user_id, 'user', 'cell_id');
+			$counts = 0;
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$query = $this->Crud->read_single('cell_id', $cell_id, 'cell_report', $limit, $offset);
+				$all_rec = $this->Crud->read_single('cell_id', $cell_id, 'cell_report');
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+				
+				if(!empty($query)) {
+					foreach($query as $q) {
+						$id = $q->id;
+						$type = $q->type;
+						$attendant = json_decode($q->attendant);
+						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
+						$date = date('M d, Y', strtotime($q->date));
+
+						if(!empty($attendant)){
+							if(!in_array($user_id, $attendant))continue;
+						}
+
+						$types = '';
+						if($type == 'wk1')$types = 'WK1 - Prayer and Planning';
+						if($type == 'wk2')$types = 'Wk2 - Bible Study';
+						if($type == 'wk3')$types = 'Wk3 - Bible Study';
+						if($type == 'wk4')$types = 'Wk4 - Fellowship / Outreach';
+						if($type == 'wk5')$types = 'Wk5 - Fellowship';
+						$item .= '
+							<tr >
+								<td >
+									'.$date.'
+								</td>
+								<td >
+									<span>'.$types.'</span>
+								</td>
+								<td >
+									<span class="text-success">Present</span>
+								</td>
+							</tr>    
+						';
+					}
+				}
+			}
+			if(empty($item)) {
+				$resp['item'] = '
+					<div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<em class="icon ni ni-cc-alt2" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Cell Record Returned').'
 					</div>
 				';
 			} else {
