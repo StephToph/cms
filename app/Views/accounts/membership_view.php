@@ -469,9 +469,21 @@
                                                         </div>
                                                     </div><!-- .row -->
                                                 </div> 
-                                                <div class="nk-tb-list border border-light rounded overflow-hidden is-compact" id="wallet_data">
-                                                </div>
-                                                <div id="wallet_more"></div>    
+                                                <div class="border rounded table-responsive" >
+                                                    <table class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Date</th>
+                                                                <th>Source</th>
+                                                                <th>Type</th>
+                                                                <th>Giving</th>
+                                                                <th>Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="wallet_data"></tbody>
+                                                        <tfoot id="wallet_more"></tfoot>
+                                                    </table>
+                                                </div>   
                                             </div><!-- .nk-block -->
                                             
                                         </div>

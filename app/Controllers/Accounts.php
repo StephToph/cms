@@ -8017,6 +8017,47 @@ class Accounts extends BaseController {
 						
 					}
 				}
+
+
+				if(!empty($query)){
+					$filtered_records = array_slice($query, $offset, $limit);
+					if(!empty($filtered_records)){
+						foreach($filtered_records as $q){
+							$source_id = $q['id'];
+							$source = '';
+							$partner = '';
+							if($q['type'] == 'partnership'){
+								$partner = $this->Crud->read_field('id', $q['partnership'], 'partnership', 'name');
+							}
+							if($q['source'] == 'cell'){
+								$source_type = $this->Crud->read_field('id', $source_id, 'cell_report', 'type');
+								
+								if($source_type == 'wk1')$source = 'WK1 - Prayer and Planning';
+								if($source_type == 'wk2')$source = 'Wk2 - Bible Study';
+								if($source_type == 'wk3')$source = 'Wk3 - Bible Study';
+								if($source_type == 'wk4')$source = 'Wk4 - Fellowship / Outreach';
+								if($source_type == 'wk5')$source = 'Wk5 - Fellowship';
+							}
+							if($q['source'] == 'service'){
+								$source_type = $this->Crud->read_field('id', $source_id, 'service_report', 'type');
+								
+								$source = $this->Crud->read_field('id', $source_type, 'service_type', 'name');
+							}
+							$item .= '
+								<tr>
+									<td>'.$q['date'].'</td>
+									<td>'.ucwords($q['source']).'</td>
+									<td>'.ucwords($source).'</td>
+									<td>'.ucwords($partner.' '.$q['type']).'</td>
+									<td>'.$this->session->get('currency').number_format($q['amount'],2).'</td>
+									
+
+								</tr>
+							
+							';
+						}
+					}
+				}
 				
 			}
 			if(empty($item)) {
