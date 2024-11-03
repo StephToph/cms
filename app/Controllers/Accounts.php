@@ -7927,6 +7927,127 @@ class Accounts extends BaseController {
 			
 		}
 
+		if($param1 == 'wallet' && $param2 == 'load') {
+			$limit = $param3;
+			$offset = $param4;
+			$rec_limit = 150;
+			$item = '';
+            if($limit == '') {$limit = $rec_limit;}
+			if($offset == '') {$offset = 0;}
+			
+			$search = $this->request->getVar('search');
+			$user_id = $this->request->getVar('u_id');
+			$church_id = $this->Crud->read_field('id', $user_id, 'user', 'church_id');
+			$cell_id = $this->Crud->read_field('id', $user_id, 'user', 'cell_id');
+
+			$offering = 0;
+			$tithe = 0;
+			$partnership = 0;
+			
+			$counts = 0;
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$query = [];
+				$cell_report = $this->Crud->read_single('cell_id', $cell_id, 'cell_report');
+				if(!empty($cell_report)){
+					foreach($cell_report as $cr){
+						$c_offering = json_decode($cr->offering_givers, true);
+						if (isset($c_offering['list'][$user_id])) {
+							$coffering = $c_offering['list'][$user_id];
+							$querys['type'] = 'offering';
+							$querys['source'] = 'cell';
+							$querys['date'] = $cr->date;
+							$querys['amount'] = $coffering;
+							$querys['id'] = $cr->id;
+							
+							$offering += $coffering;
+							$query[] = $querys;
+						} 
+					}
+				}
+
+				$service_report = $this->Crud->read_single('church_id', $church_id, 'service_report');
+				if(!empty($service_report)){
+					foreach($service_report as $cr){
+						$c_offering = json_decode($cr->offering_givers, true);
+						if (isset($c_offering['list'][$user_id])) {
+							$cofferings = $c_offering['list'][$user_id];
+							$querys['type'] = 'offering';
+							$querys['source'] = 'service';
+							$querys['date'] = $cr->date;
+							$querys['id'] = $cr->id;
+							$querys['amount'] = $cofferings;
+							
+							$offering += $cofferings;
+							$query[] = $querys;
+						} 
+
+						//Tithe
+						$c_tithe = json_decode($cr->tithers, true);
+						if (isset($c_tithe['list'][$user_id])) {
+							$ctithes = $c_tithe['list'][$user_id];
+							$querys['type'] = 'tithe';
+							$querys['source'] = 'service';
+							$querys['date'] = $cr->date;
+							$querys['id'] = $cr->id;
+							$querys['amount'] = $ctithes;
+							
+							
+							$tithe += $ctithes;
+							$query[] = $querys;
+						} 
+
+						//Partnership
+						$c_partners = json_decode($cr->partners, true);
+						if (isset($c_partners['partnership']['member'][$user_id]) && is_array($c_partners['partnership']['member'][$user_id])) {
+							foreach ($c_partners['partnership']['member'][$user_id] as $offeringType => $amount) {
+								$querys['type'] = 'partnership';
+								$querys['partnership'] = $offeringType;
+								$querys['source'] = 'service';
+								$querys['date'] = $cr->date;
+								$querys['id'] = $cr->id;
+								$querys['amount'] = $amount;
+								
+							
+								$partnership += $amount;
+								$query[] = $querys;
+							}
+						} 
+						
+					}
+				}
+				
+			}
+			if(empty($item)) {
+				$resp['item'] = '
+					<div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<em class="icon ni ni-money" style="font-size:150px;"></em><br/><br/>'.translate_phrase('No Finance Record Returned').'
+					</div>
+				';
+			} else {
+				$resp['item'] = $item;
+			}
+			$resp['count'] = $counts;
+			$resp['offering'] = $this->session->get('currency').number_format($offering, 2);
+			$resp['tithe'] = $this->session->get('currency').number_format($tithe, 2);
+			$resp['partnership'] = $this->session->get('currency').number_format($partnership, 2);
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			
+		}
 		if($param1 == 'cell' && $param2 == 'load') {
 			$limit = $param3;
 			$offset = $param4;
@@ -8086,252 +8207,6 @@ class Accounts extends BaseController {
 			
 		}
 
-		if($param1 == 'order' && $param2 == 'load') {
-			$limit = $param3;
-			$offset = $param4;
-			$rec_limit = 25;
-			$item = '';
-            if($limit == '') {$limit = $rec_limit;}
-			if($offset == '') {$offset = 0;}
-
-			$user_id = $this->request->getVar('u_id');
-			if(!empty($this->request->getVar('type'))) { $type = $this->request->getVar('type'); } else { $type = ''; }
-			if(!empty($this->request->getVar('start_date'))) { $start_date = $this->request->getVar('start_date'); } else { $start_date = ''; }
-			if(!empty($this->request->getVar('end_date'))) { $end_date = $this->request->getVar('end_date'); } else { $end_date = ''; }
-			$search = $this->request->getVar('search');
-
-			if(!$log_id) {
-				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
-			} else {
-				$query = $this->Crud->filter_transaction($limit, $offset, $user_id, $type, $search, $start_date, $end_date);
-				$all_rec = $this->Crud->filter_transaction('', '', $user_id, $type, $search, $start_date, $end_date);
-				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$curr = '&#8358;';
-				$items = '	
-					<div class="nk-tb-item nk-tb-head">
-						<div class="nk-tb-col"><span>'.translate_phrase('Transaction Code').'</span></div>
-						<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Account').'</span></div>
-						<div class="nk-tb-col tb-col-md"><span class="sub-text">'.translate_phrase('Payment Type').'</span></div>
-						<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Amount').'</span></div>
-						<div class="nk-tb-col tb-col-md"><span class="sub-text">'.translate_phrase('Status').'</span></div>
-						<div class="nk-tb-col tb-col-md"><span class="sub-text">'.translate_phrase('Date').'</span></div>
-					</div><!-- .nk-tb-item -->
-						';
-
-				if(!empty($query)) {
-					foreach($query as $q) {
-						$id = $q->id;
-						$user_id = $q->user_id;
-						$payment_type = $q->payment_type;
-						$payment_method = $q->payment_method;
-						$code = $q->code;
-						$merchant_id = $q->merchant_id;
-						$status = $q->status;
-						$amount = number_format((float)$q->amount, 2);
-						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
-
-
-						// user 
-						$user = $this->Crud->read_field('id', $user_id, 'user', 'fullname');
-						$user_role_id = $this->Crud->read_field('id', $user_id, 'user', 'role_id');
-						$user_role = strtoupper($this->Crud->read_field('id', $user_role_id, 'access_role', 'name'));
-						$user_image_id = $this->Crud->read_field('id', $user_id, 'user', 'img_id');
-						$user_image = $this->Crud->image($user_image_id, 'big');
-
-						// merchant 
-						$merchant = $this->Crud->read_field('id', $merchant_id, 'user', 'fullname');
-						$merchant_role_id = $this->Crud->read_field('id', $merchant_id, 'user', 'role_id');
-						$merchant_role = strtoupper($this->Crud->read_field('id', $merchant_role_id, 'access_role', 'name'));
-						$merchant_image_id = $this->Crud->read_field('id', $merchant_id, 'user', 'img_id');
-						$merchant_image = $this->Crud->image($merchant_image_id, 'big');
-
-						$mer = '';
-						if(!empty($merchant_id)){
-							$mer = '<span class="text-danger">'.$merchant.'</span>';
-						}
-						$act = $mer.'<br><span class="text-primary">&rarr;'.$user.'</span>';
-
-
-						if($payment_type == 'transact'){
-							$payment_type = 'Transaction Code';
-
-							$act = '<span class="text-info">'.$user.'</span>';
-						} 
-
-						if($payment_type == 'sms'){
-							$payment_type = 'SMS Charge';
-
-							$act = '<span class="text-info">'.$user.'</span>';
-						} 
-
-						
-						// currency
-						$curr = '&#8358;';
-
-						// color
-						$color = 'success';
-						if($payment_type == 'debit') { $color = 'danger'; }
-
-						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<small class="text-muted d-md-none d-sm-block">'.strtoupper($reg_date).'</small><br>
-									<span class="fw-bold text-success pop">
-										<a href="javascript:;" class="text-success pop" pageTitle="View" pageName="'.site_url('wallets/transaction/view/'.$id).'" pageSize="modal-lg">
-											<i class="ni ni-edit"></i> <span class="m-l-3 m-r-10"><b>'.$code.'</b></span>
-										</a></span><br>
-									<span class="fw-bold text-secondary d-md-none d-sm-block">'.strtoupper($payment_type).'</span>
-								</div>
-								<div class="nk-tb-col">
-									<div class="user-card">
-										<div class="user-info">
-											'.$act.'
-										</div>
-									</div>
-								</div>
-								<div class="nk-tb-col tb-col-md">
-									<span class="fw-bold text-secondary">'.strtoupper($payment_type).'</span>
-								</div>
-								<div class="nk-tb-col">
-									<span>'.$$this->session->get('currency').$amount.'</span><br>
-									<span class="badge badge-dot text-success d-md-none d-sm-block">Success</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
-									<span class="badge badge-dot text-success">Success</span><br>
-								</div>
-								<div class="nk-tb-col tb-col-md">
-									<span>'.$reg_date.'</span>
-								</div>
-							</div>
-							
-						';
-					}
-				}
-			}
-			if(empty($item)) {
-				$resp['item'] = $items.'
-					<div class="text-center text-muted">
-						<br/><br/><br/><br/>
-						<i class="icon ni ni-tranx" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Transaction Returned').'
-					</div>
-				';
-			} else {
-				$resp['item'] = $items.$item;
-				if($offset >= 25){
-					$resp['item'] = $item;
-				
-				}
-			}
-			$resp['count'] = $counts;
-
-			$more_record = $counts - ($offset + $rec_limit);
-			$resp['left'] = $more_record;
-
-			if($counts > ($offset + $rec_limit)) { // for load more records
-				$resp['limit'] = $rec_limit;
-				$resp['offset'] = $offset + $limit;
-			} else {
-				$resp['limit'] = 0;
-				$resp['offset'] = 0;
-			}
-
-			echo json_encode($resp);
-			
-		}
-
-		if($param1 == 'wallet' && $param2 == 'load') {
-			$limit = $param3;
-			$offset = $param4;
-			$rec_limit = 25;
-			$item = '';
-            if($limit == '') {$limit = $rec_limit;}
-			if($offset == '') {$offset = 0;}
-
-			$user_id = $this->request->getVar('u_id');
-			
-			if(!$log_id) {
-				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
-			} else {
-				$query = $this->Crud->filter_wallet($limit, $offset, $user_id);
-				$all_rec = $this->Crud->filter_wallet('', '', $user_id);
-				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$curr = '&#8358;';
-				$items = '	
-					<div class="nk-tb-item nk-tb-head">
-						<div class="nk-tb-col"><span>'.translate_phrase('Wallet Type').'</span></div>
-						<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Amount').'</span></div>
-						<div class="nk-tb-col tb-col-md"><span class="sub-text">'.translate_phrase('Date').'</span></div>
-					</div><!-- .nk-tb-item -->
-						';
-
-				if(!empty($query)) {
-					foreach($query as $q) {
-						$id = $q->id;
-						$user_id = $q->user_id;
-						$type = $q->type;
-						$itema = $q->item;
-						$amount = number_format((float)$q->amount, 2);
-						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
-
-						
-						// currency
-						$curr = '&#8358;';
-
-						// color
-						$color = 'success';
-						if($type == 'debit') { $color = 'danger'; }
-
-						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<span class="fw-bold text-'.$color.'">'.strtoupper($type).'</span><br>
-									<span class="fw-bold text-dark">'.strtoupper($itema).'</span>
-									<small class="text-muted d-md-none d-sm-block">'.strtoupper($reg_date).'</small><br>
-									<span class="fw-bold text-'.$color.' d-md-none d-sm-block">'.strtoupper($type).'</span>
-								</div>
-								<div class="nk-tb-col">
-									<span>'.$$this->session->get('currency').$amount.'</span><br>
-									<span class="fw-bold text-dark d-md-none d-sm-block">'.strtoupper($itema).'</span>
-								</div>
-								<div class="nk-tb-col tb-col-md">
-									<span>'.$reg_date.'</span>
-								</div>
-							</div>
-							
-						';
-					}
-				}
-			}
-			if(empty($item)) {
-				$resp['item'] = $items.'
-					<div class="text-center text-muted">
-						<br/><br/><br/><br/>
-						<i class="icon ni ni-tranx" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Transaction Returned').'
-					</div>
-				';
-			} else {
-				$resp['item'] = $items.$item;
-				if($offset >= 25){
-					$resp['item'] = $item;
-				
-				}
-			}
-			$resp['count'] = $counts;
-
-			$more_record = $counts - ($offset + $rec_limit);
-			$resp['left'] = $more_record;
-
-			if($counts > ($offset + $rec_limit)) { // for load more records
-				$resp['limit'] = $rec_limit;
-				$resp['offset'] = $offset + $limit;
-			} else {
-				$resp['limit'] = 0;
-				$resp['offset'] = 0;
-			}
-
-			echo json_encode($resp);
-			
-		}
     }
 
 	public function get_state($country){
