@@ -50,7 +50,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link" data-bs-toggle="tab" href="#notification"><em class="icon ni ni-bell"></em><span><?=translate_phrase('Notification');?></span></a>
                                     </li>
-                                    <<li class="nav-item">
+                                    <li class="nav-item">
                                         <a class="nav-link" data-bs-toggle="tab" href="#wallet"><em class="icon ni ni-wallet"></em><span><?=translate_phrase('Finance');?></span></a>
                                     </li>
                                     <li class="nav-item">
@@ -728,7 +728,9 @@
         } else {
             $('#wallet_more').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         }
-
+        $('#offering').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#tithe').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#partnership').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         var u_id = $('#u_id').val();
         $.ajax({
             url: site_url + 'accounts/customer_details/wallet/load' + methods,
@@ -741,14 +743,14 @@
                 } else {
                     $('#wallet_data').append(dt.item);
                 }
+                $('#tithe').html(dt.tithe);
+                $('#offering').html(dt.offering);
+                $('#partnership').html(dt.partnership);
                 if (dt.offset > 0) {
                     $('#wallet_more').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="order(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
                 } else {
                     $('#wallet_more').html('');
                 }
-            },
-            complete: function () {
-                $.getScript(site_url + '/assets/js/jsmodal.js');
             }
         });
     }
