@@ -64,6 +64,7 @@
                       })
                 : x(e).css("display", "none");
         }),
+        
         (p.CurrentLink = function () {
             var e = window.location.href,
                 n = (n = e.substring(0, -1 == e.indexOf("#") ? e.length : e.indexOf("#"))).substring(0, -1 == n.indexOf("?") ? n.length : n.indexOf("?"));
@@ -72,10 +73,12 @@
                     t = e.attr("href");
                 n.match(t)
                     ? (e.closest("li").addClass("active current-page").parents().closest("li").addClass("active current-page"),
-                      e.closest("li").children(".nk-menu-sub").css("display", "block"),
-                      e.parents().closest("li").children(".nk-menu-sub").css("display", "block"),
-                      this.scrollIntoView({ block: "start" }))
+                       e.closest("li").children(".nk-menu-sub").css("display", "block"),
+                       e.parents().closest("li").children(".nk-menu-sub").css("display", "block")
+                       // this.scrollIntoView({ block: "start" })
+                      )
                     : e.closest("li").removeClass("active current-page").parents().closest("li:not(.current-page)").removeClass("active");
+                
             });
         }),
         (p.PassSwitch = function () {

@@ -79,6 +79,8 @@
     <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlitee5ca.css?ver=3.2.3">
     <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/css/skins/theme-egyptian.css?ver=3.2.3">
     
+    <link rel="stylesheet" href="<?php echo site_url(); ?>assets/css/editors/summernote.css">
+    
 </head>
 
 
@@ -459,37 +461,27 @@
                 </div>
                 <div id="bb_ajax_msgs"></div>
                     <!-- Chat icon at the bottom-right corner -->
-                    <div id="chat-icon" class="position-fixed text-white d-flex justify-content-center align-items-center rounded-circle shadow" 
-                    onclick="toggleChat()" 
-                    style="width: 60px; height: 60px; bottom: 20px; right: 20px; cursor: pointer; 
-                        background-image: url('<?=site_url('assets/angel-logo.png'); ?>'); 
-                        background-size: 50%; /* Adjust the size of the image relative to the div */
-                        background-repeat: no-repeat; /* Prevents repeating */
-                        background-position: center; /* Centers the image */
-                        background-color: #eee; border: 2px solid blue;">
+                <div id="chat-icon" class="position-fixed text-white d-flex justify-content-center align-items-center rounded-circle shadow"  onclick="toggleChat()"  style="width: 60px; height: 60px; bottom: 20px; right: 20px; cursor: pointer;   background-image: url('<?=site_url('assets/angel-logo.png'); ?>');  background-size: 50%;background-repeat: no-repeat; background-position: center; background-color: #eee; border: 2px solid blue;">
                 </div>
-
-
-
-                    <!-- Chat window -->
-                    <div id="chat-window" class="position-fixed shadow-lg bg-white rounded" 
-                        style="display: none; bottom: 80px; right: 20px; width: 300px;">
-                        <div class="d-flex justify-content-between align-items-center p-2 bg-primary text-white rounded-top">
-                            <h5 class="mb-0">Ask Angel</h5>
-                            <button type="button" class="btn btn-sm btn-light" onclick="toggleChat()">✖</button>
-                        </div>
-                        <div id="chat-body" class="p-3" style="max-height: 300px; overflow-y: auto;">
-                            <div id="chat-messages">
-                                <p class="bg-light p-2 rounded bot-message">Welcome to Angel CMS.</p>
-                            </div>
-                        </div>
-                        <div class="input-group p-2 border-top">
-                            <input type="text" id="user-input" class="form-control" placeholder="Type your message here...">
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
-                            </div>
+                <!-- Chat window -->
+                <div id="chat-window" class="position-fixed shadow-lg bg-white rounded" 
+                    style="display: none; bottom: 80px; right: 20px; width: 300px;">
+                    <div class="d-flex justify-content-between align-items-center p-2 bg-primary text-white rounded-top">
+                        <h5 class="mb-0">Ask Angel</h5>
+                        <button type="button" class="btn btn-sm btn-light" onclick="toggleChat()">✖</button>
+                    </div>
+                    <div id="chat-body" class="p-3" style="max-height: 300px; overflow-y: auto;">
+                        <div id="chat-messages">
+                            <p class="bg-light p-2 rounded bot-message">Welcome to Angel CMS.</p>
                         </div>
                     </div>
+                    <div class="input-group p-2 border-top">
+                        <input type="text" id="user-input" class="form-control" placeholder="Type your message here...">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
 
 
                 <!-- wrap @e -->
@@ -646,7 +638,6 @@
         <script src="<?php echo base_url(); ?>/assets/js/libs/fullcalendar.js"></script>
         <script src="<?php echo base_url(); ?>/assets/js/apps/activity_calendar.js?v=<?=time();?>"></script>
     <?php } ?>
-    <link rel="stylesheet" href="<?php echo site_url(); ?>assets/css/editors/summernote.css">
     <script src="<?php echo site_url(); ?>assets/js/libs/editors/summernote.js"></script>
     <script src="<?php echo site_url(); ?>assets/js/editors.js"></script>
     <?php if(!empty($table_rec)){ ?>
