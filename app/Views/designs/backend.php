@@ -505,7 +505,7 @@
           
 
     <script src="<?=site_url(); ?>assets/js/bundle.js"></script>
-    <script src="<?=site_url(); ?>assets/js/scriptse5ca.js"></script>
+    <script src="<?=site_url(); ?>assets/js/scriptse5ca.js?v=<?=time(); ?>"></script>
     
     <script>
       
