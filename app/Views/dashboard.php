@@ -90,8 +90,7 @@
                                                     title="<?=translate_phrase('Total Membership'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount text-white" id="membership"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
+                                        <div class="card-amount"><span class="amount text-white" id="membership"> 0 <span class="currency currency-usd"></span></span></div>
                                         
                                     </div>
                                 </div>
@@ -108,8 +107,7 @@
                                                     title="<?=translate_phrase('Total First Timer'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="first_timer"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
+                                        <div class="card-amount"><span class="amount" id="first_timer"> 0 <span class="currency currency-usd"></span></span></div>
                                         
                                     </div>
                                 </div>
@@ -126,8 +124,7 @@
                                                     title="<?=translate_phrase('Total New Convert'); ?>"></em>
                                                 </div>
                                         </div>
-                                        <div class="card-amount"><span class="amount" id="new_convert"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
+                                        <div class="card-amount"><span class="amount" id="new_convert"> 0 <span  class="currency currency-usd"></span></span></div>
                                         
                                     </div>
                                 </div>
@@ -187,93 +184,101 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title"><?=translate_phrase('Total Service Offering');?></h6>
-                                            </div>
-                                            <div class="card-tools">
-                                                <em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="<?=translate_phrase('Total Service Offering'); ?>"></em>
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_offering'); ?>" pageTitle="Service Offering Records" pageSize="modal-lg">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Service Offering');?></h6>
                                                 </div>
+                                                <div class="card-tools">
+                                                    <em class="card-hint icon ni ni-help-fill"
+                                                        data-bs-toggle="tooltip" data-bs-placement="left"
+                                                        title="<?=translate_phrase('Total Service Offering'); ?>"></em>
+                                                    </div>
+                                            </div>
+                                            <div class="card-amount">
+                                                <span class="amount" id="offering"> 0.00 <span
+                                                        class="currency currency-usd"></span></span>
+                                            </div>
                                         </div>
-                                        <div class="card-amount">
-                                            <span class="amount" id="offering"> 0.00 <span
-                                                    class="currency currency-usd"></span></span>
-                                        </div>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title"><?=translate_phrase('Total Cell Offering');?></h6>
-                                            </div>
-                                            <div class="card-tools">
-                                                <em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Cell Offering"></em>
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Cell Offering Records" pageSize="modal-lg">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Cell Offering');?></h6>
                                                 </div>
+                                                <div class="card-tools">
+                                                    <em class="card-hint icon ni ni-help-fill"
+                                                        data-bs-toggle="tooltip" data-bs-placement="left"
+                                                        title="Total Cell Offering"></em>
+                                                    </div>
+                                            </div>
+                                            <div class="card-amount">
+                                                <span class="amount" id="cell_offering"> 0.00 <span
+                                                        class="currency currency-usd"></span></span>
+                                            </div>
                                         </div>
-                                        <div class="card-amount">
-                                            <span class="amount" id="cell_offering"> 0.00 <span
-                                                    class="currency currency-usd"></span></span>
-                                        </div>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title"><?=translate_phrase('Total Service Tithe');?></h6>
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_tithe'); ?>" pageTitle="Service Tithe Records" pageSize="modal-lg">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Service Tithe');?></h6>
+                                                </div>
+                                                <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                        data-bs-toggle="tooltip" data-bs-placement="left"
+                                                        title="Total Service Tithe"></em></div>
                                             </div>
-                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="Total Service Tithe"></em></div>
-                                        </div>
-                                        <div class="card-amount"><span class="amount" id="tithe"> 0.00 
-                                            <span class="currency currency-usd"></span></span>
-                                        </div>
-                                        <div class="invest-data">
-                                            <div class="invest-data-amount g-2">
-                                                <div class="invest-data-history">
-                                                    <div class="title"><?=translate_phrase('Participant');?></div>
-                                                    <div class="amount" id="tithe_part">0</span>
+                                            <div class="card-amount"><span class="amount" id="tithe"> 0.00 
+                                                <span class="currency currency-usd"></span></span>
+                                            </div>
+                                            <div class="invest-data">
+                                                <div class="invest-data-amount g-2">
+                                                    <div class="invest-data-history">
+                                                        <div class="title"><?=translate_phrase('Participant');?></div>
+                                                        <div class="amount" id="tithe_part">0</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered  card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title"><?=translate_phrase('Total Partnership'); ?></h6>
-                                            </div>
-                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="<?=translate_phrase('Total Partnership'); ?>"></em>
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/partnership'); ?>" pageTitle="Partnership Records" pageSize="modal-lg">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Partnership'); ?></h6>
                                                 </div>
-                                        </div>
-                                        <div class="card-amount"><span class="amount" id="partnership"> 0.00 <span
-                                                    class="currency currency-usd"></span></span></div>
-                                        <div class="invest-data">
-                                            <div class="invest-data-amount g-2">
-                                                <div class="invest-data-history">
-                                                    <div class="title"><?=translate_phrase('Participant'); ?></div>
-                                                    <div class="amount" id="partnership_part">0 </div>
+                                                <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                        data-bs-toggle="tooltip" data-bs-placement="left"
+                                                        title="<?=translate_phrase('Total Partnership'); ?>"></em>
+                                                    </div>
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="partnership"> 0.00 <span
+                                                        class="currency currency-usd"></span></span></div>
+                                            <div class="invest-data">
+                                                <div class="invest-data-amount g-2">
+                                                    <div class="invest-data-history">
+                                                        <div class="title"><?=translate_phrase('Participant'); ?></div>
+                                                        <div class="amount" id="partnership_part">0 </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </a>
                                 </div>
                             </div>
                         <?php } else {?>
@@ -332,6 +337,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Membership" pageSize="modal-lg">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
@@ -348,6 +354,7 @@
                                                     class="currency currency-usd"></span></span>
                                         </div>
                                     </div>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -881,6 +888,9 @@
                 $('#activity_data').html(dt.item);
                 $('#timer_data').html(dt.timer_item);
                
+            },
+            complete: function () {
+                $.getScript(site_url + '/assets/js/jsmodal.js');
             }
         });
     }

@@ -6575,7 +6575,7 @@ class Accounts extends BaseController {
 			} elseif($param2 == 'upload'){ 
 				if($param3 == 'download'){
 					 // Path to the file (make sure this path is correct and accessible)
-					$file_path = FCPATH . 'assets/product_template.xlsx'; 
+					$file_path = FCPATH . 'assets/membership_template.xlsx'; 
 
 					// Check if the file exists
 					if (file_exists($file_path)) {
@@ -7643,7 +7643,7 @@ class Accounts extends BaseController {
 							// add manage buttons
 							
 								$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="View ' . $name . '" pageName="' . site_url($mod . '/manage/view/' . $id.'/'.$member_id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id.'/'.$member_id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								
 									
 								';
