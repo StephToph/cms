@@ -373,6 +373,9 @@ class Dashboard extends BaseController {
 			$end_date = date('Y-m-d');
 		}
 
+        $this->session->set('dashboard_start_date', $start_date);
+        $this->session->set('dashboard_end_date', $end_date);
+        
         // echo $switch_id;
         $membership = $this->Crud->filter_members($log_id, '', '', $switch_id);
         $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
@@ -940,6 +943,118 @@ class Dashboard extends BaseController {
         
         echo json_encode($resp);
         die;
+    }
+
+    public function records($param1='', $param2=''){
+        $start_date = $this->session->get('dashboard_start_date');
+        $end_date = $this->session->get('dashboard_end_date');
+        
+        $log_id = $this->session->get('td_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+       
+        $celss = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+
+        $data['log_id'] = $log_id;
+        $data['param1'] = $param1;
+        $data['param2'] = $param2;
+        $data['start_date'] = $start_date;
+        $data['end_date'] = $end_date;
+
+        if($param1 == 'finance'){
+            if($param2 == 'service_offering'){
+                if($role == 'developer' || $role == 'administrator'){
+                    $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+                    $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+                   
+                    $cells = $this->Crud->read('cells', 7);
+                } else {
+                    if($ministry_id > 0 && $church_id <= 0){
+                        $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
+                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+                   
+                        $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells', 7);
+                    } else {
+                        $cells = $this->Crud->read_single('church_id', $church_id,'cells', 7);
+                        $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
+                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'church_id', $church_id,'partners_history');
+                    }
+                }
+                $total_offering = 0;
+                $list = '';
+                if (!empty($service_report)) {
+                    foreach ($service_report as $u) {
+                        $total_offering += (float)$u->offering;
+                        $givers = $u->offering_givers;
+                        $church = $this->Crud->read_field('id', $u->church_id, 'church', 'name');
+                        $service = $this->Crud->read_field('id', $u->type, 'service_type', 'name');
+                        // Decode the JSON data to an associative array
+                        if(!empty($givers)){
+                           
+                            $offeringData = json_decode($givers, true);
+
+                            // Extract member and guest contributions
+                            $memberContributions = $offeringData["list"];
+                            $guestContributions = $offeringData["guest_list"];
+
+                            // Display member contributions
+                            if(!empty($memberContributions)){
+                                foreach ($memberContributions as $memberID => $amount) {
+                                    $list .= '<tr>
+                                        <td>'.$u->date.'</td>
+                                        <td>'.ucwords($church).'</td>
+                                        <td>'.ucwords($service).'</td>
+                                    ';
+                                    $member = $this->Crud->read_field('id', $memberID, 'user', 'firstname').' '.$this->Crud->read_field('id', $memberID, 'user', 'surname');
+                                    $list .= '
+                                        <td>'.ucwords($member).'</td>
+                                        <td>Member</td>
+                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
+                                        </tr>
+                                    ';
+                                    
+                                }
+                            }
+
+                            // Display guest contributions;
+                            if(!empty($guestContributions)){
+                                foreach ($guestContributions as $guestName => $amount) {
+                                    $list .= '<tr>
+                                        <td>'.$u->date.'</td>
+                                        <td>'.ucwords($church).'</td>
+                                        <td>'.ucwords($service).'</td>
+                                   
+                                        <td>'.ucwords($guestName).'</td>
+                                        <td>Visitor</td>
+                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
+                                        </tr>
+                                ';
+                                }
+                            }
+                        } else{
+                            continue;
+                        }
+                                                
+                    }
+                }
+                if(empty($list)){
+                    $data['offering_list'] = '<tr><td colspan="8"><h4 class="text-center">No Record Found</h4></td></tr>';
+                } else{
+                    $data['offering_list'] = $list;
+                }
+
+                $data['offering'] = $this->session->get('currency').number_format($total_offering,2);
+                
+
+            }
+           
+        }
+
+        if($param1 == 'finance'){
+            return view('dashboard_form', $data);
+        }
     }
 
 }

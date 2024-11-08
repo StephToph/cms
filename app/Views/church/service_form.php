@@ -142,6 +142,11 @@ $this->Crud = new Crud();
     <?php } ?>
 
     <?php if ($param2 == 'download') { ?>
+        <style>
+            #content p, #content div {
+                page-break-inside: avoid; /* Avoids breaking paragraphs and divs across pages */
+            }
+        </style>
         <div class="col-sm-12 my-2 text-center">
             <button class="btn btn-danger text-uppercase" id="downloadBtn" type="button">
                 <i class="icon ni ni-download"></i> <?=translate_phrase('Download as PDF');?>
@@ -173,7 +178,7 @@ $this->Crud = new Crud();
                 ?>
                 <h5 class="text-center text-dark mb-2"><?= ucwords($this->Crud->read_field('id', $e_church_id, 'church', 'name').' Service Program - ').strtoupper(date('l jS M Y', strtotime($service_date))).' {'.$totals.'}'; ?></h5>
                 <br>
-                <div class="my-2">
+                <div class="my-2 mb-5">
                     <div class="col-12 table-responsive">
                         <table class="table  table-bordered   table-hover">
                             <thead>
@@ -249,7 +254,7 @@ $this->Crud = new Crud();
                     </div>
                    
 
-                    <p><?= ucwords(($e_notes)); ?></p>
+                    <p class="mt-5"><?= ucwords(($e_notes)); ?></p>
                 </div>
             </div>
         </div>
@@ -591,20 +596,31 @@ $this->Crud = new Crud();
 
 
     <?php if($param2 == 'download'){?>
-    document.getElementById('downloadBtn').addEventListener('click', function() {
-        $('#msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-        var element = document.getElementById('content');
-        html2pdf()
-            .from(element)
-            .set({
-                margin: 1,
-                filename: 'content.pdf',
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'in', format: 'letter' }
-            })
-            .save();
-            $('#msg').html('');
-    });
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            $('#msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            var element = document.getElementById('content');
+            html2pdf()
+                .from(element)
+                .set({
+                    margin: 0.5, // Reduce margin to maximize page usage
+                    filename: 'content.pdf',
+                    html2canvas: {
+                        scale: 1, // Keeps original quality without excessive scaling
+                        useCORS: true // Handles cross-origin issues if images are present
+                    },
+                    jsPDF: {
+                        orientation: 'portrait',
+                        unit: 'in',
+                        format: 'a4', // Use A4 for better international support; use 'letter' if needed
+                        compressPDF: true // Enable compression for smaller file size
+                    }
+                })
+                .save()
+                .finally(() => {
+                    $('#msg').html('');
+                }
+            );
+        });
     <?php } ?>
     $(document).ready(function() {
         $('#add-email').click(function() {
