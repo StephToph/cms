@@ -206,7 +206,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Cell Offering Records" pageSize="modal-lg">
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Cell Offering Records" pageSize="modal-xl">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
                                                 <div class="card-title">
@@ -219,7 +219,7 @@
                                                     </div>
                                             </div>
                                             <div class="card-amount">
-                                                <span class="amount" id="cell_offering"> 0.00 <span
+                                                <span class="amount cell_offering" id="cell_offering"> 0.00 <span
                                                         class="currency currency-usd"></span></span>
                                             </div>
                                         </div>
@@ -337,7 +337,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Membership" pageSize="modal-lg">
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Membership" pageSize="modal-xl">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
                                             <div class="card-title">
@@ -350,7 +350,7 @@
                                                 </div>
                                         </div>
                                         <div class="card-amount">
-                                            <span class="amount" id="cell_offering"> 0.00 <span
+                                            <span class="amount cell_offering" id="cell_offerings"> 0.00 <span
                                                     class="currency currency-usd"></span></span>
                                         </div>
                                     </div>
@@ -941,7 +941,7 @@
         $('#partnership').html(
             '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
             );
-            $('#prospective').html(
+        $('#prospective').html(
             '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
             );
         $('#partnership_part').html(
@@ -963,6 +963,12 @@
             '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
             );
         $('#cell_data').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
+        $('#cell_offering').html(
+        '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
+        );
+        $('#cell_offerings').html(
         '<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>'
         );
         $('#membership').html(
@@ -1000,6 +1006,7 @@
                 $('#offering_part').html(dt.offering_part);
                 $('#offering').html(dt.offering);
                 $('#cell_offering').html(dt.cell_offering);
+                $('#cell_offerings').html(dt.cell_offering);
                 $('#partnership_part').html(dt.partnership_part);
                 $('#partnership').html(dt.partnership);
                 $('#partnership_list').html(dt.partnership_list);

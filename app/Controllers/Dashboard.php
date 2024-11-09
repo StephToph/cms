@@ -440,7 +440,8 @@ class Dashboard extends BaseController {
                 if($role == 'cell leader' || $role == 'assistant cell leader' || $role == 'cell executive'){
                     $c_id = $celss;
                 }
-                $cell_report = $this->Crud->read_single_order('cell_id', $c_id, 'cell_report', 'id', 'asc');
+                $cell_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'cell_id', $c_id, 'cell_report');
+                // print_r($cell_report);
                 $date = '-';
                 $attendance = 0;$attends = 0;
                 $new_convert = 0;$converts = 0;
@@ -461,6 +462,7 @@ class Dashboard extends BaseController {
                         }
                         $cell_offering += (float)$cs->offering;
 
+                        // echo $cs->id.' ';
                         $i++;
                     }
                     
@@ -988,6 +990,191 @@ class Dashboard extends BaseController {
                     foreach ($service_report as $u) {
                         $total_offering += (float)$u->offering;
                         $givers = $u->offering_givers;
+                        $church = $this->Crud->read_field('id', $u->church_id, 'church', 'name');
+                        $service = $this->Crud->read_field('id', $u->type, 'service_type', 'name');
+                        // Decode the JSON data to an associative array
+                        if(!empty($givers)){
+                           
+                            $offeringData = json_decode($givers, true);
+
+                            // Extract member and guest contributions
+                            $memberContributions = $offeringData["list"];
+                            $guestContributions = $offeringData["guest_list"];
+
+                            // Display member contributions
+                            if(!empty($memberContributions)){
+                                foreach ($memberContributions as $memberID => $amount) {
+                                    $list .= '<tr>
+                                        <td>'.$u->date.'</td>
+                                        <td>'.ucwords($church).'</td>
+                                        <td>'.ucwords($service).'</td>
+                                    ';
+                                    $member = $this->Crud->read_field('id', $memberID, 'user', 'firstname').' '.$this->Crud->read_field('id', $memberID, 'user', 'surname');
+                                    $list .= '
+                                        <td>'.ucwords($member).'</td>
+                                        <td>Member</td>
+                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
+                                        </tr>
+                                    ';
+                                    
+                                }
+                            }
+
+                            // Display guest contributions;
+                            if(!empty($guestContributions)){
+                                foreach ($guestContributions as $guestName => $amount) {
+                                    $list .= '<tr>
+                                        <td>'.$u->date.'</td>
+                                        <td>'.ucwords($church).'</td>
+                                        <td>'.ucwords($service).'</td>
+                                   
+                                        <td>'.ucwords($guestName).'</td>
+                                        <td>Visitor</td>
+                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
+                                        </tr>
+                                ';
+                                }
+                            }
+                        } else{
+                            continue;
+                        }
+                                                
+                    }
+                }
+                if(empty($list)){
+                    $data['offering_list'] = '<tr><td colspan="8"><h4 class="text-center">No Record Found</h4></td></tr>';
+                } else{
+                    $data['offering_list'] = $list;
+                }
+
+                $data['offering'] = $this->session->get('currency').number_format($total_offering,2);
+                
+
+            }
+            if($param2 == 'cell_offering'){
+                if($role == 'developer' || $role == 'administrator'){
+                    $cells = $this->Crud->read('cells');
+                } else {
+                    if($ministry_id > 0 && $church_id <= 0){
+                        $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells');
+                    } else {
+                        $cells = $this->Crud->read_single('church_id', $church_id,'cells');
+                    }
+                }
+                
+                $list = '';
+                $cell_offering = 0;
+              
+               
+                if(!empty($cells)){
+                    foreach($cells as $u){
+                        $c_id = $u->id;
+                        if($role == 'cell leader' || $role == 'assistant cell leader' || $role == 'cell executive'){
+                            $c_id = $celss;
+                        }
+                        $cell_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'cell_id', $c_id, 'cell_report');
+                       
+                        if(!empty($cell_report)){
+                            foreach($cell_report as $cs){
+                                $date = $cs->date;
+                                $date = date('d M Y', strtotime($date));
+        
+                                $cell_offering += (float)$cs->offering;
+                                $givers = $cs->offering_givers;
+                                $church = $this->Crud->read_field('id', $cs->church_id, 'church', 'name');
+                                $cell = $this->Crud->read_field('id', $cs->cell_id, 'cells', 'name');
+                                $type = $cs->type;
+                                if($type == 'wk1')$types = 'WK1 - Prayer and Planning';
+                                if($type == 'wk2')$types = 'Wk2 - Bible Study';
+                                if($type == 'wk3')$types = 'Wk3 - Bible Study';
+                                if($type == 'wk4')$types = 'Wk4 - Fellowship / Outreach';
+                                if($type == 'wk5')$types = 'Wk5 - Fellowship';
+                                // Decode the JSON data to an associative array
+                                if(!empty($givers)){
+                                   
+                                    $offeringData = json_decode($givers, true);
+        
+                                    // Extract member and guest contributions
+                                    $memberContributions = $offeringData["list"];
+                                    $guestContributions = $offeringData["guest_list"];
+        
+                                    // Display member contributions
+                                    if(!empty($memberContributions)){
+                                        foreach ($memberContributions as $memberID => $amount) {
+                                            $list .= '<tr>
+                                                <td>'.$date.'</td>
+                                                <td>'.ucwords($church).'</td>
+                                                <td>'.ucwords($cell).'</td>
+                                                <td>'.ucwords($types).'</td>
+                                            ';
+                                            $member = $this->Crud->read_field('id', $memberID, 'user', 'firstname').' '.$this->Crud->read_field('id', $memberID, 'user', 'surname');
+                                            $list .= '
+                                                <td>'.ucwords($member).'</td>
+                                                <td>Member</td>
+                                                <td>'.$this->session->get('currency').number_format($amount,2).'</td>
+                                                </tr>
+                                            ';
+                                            
+                                        }
+                                    }
+        
+                                    // Display guest contributions;
+                                    if(!empty($guestContributions)){
+                                        foreach ($guestContributions as $guestName => $amount) {
+                                            $list .= '<tr>
+                                                <td>'.$date.'</td>
+                                                <td>'.ucwords($church).'</td>
+                                                <td>'.ucwords($cell).'</td>
+                                                <td>'.ucwords($types).'</td>
+                                           
+                                                <td>'.ucwords($guestName).'</td>
+                                                <td>Visitor</td>
+                                                <td>'.$this->session->get('currency').number_format($amount,2).'</td>
+                                                </tr>
+                                        ';
+                                        }
+                                    }
+                                } else{
+                                    continue;
+                                }
+                            }
+                            
+                           
+                        }
+                        
+                    }
+                } 
+
+               
+                if(empty($list)){
+                    $data['cell_list'] = '<tr><td colspan="8"><h4 class="text-center">No Record Found</h4></td></tr>';
+                } else{
+                    $data['cell_list'] = $list;
+                }
+
+                $data['offering'] = $this->session->get('currency').number_format($cell_offering,2);
+                
+
+            }
+            if($param2 == 'service_tithe'){
+                if($role == 'developer' || $role == 'administrator'){
+                    $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+                   
+                } else {
+                    if($ministry_id > 0 && $church_id <= 0){
+                        $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
+                       
+                    } else {
+                        $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
+                    }
+                }
+
+                $total_offering = 0;
+                $list = '';
+                if (!empty($service_report)) {
+                    foreach ($service_report as $u) {
+                        $total_offering += (float)$u->tithe;
+                        $givers = $u->tithers;
                         $church = $this->Crud->read_field('id', $u->church_id, 'church', 'name');
                         $service = $this->Crud->read_field('id', $u->type, 'service_type', 'name');
                         // Decode the JSON data to an associative array
