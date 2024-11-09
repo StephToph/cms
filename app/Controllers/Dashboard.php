@@ -533,6 +533,7 @@ class Dashboard extends BaseController {
                 $tithe += (float)$u->tithe;
                 $first_timer += $u->first_timer;
                 $new_convert += $u->new_convert;
+                $partnership += (float)$u->partnership;
                 // Decode tithers JSON
                 $convertsa = json_decode($u->tithers);
                 
@@ -1225,6 +1226,124 @@ class Dashboard extends BaseController {
                         }
                                                 
                     }
+                }
+                if(empty($list)){
+                    $data['offering_list'] = '<tr><td colspan="8"><h4 class="text-center">No Record Found</h4></td></tr>';
+                } else{
+                    $data['offering_list'] = $list;
+                }
+
+                $data['offering'] = $this->session->get('currency').number_format($total_offering,2);
+                
+
+            }
+
+            if($param2 == 'partnership'){
+                if($role == 'developer' || $role == 'administrator'){
+                    $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
+                    $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+                   
+                } else {
+                    if($ministry_id > 0 && $church_id <= 0){
+                        $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
+                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+                   
+                    } else {
+                        $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
+                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'church_id', $church_id,'partners_history');
+                    }
+                }
+
+                $total_offering = 0;
+                $list = '';
+                
+                $partners_history = array();
+
+                if(!empty($partners)){
+                    foreach($partners as $u){
+                        $history['member_id'] = $u->member_id;
+                        $history['partnership'] = $u->partnership_id;
+                        $history['amount_paid'] = $u->amount_paid;
+                        $history['date_paid'] = $u->date_paid;
+                        $history['church_id'] = $u->church_id;
+                        $history['type'] = 'Member';
+                        $history['is_service'] = 0;
+                        
+                        $partners_history[] = $history;
+                    }
+                }
+                
+                if (!empty($service_report)) {
+                    foreach ($service_report as $u) {
+                        $total_offering += (float)$u->partnership;
+                        $givers = $u->partners;
+
+                        // Decode the JSON data to an associative array
+                        if(!empty($givers)){
+                           
+                            $offeringData = json_decode($givers, true);
+
+                            // Extract member and guest contributions
+
+                            // Display member contributions
+                            if(!empty($offeringData['partnership']["member"])){
+                                $memberContributions = $offeringData['partnership']["member"];
+                                foreach ($memberContributions as $memberId => $partnerships) {
+                                    foreach ($partnerships as $partnershipId => $amount) {
+                                        $history['member_id'] = $memberId;
+                                        $history['partnership'] = $partnershipId;
+                                        $history['amount_paid'] = $amount;
+                                        $history['date_paid'] = $u->date;
+                                        $history['church_id'] = $u->church_id;
+                                        $history['type'] = 'Member';
+                                        $history['is_service'] = $u->type;
+                                        
+                                        $partners_history[] = $history;
+                                    }
+                                }
+                            }
+
+                            // Display guest contributions;
+                            if(!empty($offeringData['partnership']["guest"])){
+                                $guestContributions = $offeringData['partnership']["guest"];
+                                foreach ($guestContributions as $memberId => $partnerships) {
+                                    foreach ($partnerships as $partnershipId => $amount) {
+                                        $history['member_id'] = $memberId;
+                                        $history['partnership'] = $partnershipId;
+                                        $history['amount_paid'] = $amount;
+                                        $history['date_paid'] = $u->date;
+                                        $history['church_id'] = $u->church_id;
+                                        $history['type'] = 'Guest';
+                                        $history['is_service'] = $u->type;
+                                        
+                                        $partners_history[] = $history;
+                                    }
+                                }
+                            }
+                        }
+                                              
+                    }
+                }
+
+               
+                if(!empty($partners_history)){
+                    foreach($partners_history as $ua) {
+                        $member = $this->Crud->read_field('id', $ua['member_id'], 'user', 'firstname').' '.$this->Crud->read_field('id', $ua['member_id'], 'user', 'surname');
+                        $partnership = $this->Crud->read_field('id', $ua['partnership'], 'partnership', 'name');
+                        $church = $this->Crud->read_field('id', $ua['church_id'], 'church', 'name');
+                        $service = $this->Crud->read_field('id', $ua['is_service'], 'service_type', 'name');
+                        
+                        $list .= '<tr>
+                            <td>'.$ua['date_paid'].'</td>
+                            <td>'.ucwords($church).'</td>
+                            <td>'.ucwords($service).'</td>
+                            <td>'.ucwords($member).'</td>
+                            <td>'.ucwords($partnership).'</td>
+                            <td>'.ucwords($ua['type']).'</td>
+                            <td>'.$this->session->get('currency').number_format($ua['amount_paid'], 2).'</td>
+                        </tr>';
+                    }
+                     
                 }
                 if(empty($list)){
                     $data['offering_list'] = '<tr><td colspan="8"><h4 class="text-center">No Record Found</h4></td></tr>';
