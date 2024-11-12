@@ -1296,8 +1296,8 @@ class Dashboard extends BaseController {
                                         $history['date_paid'] = $u->date;
                                         $history['church_id'] = $u->church_id;
                                         $history['type'] = 'Member';
-                                        $history['is_service'] = $u->type;
                                         
+
                                         $partners_history[] = $history;
                                     }
                                 }
@@ -1314,8 +1314,8 @@ class Dashboard extends BaseController {
                                         $history['date_paid'] = $u->date;
                                         $history['church_id'] = $u->church_id;
                                         $history['type'] = 'Guest';
-                                        $history['is_service'] = $u->type;
                                         
+
                                         $partners_history[] = $history;
                                     }
                                 }
@@ -1363,4 +1363,8 @@ class Dashboard extends BaseController {
         }
     }
 
+
+    public function map (){
+
+    }
 }

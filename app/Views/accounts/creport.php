@@ -292,8 +292,10 @@
                                                 <label for="name">*<?=translate_phrase('Offering'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
-                                                        <input type="text" name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="0">        
-                                                               
+                                                        <input type="text" name="offering" id="offering" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" readonly placeholder="0">        
+                                                        <div class="input-group-append">            
+                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="Enter Meeting Offering" pageSize="modal-lg" pageName="<?php echo  site_url('accounts/creport/manage/offering/'.$celss); ?>" id="offeringButton">ENTER RECORD</button>        
+                                                        </div>     
                                                     </div>    
                                                 </div>
                                                 <span class="text-danger"></span>
@@ -328,6 +330,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script>var site_url = '<?php echo site_url(); ?>';</script>
@@ -469,6 +472,10 @@
                 var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
                 convertBtn.setAttribute("pageName", updatedPageName);
                 
+                var urls = site_url + 'accounts/creport/manage/offering';
+                var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
+                offeringBtn.setAttribute("pageName", updatedPageName);
+                
                 var urls = site_url + 'accounts/creport/manage/first_timer';
                 var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
                 timerBtn.setAttribute("pageName", updatedPageName);
@@ -482,9 +489,9 @@
     function updatePageName() {
         var selectElement = document.getElementById("cells_id");
         var markButton = document.getElementById("markButton");
+        var offeringBtn = document.getElementById("offeringButton");
         var convertBtn = document.getElementById("convertBtn");
         var timerBtn = document.getElementById("timerBtn");
-        var offeringBtn = document.getElementById("offeringBtn");
         
         var selectedValue = selectElement.value;
        
@@ -495,6 +502,10 @@
         var urls = site_url + 'accounts/creport/manage/new_convert';
         var updatedPageName = urls + "/" + selectedValue;
         convertBtn.setAttribute("pageName", updatedPageName);
+        
+        var urls = site_url + 'accounts/creport/manage/offering';
+        var updatedPageName = urls + "/" + selectedValue;
+        offeringBtn.setAttribute("pageName", updatedPageName);
         
         var urls = site_url + 'accounts/creport/manage/first_timer';
         var updatedPageName = urls + "/" + selectedValue;

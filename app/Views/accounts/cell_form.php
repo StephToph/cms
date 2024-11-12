@@ -453,7 +453,11 @@ $this->Crud = new Crud();
 <?php echo form_close(); ?>
 <script>
     $('.js-select2').select2();
-    
+    $('#message').summernote({
+        height: 300, // Set the height of the editor
+        tabsize: 2,
+        focus: true
+    });
     $(document).ready(function () {
         <?php
            $e_church_ids = !empty($e_church_id) ? $e_church_id : 0;

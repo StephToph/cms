@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 class Accounts extends BaseController {
 
+
 	/////// ADMINISTRATORS
 	public function administrator($param1='', $param2='', $param3='') {
 		// check session login
@@ -4794,7 +4795,7 @@ class Accounts extends BaseController {
 							echo '<script> setTimeout(function() {
 								var jsonData = ' . json_encode($mark) . ';
 								var jsonString = JSON.stringify(jsonData);
-								$("#converts").val(jsonString);
+								$("#attendant").val(jsonString);
 								$("#attendance").val('.$total.');
 								$("#modal").modal("hide");
 							}, 2000); </script>';

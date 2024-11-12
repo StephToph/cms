@@ -2848,7 +2848,9 @@ class Crud extends Model {
             $builder->where("DATE(reg_date) >=", $start_date);
             $builder->where("DATE(reg_date) <=", $end_date);
         }
-    
+		
+        // build query
+		$builder->orderBy('date', 'desc');
         // Limit query
         if ($limit && $offset) {
             $query = $builder->get($limit, $offset);
