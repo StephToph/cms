@@ -229,7 +229,12 @@ $this->Crud = new Crud();
 <?php echo form_close(); ?>
 <script>
     $('.js-select2').select2();
-                                
+    $('#message').summernote({
+        height: 300, // Set the height of the editor
+        tabsize: 2,
+        focus: true
+    });
+                        
     function download_product(){
         $('#bb_ajax_msg').html();
         $.ajax({
