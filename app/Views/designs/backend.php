@@ -3,10 +3,7 @@
     $this->Crud = new Crud();
     
     $this->session = \Config\Services::session();
-    // Check if the server name is not 'localhost' or '127.0.0.1'
-    if ($_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
-        header("Content-Security-Policy: default-src 'self'; script-src 'self';");
-    }
+    
 
 
     $switch_id = $this->session->get('switch_church_id');
