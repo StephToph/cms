@@ -2992,6 +2992,70 @@ class Crud extends Model {
         $db->close();
     }
 
+
+	public function filter_baptism($limit='', $offset='', $log_id, $search='', $switch_id='') {
+        $db = db_connect();
+        $builder = $db->table('user');
+
+        // build query// Retrieve user details
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if(!empty($switch_id)){
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			if($church_type == 'region'){
+				$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+				$role = 'regional manager';
+			}
+			if($church_type == 'zone'){
+				$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+				$role = 'zonal manager';
+			}
+			if($church_type == 'group'){
+				$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+				$role = 'group manager';
+			}
+			if($church_type == 'church'){
+				$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+				$role = 'church leader';
+			}
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		
+		}
+		 // Apply filters based on user role
+		if ($role != 'developer' && $role != 'administrator') {
+			if($role == 'ministry administrator'){
+				$builder->where('ministry_id', $ministry_id);
+			} else {
+				$builder->where('church_id', $church_id);
+			}
+		
+		}
+		$builder->where('is_member', 1);
+        // build query
+		$builder->orderBy('id', 'desc');
+		
+        if(!empty($search)) {
+            $builder->like('firstname', $search);
+        }
+
+		
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
 	public function filter_givings($limit='', $offset='', $search='', $log_id, $start_date = '', $end_date = '', $partnership_id = '', $switch_id ='') {
         $db = db_connect();
         $builder = $db->table('partners_history');

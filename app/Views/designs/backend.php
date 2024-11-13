@@ -3,8 +3,6 @@
     $this->Crud = new Crud();
     
     $this->session = \Config\Services::session();
-    
-
 
     $switch_id = $this->session->get('switch_church_id');
     $username = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');

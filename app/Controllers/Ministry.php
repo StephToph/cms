@@ -1595,6 +1595,181 @@ class Ministry extends BaseController {
 			return view($mod, $data);
 		}
 	}
+	public function baptism($param1 = '', $param2 = '', $param3 = '')
+	{
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+		$log_id = $this->session->get('td_id');
+
+		$mod = 'ministry/baptism';
+
+		$data['current_language'] = $this->session->get('current_language');
+
+		$switch_id = $this->session->get('switch_church_id');
+        
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if ($role_r == 0) {
+			return redirect()->to(site_url('dashboard'));
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+
+		$table = 'user';
+		$form_link = site_url($mod);
+		if ($param1) {
+			$form_link .= '/' . $param1;
+		}
+		if ($param2) {
+			$form_link .= '/' . $param2 . '/';
+		}
+		if ($param3) {
+			$form_link .= $param3;
+		}
+
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+
+		// record listing
+		if ($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$count = 0;
+			$rec_limit = 150;
+			$item = '';
+
+			if ($limit == '') {
+				$limit = $rec_limit;
+			}
+			if ($offset == '') {
+				$offset = 0;
+			}
+
+			$search = $this->request->getPost('search');
+			$todo = $param1;
+
+			if (!$log_id) {
+				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
+			} else {
+				$query = $this->Crud->filter_baptism($limit, $offset, $log_id, $search, $switch_id);
+				$all_rec = $this->Crud->filter_baptism('', '', $log_id, $search, $switch_id);
+				if (!empty($all_rec)) {
+					$count = count($all_rec);
+				} else {
+					$count = 0;
+				}
+				$data['count'] = $count;
+
+				if (!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+						$surname = $q->surname;
+						$firstname = $q->firstname;
+						$othername = $q->othername;
+						$gender = strtolower($q->gender);
+						$phone = $q->phone;
+						$user_no = $q->user_no;
+						$baptism = strtolower($q->baptism);
+						
+						$reg_date = date('M d, Y h:i A', strtotime($q->reg_date));
+						
+						$bap = '<span class="text-danger">Not Baptised</span>';
+						if($baptism == 'yes'){
+							$bap = '<span class="text-success">Baptised</span>';
+						}
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							$all_btn = '
+								
+                            ';
+						}
+
+
+						$item .= '
+							<tr>
+								<td><span class="text-muted small">' . ucwords($church) . '</span></td>
+								<td><span class="tb-lead small">' . ucwords($surname.' '.$firstname.' '.$othername) . '</span> </td>
+								<td><span class="tb-lead small">' . ucwords($user_no) . '</span></td>
+								<td><span class="tb-lead small">' . ucwords($gender) .'</span></td>
+								<td><span class="tb-lead small">' . $phone . '</span></td>
+								<td><span class="tb-lead small">' . $bap . '</span></td>
+							</tr>
+							
+						';
+					
+					}
+				}
+			}
+			if (empty($item)) {
+				$resp['item'] = '
+					<tr><td colspan="8">
+					<div class="text-center text-muted col-sm-12">
+						<br/><br/>
+						<i class="icon ni ni-archived" style="font-size:120px;"></i><br/>No Knowledge Base Returned
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+			}
+
+			$more_record = $count - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			$resp['count'] = $count;
+			if ($count > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+
+		if ($param1 == 'manage') { // view for form data posting
+			return view($mod . '_form', $data);
+		} else { // view for main page
+
+			$data['title'] = 'Baptism | ' . app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+	}
 
 	  //////// Schedule  ////////
 	public function calendar($param1='', $param2='', $param3='') {
