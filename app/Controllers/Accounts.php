@@ -6575,31 +6575,19 @@ class Accounts extends BaseController {
 				}
 			} elseif($param2 == 'upload'){ 
 				if($param3 == 'download'){
-					 // Path to the file (make sure this path is correct and accessible)
-					$file_path = FCPATH . 'assets/membership_template.xlsx'; 
+					// Define the path to the file
+					$filePath = FCPATH . 'assets/membership_template.xlsx';
 
 					// Check if the file exists
-					if (file_exists($file_path)) {
-						// Get the file name from the path
-						$file_name = basename($file_path);
-						
-						// Set headers to force download
-						header('Content-Description: File Transfer');
-						header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-						header('Content-Disposition: attachment; filename="' . $file_name . '"');
-						header('Content-Transfer-Encoding: binary');
-						header('Expires: 0');
-						header('Cache-Control: must-revalidate');
-						header('Pragma: public');
-						header('Content-Length: ' . filesize($file_path));
-
-						// Clear output buffering
-						ob_clean();
-						flush();
-
-						// Read the file and output it
-						readfile($file_path);
-						exit();
+					if (file_exists($filePath)) {
+						// Serve the file for download
+						return $this->response->download($filePath, null)
+							->setContentType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+					} else {
+						// Return a 404 error if the file is not found
+						return $this->response
+							->setStatusCode(404)
+							->setBody('File not found.');
 					}
 				}
 				if($this->request->getMethod() == 'post'){

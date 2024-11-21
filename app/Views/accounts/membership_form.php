@@ -36,7 +36,7 @@ $this->Crud = new Crud();
             </ul>
             
             <div class="col-sm-12 mt-3 mb-3 text-center">
-                <a  href="<?=site_url('accounts/membership/manage/upload/download'); ?>" class="btn btn-success text-uppercase" type="button">
+                <a href="javascript:void(0);" class="btn btn-success text-uppercase" onclick="downloadProductTemplate()" type="button">
                     <em class="icon ni ni-download"></em><span> Download Membership Upload Template</span>
                 </a>
             </div>
@@ -235,17 +235,44 @@ $this->Crud = new Crud();
         focus: true
     });
                         
-    function download_product(){
-        $('#bb_ajax_msg').html();
+    function downloadProductTemplate() {
+        // Display a loading message while processing
+        $('#bb_ajax_msg').html('<p class="text-info">Processing your request...</p>');
+
         $.ajax({
             url: site_url + 'accounts/membership/manage/upload/download',
-            type: 'post',
-            success: function (data) {
-                $('#bb_ajax_msg').html(data);
-                
+            type: 'POST',
+            xhrFields: {
+                responseType: 'blob' // Set response type to blob for file download
+            },
+            success: function (data, status, xhr) {
+                // Extract filename from the Content-Disposition header
+                var disposition = xhr.getResponseHeader('Content-Disposition');
+                var filename = 'template.xlsx'; // Default filename
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    var matches = /filename[^;=\n]*=([\w.-]+)/.exec(disposition);
+                    if (matches != null && matches[1]) {
+                        filename = matches[1].trim();
+                    }
+                }
+
+                // Create a download link for the file
+                var blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
+                var link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+
+                // Update message for the user
+                $('#bb_ajax_msg').html('<p class="text-success">Template downloaded successfully!</p>');
+            },
+            error: function (xhr, status, error) {
+                // Handle errors and update the message
+                $('#bb_ajax_msg').html('<p class="text-danger">Error: Unable to download the template. Please try again later.</p>');
             }
         });
     }
+
 
     function statea() {
         var country = $('#country_id').val();
