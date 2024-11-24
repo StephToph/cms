@@ -134,7 +134,10 @@ $this->Crud = new Crud();
                             $ministryId = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
                             $regions = $this->Crud->read2_order('ministry_id', $ministryId, 'type', 'region', 'church', 'name', 'asc');
                             foreach ($regions as $region) {
-                                $selected = ($e_regional_id == $region->id) ? 'selected' : '';
+                                $selected = '';
+                                if(!empty($e_regional_id)){
+                                    $selected = ($e_regional_id == $region->id) ? 'selected' : '';
+                                }
                                 echo '<option value="' . $region->id . '" ' . $selected . '>' . ucwords($region->name) . '</option>';
                             }
                         ?>
@@ -294,6 +297,7 @@ $this->Crud = new Crud();
             }
             
         });
+        $('#regional_id').trigger('change');
     });
 
 </script>
