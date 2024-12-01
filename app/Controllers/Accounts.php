@@ -6998,6 +6998,7 @@ class Accounts extends BaseController {
 								$data['e_gender'] = $e->gender;
 								$data['e_othername'] = $e->othername;
 								$data['e_email'] = $e->email;
+								$data['e_archive'] = $e->is_archive;
 								$data['e_title'] = $e->title;
 								$data['e_phone'] = $e->phone;
 								$data['e_address'] = $e->address;
@@ -7036,6 +7037,7 @@ class Accounts extends BaseController {
 					$email = $this->request->getVar('email');
 					$phone = $this->request->getVar('phone');
 					$dob = $this->request->getVar('dob');
+					$archive = $this->request->getVar('archive');
 					$chat_handle = $this->request->getVar('chat_handle');
 					$address = $this->request->getVar('address');
 					$family_status = $this->request->getVar('family_status');
@@ -7075,6 +7077,7 @@ class Accounts extends BaseController {
 					$ins_data['phone'] = $phone;
 					$ins_data['gender'] = $gender;
 					$ins_data['address'] = $address;
+					$ins_data['is_archive'] = $archive;
 					$ins_data['img_id'] = $img_id;
 					$ins_data['marriage_anniversary'] = $marriage_anniversary;
 					$ins_data['job_type'] = $job_type;
@@ -7301,10 +7304,10 @@ class Accounts extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_membership('', '', $log_id, $search, $switch_id,$include);
+				$all_rec = $this->Crud->filter_membership('', '', $log_id, $search, $switch_id,$include, 0);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
-				$query = $this->Crud->filter_membership($limit, $offset, $log_id, $search, $switch_id,$include);
+				$query = $this->Crud->filter_membership($limit, $offset, $log_id, $search, $switch_id,$include, 0);
 				$data['count'] = $counts;
 				
 
@@ -7710,6 +7713,645 @@ class Accounts extends BaseController {
 		}else { // view for main page
 			
 			$data['title'] = translate_phrase('Membership').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+    }
+
+	//Customer
+	public function marchive($param1='', $param2='', $param3='', $param4='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'accounts/marchive';
+
+        $log_id = $this->session->get('td_id');
+        $switch_id = $this->session->get('switch_church_id');
+        
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            // return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+		
+		$table = 'user';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param2){$form_link .= '/'.$param3.'/';}
+		if($param3){$form_link .= $param4;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['param4'] = $param4;
+		$data['form_link'] = rtrim($form_link, '/');
+        $data['current_language'] = $this->session->get('current_language');
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$del_id = $this->request->getVar('d_membership_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'surname');
+						$action = $by.' deleted Membership ('.$code.') Record';
+
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							
+							$this->Crud->activity('user', $del_id, $action);
+							echo $this->Crud->msg('success', 'Membership Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;	
+					}
+				}
+			} elseif($param2 == 'unarchive'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$del_id = $this->request->getVar('d_membership_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'surname');
+						$action = $by.' Moved '.$code.' to Active Membership Record';
+
+						if($this->Crud->updates('id', $del_id, $table, array('is_archive'=>0)) > 0) {
+							
+							$this->Crud->activity('user', $del_id, $action);
+							echo $this->Crud->msg('success', 'Membership Unarchived');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_location'] = $e->location;
+								$data['e_name'] = $e->name;
+								$data['e_roles'] = json_decode($e->roles);
+								$data['e_time'] = json_decode($e->time);
+							}
+						}
+					}
+				} 
+
+				if($this->request->getMethod() == 'post'){
+					$cell_id = $this->request->getVar('cell_id');
+					$name = $this->request->getVar('name');
+					$roles = $this->request->getVar('roles');
+					$location = $this->request->getVar('location');
+					$times = $this->request->getVar('times');
+					$days = $this->request->getVar('days');
+					
+					$time = [];
+					for($i=0;$i < count($days);$i++ ){
+						$day = $days[$i];
+						// echo $day;
+						$time[$day] = $times[$i];
+					}
+					// print_r($time);
+					// print_r($days);
+					// die;
+					$ins_data['name'] = $name;
+					$ins_data['roles'] = json_encode($roles);
+					$ins_data['location'] = $location;
+					$ins_data['time'] = json_encode($time);
+					
+					// do create or update
+					if($cell_id) {
+						$upd_rec = $this->Crud->updates('id', $cell_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $cell_id, 'dept', 'name');
+							$action = $by.' updated Department ('.$code.') Record';
+							$this->Crud->activity('user', $cell_id, $action);
+
+							echo $this->Crud->msg('success', 'Record Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+					} else {
+						if($this->Crud->check('name', $name, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Record Already Exist');
+						} else {
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'dept', 'name');
+								$action = $by.' created Department ('.$code.') Record';
+								$this->Crud->activity('user', $ins_rec, $action);
+
+								echo $this->Crud->msg('success', 'Record Created');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');	
+							}	
+						}
+					}
+
+					die;	
+				}
+			}
+		}
+
+
+        // record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$search = $this->request->getPost('search');
+			$include = $this->request->getPost('include');
+			
+			$items = '
+				<tr>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Title').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Name').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Member ID').'</b></span></td>
+					<td ><span class="sub-text text-dark"><b>'.('Phone').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Email').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Kingschat Handle').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('Cell').'</b></span></td>
+					<td><span class="sub-text text-dark"><b>'.translate_phrase('DOB').'</b></span></td>
+					<td >
+						
+					</td>
+				</div><!-- .nk-tb-item -->
+		
+				
+			';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				
+				$all_rec = $this->Crud->filter_membership('', '', $log_id, $search, $switch_id,$include, 1);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+				$query = $this->Crud->filter_membership($limit, $offset, $log_id, $search, $switch_id,$include, 1);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$firstname = $q->firstname;
+						$othername = $q->othername;
+						$surname = $q->surname;
+						$user_no = $q->user_no;
+						$phone = $q->phone;
+						$email = $q->email;
+						$church_id = $q->church_id;
+						$chat_handle = $q->chat_handle;
+						$dob = date('d M Y', strtotime($q->dob));
+						if(empty($dob))$dob = '-';
+						$cell_id = $q->cell_id;
+						$title = $q->title;
+						$activate = $q->activate;
+						$img = $q->img_id;
+						if (empty($img) && !file_exists($img)) {
+							$img = 'assets/images/avatar.png';
+						}
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+						$cell = '-';
+						if(!empty($q->cell_id)){
+							$cell = $this->Crud->read_field('id', $q->cell_id, 'cells', 'name');
+						}
+						$name = $firstname.' '.$othername.' '.$surname;
+						$names = '<a href="' . site_url('account/membership/view/' . $id) . '" class="text-primary">
+							<b>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)) . '</b></span>
+						</a>';
+
+
+						if(empty($phone))$phone = '-';
+						if(empty($email))$email = '-';
+						if(empty($title))$title = '-';
+						
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							if(!empty($switch_id)){
+								$all_btn = '
+								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
+								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
+								
+								
+							';
+							} else {
+								$all_btn = '
+								<li><a href="javascript:;" class="text-info pop" pageTitle="Move to Membership " pageName="' . site_url($mod . '/manage/unarchive/' . $id) . '"><em class="icon ni ni-share"></em><span>'.translate_phrase('Move to Membership').'</span></a></li>
+								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
+								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
+								
+								
+							';
+							}
+							
+						}
+
+						$item .= '
+							<tr>
+								<td>
+									<span class="text-dark">' . ucwords(strtolower($title)) . '</span>
+								</td>
+								<td>
+									<div class="user-card">
+										<div class="user-avatar ">
+											<img alt="" src="' . site_url($img) . '" height="40px" width="50px"/>
+										</div>
+										<div class="user-info">
+											<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
+										</div>
+									</div>
+								</td>
+								<td>
+									<span class="text-dark">' . ($user_no) . '</span>
+								</td>
+								<td>
+									<span class="text-dark">' . ($phone) . '</span>
+								</td>
+								<td>
+									<span class="text-dark">' . ($email) .'</span>
+								</td>
+								<td>
+									<span class="text-dark">' . strtolower($chat_handle) . '</span>
+								</div>
+								<td>
+									<span class="text-dark">' . ($cell) . '</span>
+								</td>
+								<td>
+									<span class="text-dark">' . ($dob) . '</span>
+								</td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr><!-- .nk-tb-item -->
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<tr><td colspan="10"><div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-user" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Member Archive Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'view'){
+			if($param2) {
+				$user_id = $param2;
+				$data['id'] = $user_id;
+				$data['last_log'] = date('F, d Y h:ia',strtotime($this->Crud->read_field('id', $user_id, 'user', 'last_log')));
+				if(empty($this->Crud->read_field('id', $user_id, 'user', 'last_log'))){
+					$data['last_log'] = 'Not Logged In';
+				}
+				$data['fullname'] = $this->Crud->read_field('id', $user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $user_id, 'user', 'surname').' '.$this->Crud->read_field('id', $user_id, 'user', 'othername');
+				$role_id = $this->Crud->read_field('id', $user_id, 'user', 'role_id');
+				$role = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
+				$data['role'] = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
+				$data['v_phone'] = $this->Crud->read_field('id', $user_id, 'user', 'phone');
+				$data['v_church_id'] = $this->Crud->read_field('id', $user_id, 'user', 'church_id');
+				$data['v_dob'] = $this->Crud->read_field('id', $user_id, 'user', 'dob');
+				$data['v_user_no'] = $this->Crud->read_field('id', $user_id, 'user', 'user_no');
+				$data['v_gender'] = $this->Crud->read_field('id', $user_id, 'user', 'gender');
+				$data['v_title'] = $this->Crud->read_field('id', $user_id, 'user', 'title');
+				$data['v_chat_handle'] = $this->Crud->read_field('id', $user_id, 'user', 'chat_handle');
+				$data['v_family_status'] = $this->Crud->read_field('id', $user_id, 'user', 'family_status');
+				$data['v_marriage_anniversary'] = $this->Crud->read_field('id', $user_id, 'user', 'marriage_anniversary');
+				$data['v_family_position'] = $this->Crud->read_field('id', $user_id, 'user', 'family_position');
+				$data['v_cell_id'] = $this->Crud->read_field('id', $user_id, 'user', 'cell_id');
+				$data['v_cell_role'] = $this->Crud->read_field('id', $user_id, 'user', 'cell_role');
+				$data['v_dept_id'] = $this->Crud->read_field('id', $user_id, 'user', 'dept_id');
+				$data['v_dept_role'] = $this->Crud->read_field('id', $user_id, 'user', 'dept_role');
+				$data['v_job_type'] = $this->Crud->read_field('id', $user_id, 'user', 'job_type');
+				$data['v_employer_address'] = $this->Crud->read_field('id', $user_id, 'user', 'employer_address');
+				$data['v_foundation_school'] = $this->Crud->read_field('id', $user_id, 'user', 'foundation_school');
+				$data['v_foundation_weeks'] = $this->Crud->read_field('id', $user_id, 'user', 'foundation_weeks');
+				$data['v_baptism'] = $this->Crud->read_field('id', $user_id, 'user', 'baptism');
+				$data['reg_date'] = date('F, d Y h:ia',strtotime($this->Crud->read_field('id', $user_id, 'user', 'reg_date')));
+				$data['v_email'] = $this->Crud->read_field('id', $user_id, 'user', 'email');
+
+				$v_img_id = $this->Crud->read_field('id', $user_id, 'user', 'img_id');
+				if(!empty($v_img_id)){
+					$img = '<img src="'.site_url($this->Crud->image($v_img_id, "big")).'">';
+				} else {
+					$img = $this->Crud->image_name($this->Crud->read_field('id', $user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $user_id, 'user', 'othername').' '.$this->Crud->read_field('id', $user_id, 'user', 'surname'));
+				}
+				$data['v_img'] = $img;
+
+				$v_status = $this->Crud->read_field('id', $user_id, 'user', 'activate');
+				if(!empty($v_status)) { $v_status = '<span class="text-success">VERIFIED</span>'; } else { $v_status = '<span class="text-danger">UNVERIFIED</span>'; }
+				$data['v_status'] = $v_status;
+
+				$data['v_address'] = $this->Crud->read_field('id', $user_id, 'user', 'address');
+
+
+			}
+			$data['page_active'] = $mod;
+			$data['title'] = translate_phrase('Membership View').' - '.app_name;
+			return view($mod.'_view', $data);
+		}
+
+		if($param1 == 'partnership'){
+			
+			if($param2) {
+				$user_id = $param2;
+				$data['id'] = $user_id;
+				$data['last_log'] = date('F, d Y h:ia',strtotime($this->Crud->read_field('id', $user_id, 'user', 'last_log')));
+				if(empty($this->Crud->read_field('id', $user_id, 'user', 'last_log'))){
+					$data['last_log'] = 'Not Logged In';
+				}
+				
+				if($param3){
+					if($param3 == 'edit'){
+						$edit = $this->Crud->read_single('id', $param2, 'user');
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_partnership'] = $e->partnership;
+							}
+						}
+					}
+					if($this->request->getMethod() == 'post'){
+						$part_id = $this->request->getPost('part_id');
+						$partnership = $this->request->getPost('partnership');
+						$goal = $this->request->getPost('goal');
+						
+						$parts = [];
+						for($i=0;$i<count($partnership);$i++){
+							$part_id = $this->Crud->read_field('name', $partnership[$i], 'partnership', 'id');
+							$parts[$part_id] = $goal[$i];
+						}
+						
+						$upd_rec = $this->Crud->updates('id', $user_id, 'user', array('partnership'=>json_encode($parts)));
+
+						if($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $user_id, 'user', 'surname');
+							$action = $by.' updated Partnership for Membership ('.$code.') Record';
+							$this->Crud->activity('user', $user_id, $action);
+
+							echo $this->Crud->msg('success', 'Partnership Updated');
+							echo '<script>location.reload(false);</script>';
+
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+						die;
+					}
+					return view($mod.'_partnership_form', $data);
+				}
+			}
+			 // record listing
+			if($param2 == 'load') {
+				$limit = $param2;
+				$offset = $param3;
+
+				$rec_limit = 25;
+				$item = '';
+				if(empty($limit)) {$limit = $rec_limit;}
+				if(empty($offset)) {$offset = 0;}
+				
+				$search = $this->request->getPost('search');
+				$member_id = $this->request->getPost('member_id');
+				
+				$items = '
+					<tr>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Partnership').'</b></span></td>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Pledge').'</b></span></td>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Given').'</b></span></td>
+						<td><span class="sub-text text-dark"><b>'.translate_phrase('Balance').'</b></span></td>
+						<td>
+							
+						</td>
+					</tr><!-- .nk-tb-item -->
+			
+					
+				';
+				$a = 1;
+
+				//echo $status;
+				$log_id = $this->session->get('td_id');
+				if(!$log_id) {
+					$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+				} else {
+					
+					$all_rec = $this->Crud->read_order('partnership', 'name', 'asc');
+					// $all_rec = json_decode($all_rec);
+					if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+					$query = $this->Crud->read_order('partnership', 'name', 'asc');
+					$data['count'] = $counts;
+					
+
+					if(!empty($query)) {
+						foreach ($query as $q) {
+							$id = $q->id;
+							$name = $q->name;
+							$goal = 0;
+							$given = 0;
+							$balance = 0;
+							if(!empty($member_id)){
+								$parts = $this->Crud->read_field('id', $member_id, 'user', 'partnership');
+								if(!empty($parts)){
+									$partss = json_decode($parts);
+									foreach($partss as $pa => $val){
+										if($id == $pa){
+											$goal = (float)$val;
+
+											$paids = $this->Crud->read2('member_id', $member_id, 'partnership_id', $pa, 'partners_history');
+											if(!empty($paids)){
+												foreach($paids as $p){
+													$given += (float)$p->amount_paid;
+												}
+											}
+										}
+									}
+								}
+								$balance = (float)$goal - (float)$given;
+								if($balance < 0)$balance = 0;
+								
+							}
+							
+							// add manage buttons
+							
+								$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id.'/'.$member_id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+								
+									
+								';
+							
+
+							$item .= '
+								<tr>
+									<td>
+										<span class="tb-lead text-primary">' . ucwords($name) . '</span>
+									</td>
+									<td>
+										<span class="tb-lead">' .$this->session->get('currency'). number_format($goal,2) . ' </span>
+									</td>
+									<td>
+										<span class="tb-lead">' .$this->session->get('currency'). number_format($given,2) . '</span>
+									</td>
+									<td>
+										<span class="tb-lead">' .$this->session->get('currency').number_format($this->Crud->cur_exchange($balance),2) . '</span>
+									</td>
+									<td >' . $all_btn . '</td>
+								</tr><!-- .nk-tb-item -->
+							';
+							$a++;
+						}
+					}
+					
+				}
+				
+				if(empty($item)) {
+					$resp['item'] = $items.'
+						<tr><td colspan="9"><div class="text-center text-muted">
+							<br/><br/><br/><br/>
+							<i class="ni ni-user" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Membership Returned').'
+						</div></td></tr>
+					';
+				} else {
+					$resp['item'] = $items . $item;
+					if($offset >= 25){
+						$resp['item'] = $item;
+					}
+					
+				}
+
+				$resp['count'] = $counts;
+
+				$more_record = $counts - ($offset + $rec_limit);
+				$resp['left'] = $more_record;
+
+				if($counts > ($offset + $rec_limit)) { // for load more records
+					$resp['limit'] = $rec_limit;
+					$resp['offset'] = $offset + $limit;
+				} else {
+					$resp['limit'] = 0;
+					$resp['offset'] = 0;
+				}
+
+				echo json_encode($resp);
+				die;
+			}
+			$data['page_active'] = $mod;
+			$data['title'] = translate_phrase('Partnership').' - '.app_name;
+			return view($mod.'_partnership', $data);
+		}
+
+		
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('Member Archive').' - '.app_name;
 			$data['page_active'] = $mod;
 			return view($mod, $data);
 		}

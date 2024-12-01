@@ -1902,7 +1902,7 @@ class Crud extends Model {
         $db->close();
     }
 
-    public function filter_membership($limit='', $offset='', $log_id, $search='', $switch_id='', $include_sub_churches='false') {
+    public function filter_membership($limit='', $offset='', $log_id, $search='', $switch_id='', $include_sub_churches='false', $archive='') {
         $db = db_connect();
         $builder = $db->table('user');
 
@@ -1939,7 +1939,7 @@ class Crud extends Model {
 		if($role != 'developer' && $role != 'administrator'){
 			if($role == 'ministry administrator'){
     			$builder->where('ministry_id', $ministry_id);
-    		} else {
+    		}  else {
     		     // Determine the churches based on the user's role
 				$church_ids = [$church_id]; // Start with the user's church
 				if ($include_sub_churches == 'true') {
@@ -1977,6 +1977,8 @@ class Crud extends Model {
 		} 
 		
 		$builder->where('is_member', 1);
+		$builder->where('is_archive', $archive);
+
         if(!empty($search)) {
             $builder->groupStart()
 				->like('surname', $search)

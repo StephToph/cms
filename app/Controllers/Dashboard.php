@@ -120,10 +120,45 @@ class Dashboard extends BaseController {
 					}
 				}
 
+                if(!empty($switch_id)){
+                    $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+                    if($church_type == 'region'){
+                        $role_ids = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+                        $role = 'regional manager';
+                    }
+                    if($church_type == 'zone'){
+                        $role_ids = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+                        $role = 'zonal manager';
+                    }
+                    if($church_type == 'group'){
+                        $role_ids = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+                        $role = 'group manager';
+                    }
+                    if($church_type == 'church'){
+                        $role_ids = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+                        $role = 'church leader';
+                    }
+                    $ministry_id = $this->Crud->read_field('id', $switch_id, 'church', 'ministry_id');
+                    $church_id = $switch_id;
+                
+                }
                 //timer Records
                 $timer_data = [];
                 $service_query = $this->Crud->read_order('service_report', 'id', 'desc',7);
 				
+                if($role != 'developer' && $role != 'administrator'){
+                    $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                    if($role == 'ministry administrator'){
+                        $service_query = $this->Crud->read_single_order('ministry_id', $ministry_id, 'service_report', 'id', 'desc',7);
+                    } else {
+                        $service_query = $this->Crud->read_single_order('church_id', $church_id, 'service_report', 'id', 'desc',7);
+                    }
+                } else {
+                    $service_query = $this->Crud->read_order('service_report', 'id', 'desc',7);
+                }
+
+
+                
 				if (!empty($service_query)) {
 					foreach($service_query as $q) {
 						$datas['type'] = 'service';
@@ -135,8 +170,18 @@ class Dashboard extends BaseController {
 
                     }
                 }
-                $cell_query = $this->Crud->read_order('cell_report', 'id', 'desc', 7);
-				
+
+                if($role != 'developer' && $role != 'administrator'){
+                    $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                    if($role == 'ministry administrator'){
+                        $cell_query = $this->Crud->read_single_order('ministry_id', $ministry_id, 'cell_report', 'id', 'desc',7);
+                    } else {
+                        $cell_query = $this->Crud->read_single_order('church_id', $church_id, 'cell_report', 'id', 'desc',7);
+                    }
+                } else {
+                    $cell_query = $this->Crud->read_order('cell_report', 'id', 'desc',7);
+                }
+                
 				if (!empty($cell_query)) {
 					foreach($cell_query as $q) {
 						$datas['type'] = 'cell';
