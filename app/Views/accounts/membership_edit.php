@@ -433,6 +433,17 @@
                                         <input class="form-control" type="text" id="password" name="password" <?php if(empty($e_id)) { echo 'required'; } ?>>
                                     </div>
                                 </div>
+                                <div class="col-md-6 col-lg-4 col-xxl-3">
+                                    <div class="form-group"><label class="form-label">Move to Archive</label>
+                                        <div class="form-control-wrap">
+                                            <select class="form-select js-select2" id="archive" name="archive"
+                                                data-placeholder="Select">
+                                                <option value="0" <?php if(!empty($e_archive)){if($e_archive == '0'){echo 'selected';}} ?>>No </option>
+                                                <option value="1" <?php if(!empty($e_archive)){if($e_archive == '1'){echo 'selected';}} ?>>Yes </option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="mb-2 col-md-6 col-lg-4 col-xxl-3">
                                     <label for="img-upload" class="pointer text-center" style="width:50%;">
                                         <input type="hidden" name="img_id" value="<?php if(!empty($e_img_id)){echo $e_img_id;} ?>" />
