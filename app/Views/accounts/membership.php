@@ -120,7 +120,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'accounts/marchive/load' + methods,
+            url: site_url + 'accounts/membership/load' + methods,
             type: 'post',
             data: { search: search, include:include },
             success: function (data) {
