@@ -7013,6 +7013,8 @@ class Accounts extends BaseController {
 								$data['e_dob'] = $e->dob;
 								$data['e_family_status'] = $e->family_status;
 								$data['e_family_position'] = $e->family_position;
+								$data['e_parent_id'] = $e->parent_id;
+								$data['e_spouse_id'] = $e->spouse_id;
 								$data['e_cell_id'] = $e->cell_id;
 								$data['e_cell_role'] = $e->cell_role;
 								$data['e_dept_id'] = $e->dept_id;
@@ -7045,7 +7047,9 @@ class Accounts extends BaseController {
 					$parent_id = $this->request->getVar('parent_id');
 					$dept_id = $this->request->getVar('dept_id');
 					$dept_role_id = $this->request->getVar('dept_role_id');
+					$parent_id = $this->request->getVar('parent_id');
 					$cell_id = $this->request->getVar('cell_id');
+					$spouse_id = $this->request->getVar('spouse_id');
 					$cell_role_id = $this->request->getVar('cell_role_id');
 					$title = $this->request->getVar('title');
 					$password = $this->request->getVar('password');
@@ -7078,7 +7082,9 @@ class Accounts extends BaseController {
 					$ins_data['gender'] = $gender;
 					$ins_data['address'] = $address;
 					$ins_data['is_archive'] = $archive;
+					$ins_data['parent_id'] = $parent_id;
 					$ins_data['img_id'] = $img_id;
+					$ins_data['spouse_id'] = $spouse_id;
 					$ins_data['marriage_anniversary'] = $marriage_anniversary;
 					$ins_data['job_type'] = $job_type;
 					$ins_data['is_member'] = 1;
@@ -7135,6 +7141,9 @@ class Accounts extends BaseController {
 						
 					// do create or update
 					if($membership_id) {
+						if(!empty($spouse_id)){
+							$this->Crud->updates('id', $spouse_id, $table, array('spouse_id'=>$membership_id, 'family_status'=>'married'));
+						}
 						$upd_rec = $this->Crud->updates('id', $membership_id, $table, $ins_data);
 						if($upd_rec > 0) {
 							///// store activities
@@ -7153,6 +7162,9 @@ class Accounts extends BaseController {
 						$ins_data['reg_date'] = date(fdate);
 						$ins_rec = $this->Crud->create($table, $ins_data);
 						if($ins_rec > 0) {
+							if(!empty($spouse_id)){
+								$this->Crud->updates('id', $spouse_id, $table, array('spouse_id'=>$ins_rec, 'family_status'=>'married'));
+							}
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 							$code = $this->Crud->read_field('id', $ins_rec, 'user', 'surname');
@@ -7266,6 +7278,63 @@ class Accounts extends BaseController {
 			die;
 		}
 
+		if($param1 == 'get_parents'){
+			$church_id = $param2;
+			$ministry_id = $param3;
+			// Validate inputs
+			if (empty($church_id) && empty($ministry_id)) {
+				echo json_encode([]);
+				return;
+			}
+		
+			// Fetch parents based on church and ministry
+			if(empty($church_id) && !empty(!$ministry_id)){
+				$parents = $this->Crud->read2_order('family_position', 'Parent', 'ministry_id', $ministry_id, 'user', 'surname', 'asc');
+			} else{
+				$parents = $this->Crud->read2_order('family_position', 'Parent', 'church_id', $church_id, 'user', 'surname', 'asc');
+			}
+			// Format data for response
+			$response = [];
+			foreach ($parents as $parent) {
+				$response[] = [
+					'id' => $parent->id,
+					'name' => ucwords($parent->surname . ' ' . $parent->firstname),
+				];
+			}
+		
+			echo json_encode($response);
+			die;
+		}
+
+		
+		if($param1 == 'get_spouse'){
+			$church_id = $param2;
+			$ministry_id = $param3;
+			// Validate inputs
+			if (empty($church_id) && empty($ministry_id)) {
+				echo json_encode([]);
+				return;
+			}
+		
+			// Fetch parents based on church and ministry
+			if(empty($church_id) && !empty(!$ministry_id)){
+				$parents = $this->Crud->read2_order('family_status', 'married', 'ministry_id', $ministry_id, 'user', 'surname', 'asc');
+			} else{
+				$parents = $this->Crud->read2_order('family_status', 'married', 'church_id', $church_id, 'user', 'surname', 'asc');
+			}
+			// Format data for response
+			$response = [];
+			foreach ($parents as $parent) {
+				$response[] = [
+					'id' => $parent->id,
+					'name' => ucwords($parent->surname . ' ' . $parent->firstname),
+				];
+			}
+		
+			echo json_encode($response);
+			die;
+		}
+		
         // record listing
 		if($param1 == 'load') {
 			$limit = $param2;
