@@ -153,6 +153,7 @@
         $('#form').hide(500);
         $('#attendance_view').hide(500);
         $('#mark_attendance_view').hide(500);
+        $('#offering_view').hide(500);
         $('#tithe_view').hide(500);
         $('#new_convert_view').hide(500);
         $('#first_timer_view').hide(500);
@@ -286,6 +287,34 @@
                
                   $('#tithe_pagination').show(500);
                 $('#tithe_msg').html('');
+            }
+        });
+       
+    }
+    
+    
+    
+    function offering_report(id){
+        $('#offering_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#offering_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/offering/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#offering_id').val(dt.offering_id)
+                $('#total_offering').val(dt.total_offering);
+                $("#member_offering").val(dt.member_offering);
+                $("#guest_offering").val(dt.guest_offering);
+                $("#offering_list").val(dt.offering_list);
+                populateOffering(id)
+               
+                  $('#offering_pagination').show(500);
+                $('#offering_msg').html('');
             }
         });
        
@@ -645,6 +674,30 @@
     }
 
               
+    function populateOffering(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_offering/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#offering_table_resp').empty();
+                // console.log(mems.members_part);
+                $('#offering_table_resp').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                
+                $('.js-select2 ').select2();
+            }
+        });
+    }
+
+              
     function populateAttendance(id) {
         $.ajax({
             url: site_url + 'service/report/records/get_members_attendance/'+id, // Adjust the URL according to your API
@@ -779,6 +832,42 @@
     
         // Append the new row to the table body
         $('#tithe_table_resp').append(titheNewRow);
+    
+        // Initialize Select2 for the new select element
+        titheMemberSelect.select2();
+    });
+    
+    
+    
+    let offeringRowIndex = 0;
+
+    $('#offering_btn').click(function() {
+        offeringRowIndex++; // Increment the row index for each new row
+    
+        const titheNewRow = $('<tr></tr>');
+        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${offeringRowIndex}" required></select>`);
+        
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } else {
+            console.warn("No church members available.");
+        }
+    
+        // Append the select element to the row
+        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
+    
+        // Add the input field
+        titheNewRow.append(`
+            <td>
+                <input type="text" class="form-control offering" name="offering[]" value="0" oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9]/g, '');">
+
+            </td>
+        `);
+    
+        // Append the new row to the table body
+        $('#offering_table_resp').append(titheNewRow);
     
         // Initialize Select2 for the new select element
         titheMemberSelect.select2();
@@ -1049,6 +1138,15 @@
         $('#total_tithe').val(total);
     }
 
+    function get_offering(){
+        var member = $('#member_offering').val();
+        var guest = $('#guest_offering').val();
+        
+        var total = parseFloat(member) + parseFloat(guest);
+        total = total.toFixed(2);
+        $('#total_offering').val(total);
+    }
+
     function updateTotals() {
         // Get values from the input fields
         var memberValue = parseInt($('#member_attendance').val()) || 0;
@@ -1150,6 +1248,25 @@
             });
         });
 
+        
+        $('#offeringForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#offering_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/offering', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#offering_msg').html(response);
+                }
+            });
+        });
+
         $('#new_convert_Form').submit(function(event) {
             event.preventDefault(); // Prevent the default form submission
 
@@ -1246,6 +1363,32 @@
         total += parseFloat(guest);
         total = total.toFixed(2);
         $('#total_tithe').val(total);
+
+        // Set value to 0 if the textbox is empty
+        tithesInputs.forEach(function(input) {
+            if (input.value === '') {
+                input.value = '';
+            }
+        });
+    }
+
+    
+
+    function calculateTotalz() {
+        
+        var tithesInputs = document.querySelectorAll('.offering');
+        var total = 0;
+        tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            total += isNaN(value) ? 0 : value;
+        });
+        console.log(total);
+        var guest = $('#guest_offering').val();
+        
+        $('#member_offering').val(total.toFixed(2));
+        total += parseFloat(guest);
+        total = total.toFixed(2);
+        $('#total_offering').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {

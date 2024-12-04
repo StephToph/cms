@@ -16,7 +16,7 @@
                 <div class="nk-block-head nk-block-head-sm  mt-3">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?=translate_phrase('New Membership'); ?></h3>
+                            <h3 class="nk-block-title page-title"><?php if(!empty($e_id)){echo 'Edit';}else{echo 'New';}?> Membership</h3>
                         </div>
                         <div class="nk-block-head-content">
                             <a class="btn btn-info" href="<?=site_url('accounts/membership'); ?>"><em class="icon ni ni-arrow-long-left"></em>Back to Membership</a>
@@ -171,7 +171,7 @@
                                 </div>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label" for="email">Email
-                                            Address</label><input type="email" name="email" class="form-control"
+                                            Address</label><input type="email" name="email" class="form-control" 
                                             id="email" value="<?php if(!empty($e_email)){echo $e_email;} ?>" placeholder="Email Address"></div>
                                 </div>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
@@ -211,7 +211,7 @@
                                 <div class="col-md-6 col-lg-4 col-xxl-3 marriedDiv"  style="display: <?php echo (!empty($e_family_status) && $e_family_status == 'married') ? 'block' : 'none'; ?>">
                                     <div class="form-group"><label class="form-label">Spouse</label>
                                         <div class="form-control-wrap">
-                                            <select class="form-select js-select2"  name="spouse_id" id="spouse_id"
+                                            <select class="form-select js-select2"  name="spouse_id" id="spouse_id"  data-search="on"
                                                 data-placeholder="Select Spouse">
                                                 <option value="">Select</option>
                                                 
@@ -254,7 +254,7 @@
                                 <div class="col-md-6 col-lg-4 col-xxl-3" id="parent_resp" style="display:<?=$disp;?>;">
                                     <div class="form-group"><label class="form-label">Parent</label>
                                         <div class="form-control-wrap">
-                                            <select class="form-select js-select2" id="parent_id" name="parent_id"
+                                            <select class="form-select js-select2" id="parent_id" name="parent_id"  data-search="on"
                                                 data-placeholder="Select Parent">
                                                 <option value="">Select</option>
                                                 <?php

@@ -963,42 +963,59 @@ class Service extends BaseController {
 				}
 
 			} elseif($param2 == 'offering'){
-				$timer_count = $this->session->get('service_timers');
-				// $first = json_decode($timer_count);
-				// echo $timer_count;
-				$data['first'] = $timer_count;
-				if($param3){
-					$data['table_rec'] = 'service/report/offering_list/'.$param3; // ajax table
-				
-				} else {
-					$data['table_rec'] = 'service/report/offering_list'; // ajax table
-				
-				}
-				$data['order_sort'] = '0, "asc"'; // default ordering (0, 'asc')
-				$data['no_sort'] = '1'; // sort disable columns (1,3,5)
-		
 				if($param3) {
-					$edit = $this->Crud->read2('type_id', $param3, 'type', 'cell', 'attendance');
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$this->session->set('service_church_id', $church_id);
+							
 					if(!empty($edit)) {
+						$total_offering = 0;
+						$member_offering = 0;
+						$guest_offering = 0;
+						$offering_list = 0;
+						
 						foreach($edit as $e) {
-							$data['d_id'] = $e->id;
-							$data['d_attendant'] = $e->attendant;
+							$tithers = json_decode($e->offering_givers);
+							if(!empty($tithers)){
+								foreach($tithers as $ti => $tv){
+									if($ti == 'total'){
+										$total_offering = $tv;
+									}
+									if($ti == 'member'){
+										$member_offering = $tv;
+									}
+									if($ti == 'guest'){
+										$guest_offering = $tv;
+									}
+									if($ti == 'list'){
+										$offering_list = $tv;
+									}
+								}
+							}
 						}
+
+						$resp['offering_id'] = $param3;
+						$resp['offering_list'] = $offering_list;
+						$resp['total_offering'] = $total_offering;
+						$resp['member_offering'] = $member_offering;
+						$resp['guest_offering'] = $guest_offering;
+						
+						echo json_encode($resp);
+						die;
 					}
 					
 				}
+				
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
+					$offering_id = $this->request->getPost('offering_id');
 					$guest_offering = $this->request->getPost('guest_offering');
 					$total_offering = $this->request->getPost('total_offering');
 					$member_offering = $this->request->getPost('member_offering');
 
 					$member = $this->request->getPost('members');
 					$offering = $this->request->getPost('offering');
-					$guests = $this->request->getPost('guests');
-					$guest_offerings = $this->request->getPost('guest_offerings');
 					
-
 					$tither = [];
 					if (!empty($member) && !empty($offering)) {
 						$count = count($offering); 
@@ -1014,39 +1031,42 @@ class Service extends BaseController {
 						}
 					}
 
-					if (!empty($guests) && !empty($guest_offerings)) {
-						$count = count($guest_offerings); 
-						for ($i = 0; $i < $count; $i++) {
-							if ($guest_offerings[$i] <= 0) {
-								continue; 
-							}
-							
-							if (!isset($tithers[$guests[$i]])) {
-								$tithers[$guests[$i]] = $guest_offerings[$i];
-							}
-							
-						}
-					}
-
-					$offering_list['total'] = $total_offering;
-					$offering_list['member'] = $member_offering;
-					$offering_list['guest'] = $guest_offering;
-					$offering_list['list'] = $tither;
-					$offering_list['guest_list'] = $tithers;
+					$tithe_list['total'] = $total_offering;
+					$tithe_list['member'] = $member_offering;
+					$tithe_list['guest'] = $guest_offering;
+					$tithe_list['list'] = $tither;
 					 
+					// echo json_encode($tithe_list);
+					// die;
 					
-					$this->session->set('service_offering', json_encode($offering_list));
+					$tithers =  json_encode($tithe_list);
+					$ins['offering_givers'] = $tithers;
+					$ins['offering'] = $total_offering;
+
+					if($this->Crud->updates('id', $offering_id, 'service_report', $ins) > 0){
+						echo $this->Crud->msg('success', 'Service Offering Report Submitted');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $offering_id, 'service_report', 'date');
+						$action = $by.' updated Service Offering Report for '.$service_date;
+						$this->Crud->activity('service', $offering_id, $action);
+
+						// echo json_encode($data);
+						echo '<script> setTimeout(function() {
+							$("#show").show(500);
+								$("#form").hide(500);
+								$("#offering_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								
+								$("#prev").hide(500);
+								load();
+								$("#offering_msg").html("");
+						}, 2000); </script>';
+					} else {
+						echo $this->Crud->msg('info', 'No Changes');
 					
-					echo $this->Crud->msg('success', 'Service Offering Report Submitted');
-					// echo json_encode($mark);
-					echo '<script> setTimeout(function() {
-						var jsonData = ' . json_encode($offering_list) . ';
-						var jsonString = JSON.stringify(jsonData);
-						$("#offering_givers").val(jsonString);
-						$("#offering").val('.($total_offering).');
-						$("#modal").modal("hide");
-					}, 2000); </script>';
-					
+					}
 					die;
 				}
 
@@ -1908,6 +1928,78 @@ class Service extends BaseController {
 				
 			}
 
+			if($param2 == 'get_members_offering'){
+				if($param3){
+					$data = [];
+					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'offering_givers'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_memberss = [];
+					$count = 0;
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
+						}
+					}
+					
+
+					
+					$table = '';
+					$tithers = [];
+					if(!empty($tithersa) && isset($tithersa->list)){
+						$tithers = (array)$tithersa->list;
+					}
+					
+
+					
+					// print_r($tithers);
+					if(!empty($tithers)){
+						$tither_ids = array_keys($tithers);
+
+						// Filter out church members who are also tithers
+						$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
+							return !in_array($member['id'], $tither_ids);
+						});
+
+					$church_memberss = array_values($church_memberss);
+
+						foreach($tithers as $tither => $tithe){
+							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
+							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
+	
+							$table .= '<tr>
+								<td>
+									<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($tither) . '">
+									<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
+								</td>
+
+								<td>
+									<input type="text" class="form-control tithes" name="offering[]" 
+										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($tithe) . '">
+								</td>
+							</tr>';
+
+						}
+					}
+								
+					$data['members'] = ($church_memberss);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
 			
 			if($param2 == 'get_members_attendance'){
 				if($param3){
@@ -2602,6 +2694,8 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-indigo" onclick="mark_attendance('.$id.')"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-warning"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Add Offering Details').'</span></a></li>
+								
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-indigo" onclick="partnership_report('.$id.')"><em class="icon ni ni-coins"></em><span>'.translate_phrase('Add Partnership Details').'</span></a></li>
