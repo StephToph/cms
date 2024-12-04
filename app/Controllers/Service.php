@@ -1016,17 +1016,16 @@ class Service extends BaseController {
 					$member = $this->request->getPost('members');
 					$offering = $this->request->getPost('offering');
 					
-
 					$tither = [];
-					if (!empty($member) && !empty($tithe)) {
-						$count = count($tithe); 
+					if (!empty($member) && !empty($offering)) {
+						$count = count($offering); 
 						for ($i = 0; $i < $count; $i++) {
-							if ($tithe[$i] <= 0) {
+							if ($offering[$i] <= 0) {
 								continue; 
 							}
 							
 							if (!isset($tither[$member[$i]])) {
-								$tither[$member[$i]] = $tithe[$i];
+								$tither[$member[$i]] = $offering[$i];
 							}
 							
 						}
@@ -1037,6 +1036,8 @@ class Service extends BaseController {
 					$tithe_list['guest'] = $guest_offering;
 					$tithe_list['list'] = $tither;
 					 
+					// echo json_encode($tithe_list);
+					// die;
 					
 					$tithers =  json_encode($tithe_list);
 					$ins['offering_givers'] = $tithers;
