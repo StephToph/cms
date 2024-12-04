@@ -207,7 +207,19 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6 col-lg-4 col-xxl-3" id="marriedDiv" style="display: <?php echo (!empty($e_family_status) && $e_family_status == 'married') ? 'block' : 'none'; ?>">
+                                
+                                <div class="col-md-6 col-lg-4 col-xxl-3 marriedDiv"  style="display: <?php echo (!empty($e_family_status) && $e_family_status == 'married') ? 'block' : 'none'; ?>">
+                                    <div class="form-group"><label class="form-label">Spouse</label>
+                                        <div class="form-control-wrap">
+                                            <select class="form-select js-select2"  name="spouse_id" id="spouse_id"
+                                                data-placeholder="Select Spouse">
+                                                <option value="">Select</option>
+                                                
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-4 col-xxl-3 marriedDiv" id="marriedDiv" style="display: <?php echo (!empty($e_family_status) && $e_family_status == 'married') ? 'block' : 'none'; ?>">
                                     <div class="form-group"><label class="form-label">Marriage Anniverary</label>
                                         <div class="form-control-wrap">
                                             <div class="form-icon form-icon-right"><em
@@ -242,7 +254,7 @@
                                 <div class="col-md-6 col-lg-4 col-xxl-3" id="parent_resp" style="display:<?=$disp;?>;">
                                     <div class="form-group"><label class="form-label">Parent</label>
                                         <div class="form-control-wrap">
-                                            <select class="form-select js-select2" name="parent_id"
+                                            <select class="form-select js-select2" id="parent_id" name="parent_id"
                                                 data-placeholder="Select Parent">
                                                 <option value="">Select</option>
                                                 <?php
@@ -496,9 +508,9 @@
         $('#family_status').on('change', function(){
             var selectedValue = $(this).val();
             if(selectedValue === 'married') {
-                $('#marriedDiv').show(500);
+                $('.marriedDiv').show(500);
             } else {
-                $('#marriedDiv').hide(500);
+                $('.marriedDiv').hide(500);
             }
         });
         $('#foundation_school').on('change', function () {
@@ -656,7 +668,8 @@
                         $('#church_id').empty(); // Clear 'Loading...' option
 
                         if (response.success) {
-                            
+                            $('#church_id').append(new Option('select church', '', false, false));
+    
                            // Populate the Church dropdown with the data received
                            $.each(response.data, function (index, church) {
                                 var selected = (eChurchId === church.id); // Check if the ID matches
@@ -664,6 +677,11 @@
                                 var churchType = toTitleCase(church.type); // Convert type to title case
                                 $('#church_id').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
                             });
+                            if (eChurchId) {
+                                $('#church_id').val(eChurchId);
+                            }
+                            getParents(eChurchId, ministryId);
+                            getSpouse(eChurchId, ministryId);
                         } else {
                             $('#church_id').append(new Option('No churches available', '', false, false));
                         }
@@ -694,6 +712,7 @@
                 $('#church_div').show(600); // Show the Church dropdown
             }
             loadChurches(ministryId, initialLevel);
+            
         }
 
         // Load churches on ministry selection change
@@ -701,6 +720,17 @@
             var selectedMinistryId = $(this).val();
             var selectedLevel = $('#level').val();
             loadChurches(selectedMinistryId, selectedLevel);
+            
+            getParents('', selectedMinistryId);
+            getSpouse('', selectedMinistryId);
+        });
+         // Load churches on ministry selection change
+         $('#church_id').change(function () {
+            var church_id = $(this).val();
+            var selectedMinistryId = $('#ministry_id').val();
+            
+            getParents(church_id, selectedMinistryId);
+            getSpouse(church_id, selectedMinistryId);
         });
 
         // Handle the change event of the Church Level dropdown
@@ -715,7 +745,9 @@
                 $('#send_resp').show(600);
                 $('#church_div').show(600); // Show the Church dropdown
                 loadChurches(selectedMinistryId, selectedLevel); // Load churches based on selected level
+
             }
+            getParents('', selectedMinistryId);
         });
 
         // Initial check to handle the case when the page loads with a preset level
@@ -726,6 +758,83 @@
         }
     });
 
+    
+    function getParents(churchId, ministryId) {
+        // Ensure church and ministry IDs are provided
+        if (!churchId && !ministryId) {
+            $('#parent_id').html('<option value="">Select Parent</option>');
+            return;
+        }
+        
+        var parent_id = '<?= !empty($e_parent_id) ? $e_parent_id : ""; ?>';
+        $.ajax({
+            url: site_url + 'accounts/membership/get_parents/' + churchId + '/' + ministryId,
+            type: 'get',
+            success: function (data) {
+                try {
+                    var response = JSON.parse(data);
+
+                    // Populate parent dropdown
+                    var options = '<option value="">Select Parent</option>';
+                    response.forEach(function (parent) {
+                        options += `<option value="${parent.id}">${parent.name}</option>`;
+                    });
+
+                    $('#parent_id').html(options);
+                    if (parent_id) {
+                        $('#parent_id').val(parent_id);
+                    }
+                } catch (error) {
+                    console.error('Error parsing response:', error);
+                    $('#parent_id').html('<option value="">Error loading parents</option>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                $('#parent_id').html('<option value="">Error fetching data</option>');
+            }
+        });
+    }
+
+    
+    function getSpouse(churchId, ministryId) {
+        // Ensure church and ministry IDs are provided
+        if (!churchId && !ministryId) {
+            $('#spouse_id').html('<option value="">Select Spouse</option>');
+            return;
+        }
+        var spouse_id = '<?= !empty($e_spouse_id) ? $e_spouse_id : ""; ?>';
+
+        $.ajax({
+            url: site_url + 'accounts/membership/get_spouse/' + churchId + '/' + ministryId,
+            type: 'get',
+            success: function (data) {
+                try {
+                    var response = JSON.parse(data);
+
+                    // Populate parent dropdown
+                    var options = '<option value="">Select Spouse</option>';
+                    response.forEach(function (parent) {
+                        // Check if the current parent ID matches the selected spouse_id
+                        var selected = parent.id === spouse_id ? 'selected' : '';
+                        options += `<option value="${parent.id}" ${selected}>${parent.name}</option>`;
+                    });
+                    
+                    $('#spouse_id').html(options);
+                   
+                } catch (error) {
+                    console.error('Error parsing response:', error);
+                    $('#spouse_id').html('<option value="">Error loading Spouse</option>');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', error);
+                $('#spouse_id').html('<option value="">Error fetching data</option>');
+            }
+        });
+    }
+
+    
 
     function load(x, y) {
         var more = 'no';
