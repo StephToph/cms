@@ -2401,6 +2401,96 @@ class Crud extends Model {
     }
 
 	
+	public function filter_prayer($limit = '', $offset = '', $log_id = '', $status = '', $search = '', $type = '', $switch_id = '') {
+		$db = db_connect();
+		$builder = $db->table('prayer');
+		$builder->orderBy('id', 'desc'); // Default order
+	
+		// Retrieve user and role data
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+	
+		$church_ids = []; // Initialize church IDs array
+	
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+	
+			// Determine role and related church IDs
+			switch ($church_type) {
+				case 'region':
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role = 'church leader';
+					break;
+			}
+		}
+	
+		// Restrict access for non-developer/admin roles
+		if ($role !== 'developer' && $role !== 'administrator') {
+			$builder->where('ministry_id', $ministry_id);
+		}
+	
+		// Role-specific church filtering
+		if (isset($church_id)) {
+			switch ($role) {
+				case 'regional manager':
+				case 'zonal manager':
+				case 'group manager':
+					$column = $role === 'regional manager' ? 'regional_id' :
+							  ($role === 'zonal manager' ? 'zonal_id' : 'group_id');
+	
+					$churches = $db->table('church')
+						->where($column, $church_id)
+						->select('id')
+						->get()
+						->getResultArray();
+	
+					$church_ids = array_column($churches, 'id');
+					$church_ids[] = $church_id; // Include the current church
+					break;
+	
+				case 'church leader':
+					$church_ids[] = $church_id;
+					break;
+			}
+		}
+	
+		// Apply church filter if applicable
+		if (!empty($church_ids)) {
+			$builder->groupStart();
+			foreach ($church_ids as $id) {
+				$builder->orWhere("JSON_CONTAINS(churches, '\"$id\"')");
+			}
+			$builder->groupEnd();
+		}
+	
+		// Apply search filter
+		if (!empty($search)) {
+			$builder->like('title', $search);
+		}
+	
+		// Apply limit and offset
+		if ($limit) {
+			$query = $offset ? $builder->get($limit, $offset) : $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+	
+		$db->close();
+		return $query->getResult();
+	}
+	
+	
 	public function filter_forms($limit='', $offset='', $log_id='', $status= '', $search='', $type='', $switch_id='') {
         $db = db_connect();
         $builder = $db->table('form');
