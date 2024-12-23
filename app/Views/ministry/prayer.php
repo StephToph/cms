@@ -21,10 +21,10 @@
                     <div class="nk-block-head nk-block-head-sm">
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
-                                <h3 class="nk-block-title page-title">Events</h3>
+                                <h3 class="nk-block-title page-title">Prayer Cloud</h3>
                             </div>
                             <div class="nk-block-head-content" id="add_resp">
-                                <a class="btn btn-outline-danger mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-cc-new"></em><span>Event View</span></a>
+                                <a class="btn btn-outline-danger mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-cc-new"></em><span>Cloud View</span></a>
                             </div>
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                                                 <?php if(empty($switch_id)){?>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
                                                 <li>
-                                                    <a href="javascript:;" pageName="<?=site_url('ministry/calendar/manage'); ?>" pageTitle="Add" pageSize="modal-lg" class="btn btn-icon btn-outline-primary pop"><em class="icon ni ni-plus-c"></em></a>
+                                                    <a href="javascript:;" pageName="<?=site_url('ministry/prayer/manage'); ?>" pageTitle="Add" pageSize="modal-lg" class="btn btn-icon btn-outline-primary pop"><em class="icon ni ni-plus-c"></em></a>
                                                 </li>
                                                 <?php } ?>
                                             </ul><!-- .btn-toolbar -->
@@ -57,7 +57,7 @@
                                                 <a href="#" class="search-back btn btn-icon toggle-search"
                                                     data-target="search"><em class="icon ni ni-arrow-left"></em></a>
                                                 <input type="text" class="form-control border-transparent form-focus-none"
-                                                    placeholder="Search by name" id="admin_search">
+                                                    placeholder="Search by name" oninput="load();" id="admin_search">
                                             </div>
                                         </div>
                                     </div><!-- .card-search -->
@@ -70,8 +70,7 @@
                                                     <th>Title</th>
                                                     <th>Church</th>
                                                     <th>Date</th>
-                                                    <th>Type</th>
-                                                    <th>Location</th>
+                                                    <th>Duration</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -126,32 +125,34 @@
             </div>
         </div>
     </div>
-<script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
+    <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script>
     var site_url = '<?php echo site_url(); ?>';   
     var calEventsStr = '<?php if (!empty($cal_events)) { echo json_encode($cal_events); } else { echo "[]"; } ?>';
     $(function() {
         // load('', '');
     });
+
     // Parse the JSON string into a JavaScript object/array
     var calEvents = JSON.parse(calEventsStr);
     console.log(calEvents);
+
     function event_back() {
         $('#calendar_resp').hide(500);
         $('#view_resp').show(500);
-        $('#add_resp').html('<a class="btn btn-outline-primary mt-3 mx-2" href="javascript:void(0);" onclick="calendar_view();"><em class="icon ni ni-calendar"></em><span>Calendar View</span></a>');
+        $('#add_resp').html('<a class="btn btn-outline-primary mt-3 mx-2" href="javascript:void(0);" onclick="calendar_view();"><em class="icon ni ni-calendar"></em><span>Prayer View</span></a>');
 
-    
         load('', '');
 
     }
     function calendar_view() {
         $('#calendar_resp').show(500);
         $('#view_resp').hide(500);
-        $('#add_resp').html('<a class="btn btn-outline-danger mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-cc-new"></em><span>Event View</span></a>');
-
+        $('#add_resp').html('<a class="btn btn-outline-danger mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-cc-new"></em><span>Prayer View</span></a>');
 
     }
+
+    
    
     function load(x, y) {
         var more = 'no';
@@ -167,13 +168,11 @@
             $('#loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
 
-
-       
-        var search = $('#search').val();
+        var search = $('#admin_search').val();
         //alert(status);
 
         $.ajax({
-            url: site_url + 'ministry/calendar/load' + methods,
+            url: site_url + 'ministry/prayer/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {
