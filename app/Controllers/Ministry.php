@@ -1361,15 +1361,101 @@ class Ministry extends BaseController {
 						foreach($edit as $e) {
 							$data['e_id'] = $e->id;
 							$data['e_title'] = $e->title;
+							$data['e_date'] = $param4;
 							$data['e_start_date'] = $e->start_date;
 							$data['e_end_date'] = $e->end_date;
 							$data['e_duration'] = $e->duration;
 							$data['e_church_id'] = json_decode($e->churches,true);
 							$data['e_ministry_id'] = $e->ministry_id;
 							$data['e_church_type'] = $e->church_type;
+
+												
+							// Decode assignment array
+							$assignment = json_decode($e->assignment, true);
+
+							// Filter assignment based on param4 (date)
+							if (!empty($assignment) && isset($assignment[$param4])) {
+								$data['e_assignment'] = $assignment[$param4]; // Assign filtered assignment values for the date
+							} else {
+								$data['e_assignment'] = []; // Empty array if no assignment for the date
+							}
 						}
 					}
 				}
+
+				if ($this->request->getMethod() == 'post') {
+					$prayer_id = $this->request->getPost('e_id');
+					$date = $this->request->getPost('date');
+					$prayer = $this->request->getPost('prayer');
+					$church_id = $this->request->getPost('church_id');
+					$reminder = $this->request->getPost('reminder');
+					$end_time = $this->request->getPost('end_time');
+					$hour = $this->request->getPost('hour');
+					$minute = $this->request->getPost('minute');
+					$am_pm = $this->request->getPost('am_pm');
+				
+					// Concatenate the time string in proper format
+					$time_string = $hour . ':' . str_pad($minute, 2, '0', STR_PAD_LEFT) . ' ' . strtoupper($am_pm);
+				
+					// Convert to 24-hour format
+					$start_time = date('H:i', strtotime($time_string));
+					$end = date('H:i', strtotime($end_time));
+				
+					// Validation
+					if (empty($start_time) || empty($end)) {
+						echo $this->Crud->msg('danger', 'Enter start time and Duration');
+						die;
+					}
+				
+					if (empty($prayer)) {
+						echo $this->Crud->msg('danger', 'Enter Prayer Point');
+						die;
+					}
+				
+					// Load existing assignments
+					$pass = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'assignment'), true);
+				
+					if (!is_array($pass)) {
+						$pass = []; // Initialize as an empty array if no assignments exist
+					}
+				
+					// Check for conflicts in the specified date and time range
+					if (isset($pass[$date])) {
+						foreach ($pass[$date] as $record) {
+							if (
+								($start_time >= $record['start_time'] && $start_time < $record['end_time']) || 
+								($end > $record['start_time'] && $end <= $record['end_time'])
+							) {
+								echo $this->Crud->msg('danger', 'A record already exists for the selected time slot on this date.');
+								die;
+							}
+						}
+					} else {
+						$pass[$date] = []; // Initialize the date key if not present
+					}
+				
+					// Create new assignment record
+					$new_record = [
+						'start_time' => $start_time,
+						'end_time' => $end,
+						'prayer' => $prayer,
+						'reminder' => $reminder,
+						'church_id' => $church_id,
+					];
+				
+					// Add the new record to the date key
+					$pass[$date][] = $new_record;
+				
+					// Save the updated assignments back to the database
+					$upd['assignment'] = json_encode($pass);
+					if ($this->Crud->updates('id', $prayer_id, 'prayer', $upd) > 0) {
+						echo $this->Crud->msg('success', 'Prayer Assignment Updated');
+					} else {
+						echo $this->Crud->msg('info', 'No Changes to Record');
+					}
+					die;
+				}
+				
 
 			} else {
 				// prepare for edit
@@ -1644,53 +1730,66 @@ class Ministry extends BaseController {
 
 				if (!empty($query)) {
 					$counts = count($query);
+					ksort($query);
 				} else {
 					$counts = 0;
 				}
-
+				
 				// echo $current_date;
 				while ($current_date <= $end_date_timestamp) {
-					$formatted_date = date('Y-m-d', $current_date);
-
-					// Define time slots for the day (Example: 6 AM to 6 PM with 1-hour intervals)
-					$time_slots = [];
-					$time_start = strtotime('06:00:00');
-					$time_end = strtotime('18:00:00');
-					while ($time_start <= $time_end) {
-						$time_slots[] = date('h:i A', $time_start);
-						$time_start = strtotime('+1 hour', $time_start);
-					}
-
+					$formatted_date = date('Y-m-d', $current_date); // Format the current date
 					$time_rows = '';
-					if (!empty($query)) {
-						foreach ($query as $slot) {
-							$time_slot = $slot['time_slot']; // Assuming 'time_slot' is the key in the query array
+				
+					// Check if the current date exists in the query array
+					if (!empty($query) && array_key_exists($formatted_date, $query)) {
+						
+						foreach ($query[$formatted_date] as $slot) { // Iterate over each slot for the current date
+							$time_slot = date('h:i A', strtotime($slot['start_time'])) . ' - ' . date('h:i A', strtotime($slot['end_time'])); // Concatenate start and end times
+							$prayer = strip_tags($slot['prayer']); // Remove HTML tags for clean
+							$church = $this->Crud->read_field('id', $slot['church_id'], 'church', 'name'); 
 							$time_rows .= '
 								<tr>
 									<td>' . $time_slot . '</td>
+									<td>' . ucwords(strtolower($church)) . ' Church</td>
 									<td>
 										<div class="btn-group">
-											<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" pageTitle="Add Info for ' . $formatted_date . ' ' . $time_slot . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/add/' . $id . '/' . $formatted_date . '/' . $time_slot) . '"><em class="icon ni ni-plus"></em> Add</a>
-											<a href="javascript:;" class="btn btn-sm btn-outline-warning pop" pageTitle="Edit Info for ' . $formatted_date . ' ' . $time_slot . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id . '/' . $formatted_date . '/' . $time_slot) . '"><em class="icon ni ni-edit-alt"></em> Edit</a>
-											<a href="javascript:;" class="btn btn-sm btn-outline-danger pop" pageTitle="Delete Info for ' . $formatted_date . ' ' . $time_slot . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id . '/' . $formatted_date . '/' . $time_slot) . '"><em class="icon ni ni-trash-alt"></em> Delete</a>
+											
+											<a href="javascript:;" class="mx-1 btn btn-sm btn-outline-warning pop" 
+											   pageTitle="Edit Info for ' . $formatted_date . ' ' . $time_slot . '" 
+											   pageSize="modal-lg" 
+											   pageName="' . site_url($mod . '/manage/edit/' . $id . '/' . $formatted_date . '/' . $time_slot) . '">
+												<em class="icon ni ni-edit-alt"></em> Edit
+											</a>
+											<a href="javascript:;" class="mx-1 btn btn-sm btn-outline-danger pop" 
+											   pageTitle="Delete Info for ' . $formatted_date . ' ' . $time_slot . '" 
+											   pageSize="modal-lg" 
+											   pageName="' . site_url($mod . '/manage/delete/' . $id . '/' . $formatted_date . '/' . $time_slot) . '">
+												<em class="icon ni ni-trash-alt"></em> Delete
+											</a>
 										</div>
 									</td>
 								</tr>
 							';
 						}
 					} else {
+						// Show the "Add New Time Slot" button if no records exist for the current date
 						$time_rows = '
 							<tr>
-								<td colspan="2">
+								<td colspan="3">
 									<div class="text-center">
 										<p>No time slots available for this date.</p>
-										<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" pageTitle="Add New Time Slot for ' . $formatted_date . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/time_add/' . $id . '/' . $formatted_date) . '"><em class="icon ni ni-plus"></em> Add New Time Slot</a>
+										<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" 
+										   pageTitle="Add New Time Slot for ' . $formatted_date . '" 
+										   pageSize="modal-lg" 
+										   pageName="' . site_url($mod . '/manage/time_add/' . $id . '/' . $formatted_date) . '">
+											<em class="icon ni ni-plus"></em> Add New Time Slot
+										</a>
 									</div>
 								</td>
 							</tr>
 						';
 					}
-
+				
 					// Add a row for the date with all time slots
 					$item .= '
 						<tr>
@@ -1699,9 +1798,8 @@ class Ministry extends BaseController {
 									<strong class="date-text">' . date('l, F j, Y', strtotime($formatted_date)) . '</strong>
 								</div>
 							</td>
-							<td class="">
-								<table class="table table-stripped ">
-									
+							<td>
+								<table class="table table-striped">
 									<tbody>
 										' . $time_rows . '
 									</tbody>
@@ -1709,10 +1807,11 @@ class Ministry extends BaseController {
 							</td>
 						</tr>
 					';
-
+				
 					// Move to the next day
 					$current_date = strtotime('+1 day', $current_date);
 				}
+				
 
 			}
 			
