@@ -137,7 +137,101 @@ $this->Crud = new Crud();
     </div>
 
 <?php } ?>
+<?php if($param2 == 'time_add'){?>
+    <div class="row">
+    <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
+            echo $e_id;
+        } ?>" />
+       
+        <div class="col-sm-5 mb-3">
+            <div class="form-group">
+                <label class="form-label">Start Time</label>
+                <div class="form-control-wrap d-flex align-items-center gap-2 mt-2">
+                    <!-- Hour Dropdown -->
+                    <select class="js-select2" name="hour" id="hour" style="width: 30%;">
+                        <?php for ($i = 1; $i <= 12; $i++): ?>
+                            <option value="<?php echo $i; ?>"><?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?></option>
+                        <?php endfor; ?>
+                    </select>
 
+                    <!-- Minute Dropdown -->
+                    <select class="js-select2" name="minute" id="minute" style="width: 30%;">
+                        <?php for ($i = 0; $i < 60; $i += 1): ?>
+                            <option value="<?php echo $i; ?>"><?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?></option>
+                        <?php endfor; ?>
+                    </select>
+
+                    <!-- AM/PM Dropdown -->
+                    <select class="js-select2" name="am_pm" id="am_pm" style="width: 30%;">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+        
+        <div class="col-sm-3 mb-3">
+            <div class="form-group">
+                <label class="form-label" for="name">Duration(min)</label>
+                <input class="form-control" type="number" id="durationz" name="duration" 
+                    value="<?php if (!empty($e_duration)) { echo $e_duration; } ?>" 
+                    min="1" step="1" readonly>
+            </div>
+        </div>
+        
+        <div class="col-sm-4 mb-3">
+            <div class="form-group">
+                <label class="form-label">End Time</label>
+                <div class="form-control-wrap">
+                    <input type="text" class="form-control" name="end_time" id="end_time"
+                        readonly placeholder="Enter Time" value="<?php if (!empty($e_end_time)) {
+                            echo date('h:i A', strtotime($e_end_time));
+                        } ?>">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12 mb-3">
+            <div class="form-group">
+                <label for="name">Prayer Point</label>
+                <textarea id="summernote" class="form-control" name="content" rows="5" required><?php if (!empty($e_prayer)) {
+                    echo $e_prayer;
+                } ?></textarea>
+            </div>
+        </div>
+        
+        <div class="col-sm-12 mb-3" >
+            <div class="form-group">
+                <label class="form-label">Church</label>
+                <select class="js-select2" data-search="on" name="church_id" id="church_idz">
+                    <?php if(!empty($e_church_id)){
+                        foreach ($e_church_id as $ch) {
+                            echo '<option value="'.$ch.'">'.ucwords($this->Crud->read_field('id', $ch,'church', 'name')).'</option>';
+                        }
+                    }
+                    ?>
+
+                </select>
+            </div>
+        </div>
+        
+        <div class="col-sm-12 text-center">
+            <hr />
+            <button class="btn btn-primary bb_for_btn" id="bt" type="submit">
+                <i class="icon ni ni-save"></i> Save
+            </button>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 my-3">
+            <div id="bb_ajax_msg"></div>
+        </div>
+    </div>
+
+<?php } ?>
 <!-- insert/edit view -->
 <?php if ($param2 == 'edit' || $param2 == '') { ?>
 
@@ -349,9 +443,67 @@ $this->Crud = new Crud();
 <?php echo form_close(); ?>
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
-
 <script>
     $(document).ready(function () {
+        $('#summernote').summernote({
+            height: 200, // Set the height of the editor
+            tabsize: 2,
+            focus: true
+        });
+        $('.time-picker').timepicker({}); 
+        calculateEndTime();
+        function calculateEndTime() {
+            const hour = parseInt($('#hour').val(), 10);
+            const minute = parseInt($('#minute').val(), 10);
+            const amPm = $('#am_pm').val();
+            const duration = parseInt($('#durationz').val(), 10);
+
+            // Validate selections
+            if (isNaN(hour) || isNaN(minute) || !amPm || isNaN(duration)) {
+                showError('Please select a valid hour, minute, and AM/PM.');
+                return;
+            }
+
+            // Convert to 24-hour format
+            let convertedHour = hour;
+            if (amPm === 'PM' && hour < 12) convertedHour += 12;
+            if (amPm === 'AM' && hour === 12) convertedHour = 0;
+
+            // Calculate the end time
+            const endTime = calculateEnd(convertedHour, minute, duration);
+
+            // Update the end time field
+            $('#end_time').val(endTime);
+
+            // Clear error messages
+            clearError();
+        }
+
+        function calculateEnd(hours, minutes, duration) {
+            const startDate = new Date();
+            startDate.setHours(hours, minutes, 0, 0);
+
+            const endDate = new Date(startDate.getTime() + duration * 60000);
+            const endHours = endDate.getHours();
+            const endMinutes = endDate.getMinutes();
+            const endMeridian = endHours >= 12 ? 'PM' : 'AM';
+
+            const formattedEndHours = (endHours % 12 || 12).toString().padStart(2, '0');
+            const formattedEndMinutes = endMinutes.toString().padStart(2, '0');
+
+            return `${formattedEndHours}:${formattedEndMinutes} ${endMeridian}`;
+        }
+
+        function showError(message) {
+            $('#bb_ajax_msg').html(message);
+        }
+
+        function clearError() {
+            $('#bb_ajax_msg').html('');
+        }
+
+        // Attach event listeners
+        $('#hour, #minute, #am_pm').on('change', calculateEndTime);
         $('#duration').on('input', function () {
             let value = $(this).val();
 

@@ -129,7 +129,7 @@
 <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script>
     var site_url = '<?php echo site_url(); ?>';   
-    var calEventsStr = '<?php if (!empty($cal_eventz)) { echo ($cal_eventz); } else { echo "[]"; } ?>';
+    var calEventsStr = '<?php if (!empty($cal_events)) { echo json_encode($cal_events); } else { echo "[]"; } ?>';
     $(function() {
         // load('', '');
     });

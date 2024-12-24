@@ -636,6 +636,7 @@
     <?php } ?>
     <?php if($page_active == 'ministry/prayer'){?>
         <script src="<?php echo base_url(); ?>/assets/js/libs/fullcalendar.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"></script>
         <script src="<?php echo base_url(); ?>/assets/js/apps/calendar.js?v=<?=time();?>"></script>
     <?php } ?>
     <?php if($page_active == 'church/activity'){?>
