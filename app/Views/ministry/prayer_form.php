@@ -450,8 +450,10 @@ $this->Crud = new Crud();
             tabsize: 2,
             focus: true
         });
-        $('.time-picker').timepicker({}); 
-        calculateEndTime();
+        $('.time-picker').timepicker({});
+        <?php if($param2 == 'time_add'){?> 
+            calculateEndTime();
+        <?php } ?>
         function calculateEndTime() {
             const hour = parseInt($('#hour').val(), 10);
             const minute = parseInt($('#minute').val(), 10);
