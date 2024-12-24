@@ -1512,7 +1512,7 @@ class Ministry extends BaseController {
 									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-									<li><a href="javascript:;" class="text-info pop" pageTitle="Time Table for ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/time/' . $id) . '"><em class="icon ni ni-users"></em><span>'.translate_phrase('Time Management').'</span></a></li>
+									<li><a href="javascript:;" class="text-info" onclick="time('.$id.')" pageTitle="Time Table for ' . $title . '" ><em class="icon ni ni-users"></em><span>'.translate_phrase('Time Management').'</span></a></li>
 									
 								';
 
@@ -1559,6 +1559,140 @@ class Ministry extends BaseController {
 						
 					}
 				}
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = '
+					<Tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/>
+						<i class="ni ni-hot" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Prayer Cloud Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'time_load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+
+			if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			
+			if(!empty($this->request->getPost('status'))) { $status = $this->request->getPost('status'); } else { $status = ''; }
+			$search = $this->request->getPost('search');
+			$id = $this->request->getPost('id');
+
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
+			} else {
+				$query = json_decode($this->Crud->read_field('id', $id, 'prayer', 'assignment'), true);
+				$start_date = $this->Crud->read_field('id', $id, 'prayer', 'start_date');
+				$end_date = $this->Crud->read_field('id', $id, 'prayer', 'end_date');
+
+				$current_date = strtotime($start_date);
+				$end_date_timestamp = strtotime($end_date);
+
+				if (!empty($query)) {
+					$counts = count($query);
+				} else {
+					$counts = 0;
+				}
+
+				// echo $current_date;
+				while ($current_date <= $end_date_timestamp) {
+					$formatted_date = date('Y-m-d', $current_date);
+
+					// Define time slots for the day (Example: 6 AM to 6 PM with 1-hour intervals)
+					$time_slots = [];
+					$time_start = strtotime('06:00:00');
+					$time_end = strtotime('18:00:00');
+					while ($time_start <= $time_end) {
+						$time_slots[] = date('h:i A', $time_start);
+						$time_start = strtotime('+1 hour', $time_start);
+					}
+
+					$time_rows = '';
+					if (!empty($query)) {
+						foreach ($query as $slot) {
+							$time_slot = $slot['time_slot']; // Assuming 'time_slot' is the key in the query array
+							$time_rows .= '
+								<tr>
+									<td>' . $time_slot . '</td>
+									<td>
+										<div class="btn-group">
+											<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" pageTitle="Add Info for ' . $formatted_date . ' ' . $time_slot . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/add/' . $id . '/' . $formatted_date . '/' . $time_slot) . '"><em class="icon ni ni-plus"></em> Add</a>
+											<a href="javascript:;" class="btn btn-sm btn-outline-warning pop" pageTitle="Edit Info for ' . $formatted_date . ' ' . $time_slot . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id . '/' . $formatted_date . '/' . $time_slot) . '"><em class="icon ni ni-edit-alt"></em> Edit</a>
+											<a href="javascript:;" class="btn btn-sm btn-outline-danger pop" pageTitle="Delete Info for ' . $formatted_date . ' ' . $time_slot . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id . '/' . $formatted_date . '/' . $time_slot) . '"><em class="icon ni ni-trash-alt"></em> Delete</a>
+										</div>
+									</td>
+								</tr>
+							';
+						}
+					} else {
+						$time_rows = '
+							<tr>
+								<td colspan="2">
+									<div class="text-center">
+										<p>No time slots available for this date.</p>
+										<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" pageTitle="Add New Time Slot for ' . $formatted_date . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/add/' . $id . '/' . $formatted_date) . '"><em class="icon ni ni-plus"></em> Add New Time Slot</a>
+									</div>
+								</td>
+							</tr>
+						';
+					}
+
+					// Add a row for the date with all time slots
+					$item .= '
+						<tr>
+							<td class="date-column">
+								<div class="date-wrapper">
+									<strong class="date-text">' . date('l, F j, Y', strtotime($formatted_date)) . '</strong>
+								</div>
+							</td>
+							<td class="">
+								<table class="table table-stripped ">
+									
+									<tbody>
+										' . $time_rows . '
+									</tbody>
+								</table>
+							</td>
+						</tr>
+					';
+
+					// Move to the next day
+					$current_date = strtotime('+1 day', $current_date);
+				}
+
 			}
 			
 			if(empty($item)) {
