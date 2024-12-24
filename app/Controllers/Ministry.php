@@ -1273,7 +1273,7 @@ class Ministry extends BaseController {
 	}
 
 	
-	public function prayer($param1='', $param2='', $param3='') {
+	public function prayer($param1='', $param2='', $param3='', $param4='') {
 		// check session login
 		if($this->session->get('td_id') == ''){
 			$request_uri = uri_string();
@@ -1319,12 +1319,14 @@ class Ministry extends BaseController {
 		$form_link = site_url($mod);
 		if($param1){$form_link .= '/'.$param1;}
 		if($param2){$form_link .= '/'.$param2.'/';}
-		if($param3){$form_link .= $param3;}
+		if($param3){$form_link .= '/'.$param3.'/';}
+		if($param4){$form_link .= $param4;}
 		
 		// pass parameters to view
 		$data['param1'] = $param1;
 		$data['param2'] = $param2;
 		$data['param3'] = $param3;
+		$data['param4'] = $param4;
 		$data['form_link'] = rtrim($form_link, '/');
 		$data['current_language'] = $this->session->get('current_language');
 		
@@ -1352,6 +1354,23 @@ class Ministry extends BaseController {
 						die;	
 					}
 				}
+			} elseif($param2 == 'time_add'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_title'] = $e->title;
+							$data['e_start_date'] = $e->start_date;
+							$data['e_end_date'] = $e->end_date;
+							$data['e_duration'] = $e->duration;
+							$data['e_church_id'] = json_decode($e->churches,true);
+							$data['e_ministry_id'] = $e->ministry_id;
+							$data['e_church_type'] = $e->church_type;
+						}
+					}
+				}
+
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -1665,7 +1684,7 @@ class Ministry extends BaseController {
 								<td colspan="2">
 									<div class="text-center">
 										<p>No time slots available for this date.</p>
-										<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" pageTitle="Add New Time Slot for ' . $formatted_date . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/add/' . $id . '/' . $formatted_date) . '"><em class="icon ni ni-plus"></em> Add New Time Slot</a>
+										<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" pageTitle="Add New Time Slot for ' . $formatted_date . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/time_add/' . $id . '/' . $formatted_date) . '"><em class="icon ni ni-plus"></em> Add New Time Slot</a>
 									</div>
 								</td>
 							</tr>
@@ -2692,56 +2711,33 @@ class Ministry extends BaseController {
 		if($role != 'developer' && $role != 'administrator'){
 			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
 		}
-		
-		if (!empty($cal_ass)) {
-			foreach ($cal_ass as $key => $value) {
-				if ($value->church_type != 'all' && $role != 'ministry administrator' && $role != 'developer' && $role != 'administrator') {
-					if (!in_array($church_id, json_decode($value->church_id, true))) {
+		if(!empty($cal_ass)){
+			foreach($cal_ass as $key => $value){
+				if($value->church_type != 'all' && $role != 'ministry administrator' && $role != 'developer' && $role != 'adminstrator'){
+					if(!in_array($church_id, json_decode($value->church_id))){
 						continue;
 					}
 				}
-		
-				$start = date('Y-m-d H:i', strtotime($value->start_date . ' ' . $value->start_time));
-				$end = date('Y-m-d H:i', strtotime($value->end_date . ' ' . $value->end_time));
-		
-				// Assign event class using switch
+				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
+				$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
+				
 				$class = 'fc-event-warning';
-				switch ($value->church_type) {
-					case 'all':
-						$class = 'fc-event-primary';
-						break;
-					case 'region':
-						$class = 'fc-event-info';
-						break;
-					case 'zone':
-						$class = 'fc-event-indigo';
-						break;
-					case 'group':
-						$class = 'fc-event-danger';
-						break;
-					case 'church':
-						$class = 'fc-event-success';
-						break;
-				}
-		
-				$cal_events[$key] = [
-					'id' => $value->id,
-					'title' => strtoupper($this->Crud->convertText($value->title)),
-					'start' => $start,
-					'end' => $end,
-					'description' => ucwords($this->Crud->convertText($value->description)),
-					'className' => $class,
-				];
+				if($value->church_type == 'all') $class = 'fc-event-primary';
+				if($value->church_type == 'region') $class = 'fc-event-info';
+				if($value->church_type == 'zone') $class = 'fc-event-indigo';
+				if($value->church_type == 'group') $class = 'fc-event-danger';
+				if($value->church_type == 'church') $class = 'fc-event-success';
+				$cal_events[$key]['id'] = $value->id;
+				$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->title));
+				$cal_events[$key]['start'] = $start;
+				$cal_events[$key]['end'] = $end;
+				$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
+				$cal_events[$key]['className'] = $class;
 			}
+			
 		}
-		
-		// Output the JSON
-		$cal_event = !empty($cal_events) ? json_encode(array_values($cal_events)) : '[]';
-		header('Content-Type: application/json');
-		echo $cal_event;
-		
 
-		$data['cal_eventz'] = $cal_event;
+		$data['cal_events'] = array_values($cal_events);
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} else { // view for main page
