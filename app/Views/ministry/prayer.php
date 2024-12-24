@@ -63,7 +63,7 @@
                                     </div><!-- .card-search -->
                                 </div><!-- .card-inner -->
                                 <div class="card-inner ">
-                                    <div class="table-responsiv">
+                                    <div class="table-responsive">
                                         <table class="table table-hover">
                                             <thead>
                                                 <tr>
@@ -76,6 +76,52 @@
                                             </thead>
                                             <tbody id="load_data"></tbody>
                                             <tfoot id="loadmore"></tfoot>
+                                        </table>
+                                    </div>
+                                </div><!-- .card-inner -->
+                            </div><!-- .card-inner-group -->
+                        </div><!-- .card -->
+                    </div>
+                    <div class="nk-block" id="time_resp"  style="display:none;">
+                        <div class="card card-bordered card-stretch">
+                            <div class="card-inner-group">
+                                <div class="card-inner position-relative card-tools-toggle">
+                                    <div class="card-title-group">
+                                        <div class="card-tools">
+
+                                        </div><!-- .card-tools -->
+                                        <div class="card-tools me-n1">
+                                            <ul class="btn-toolbar gx-1">
+                                                <li>
+                                                    <a href="javascript:;" class="btn btn-icon search-toggle toggle-search"
+                                                        data-target="search"><em class="icon ni ni-search"></em></a>
+                                                </li>
+                                            </ul><!-- .btn-toolbar -->
+                                        </div><!-- .card-tools -->
+                                    </div><!-- .card-title-group -->
+                                    <div class="card-search search-wrap" data-search="search">
+                                        <div class="card-body">
+                                            <div class="search-content">
+                                                <a href="#" class="search-back btn btn-icon toggle-search"
+                                                    data-target="search"><em class="icon ni ni-arrow-left"></em></a>
+                                                <input type="text" class="form-control border-transparent form-focus-none"
+                                                    placeholder="Search by name" oninput="time_load();" id="time_search">
+                                            </div>
+                                        </div>
+                                    </div><!-- .card-search -->
+                                </div><!-- .card-inner -->
+                                <div class="card-inner ">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Assignment</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="time_load_data"></tbody>
+                                            <tfoot id="time_loadmore"></tfoot>
                                         </table>
                                     </div>
                                 </div><!-- .card-inner -->
@@ -140,6 +186,7 @@
     function event_back() {
         $('#calendar_resp').hide(500);
         $('#view_resp').show(500);
+        $('#time_resp').hide(500);
         $('#add_resp').html('<a class="btn btn-outline-primary mt-3 mx-2" href="javascript:void(0);" onclick="calendar_view();"><em class="icon ni ni-calendar"></em><span>Prayer View</span></a>');
 
         load('', '');
@@ -148,8 +195,62 @@
     function calendar_view() {
         $('#calendar_resp').show(500);
         $('#view_resp').hide(500);
-        $('#add_resp').html('<a class="btn btn-outline-danger mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-cc-new"></em><span>Prayer View</span></a>');
+        $('#time_resp').hide(500);
+        $('#add_resp').html('<a class="btn btn-outline-danger mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-cc-new"></em><span>Calendar View</span></a>');
 
+    }
+
+    
+    function time(id){
+        $('#calendar_resp').hide(500);
+        $('#view_resp').hide(500);
+        $('#time_resp').show(500);
+        $('#add_resp').html('<a class="btn btn-outline-info mt-3 mx-2" href="javascript:void(0);" onclick="event_back();"><em class="icon ni ni-chevrons-left"></em><span>Back to Prayer</span></a>');
+        $('#time_search').attr('oninput', `time_load('', '', '${id}');`);
+
+       time_load('','',id);
+
+    }
+
+    function time_load(x, y, id) {
+        var more = 'no';
+        var methods = '';
+        if (parseInt(x) > 0 && parseInt(y) > 0) {
+            more = 'yes';
+            methods = '/' + x + '/' + y;
+        }
+
+        if (more == 'no') {
+            $('#time_load_data').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
+        } else {
+            $('#time_loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
+        }
+
+        var search = $('#time_search').val();
+        //alert(status);
+
+        $.ajax({
+            url: site_url + 'ministry/prayer/time_load' + methods,
+            type: 'post',
+            data: { search: search, id:id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                if (more == 'no') {
+                    $('#time_load_data').html(dt.item);
+                } else {
+                    $('#time_load_data').append(dt.item);
+                }
+                
+                if (dt.offset > 0) {
+                    $('#time_loadmore').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
+                } else {
+                    $('#time_loadmore').html('');
+                }
+            },
+            complete: function () {
+                $.getScript(site_url + '/assets/js/jsmodal.js');
+            }
+        });
     }
 
     
@@ -194,5 +295,6 @@
             }
         });
     }
+
 </script>
 <?=$this->endSection();?>
