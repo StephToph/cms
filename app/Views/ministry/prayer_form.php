@@ -139,8 +139,11 @@ $this->Crud = new Crud();
 <?php } ?>
 <?php if($param2 == 'time_add'){?>
     <div class="row">
-    <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
+        <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
             echo $e_id;
+        } ?>" />
+       <input type="hidden" name="date" value="<?php if (!empty($e_date)) {
+            echo $e_date;
         } ?>" />
        
         <div class="col-sm-5 mb-3">
@@ -194,14 +197,14 @@ $this->Crud = new Crud();
 
         <div class="col-sm-12 mb-3">
             <div class="form-group">
-                <label for="name">Prayer Point</label>
-                <textarea id="summernote" class="form-control" name="content" rows="5" required><?php if (!empty($e_prayer)) {
+                <label for="name"  class="form-label">Prayer Point</label>
+                <textarea id="summernote" class="form-control" name="prayer" rows="5"><?php if (!empty($e_prayer)) {
                     echo $e_prayer;
                 } ?></textarea>
             </div>
         </div>
         
-        <div class="col-sm-12 mb-3" >
+        <div class="col-sm-6 mb-3" >
             <div class="form-group">
                 <label class="form-label">Church</label>
                 <select class="js-select2" data-search="on" name="church_id" id="church_idz">
@@ -213,6 +216,14 @@ $this->Crud = new Crud();
                     ?>
 
                 </select>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label class="form-label" for="name">Notification Reminder(min)</label>
+                <input class="form-control" type="number" id="reminder" name="reminder" 
+                    value="<?php if (!empty($e_reminder)) { echo $e_reminder; } ?>" 
+                    min="1" step="1" required>
             </div>
         </div>
         
@@ -506,7 +517,17 @@ $this->Crud = new Crud();
 
         // Attach event listeners
         $('#hour, #minute, #am_pm').on('change', calculateEndTime);
-        $('#duration').on('input', function () {
+        $('#reminder').on('input', function () {
+            let value = $(this).val();
+
+            // Check if the value is a positive integer
+            if (!/^\d+$/.test(value) || value < 1) {
+                $('#bb_ajax_msg').html('Please enter a valid Notification Reminder in whole minutes.').show();
+                $(this).val(''); // Clear invalid input
+            } else {
+                $('#bb_ajax_msg').html(''); // Hide the message if input is valid
+            }
+        });$('#duration').on('input', function () {
             let value = $(this).val();
 
             // Check if the value is a positive integer
