@@ -197,7 +197,6 @@ $this->Crud = new Crud();
 
         if ($ministry_id > 0) { ?>
             <input type="hidden" id="ministry_id" name="ministry_id" value="<?php echo $ministry_id; ?>">
-            <input type="hidden" id="church_id" name="church_id" value="<?php echo $church_id; ?>">
         <?php } else { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
@@ -236,9 +235,7 @@ $this->Crud = new Crud();
                         $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
                         $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
-                        if ($log_church_type == 'region') {
-
-                            ?>
+                        if ($log_church_type == 'region') { ?>
 
                             <option value="zone" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'zone') {
