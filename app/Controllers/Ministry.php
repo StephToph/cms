@@ -1400,8 +1400,10 @@ class Ministry extends BaseController {
 					$ministry_id =  $this->request->getVar('ministry_id');
 					$level =  $this->request->getVar('level');
 					$church_id =  $this->request->getVar('church_id');
+					
+					$log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 					if(empty($church_id)){
-						$church_id = array();
+						$church_id[] = $log_church_id;
 					}
 					
 					
@@ -1741,12 +1743,12 @@ class Ministry extends BaseController {
 			$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
 		}
 		if($role != 'developer' && $role != 'administrator'){
-			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
+			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'prayer');
 		}
 		if(!empty($cal_ass)){
 			foreach($cal_ass as $key => $value){
-				if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
-					if(!in_array($church_id, json_decode($value->church_id))){
+				if($value->church_type != 'all' && $role != 'ministry administrator' && $role != 'developer' && $role != 'adminstrator'){
+					if(!in_array($church_id, json_decode($value->churches))){
 						continue;
 					}
 				}
@@ -2690,34 +2692,56 @@ class Ministry extends BaseController {
 		if($role != 'developer' && $role != 'administrator'){
 			$cal_ass = $this->Crud->read_single('ministry_id', $ministry_id, 'events');
 		}
-		if(!empty($cal_ass)){
-			foreach($cal_ass as $key => $value){
-				if($value->church_type != 'all' && $role != 'ministry adminstrator' && $role != 'developer' && $role != 'adminstrator'){
-					if(!in_array($church_id, json_decode($value->church_id))){
+		
+		if (!empty($cal_ass)) {
+			foreach ($cal_ass as $key => $value) {
+				if ($value->church_type != 'all' && $role != 'ministry administrator' && $role != 'developer' && $role != 'administrator') {
+					if (!in_array($church_id, json_decode($value->church_id, true))) {
 						continue;
 					}
 				}
-				$start = date('Y-m-d', strtotime($value->start_date)).' '.date('H:i', strtotime($value->start_time));
-				$end = date('Y-m-d', strtotime($value->end_date)).' '.date('H:i', strtotime($value->end_time));
-				
+		
+				$start = date('Y-m-d H:i', strtotime($value->start_date . ' ' . $value->start_time));
+				$end = date('Y-m-d H:i', strtotime($value->end_date . ' ' . $value->end_time));
+		
+				// Assign event class using switch
 				$class = 'fc-event-warning';
-				if($value->church_type == 'all') $class = 'fc-event-primary';
-				if($value->church_type == 'region') $class = 'fc-event-info';
-				if($value->church_type == 'zone') $class = 'fc-event-indigo';
-				if($value->church_type == 'group') $class = 'fc-event-danger';
-				if($value->church_type == 'church') $class = 'fc-event-success';
-				$cal_events[$key]['id'] = $value->id;
-				$cal_events[$key]['title'] = strtoupper($this->Crud->convertText($value->title));
-				$cal_events[$key]['start'] = $start;
-				$cal_events[$key]['end'] = $end;
-				$cal_events[$key]['description'] = ucwords($this->Crud->convertText($value->description));
-				$cal_events[$key]['className'] = $class;
+				switch ($value->church_type) {
+					case 'all':
+						$class = 'fc-event-primary';
+						break;
+					case 'region':
+						$class = 'fc-event-info';
+						break;
+					case 'zone':
+						$class = 'fc-event-indigo';
+						break;
+					case 'group':
+						$class = 'fc-event-danger';
+						break;
+					case 'church':
+						$class = 'fc-event-success';
+						break;
+				}
+		
+				$cal_events[$key] = [
+					'id' => $value->id,
+					'title' => strtoupper($this->Crud->convertText($value->title)),
+					'start' => $start,
+					'end' => $end,
+					'description' => ucwords($this->Crud->convertText($value->description)),
+					'className' => $class,
+				];
 			}
-			
 		}
+		
+		// Output the JSON
+		$cal_event = !empty($cal_events) ? json_encode(array_values($cal_events)) : '[]';
+		header('Content-Type: application/json');
+		echo $cal_event;
+		
 
-
-		$data['cal_events'] = array_values($cal_events);
+		$data['cal_eventz'] = $cal_event;
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} else { // view for main page
