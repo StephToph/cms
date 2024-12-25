@@ -203,27 +203,39 @@ $this->Crud = new Crud();
                 } ?></textarea>
             </div>
         </div>
-        
         <div class="col-sm-6 mb-3" >
             <div class="form-group">
-                <label class="form-label">Church</label>
+                <label class="form-label">Church </label>
                 <select class="js-select2" data-search="on" name="church_id" id="church_idz">
-                    <?php if(!empty($e_church_id)){
+                    <?php 
+                    // $ch_type = '';
+                    if(!empty($e_church_id)){
+                        if($e_church_type == 'region'){
+                            $ch_type = 'regional_id';
+                        }
+                        if($e_church_type == 'zone'){
+                            $ch_type = 'zonal_id';
+                        }
+                        if($e_church_type == 'group'){
+                            $ch_type = 'group_id';
+                        }
+                        if($e_church_type == 'church'){
+                            $ch_type = 'church_id';
+                        }
                         foreach ($e_church_id as $ch) {
-                            echo '<option value="'.$ch.'">'.ucwords($this->Crud->read_field('id', $ch,'church', 'name')).'</option>';
+                            echo '<option value="'.$ch.'">'.ucwords($this->Crud->read_field('id', $ch,'church', 'name').' - '.$this->Crud->read_field('id', $ch,'church', 'type')).'</option>';
+
+                            $load_church = $this->Crud->read_single_order($ch_type,$ch,'church', 'name','asc');
+                            if(!empty($load_church)){
+                                foreach($load_church as $lc){
+                                    echo '<option value="'.$lc->id.'">'.ucwords($this->Crud->read_field('id', $lc->id,'church', 'name').' - '.$this->Crud->read_field('id', $lc->id,'church', 'type')).'</option>';
+                                }
+                            }
                         }
                     }
                     ?>
 
                 </select>
-            </div>
-        </div>
-        <div class="col-sm-6 mb-3">
-            <div class="form-group">
-                <label class="form-label" for="name">Notification Reminder(min)</label>
-                <input class="form-control" type="number" id="reminder" name="reminder" 
-                    value="<?php if (!empty($e_reminder)) { echo $e_reminder; } ?>" 
-                    min="1" step="1" required>
             </div>
         </div>
         
@@ -330,13 +342,39 @@ $this->Crud = new Crud();
             <div class="form-group">
                 <label class="form-label">Church</label>
                 <select class="js-select2" data-search="on" name="church_id" id="church_idz">
-                    <?php if(!empty($e_church_id)){
+                    
+                    <?php 
+                    // $ch_type = '';
+                    if(!empty($e_church_id)){
+                        if($e_church_type == 'region'){
+                            $ch_type = 'regional_id';
+                        }
+                        if($e_church_type == 'zone'){
+                            $ch_type = 'zonal_id';
+                        }
+                        if($e_church_type == 'group'){
+                            $ch_type = 'group_id';
+                        }
+                        if($e_church_type == 'church'){
+                            $ch_type = 'church_id';
+                        }
                         foreach ($e_church_id as $ch) {
                             $select = '';
                             if($ch == $church_idz){
                                 $select = 'selected';
                             }
-                            echo '<option value="'.$ch.'"'.$select.' >'.ucwords($this->Crud->read_field('id', $ch,'church', 'name')).'</option>';
+                            echo '<option value="'.$ch.'" '.$select.'>'.ucwords($this->Crud->read_field('id', $ch,'church', 'name').' - '.$this->Crud->read_field('id', $ch,'church', 'type')).'</option>';
+                           
+                            $load_church = $this->Crud->read_single_order($ch_type,$ch,'church', 'name','asc');
+                            if(!empty($load_church)){
+                                foreach($load_church as $lc){
+                                    $select = '';
+                                    if($lc->id == $church_idz){
+                                        $select = 'selected';
+                                    }
+                                    echo '<option value="'.$lc->id.'" '.$select.'>'.ucwords($this->Crud->read_field('id', $lc->id,'church', 'name').' - '.$this->Crud->read_field('id', $lc->id,'church', 'type')).'</option>';
+                                }
+                            }
                         }
                     }
                     ?>
@@ -344,14 +382,6 @@ $this->Crud = new Crud();
                 </select>
             </div>
         </div>
-        <!-- Reminder -->
-        <div class="col-sm-6 mb-3">
-            <div class="form-group">
-                <label class="form-label">Reminder (min)</label>
-                <input type="number" class="form-control" name="reminder"  id="reminderz" 
-                        value="<?php echo isset($reminder) ? $reminder : ''; ?>">
-            </div>
-        </div>  
         
 
         <!-- Submit Button -->
@@ -450,6 +480,15 @@ $this->Crud = new Crud();
                     value="<?php if (!empty($e_duration)) { echo $e_duration; } ?>" 
                     min="1" step="1" required>
                 <small class="form-text text-muted">Please enter the duration in minutes (e.g., 5, 10, 30).</small>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label class="form-label" for="name">Notification Reminder(min)</label>
+                <input class="form-control" type="number" id="reminder" name="reminder" 
+                    value="<?php if (!empty($e_reminder)) { echo $e_reminder; } ?>" 
+                    min="1" step="1" required>
             </div>
         </div>
 

@@ -1371,7 +1371,7 @@ class Ministry extends BaseController {
 							$data['e_ministry_id'] = $e->ministry_id;
 							$data['e_church_type'] = $e->church_type;
 
-												
+									// echo $e->church_type;			
 							// Decode assignment array
 							$assignment = json_decode($e->assignment, true);
 
@@ -1662,6 +1662,7 @@ class Ministry extends BaseController {
 								$data['e_start_date'] = $e->start_date;
 								$data['e_end_date'] = $e->end_date;
 								$data['e_duration'] = $e->duration;
+								$data['e_reminder'] = $e->reminder;
 								$data['e_church_id'] = json_decode($e->churches,true);
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_church_type'] = $e->church_type;
@@ -1695,6 +1696,7 @@ class Ministry extends BaseController {
 					$start_date =  $this->request->getVar('start_date');
 					$end_date =  $this->request->getVar('end_date');
 					$duration =  $this->request->getVar('duration');
+					$reminder =  $this->request->getVar('reminder');
 					$ministry_id =  $this->request->getVar('ministry_id');
 					$level =  $this->request->getVar('level');
 					$church_id =  $this->request->getVar('church_id');
@@ -1709,6 +1711,7 @@ class Ministry extends BaseController {
 					$ins_data['start_date'] = $start_date;
 					$ins_data['end_date'] = $end_date;
 					$ins_data['duration'] = $duration;
+					$ins_data['reminder'] = $reminder;
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_type'] = $level;
 					$ins_data['churches'] = json_encode($church_id);
@@ -1718,7 +1721,10 @@ class Ministry extends BaseController {
 						$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
 						if($upd_rec > 0) {
 							echo $this->Crud->msg('success', 'Updated');
-							echo '<script>location.reload(false);</script>';
+							echo '<script>
+								load("","");
+								$("#modal").modal("hide");
+							</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
@@ -1740,8 +1746,10 @@ class Ministry extends BaseController {
 								$action = $by.' created Prayer Cloud ('.$code.')';
 								$this->Crud->activity('event', $ins_rec, $action);
 
-								
-								echo '<script>location.reload(false);</script>';
+								echo '<script>
+									load("","");
+									$("#modal").modal("hide");
+								</script>';
 							} else {
 								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
 							}	
