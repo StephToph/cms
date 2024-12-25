@@ -1273,7 +1273,7 @@ class Ministry extends BaseController {
 	}
 
 	
-	public function prayer($param1='', $param2='', $param3='', $param4='') {
+	public function prayer($param1='', $param2='', $param3='', $param4='', $param5='') {
 		// check session login
 		if($this->session->get('td_id') == ''){
 			$request_uri = uri_string();
@@ -1320,13 +1320,15 @@ class Ministry extends BaseController {
 		if($param1){$form_link .= '/'.$param1;}
 		if($param2){$form_link .= '/'.$param2.'/';}
 		if($param3){$form_link .= '/'.$param3.'/';}
-		if($param4){$form_link .= $param4;}
+		if($param4){$form_link .= '/'.$param4.'/';}
+		if($param5){$form_link .= $param5;}
 		
 		// pass parameters to view
 		$data['param1'] = $param1;
 		$data['param2'] = $param2;
 		$data['param3'] = $param3;
 		$data['param4'] = $param4;
+		$data['param5'] = $param5;
 		$data['form_link'] = rtrim($form_link, '/');
 		$data['current_language'] = $this->session->get('current_language');
 		
@@ -1421,7 +1423,7 @@ class Ministry extends BaseController {
 				
 					// Check for conflicts in the specified date and time range
 					if (isset($pass[$date])) {
-						foreach ($pass[$date] as $record) {
+						foreach ($pass[$date] as $key => $record) {
 							if (
 								($start_time >= $record['start_time'] && $start_time < $record['end_time']) || 
 								($end > $record['start_time'] && $end <= $record['end_time'])
@@ -1434,6 +1436,9 @@ class Ministry extends BaseController {
 						$pass[$date] = []; // Initialize the date key if not present
 					}
 				
+					// Generate a unique record key
+					$record_key = 'record_' . (count($pass[$date]) + 1);
+				
 					// Create new assignment record
 					$new_record = [
 						'start_time' => $start_time,
@@ -1444,17 +1449,205 @@ class Ministry extends BaseController {
 					];
 				
 					// Add the new record to the date key
-					$pass[$date][] = $new_record;
+					$pass[$date][$record_key] = $new_record;
 				
 					// Save the updated assignments back to the database
 					$upd['assignment'] = json_encode($pass);
 					if ($this->Crud->updates('id', $prayer_id, 'prayer', $upd) > 0) {
 						echo $this->Crud->msg('success', 'Prayer Assignment Updated');
+						echo '<script>
+							time_load("","",' . $prayer_id . ');
+							$("#modal").modal("hide");
+						</script>';
 					} else {
 						echo $this->Crud->msg('info', 'No Changes to Record');
 					}
 					die;
 				}
+				
+
+			} elseif($param2 == 'time_edit'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_title'] = $e->title;
+							$data['e_date'] = $param4; // The specific date being edited
+							$data['e_start_date'] = $e->start_date;
+							$data['e_end_date'] = $e->end_date;
+							$data['e_duration'] = $e->duration;
+							$data['e_church_id'] = json_decode($e->churches, true);
+							$data['e_ministry_id'] = $e->ministry_id;
+							$data['e_church_type'] = $e->church_type;
+
+							// Decode assignment array
+							$assignment = json_decode($e->assignment, true);
+
+							// Check if the record_index exists for the specific date
+							if (!empty($assignment) && isset($assignment[$param4]) && isset($assignment[$param4][$param5])) {
+								// Fetch the specific record using record_index ($param5)
+								$record = $assignment[$param4][$param5];
+
+								// Populate data array with record details
+								$data['record_key'] = $param5; // Unique key for identification
+								$data['start_time'] = $record['start_time'];
+								$data['end_time'] = $record['end_time'];
+								$data['prayer'] = $record['prayer'];
+								$data['reminder'] = $record['reminder'];
+								$data['church_idz'] = $record['church_id'];
+							}
+						}
+					}
+
+				}
+
+				if ($this->request->getMethod() == 'post') {
+					$prayer_id = $this->request->getPost('e_id'); // Prayer ID
+					$date = $this->request->getPost('date'); // Date of the assignment
+					$record_index = $this->request->getPost('record_index'); // Record index (e.g., record_1)
+					$prayer = $this->request->getPost('prayer'); // Prayer text
+					$church_id = $this->request->getPost('church_id'); // Church ID
+					$reminder = $this->request->getPost('reminder'); // Reminder time
+					$end_time = $this->request->getPost('end_time'); // End time
+					$hour = $this->request->getPost('hour'); // Start time hour
+					$minute = $this->request->getPost('minute'); // Start time minute
+					$am_pm = $this->request->getPost('am_pm'); // AM/PM for start time
+				
+					// Concatenate the time string in proper format
+					$time_string = $hour . ':' . str_pad($minute, 2, '0', STR_PAD_LEFT) . ' ' . strtoupper($am_pm);
+				
+					// Convert to 24-hour format
+					$start_time = date('H:i', strtotime($time_string));
+					$end = date('H:i', strtotime($end_time));
+				
+					// Validation
+					if (empty($start_time) || empty($end)) {
+						echo $this->Crud->msg('danger', 'Enter start time and Duration');
+						die;
+					}
+				
+					if (empty($prayer)) {
+						echo $this->Crud->msg('danger', 'Enter Prayer Point');
+						die;
+					}
+				
+					// Load existing assignments
+					$pass = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'assignment'), true);
+				
+					if (!is_array($pass)) {
+						$pass = []; // Initialize as an empty array if no assignments exist
+					}
+				
+					// Check if the date and record_index exist in the assignment array
+					if (isset($pass[$date]) && isset($pass[$date][$record_index])) {
+						// Update the specific record
+						$pass[$date][$record_index] = [
+							'start_time' => $start_time,
+							'end_time' => $end,
+							'prayer' => $prayer,
+							'reminder' => $reminder,
+							'church_id' => $church_id,
+						];
+				
+						// Save the updated assignments back to the database
+						$upd['assignment'] = json_encode($pass);
+						if ($this->Crud->updates('id', $prayer_id, 'prayer', $upd) > 0) {
+							echo $this->Crud->msg('success', 'Prayer Assignment Updated');
+							echo '<script>
+								time_load("","",' . $prayer_id . ');
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes to Record');
+						}
+					} else {
+						echo $this->Crud->msg('danger', 'The selected record does not exist.');
+					}
+					die;
+				}
+				
+				
+
+			} elseif($param2 == 'time_delete'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_title'] = $e->title;
+							$data['e_date'] = $param4; // The specific date being edited
+							$data['e_start_date'] = $e->start_date;
+							$data['e_end_date'] = $e->end_date;
+							$data['e_duration'] = $e->duration;
+							$data['e_church_id'] = json_decode($e->churches, true);
+							$data['e_ministry_id'] = $e->ministry_id;
+							$data['e_church_type'] = $e->church_type;
+
+							// Decode assignment array
+							$assignment = json_decode($e->assignment, true);
+
+							// Check if the record_index exists for the specific date
+							if (!empty($assignment) && isset($assignment[$param4]) && isset($assignment[$param4][$param5])) {
+								// Fetch the specific record using record_index ($param5)
+								$record = $assignment[$param4][$param5];
+
+								// Populate data array with record details
+								$data['record_key'] = $param5; // Unique key for identification
+								$data['start_time'] = $record['start_time'];
+								$data['end_time'] = $record['end_time'];
+								$data['prayer'] = $record['prayer'];
+								$data['reminder'] = $record['reminder'];
+								$data['church_idz'] = $record['church_id'];
+							}
+						}
+					}
+
+				}
+
+				if ($this->request->getMethod() == 'post') {
+					$prayer_id = $this->request->getPost('e_id'); // Prayer ID
+					$date = $this->request->getPost('date'); // Date of the record
+					$record_index = $this->request->getPost('record_index'); // Record index to delete
+				
+					// Load existing assignments
+					$pass = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'assignment'), true);
+				
+					if (!is_array($pass)) {
+						echo $this->Crud->msg('danger', 'No records found to delete.');
+						die;
+					}
+				
+					// Check if the date and record_index exist in the assignment array
+					if (isset($pass[$date]) && isset($pass[$date][$record_index])) {
+						// Remove the specific record
+						unset($pass[$date][$record_index]);
+				
+						// If the date array is now empty, remove the date key entirely
+						if (empty($pass[$date])) {
+							unset($pass[$date]);
+						}
+				
+						// Save the updated assignments back to the database
+						$upd['assignment'] = json_encode($pass);
+						if ($this->Crud->updates('id', $prayer_id, 'prayer', $upd) > 0) {
+							echo $this->Crud->msg('success', 'Record deleted successfully.');
+							echo '<script>
+								time_load("","",' . $prayer_id . ');
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Failed to delete the record.');
+						}
+					} else {
+						echo $this->Crud->msg('danger', 'The specified record does not exist.');
+					}
+					die;
+				}
+				
+				
 				
 
 			} else {
@@ -1742,28 +1935,26 @@ class Ministry extends BaseController {
 				
 					// Check if the current date exists in the query array
 					if (!empty($query) && array_key_exists($formatted_date, $query)) {
-						
-						foreach ($query[$formatted_date] as $slot) { // Iterate over each slot for the current date
+						foreach ($query[$formatted_date] as $record_key => $slot) { // Iterate over each record for the current date
 							$time_slot = date('h:i A', strtotime($slot['start_time'])) . ' - ' . date('h:i A', strtotime($slot['end_time'])); // Concatenate start and end times
-							$prayer = strip_tags($slot['prayer']); // Remove HTML tags for clean
-							$church = $this->Crud->read_field('id', $slot['church_id'], 'church', 'name'); 
+							$prayer = strip_tags($slot['prayer']); // Remove HTML tags for clean display
+							$church = $this->Crud->read_field('id', $slot['church_id'], 'church', 'name'); // Fetch church name
 							$time_rows .= '
 								<tr>
 									<td>' . $time_slot . '</td>
 									<td>' . ucwords(strtolower($church)) . ' Church</td>
 									<td>
 										<div class="btn-group">
-											
 											<a href="javascript:;" class="mx-1 btn btn-sm btn-outline-warning pop" 
 											   pageTitle="Edit Info for ' . $formatted_date . ' ' . $time_slot . '" 
 											   pageSize="modal-lg" 
-											   pageName="' . site_url($mod . '/manage/edit/' . $id . '/' . $formatted_date . '/' . $time_slot) . '">
+											   pageName="' . site_url($mod . '/manage/time_edit/' . $id . '/' . $formatted_date . '/' . $record_key) . '">
 												<em class="icon ni ni-edit-alt"></em> Edit
 											</a>
 											<a href="javascript:;" class="mx-1 btn btn-sm btn-outline-danger pop" 
 											   pageTitle="Delete Info for ' . $formatted_date . ' ' . $time_slot . '" 
 											   pageSize="modal-lg" 
-											   pageName="' . site_url($mod . '/manage/delete/' . $id . '/' . $formatted_date . '/' . $time_slot) . '">
+											   pageName="' . site_url($mod . '/manage/time_delete/' . $id . '/' . $formatted_date . '/' . $record_key) . '">
 												<em class="icon ni ni-trash-alt"></em> Delete
 											</a>
 										</div>
@@ -1771,6 +1962,22 @@ class Ministry extends BaseController {
 								</tr>
 							';
 						}
+						  // Add button for creating a new record for the current date
+							$time_rows .= '
+							<tr>
+								<td colspan="3">
+									<div class="text-center">
+										<a href="javascript:;" class="btn btn-sm btn-outline-primary pop" 
+										pageTitle="Add New Record for ' . $formatted_date . '" 
+										pageSize="modal-lg" 
+										pageName="' . site_url($mod . '/manage/time_add/' . $id . '/' . $formatted_date) . '">
+											<em class="icon ni ni-plus"></em> Add New Record
+										</a>
+										
+									</div>
+								</td>
+							</tr>
+						';
 					} else {
 						// Show the "Add New Time Slot" button if no records exist for the current date
 						$time_rows = '
