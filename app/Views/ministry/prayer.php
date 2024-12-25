@@ -102,8 +102,7 @@
                                     <div class="card-search search-wrap" data-search="search">
                                         <div class="card-body">
                                             <div class="search-content">
-                                                <a href="#" class="search-back btn btn-icon toggle-search"
-                                                    data-target="search"><em class="icon ni ni-arrow-left"></em></a>
+                                                
                                                 <input type="text" class="form-control border-transparent form-focus-none"
                                                     placeholder="Search by name" oninput="time_load();" id="time_search">
                                             </div>

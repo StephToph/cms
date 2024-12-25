@@ -243,6 +243,163 @@ $this->Crud = new Crud();
     </div>
 
 <?php } ?>
+
+<?php if($param2 == 'time_edit'){?>
+    
+    <div class="row">
+        <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
+            echo $e_id;
+        } ?>" />
+       <input type="hidden" name="date" value="<?php if (!empty($e_date)) {
+            echo $e_date;
+        } ?>" />
+         <input type="hidden" name="record_index" value="<?php if (!empty($param5)) {
+            echo $param5;
+        } ?>" />
+
+        <div class="col-sm-5 mb-3">
+            <div class="form-group">
+                <label class="form-label">Start Time</label>
+                <div class="form-control-wrap d-flex align-items-center gap-2 mt-2">
+                    <!-- Hour Dropdown -->
+                    <select class="js-select2" name="hour" id="hourz" style="width: 30%;">
+                        <?php 
+                        $start_hour = !empty($start_time) ? date('h', strtotime($start_time)) : '';
+                        for ($i = 1; $i <= 12; $i++): 
+                        ?>
+                            <option value="<?php echo $i; ?>" <?php echo ($i == $start_hour) ? 'selected' : ''; ?>>
+                                <?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+
+                    <!-- Minute Dropdown -->
+                    <select class="js-select2" name="minute" id="minutez" style="width: 30%;">
+                        <?php 
+                        $start_minute = !empty($start_time) ? date('i', strtotime($start_time)) : '';
+                        for ($i = 0; $i < 60; $i++): 
+                        ?>
+                            <option value="<?php echo $i; ?>" <?php echo ($i == $start_minute) ? 'selected' : ''; ?>>
+                                <?php echo str_pad($i, 2, '0', STR_PAD_LEFT); ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+
+                    <!-- AM/PM Dropdown -->
+                    <select class="js-select2" name="am_pm" id="am_pmz" style="width: 30%;">
+                        <?php 
+                        $start_am_pm = !empty($start_time) ? date('A', strtotime($start_time)) : '';
+                        ?>
+                        <option value="AM" <?php echo ($start_am_pm == 'AM') ? 'selected' : ''; ?>>AM</option>
+                        <option value="PM" <?php echo ($start_am_pm == 'PM') ? 'selected' : ''; ?>>PM</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-3 mb-3">
+            <div class="form-group">
+                <label class="form-label" for="name">Duration(min)</label>
+                <input class="form-control" type="number" id="durationzz" name="duration" 
+                    value="<?php if (!empty($e_duration)) { echo $e_duration; } ?>" 
+                    min="1" step="1" readonly>
+            </div>
+        </div>
+        <!-- End Time -->
+        <div class="col-sm-4 mb-3">
+            <div class="form-group">
+                <label class="form-label">End Time</label>
+                <input type="text" class="form-control" name="end_time" id="end_timez" 
+                        value="<?php echo isset($end_time) ?  date('h:i A', strtotime($end_time)) : ''; ?>" readonly>
+            </div>
+        </div>
+
+
+        <!-- Prayer Point -->
+        <div class="col-sm-12 mb-3">
+            <div class="form-group">
+                <label class="form-label">Prayer Point</label>
+                <textarea class="form-control summernote" name="prayer" rows="4" readonly>
+                    <?php echo isset($prayer) ? htmlspecialchars(strip_tags($prayer)) : ''; ?>
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Church -->
+        <div class="col-sm-6 mb-3" >
+            <div class="form-group">
+                <label class="form-label">Church</label>
+                <select class="js-select2" data-search="on" name="church_id" id="church_idz">
+                    <?php if(!empty($e_church_id)){
+                        foreach ($e_church_id as $ch) {
+                            $select = '';
+                            if($ch == $church_idz){
+                                $select = 'selected';
+                            }
+                            echo '<option value="'.$ch.'"'.$select.' >'.ucwords($this->Crud->read_field('id', $ch,'church', 'name')).'</option>';
+                        }
+                    }
+                    ?>
+
+                </select>
+            </div>
+        </div>
+        <!-- Reminder -->
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label class="form-label">Reminder (min)</label>
+                <input type="number" class="form-control" name="reminder"  id="reminderz" 
+                        value="<?php echo isset($reminder) ? $reminder : ''; ?>">
+            </div>
+        </div>  
+        
+
+        <!-- Submit Button -->
+        <div class="col-sm-12 text-center">
+            <hr />
+            <button class="btn btn-primary bb_for_btn" id="bt" type="submit">
+                <i class="icon ni ni-save"></i> Save
+            </button>
+        </div>
+    </div>
+
+    
+    <div class="row">
+        <div class="col-sm-12 my-3">
+            <div id="bb_ajax_msg"></div>
+        </div>
+    </div>
+
+<?php } ?>
+<?php if ($param2 == 'time_delete') { ?>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="bb_ajax_msg"></div>
+        </div>
+    </div>
+    <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
+        echo $e_id;
+    } ?>" />
+    <input type="hidden" name="date" value="<?php if (!empty($e_date)) {
+        echo $e_date;
+    } ?>" />
+        <input type="hidden" name="record_index" value="<?php if (!empty($param5)) {
+        echo $param5;
+    } ?>" />
+    
+    <div class="row">
+        <div class="col-sm-12 my-2 text-center">
+            <h5><b>Are you sure?</b></h5>
+            
+        </div>
+
+        <div class="col-sm-12 text-center">
+            <button class="btn btn-danger text-uppercase" type="submit">
+                <i class="icon ni ni-trash"></i> Yes - Delete
+            </button>
+        </div>
+    </div>
+<?php } ?>
 <!-- insert/edit view -->
 <?php if ($param2 == 'edit' || $param2 == '') { ?>
 
@@ -461,10 +618,45 @@ $this->Crud = new Crud();
             tabsize: 2,
             focus: true
         });
+        $('.summernote').summernote({
+            height: 200, // Set the height of the editor
+            tabsize: 2,
+            focus: true
+        });
         $('.time-picker').timepicker({});
         <?php if($param2 == 'time_add'){?> 
             calculateEndTime();
         <?php } ?>
+        <?php if($param2 == 'time_edit'){?> 
+            calculateEndTimez();
+        <?php } ?>
+        function calculateEndTimez() {
+            const hour = parseInt($('#hourz').val(), 10);
+            const minute = parseInt($('#minutez').val(), 10);
+            const amPm = $('#am_pmz').val();
+            const duration = parseInt($('#durationzz').val(), 10);
+
+            // Validate selections
+            if (isNaN(hour) || isNaN(minute) || !amPm || isNaN(duration)) {
+                showError('Please select a valid hour, minute, and AM/PM.');
+                return;
+            }
+
+            // Convert to 24-hour format
+            let convertedHour = hour;
+            if (amPm === 'PM' && hour < 12) convertedHour += 12;
+            if (amPm === 'AM' && hour === 12) convertedHour = 0;
+
+            // Calculate the end time
+            const endTime = calculateEnd(convertedHour, minute, duration);
+
+            // Update the end time field
+            $('#end_timez').val(endTime);
+
+            // Clear error messages
+            clearError();
+        }
+
         function calculateEndTime() {
             const hour = parseInt($('#hour').val(), 10);
             const minute = parseInt($('#minute').val(), 10);
@@ -517,7 +709,8 @@ $this->Crud = new Crud();
 
         // Attach event listeners
         $('#hour, #minute, #am_pm').on('change', calculateEndTime);
-        $('#reminder').on('input', function () {
+        $('#hourz, #minutez, #am_pmz').on('change', calculateEndTimez);
+        $('#reminder, #reminderz').on('input', function () {
             let value = $(this).val();
 
             // Check if the value is a positive integer
@@ -527,7 +720,8 @@ $this->Crud = new Crud();
             } else {
                 $('#bb_ajax_msg').html(''); // Hide the message if input is valid
             }
-        });$('#duration').on('input', function () {
+        });
+        $('#duration').on('input', function () {
             let value = $(this).val();
 
             // Check if the value is a positive integer
