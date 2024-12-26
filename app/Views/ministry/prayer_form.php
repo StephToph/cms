@@ -38,10 +38,6 @@ $this->Crud = new Crud();
             </table>
             <table class="table table-hovered">
                 <tr>
-                    <td><b>Ministry</b></td>
-                    <td><?= $this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name'); ?></td>
-                </tr>
-                <tr>
                     <td><b>Church Level</b></td>
                     <td><?= ucwords($e_church_type); ?> Level</td>
                 </tr>
@@ -68,8 +64,13 @@ $this->Crud = new Crud();
                 <tr>
                     <td><b>End Date</b></td>
                     <td><?= date('d F Y', strtotime($e_end_date)); ?></td>
-                </tr><tr>
+                </tr>
+                <tr>
                     <td><b>Duration</b></td>
+                    <td><?= ($e_duration); ?> Minute(s)</td>
+                </tr>
+                <tr>
+                    <td><b>Notification Reminder</b></td>
                     <td><?= ($e_reminder); ?> Minute(s)</td>
                 </tr>
             </table>
