@@ -35,9 +35,6 @@ $this->Crud = new Crud();
                 <tr>
                     <td><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
                 </tr>
-                <tr>
-                    <td><?= ucwords($e_description ?? 'No description available.'); ?></td>
-                </tr>
             </table>
             <table class="table table-hovered">
                 <tr>
