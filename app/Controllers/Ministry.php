@@ -1676,16 +1676,28 @@ class Ministry extends BaseController {
 					if($param3) {
 						$edit = $this->Crud->read_single('id', $param3, $table);
 						if(!empty($edit)) {
-							foreach($edit as $e) {
+							foreach ($edit as $e) {
 								$data['e_id'] = $e->id;
 								$data['e_title'] = $e->title;
 								$data['e_start_date'] = $e->start_date;
 								$data['e_end_date'] = $e->end_date;
 								$data['e_duration'] = $e->duration;
-								$data['e_church_id'] = json_decode($e->churches,true);
+								$data['e_reminder'] = $e->reminder;
+								$data['e_church_id'] = json_decode($e->churches, true);
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_church_type'] = $e->church_type;
+							
+								// Decode assignment array
+								$assignment = json_decode($e->assignment, true);
+							
+								// Check if assignment exists
+								if (!empty($assignment)) {
+									$data['e_assignment'] = $assignment; // Assign all records without filtering
+								} else {
+									$data['e_assignment'] = []; // Empty array if no assignments exist
+								}
 							}
+							
 						}
 					}
 				}
@@ -1811,7 +1823,7 @@ class Ministry extends BaseController {
 							if(!empty($switch_id)){
 
 								$all_btn = '
-									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 								
 								';
 							} else {
@@ -1819,7 +1831,7 @@ class Ministry extends BaseController {
 								$all_btn = '
 									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 									<li><a href="javascript:;" class="text-info" onclick="time('.$id.')" pageTitle="Time Table for ' . $title . '" ><em class="icon ni ni-users"></em><span>'.translate_phrase('Time Management').'</span></a></li>
 									
 								';
