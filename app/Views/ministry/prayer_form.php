@@ -27,116 +27,94 @@ $this->Crud = new Crud();
         </div>
     </div>
 <?php } ?>
-
 <?php if ($param2 == 'view') { ?>
     <div class="row">
-        
+        <!-- Prayer Record Details -->
         <div class="col-sm-12 mb-3 table-responsive">
             <table class="table table-hovered">
-                <?php if(!empty($e_image)){?>
-                    <tr>
-                        <td><img src="<?=site_url($e_image); ?>" alt=""> </td>
-                    </tr>
-                <?php }
-                        ?>
                 <tr>
                     <td><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
                 </tr>
                 <tr>
-                    <td><?= ucwords(($e_description)); ?></d></td>
+                    <td><?= ucwords($e_description ?? 'No description available.'); ?></td>
                 </tr>
             </table>
             <table class="table table-hovered">
                 <tr>
-                    <td><b>Minstry</b></td>
-                    <td><?=$this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name');?></td>
-                </tr>
-                <tr>
-                    <td><b>Event is For</b></td>
-                    <td><?=ucwords($e_event_for);?> Church</td>
+                    <td><b>Ministry</b></td>
+                    <td><?= $this->Crud->read_field('id', $e_ministry_id, 'ministry', 'name'); ?></td>
                 </tr>
                 <tr>
                     <td><b>Church Level</b></td>
-                    <td><?=ucwords($e_church_type);?> Level</td>
+                    <td><?= ucwords($e_church_type); ?> Level</td>
                 </tr>
-                <?php if($e_church_type != 'all'){?>
-                <tr>
-                   
-                    <td><b>Church</b></td>
-                    <td><?php 
-                        $church = '';
-                        if(!empty($e_church_id)){
-                            $churches = json_decode($e_church_id);
-                            if(!empty($churches)){
-                                foreach($churches as $c => $val){
-                                    $church .=  ucwords($this->Crud->read_field('id', $val, 'church', 'name')).', ';
+                <?php if ($e_church_type != 'all') { ?>
+                    <tr>
+                        <td><b>Church</b></td>
+                        <td>
+                            <?php 
+                            $church = '';
+                            if (!empty($e_church_id)) {
+                                foreach ($e_church_id as $id) {
+                                    $church .= ucwords($this->Crud->read_field('id', $id, 'church', 'name')) . ', ';
                                 }
                             }
-                        }
-                        echo rtrim($church,', ');
-                       
-                    ?></td>
-                </tr>
-                <?php } ?>
-                <tr>
-                    <td><b>Event Type</b></td>
-                    <td><?=ucwords($e_event_type);?></td>
-                </tr>
-                <?php if($e_event_type == 'recurring'){?>
-                    <tr>
-                        <td><b>Recurrene Pattern</b></td>
-                        <td><?=ucwords($e_recurrence_pattern);?></td>
-                    </tr>
-                    <tr>
-                        <td><b>Pattern</b></td>
-                        <td><?php 
-                            $pattern = '';
-                            if($e_recurrence_pattern == 'weekly'){
-                                $pattern = 'Every '.$e_pattern;
-                            }
-                            if($e_recurrence_pattern == 'monthly'){
-                                $pattern = 'Every '.$this->Crud->numberToOrdinal((int)$e_pattern).' of the Month';
-                            }
-                            if($e_recurrence_pattern == 'yearly'){
-                                $pattern = 'Every '.$this->Crud->numberToMonth($e_pattern).' of the Year';
-                            }
-                            echo $pattern;?></td>
+                            echo rtrim($church, ', ');
+                            ?>
+                        </td>
                     </tr>
                 <?php } ?>
                 <tr>
                     <td><b>Start Date</b></td>
-                    <td><?=date('d F Y', strtotime($e_start_date)).' '.date('h:i A', strtotime($e_start_time));?></td>
+                    <td><?= date('d F Y', strtotime($e_start_date)); ?></td>
                 </tr>
                 <tr>
                     <td><b>End Date</b></td>
-                    <td><?=date('d F Y', strtotime($e_end_date)).' '.date('h:i A', strtotime($e_end_time));?></td>
+                    <td><?= date('d F Y', strtotime($e_end_date)); ?></td>
+                </tr><tr>
+                    <td><b>Duration</b></td>
+                    <td><?= ($e_reminder); ?> Minute(s)</td>
                 </tr>
-                <tr>
-                    <td><b>Location</b></td>
-                    <td><?=ucwords($e_location);?></td>
-                </tr>
-                <?php if($e_location == 'other'){?>
-                <tr>
-                    <td><b>Venue</b></td>
-                    <td><?=ucwords($e_venue);?></td>
-                </tr>
-                <?php } ?>
-                <tr>
-                    <td><b>Created At</b></td>
-                    <td><?=date('d F Y h:i:sA', strtotime($e_created_at));?></td>
-                </tr>
-                <tr>
-                    <td><b>Updated At</b></td>
-                    <td><?=date('d F Y h:i:sA', strtotime($e_updated_at));?></td>
-                </tr>
-                
-
             </table>
         </div>
 
-    </div>
+        <div class="col-sm-12 mb-3">
+            <h5 class="text-info">Time Slot Management</h5>
+            <table class="table table-hovered">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time Slot</th>
+                        <th>Prayer Point</th>
+                        <th>Church</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($e_assignment)) { ?>
+                        <?php foreach ($e_assignment as $date => $records) { ?>
+                            <?php foreach ($records as $record_key => $slot) { ?>
+                                <tr>
+                                    <td><?= date('d F Y', strtotime($date)); ?></td>
+                                    <td><?= date('h:i A', strtotime($slot['start_time'])) . ' - ' . date('h:i A', strtotime($slot['end_time'])); ?></td>
+                                    <td><?= ucfirst(strip_tags($slot['prayer'])); ?></td>
+                                    <td><?= ucwords($this->Crud->read_field('id', $slot['church_id'], 'church', 'name')); ?></td>
+                                    
+                                </tr>
+                            <?php } ?>
+                        <?php } ?>
+                    <?php } else { ?>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No time slots available.</td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
 
+
+    </div>
 <?php } ?>
+
 <?php if($param2 == 'time_add'){?>
     <div class="row">
         <input type="hidden" name="e_id" value="<?php if (!empty($e_id)) {
