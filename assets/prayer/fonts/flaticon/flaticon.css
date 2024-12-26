@@ -1,0 +1,105 @@
+	/*
+  	Flaticon icon font: Flaticon
+  	Creation date: 23/02/2016 13:43
+  	*/
+
+@font-face {
+  font-family: "Flaticon";
+  src: url("Flaticon.eot");
+  src: url("Flaticond41d.eot?#iefix") format("embedded-opentype"),
+       url("Flaticon.woff") format("woff"),
+       url("Flaticon.ttf") format("truetype"),
+       url("Flaticon.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon";
+    src: url("Flaticon.svg#Flaticon") format("svg");
+  }
+}
+[class^="flaticon-"], [class*=" flaticon-"],
+[class^="flaticon-"], [class*=" flaticon-"] {
+  font-size: 20px;
+}
+[class^="flaticon-"]:before, [class*=" flaticon-"]:before,
+[class^="flaticon-"]:after, [class*=" flaticon-"]:after {   
+  font-family: Flaticon;
+}
+
+.flaticon-apple:before { content: "\f100"; }
+.flaticon-apple-1:before { content: "\f101"; }
+.flaticon-arrows:before { content: "\f102"; }
+.flaticon-bag:before { content: "\f103"; }
+.flaticon-box:before { content: "\f104"; }
+.flaticon-clock:before { content: "\f105"; }
+.flaticon-cup:before { content: "\f106"; }
+.flaticon-drink:before { content: "\f107"; }
+.flaticon-food:before { content: "\f108"; }
+.flaticon-food-1:before { content: "\f109"; }
+.flaticon-food-2:before { content: "\f10a"; }
+.flaticon-fruit:before { content: "\f10b"; }
+.flaticon-fruit-1:before { content: "\f10c"; }
+.flaticon-fruit-2:before { content: "\f10d"; }
+.flaticon-healthy:before { content: "\f10e"; }
+.flaticon-icon-55281:before { content: "\f10f"; }
+.flaticon-man:before { content: "\f110"; }
+.flaticon-man-1:before { content: "\f111"; }
+.flaticon-man-2:before { content: "\f112"; }
+.flaticon-medical:before { content: "\f113"; }
+.flaticon-medical-1:before { content: "\f114"; }
+.flaticon-medical-2:before { content: "\f115"; }
+.flaticon-medical-3:before { content: "\f116"; }
+.flaticon-medical-4:before { content: "\f117"; }
+.flaticon-medical-5:before { content: "\f118"; }
+.flaticon-medical-6:before { content: "\f119"; }
+.flaticon-medical-7:before { content: "\f11a"; }
+.flaticon-music:before { content: "\f11b"; }
+.flaticon-music-1:before { content: "\f11c"; }
+.flaticon-music-2:before { content: "\f11d"; }
+.flaticon-people:before { content: "\f11e"; }
+.flaticon-person:before { content: "\f11f"; }
+.flaticon-shape:before { content: "\f120"; }
+.flaticon-signal:before { content: "\f121"; }
+.flaticon-signs:before { content: "\f122"; }
+.flaticon-silhouette:before { content: "\f123"; }
+.flaticon-silhouette-1:before { content: "\f124"; }
+.flaticon-silhouette-2:before { content: "\f125"; }
+.flaticon-silhouette-3:before { content: "\f126"; }
+.flaticon-silhouette-4:before { content: "\f127"; }
+.flaticon-silhouette-5:before { content: "\f128"; }
+.flaticon-sport:before { content: "\f129"; }
+.flaticon-sport-1:before { content: "\f12a"; }
+.flaticon-sports:before { content: "\f12b"; }
+.flaticon-square:before { content: "\f12c"; }
+.flaticon-star:before { content: "\f12d"; }
+.flaticon-symbol:before { content: "\f12e"; }
+.flaticon-technology:before { content: "\f12f"; }
+.flaticon-technology-1:before { content: "\f130"; }
+.flaticon-three:before { content: "\f131"; }
+.flaticon-time:before { content: "\f132"; }
+.flaticon-time-1:before { content: "\f133"; }
+.flaticon-time-2:before { content: "\f134"; }
+.flaticon-time-3:before { content: "\f135"; }
+.flaticon-time-4:before { content: "\f136"; }
+.flaticon-tool:before { content: "\f137"; }
+.flaticon-tool-1:before { content: "\f138"; }
+.flaticon-tool-10:before { content: "\f139"; }
+.flaticon-tool-11:before { content: "\f13a"; }
+.flaticon-tool-12:before { content: "\f13b"; }
+.flaticon-tool-2:before { content: "\f13c"; }
+.flaticon-tool-3:before { content: "\f13d"; }
+.flaticon-tool-4:before { content: "\f13e"; }
+.flaticon-tool-5:before { content: "\f13f"; }
+.flaticon-tool-6:before { content: "\f140"; }
+.flaticon-tool-7:before { content: "\f141"; }
+.flaticon-tool-8:before { content: "\f142"; }
+.flaticon-tool-9:before { content: "\f143"; }
+.flaticon-transport:before { content: "\f144"; }
+.flaticon-transport-1:before { content: "\f145"; }
+.flaticon-two:before { content: "\f146"; }
+.flaticon-two-1:before { content: "\f147"; }
+.flaticon-two-2:before { content: "\f148"; }
+.flaticon-weather:before { content: "\f149"; }
