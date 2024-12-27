@@ -134,269 +134,10 @@
             <div class="col-md-12">
                 <div class="weekly-event-schedule-tab">
                     <ul class="weekly-event-schedule-tab-menu" role="tablist" id="weeklyTabMenu">
-                        <li role="presentation" class="active"><a href="#monday" aria-controls="monday" role="tab" data-toggle="tab">Monday 11/02/2016</a></li>
-                        <li role="presentation"><a href="#tuesday" aria-controls="tuesday" role="tab" data-toggle="tab">Tuesday 12/02/2016</a></li>
-                        <li role="presentation"><a href="#wednesday" aria-controls="wednesday" role="tab" data-toggle="tab">Wednesday 13/02/2016</a></li>
-                        <li role="presentation"><a href="#thusday" aria-controls="thusday" role="tab" data-toggle="tab">Thusday 14/02/2016</a></li>
-                        <li role="presentation"><a href="#friday" aria-controls="friday" role="tab" data-toggle="tab">Friday 15/02/2016</a></li>
-                        <li role="presentation"><a href="#saturday" aria-controls="saturday" role="tab" data-toggle="tab">Saturday 11/02/2016</a></li>
+                        
                     </ul>
                     <div class="tab-content" id="weeklyTabContent">
-                        <!--Start single tab panel-->
-                        <div role="tabpanel" class="tab-pane fade in active" id="monday">
-                            <div class="content">
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">09:00 AM - 10:00 AM / Room 21A</p>
-                                    <h4 data-toggle="collapse" data-target="#event-one" aria-expanded="true" aria-controls="event-one">Suscipit lobortis nisl ut aliquip ex ea commodo era modno weta</h4>
-                                    <div class="box collapse in" id="event-one">
-                                        <p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-1.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span> Jonathan Doe</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">10:30 AM - 12:00 AM / Room 314B</p>
-                                    <h4 data-toggle="collapse" data-target="#event-two" aria-expanded="true" aria-controls="event-two">Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie sonsqoneto</h4>
-                                    <div class="box collapse" id="event-two">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-2.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">02:30 PM - 03:30 PM / Room 54D</p>
-                                    <h4 data-toggle="collapse" data-target="#event-three" aria-expanded="true" aria-controls="event-three">Nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat</h4>
-                                    <div class="box collapse" id="event-three">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-3.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">04:00 AM - 5:00 AM / Room 21A</p>
-                                    <h4 data-toggle="collapse" data-target="#event-four" aria-expanded="true" aria-controls="event-four">Suscipit lobortis nisl ut aliquip ex ea commodo era modno weta</h4>
-                                    <div class="box collapse" id="event-four">
-                                        <p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-1.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span> Jonathan Doe</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">05:30 AM - 06:30 AM / Room 314B</p>
-                                    <h4 data-toggle="collapse" data-target="#event-five" aria-expanded="true" aria-controls="event-five">Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie sonsqoneto</h4>
-                                    <div class="box collapse" id="event-five">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-2.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">07:00 PM - 08:00 PM / Room 54D</p>
-                                    <h4 data-toggle="collapse" data-target="#event-six" aria-expanded="true" aria-controls="event-six">Nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat</h4>
-                                    <div class="box collapse" id="event-six">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-3.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <div class="load-more-button">
-                                    <a href="#">LOAD MORE</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div role="tabpanel" class="tab-pane fade" id="tuesday">
-                            <div class="content">
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">09:00 AM - 10:00 AM / Room 21A</p>
-                                    <h4 data-toggle="collapse" data-target="#tuesday-event-one" aria-expanded="true" aria-controls="tuesday-event-one">Suscipit lobortis nisl ut aliquip ex ea commodo era modno weta</h4>
-                                    <div class="box collapse in" id="tuesday-event-one">
-                                        <p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-1.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span> Jonathan Doe</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">10:30 AM - 12:00 AM / Room 314B</p>
-                                    <h4 data-toggle="collapse" data-target="#tuesday-event-two" aria-expanded="true" aria-controls="tuesday-event-two">Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie sonsqoneto</h4>
-                                    <div class="box collapse" id="tuesday-event-two">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-2.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">02:30 PM - 03:30 PM / Room 54D</p>
-                                    <h4 data-toggle="collapse" data-target="#tuesday-event-three" aria-expanded="true" aria-controls="tuesday-event-three">Nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat</h4>
-                                    <div class="box collapse" id="tuesday-event-three">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-3.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">04:00 AM - 5:00 AM / Room 21A</p>
-                                    <h4 data-toggle="collapse" data-target="#tuesday-event-four" aria-expanded="true" aria-controls="tuesday-event-four">Suscipit lobortis nisl ut aliquip ex ea commodo era modno weta</h4>
-                                    <div class="box collapse" id="tuesday-event-four">
-                                        <p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-1.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span> Jonathan Doe</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">05:30 AM - 06:30 AM / Room 314B</p>
-                                    <h4 data-toggle="collapse" data-target="#tuesday-event-five" aria-expanded="true" aria-controls="tuesday-event-five">Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie sonsqoneto</h4>
-                                    <div class="box collapse" id="tuesday-event-five">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-2.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <!--Start single content-->
-                                <div class="single-content">
-                                    <p class="time">07:00 PM - 08:00 PM / Room 54D</p>
-                                    <h4 data-toggle="collapse" data-target="#tuesday-event-six" aria-expanded="true" aria-controls="tuesday-event-six">Nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat</h4>
-                                    <div class="box collapse" id="tuesday-event-six">
-                                        <p>At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.</p>
-                                        <div class="bottom-content clearfix">
-                                            <div class="img-holder">
-                                                <img src="<?=site_url(); ?>assets/prayer/img/weekly-event-schedule/speaker-3.png" alt="Awesome Image">    
-                                            </div>
-                                            <div class="speaker-name">
-                                                <p><span>Speaker:</span>Mark Terence</p>    
-                                            </div>
-                                            <div class="see-details">
-                                                <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i>see details</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--End single content-->
-                                <div class="load-more-button">
-                                    <a href="#">LOAD MORE</a>
-                                </div>
-                            </div>
-                        </div>
+                       
                     </div>
                 </div>    
             </div>
@@ -423,20 +164,21 @@
 	<script src="<?=site_url(); ?>assets/prayer/js/jquery-1.12.4.min.js"></script>
 	<!-- bootstrap -->
 	<script src="<?=site_url(); ?>assets/prayer/js/bootstrap.min.js"></script>
-	<script src="<?=site_url(); ?>assets/prayer/js/jquery.easing.min.js"></script>
+	<!-- bx slider -->
+	<script src="<?=site_url(); ?>assets/prayer/js/jquery.bxslider.min.js"></script>
+	<!-- count to -->
     
     
     <script src="<?=site_url(); ?>assets/prayer/js/jquery-ui-1.11.4/jquery-ui.js"></script>
-    <script src="<?=site_url(); ?>assets/prayer/js/jquery.countdown.min.js"></script>
-    
-	<!-- thm custom script -->
 	<script src="<?=site_url(); ?>assets/prayer/js/custom.js"></script>
+
+
     <script>var site_url = '<?php echo site_url(); ?>';
         $(document).ready(function() {
             // Initialize years dynamically
             var currentYear = new Date().getFullYear();
-            var startYear = currentYear - 5;
-            var endYear = currentYear + 5;
+            var startYear = 2024;
+            var endYear = currentYear + 3;
 
             // Populate the Year dropdown
             for (var i = startYear; i <= endYear; i++) {
@@ -463,6 +205,83 @@
                 ]
                 // Add events for other weeks here
             };
+
+                    // Update the Week dropdown and tabs when year or month changes
+            function updateWeekDropdown(year, month) {
+                var firstDay = new Date(year, month - 1, 1); // First day of the selected month
+                var lastDay = new Date(year, month, 0); // Last day of the selected month
+
+                // Calculate the number of days in the month
+                var totalDaysInMonth = lastDay.getDate();
+
+                // Calculate the number of weeks
+                var weeksInMonth = Math.ceil(totalDaysInMonth / 7);
+
+                // Clear current options
+                $('#week').empty();
+
+                // Populate the week dropdown with weeks for the selected month
+                for (var i = 1; i <= weeksInMonth; i++) {
+                    var startOfWeek = new Date(year, month - 1, (i - 1) * 7 + 1); // Start of the i-th week
+                    var endOfWeek = new Date(year, month - 1, i * 7); // End of the i-th week
+
+                    // Adjust the last week if it exceeds the number of days in the month
+                    if (endOfWeek.getDate() > totalDaysInMonth) {
+                        endOfWeek = new Date(year, month - 1, totalDaysInMonth);
+                    }
+
+                    // Format start and end dates
+                    var startDateFormatted = formatDate(startOfWeek);
+                    var endDateFormatted = formatDate(endOfWeek);
+
+                    // Add week option
+                    $('#week').append('<option value="'+i+'">Week ' + i + ' - ' + startDateFormatted + ' - ' + endDateFormatted + '</option>');
+                }
+
+                // Auto-select the current week if no specific week is selected
+                autoSelectCurrentWeek(year, month);
+            }
+
+            // Function to auto-select the current week
+            function autoSelectCurrentWeek(year, month) {
+                var currentDate = new Date();
+                if (currentDate.getFullYear() === year && (currentDate.getMonth() + 1) === month) {
+                    var currentDay = currentDate.getDate();
+                    var currentWeek = Math.ceil(currentDay / 7);  // Calculate the current week of the month
+
+                    // Set the selected week in the dropdown
+                    $('#week').val(currentWeek);
+
+                    // Update the selected schedule info based on the selected week
+                    updateScheduleInfo(currentWeek);
+                }
+            }
+
+            // Format date to DD/MM/YYYY
+            function formatDate(date) {
+                var day = ('0' + date.getDate()).slice(-2);
+                var month = ('0' + (date.getMonth() + 1)).slice(-2);  // months are zero-based
+                var year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            // Update the selected schedule information
+            function updateScheduleInfo(week) {
+                var selectedYear = $('#year').val();
+                var selectedMonth = $('#month').val();
+
+                var firstDay = new Date(selectedYear, selectedMonth - 1, 1);
+                var startOfWeek = new Date(firstDay.setDate(firstDay.getDate() + (week - 1) * 7)); // First day of the week
+
+                var endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6); // Last day of the week
+
+                var startDateFormatted = formatDate(startOfWeek);
+                var endDateFormatted = formatDate(endOfWeek);
+
+                // Update the selected schedule information
+                $('#selectedScheduleInfo h2').text('Week ' + week + ' - ' + startDateFormatted + ' - ' + endDateFormatted);
+            }
 
             // Function to generate tabs and event content dynamically
             function generateWeeklyTabs(year, month, selectedWeek) {
@@ -495,9 +314,9 @@
                     // Create tab content items for each day (Events for each day would go here)
                     var eventContent = generateEventContent(dayName, formattedDate); // Generate events dynamically
                     tabContent += `<div role="tabpanel" class="tab-pane ${activeClass}" id="${dayName.toLowerCase()}">
-                                    <h3>${dayName} ${formattedDate}</h3>
-                                    ${eventContent}
-                                </div>`;
+                        <div class="content">
+                        ${eventContent}
+                    </div> </div>`;
 
                     // Remove active class after the first iteration
                     activeClass = '';
@@ -557,7 +376,8 @@
 
             // Initialize the week dropdown and tabs on page load
             generateWeeklyTabs(selectedYear, selectedMonth, selectedWeek);
-
+            updateWeekDropdown(selectedYear, selectedMonth);
+   
             // Handle changes to year or month selection
             $('#year, #month').change(function() {
                 selectedYear = $('#year').val();
@@ -565,12 +385,14 @@
                 selectedWeek = 1; // Reset to week 1 for simplicity
                 $('#week').val(selectedWeek); // Reset the week dropdown to the first week
                 generateWeeklyTabs(selectedYear, selectedMonth, selectedWeek);
+                updateWeekDropdown(selectedYear, selectedMonth);
             });
 
             // Handle changes to the selected week
             $('#week').change(function() {
                 selectedWeek = $('#week').val();
                 generateWeeklyTabs(selectedYear, selectedMonth, selectedWeek);
+                updateScheduleInfo(selectedWeek);
             });
         });
     </script>
