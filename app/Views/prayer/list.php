@@ -194,18 +194,6 @@
             $('#month').val(selectedMonth);
             $('#week').val(selectedWeek);
 
-            // Event data: replace with actual event data or dynamic content
-            var events = {
-                "week1": [
-                    { time: "09:00 AM - 10:00 AM", room: "Room 21A", title: "Event 1", speaker: "John Doe", description: "Event details..." },
-                    { time: "10:30 AM - 12:00 PM", room: "Room 314B", title: "Event 2", speaker: "Jane Smith", description: "Event details..." }
-                ],
-                "week2": [
-                    { time: "02:30 PM - 03:30 PM", room: "Room 314B", title: "Event 3", speaker: "Mark Terence", description: "Event details..." }
-                ]
-                // Add events for other weeks here
-            };
-
                     // Update the Week dropdown and tabs when year or month changes
             function updateWeekDropdown(year, month) {
                 var firstDay = new Date(year, month - 1, 1); // First day of the selected month
@@ -262,7 +250,7 @@
                 var day = ('0' + date.getDate()).slice(-2);
                 var month = ('0' + (date.getMonth() + 1)).slice(-2);  // months are zero-based
                 var year = date.getFullYear();
-                return `${day}/${month}/${year}`;
+                return `${day}-${month}-${year}`;
             }
 
             // Update the selected schedule information
@@ -291,10 +279,14 @@
                 
                 var tabMenu = '';
                 var tabContent = '';
-                var activeClass = 'active'; // Set the first tab as active
+                var activeClass = ''; // Initially no active class
 
                 // Calculate the start of the selected week (assumed Sunday to Saturday)
                 var startOfWeek = new Date(year, month - 1, (selectedWeek - 1) * 7 + 1); // Start of the selected week
+
+                // Get the current date
+                var currentDate = new Date();
+                var currentDayFormatted = formatDate(currentDate); // Format current day to dd/mm/yyyy
 
                 // Generate tabs for each day of the selected week (Sunday to Saturday)
                 for (var i = 0; i < 7; i++) {
@@ -304,19 +296,32 @@
                     var dayName = getDayName(currentDay); // Get the day name (Sunday, Monday, etc.)
                     var formattedDate = formatDate(currentDay); // Format the date as dd/mm/yyyy
 
+                    // Check if the current day matches this tab's date
+                    if (formattedDate === currentDayFormatted) {
+                        activeClass = 'active'; // Set this tab as active
+                    } else {
+                        activeClass = ''; // No active class for other days
+                    }
+                   // Create a unique ID using the day name and formatted date
+                    var uniqueId = dayName.toLowerCase() + '-' + formattedDate;  // Combine dayName and formattedDate
+
                     // Create tab menu items for each day of the week (from Sunday to Saturday)
                     tabMenu += `<li role="presentation" class="${activeClass}">
-                                    <a href="#${dayName.toLowerCase()}" aria-controls="${dayName.toLowerCase()}" role="tab" data-toggle="tab">
+                                    <a href="#${uniqueId}" aria-controls="${uniqueId}" role="tab" data-toggle="tab">
                                         ${dayName} ${formattedDate}
                                     </a>
                                 </li>`;
 
+                    // Generate event content dynamically
+                    var eventContent = generateEventContent(dayName, formattedDate, formatDate(startOfWeek)); // Generate events dynamically
+
                     // Create tab content items for each day (Events for each day would go here)
-                    var eventContent = generateEventContent(dayName, formattedDate); // Generate events dynamically
-                    tabContent += `<div role="tabpanel" class="tab-pane ${activeClass}" id="${dayName.toLowerCase()}">
-                        <div class="content">
-                        ${eventContent}
-                    </div> </div>`;
+                    tabContent += `<div role="tabpanel" class="tab-pane ${activeClass}" id="${uniqueId}">
+                                        <div class="content">
+                                            ${eventContent}
+                                        </div>
+                                    </div>`;
+
 
                     // Remove active class after the first iteration
                     activeClass = '';
@@ -327,13 +332,6 @@
                 $('#weeklyTabContent').html(tabContent);
             }
 
-            // Function to format date as dd/mm/yyyy
-            function formatDate(date) {
-                var day = ('0' + date.getDate()).slice(-2);
-                var month = ('0' + (date.getMonth() + 1)).slice(-2);  // months are zero-based
-                var year = date.getFullYear();
-                return `${day}/${month}/${year}`;
-            }
 
             // Function to get the day name (e.g., "Sunday", "Monday", etc.)
             function getDayName(date) {
@@ -341,38 +339,27 @@
                 return daysOfWeek[date.getDay()];
             }
 
-            // Function to generate event content dynamically (replace with actual event data)
-            function generateEventContent(dayName, date) {
-                // For now, we will just display a placeholder for events
-                var events = [
-                    { time: "09:00 AM - 10:00 AM", room: "Room 21A", title: "Sample Event 1", speaker: "John Doe", description: "Event details..." },
-                    { time: "10:30 AM - 12:00 PM", room: "Room 314B", title: "Sample Event 2", speaker: "Jane Smith", description: "Event details..." }
-                ];
-
+            function generateEventContent(dayName, date, startOfWeek) {
                 var eventContent = '';
-                events.forEach(function(event, index) {
-                    eventContent += `<div class="single-content">
-                                        <p class="time">${event.time} / ${event.room}</p>
-                                        <h4 data-toggle="collapse" data-target="#${dayName.toLowerCase()}-event-${index + 1}" aria-expanded="true" aria-controls="${dayName.toLowerCase()}-event-${index + 1}">${event.title}</h4>
-                                        <div class="box collapse" id="${dayName.toLowerCase()}-event-${index + 1}">
-                                            <p>${event.description}</p>
-                                            <div class="bottom-content clearfix">
-                                                <div class="img-holder">
-                                                    <img src="${site_url}assets/prayer/img/event/single-event/speaker.png" alt="Speaker">    
-                                                </div>
-                                                <div class="speaker-name">
-                                                    <p><span>Speaker:</span> ${event.speaker}</p>    
-                                                </div>
-                                                <div class="see-details">
-                                                    <a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> see details</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>`;
-                });
 
-                return eventContent;
+                // Send an AJAX request to fetch events for the given date (dayName and date)
+                $.ajax({
+                    url: site_url + 'prayer/index/get_content',  // Endpoint to get events
+                    type: 'post',
+                    data: { day: dayName, date: date, week_start: startOfWeek },  // Pass the day and date as query parameters
+                    success: function(response) {
+                        // No need to parse the response as it's already in JSON format
+                        var events = response;  // `response` is automatically parsed to an object/array
+                        // Insert the event content into the tab content container
+                        $('#' + dayName.toLowerCase()).html(events);
+                    },
+                    error: function() {
+                        // Handle AJAX errors
+                        $('#' + dayName.toLowerCase()).html('<p>Error fetching events.</p>');
+                    }
+                });
             }
+
 
             // Initialize the week dropdown and tabs on page load
             generateWeeklyTabs(selectedYear, selectedMonth, selectedWeek);
