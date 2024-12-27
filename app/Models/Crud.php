@@ -877,6 +877,39 @@ class Crud extends Model {
 			</div>
 		';	
 	}
+
+	public function prayer_msg($type = '', $text = '') {
+		// Set default values for icon and icon text based on alert type
+		if ($type == 'success') {
+			$icon = 'fas fa-check-circle';  // Font Awesome check circle icon
+			$icon_text = 'Successful!';
+		} else if ($type == 'info') {
+			$icon = 'fas fa-info-circle';  // Font Awesome info circle icon
+			$icon_text = 'Heads up!';
+		} else if ($type == 'warning') {
+			$icon = 'fas fa-exclamation-circle';  // Font Awesome warning icon
+			$icon_text = 'Please check!';
+		} else if ($type == 'danger') {
+			$icon = 'fas fa-exclamation-triangle';  // Font Awesome exclamation triangle icon
+			$icon_text = 'Oops!';
+		} else {
+			// Default values if no valid type is provided
+			$icon = 'fas fa-info-circle';  // Default to info circle icon
+			$icon_text = 'Notice';
+		}
+	
+		// Return the Bootstrap 5 compatible alert message HTML with Font Awesome icons
+		return '
+			<div class="alert alert-' . $type . ' alert-dismissible fade show" role="alert">
+				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				<div class="d-flex align-items-center">
+					<i class="' . $icon . '" style="font-size:50px; margin-right:10px;"></i>
+					<div>' . $text . '</div>
+				</div>
+			</div>
+		';
+	}
+	
 	//////////////////// END NOTIFICATION CRUD ///////////////////////
 
 	/////////////////// API CRUD /////////////////////////
@@ -1478,7 +1511,7 @@ class Crud extends Model {
         $builder = $db->table($table);
 
 		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') >= '".$firstDate."'",NULL,FALSE);
-   		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
+   		$builder->where("DATE_FORMAT(".$col2.",'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
 		   $builder->orderBy('id', 'DESC');
 		   // limit query
 		   if($limit && $offset) {
