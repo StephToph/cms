@@ -173,6 +173,15 @@ $this->Crud = new Crud();
 
         <div class="col-sm-12 mb-3">
             <div class="form-group">
+                <label class="form-label" for="name">Title</label>
+                <input class="form-control" type="text" id="prayer_title" name="prayer_title" 
+                    value="<?php if (!empty($e_prayer_title)) { echo $e_prayer_title; } ?>" 
+                    min="1" step="1">
+            </div>
+        </div>
+
+        <div class="col-sm-12 mb-3">
+            <div class="form-group">
                 <label for="name"  class="form-label">Prayer Point</label>
                 <textarea id="summernote" class="form-control" name="prayer" rows="5"><?php if (!empty($e_prayer)) {
                     echo $e_prayer;
@@ -302,7 +311,14 @@ $this->Crud = new Crud();
             </div>
         </div>
 
-
+        <div class="col-sm-12 mb-3">
+            <div class="form-group">
+                <label class="form-label" for="name">Title</label>
+                <input class="form-control" type="text" id="prayer_title" name="prayer_title" 
+                    value="<?php if (!empty($prayer_title)) { echo $prayer_title; } ?>" 
+                    min="1" step="1">
+            </div>
+        </div>
         <!-- Prayer Point -->
         <div class="col-sm-12 mb-3">
             <div class="form-group">
