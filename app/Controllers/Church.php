@@ -557,7 +557,7 @@ class Church extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
