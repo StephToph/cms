@@ -1506,6 +1506,37 @@ class Crud extends Model {
 		$db->close();
 	}
 
+	public function prayer_range($firstDate, $col1, $secondDate, $col2, $table, $limit = '', $offset = '') {
+		// Connect to the database
+		$db = db_connect();
+		$builder = $db->table($table);
+	
+		// Format the first and second date
+		$firstDate = date('Y-m-d', strtotime($firstDate));
+		$secondDate = date('Y-m-d', strtotime($secondDate));
+	
+		// Build query: Check if the provided dates fall between start_date and end_date
+		$builder->where("DATE_FORMAT(" . $col1 . ", '%Y-%m-%d') <= '" . $secondDate . "'", NULL, FALSE);
+		$builder->where("DATE_FORMAT(" . $col2 . ", '%Y-%m-%d') >= '" . $firstDate . "'", NULL, FALSE);
+	
+		// Order the result by id descending
+		$builder->orderBy('id', 'DESC');
+	
+		// Apply limits and offsets if provided
+		if ($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if ($limit) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+	
+		// Return the query results
+		return $query->getResult();
+		$db->close();
+	}
+	
+
 	public function date_range($firstDate, $col1, $secondDate, $col2, $table, $limit='', $offset=''){
 		$db = db_connect();
         $builder = $db->table($table);

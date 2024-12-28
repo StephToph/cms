@@ -1718,6 +1718,14 @@ class Ministry extends BaseController {
 						$church_id[] = $log_church_id;
 					}
 					
+					  
+					// Validate if the end_date is not less than start_date
+					if (strtotime($end_date) < strtotime($start_date)) {
+						// If validation fails, return an error message
+						echo $this->Crud->msg('danger', 'End date cannot be earlier than the start date.');
+						die;
+					}
+
 					
 					$ins_data['title'] = $title;
 					$ins_data['start_date'] = $start_date;
@@ -1842,8 +1850,8 @@ class Ministry extends BaseController {
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
 
-						$start = date('Y-m-d H:i', strtotime($q->start_date));
-						$end = date('Y-m-d H:i', strtotime($q->end_date));
+						$start = date('Y-m-d', strtotime($q->start_date));
+						$end = date('Y-m-d', strtotime($q->end_date));
 				
 						$item .= '
 							<tr>
