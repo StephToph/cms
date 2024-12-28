@@ -52,7 +52,7 @@
                             // Create category div with col-3
                             var categoryDiv = document.createElement('div');
                             categoryDiv.classList.add('col-3');
-                            categoryDiv.innerHTML = '<strong>' + info.event.extendedProps.category + '</strong>';
+                            categoryDiv.innerHTML = '<strong>' + info.event.extendedProps.church + '</strong>';
                     
                             // Create buttons div with col-3
                             var buttonsDiv = document.createElement('div');
@@ -63,34 +63,23 @@
                             var editUrl = site_url + 'church/activity/manage/edit/' + info.event.id;  // Update the URL format as needed
                             editBtn.href = 'javascript:;';
                             editBtn.setAttribute('pageName', editUrl);
-                            editBtn.setAttribute('pageTitle', 'Edit Event: ' + info.event.title); // Set page title
+                            editBtn.setAttribute('pageTitle', 'Join Prayer: ' + info.event.title); // Set page title
                             editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
                             editBtn.className = 'btn btn-primary btn-icon pops text-white mx-1';  // mx-1 for spacing
                             editBtn.innerHTML = '<em class="icon ni ni-edit"></em>';
 
-                            // Create Delete button
-                            var deleteBtn = document.createElement('a');
-                            var deleteUrl = site_url + 'church/activity/manage/delete/' + info.event.id;  // Update the URL format as needed
-                            deleteBtn.href = 'javascript:;';
-                            deleteBtn.setAttribute('pageName', deleteUrl);
-                            deleteBtn.setAttribute('pageTitle', 'Delete Event: ' + info.event.title); // Set page title
-                            deleteBtn.setAttribute('pageSize', 'modal-md'); // Set modal size
-                            deleteBtn.className = 'btn btn-danger btn-icon text-white pops mx-1';  // mx-1 for spacing
-                            deleteBtn.innerHTML = '<em class="icon ni ni-trash"></em>';
-                           
                             // Create View button
                             var viewBtn = document.createElement('a');
                             var viewUrl = site_url + 'church/activity/manage/view/' + info.event.id;  // Update the URL format as needed
                             viewBtn.href = 'javascript:;';
                             viewBtn.setAttribute('pageName', viewUrl);
-                            viewBtn.setAttribute('pageTitle', 'View Event: ' + info.event.title); // Set page title
+                            viewBtn.setAttribute('pageTitle', 'View Prayer Point: ' + info.event.title); // Set page title
                             viewBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
                             viewBtn.className = 'btn btn-success btn-icon text-white pops mx-1';  // mx-1 for spacing
                             viewBtn.innerHTML = '<em class="icon ni ni-eye"></em>';
                             
                             // Append buttons to the buttonsDiv
                             buttonsDiv.appendChild(editBtn);
-                            buttonsDiv.appendChild(deleteBtn);
                             buttonsDiv.appendChild(viewBtn);
                     
                             // Append title, category, and buttons divs to the rowDiv
