@@ -126,8 +126,67 @@ class Prayer extends BaseController {
 			die;
 		
 		}
+
+		$cal_events = array();
+		$log_id = 0;
+		$cal_ass = $this->Crud->read('prayer');
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 		
+		if (!empty($cal_ass)) {
+			foreach ($cal_ass as $key => $value) {
+				$assignment = json_decode($value->assignment, true);
+				
+				$class = 'fc-event-primary';
+				$name = $value->title;
+
+				if (!empty($assignment) && is_array($assignment)) {
+					// Initialize an empty array to hold the results for each date
+					$calendar_events = [];
+
+					// Loop through the assignment array
+					foreach ($assignment as $date => $records) {
+						// Initialize an empty array to hold events for each date
+						$calendar_events[$date] = [];
+
+						// Loop through each record for the current date
+						foreach ($records as $record_key => $record_val) {
+							// Extract start time, end time, and other details
+							$start_time = isset($record_val['start_time']) ? $record_val['start_time'] : '00:00';
+							$end_time = isset($record_val['end_time']) ? $record_val['end_time'] : '00:00';
+							$prayer = isset($record_val['prayer']) ? $record_val['prayer'] : 'No prayer description';
+							$prayer_title = isset($record_val['prayer_title']) ? $record_val['prayer_title'] : 'No title';
+							$church_id = isset($record_val['church_id']) ? $record_val['church_id'] : 'Unknown Church';
+							$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+
+							// Concatenate the date with start time and end time
+							$start = $date . ' ' . $start_time;
+							$end = $date . ' ' . $end_time;
+
+
+							$cal_events[$record_key] = [
+								'id' => $value->id,
+								'title' => strtoupper(($prayer_title)),
+								'start' => date('Y-m-d H:i', strtotime($start)),
+								'end' => date('Y-m-d H:i', strtotime($end)),
+								'extendedProps' => ['church' => ucwords($church)],
+								'publicId' => $value->id,
+								'description' => ucwords($this->Crud->convertText($prayer)),
+								'className' => $class,
+							];
+						}
+					}
+
+				}
+				
+				
+			}
+		}
 		
+
+		$data['cal_events'] = (array_values($cal_events));
+		// print_r(array_values($cal_events));
+	
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} else { // view for main page
