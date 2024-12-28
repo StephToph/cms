@@ -127,29 +127,43 @@ $this->Crud = new Crud();
             </div>
             <?php } else {?>
                 <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
-                <div class="col-sm-12 mb-3">
-                    <div class="form-group">
-                        <label for="name">*<?=translate_phrase('Region'); ?></label>
-                        <select id="region_id" name="region_id" class="js-select2">
-                            <?php
-                                $rid= $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                                $part = $this->Crud->read2_order('ministry_id', $rid, 'type', 'region', 'church', 'name', 'asc');
-                                if(!empty($part)){
-                                    foreach($part as $p){
-                                        $sel = '';
-                                        if(!empty($e_regional_id)){
-                                            if($e_regional_id == $p->id){
-                                                $sel = 'selected';
+                <?php 
+                    if($role != 'ministry administrator'){
+                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                        $type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+                        if($type == 'region'){
+                            $region_id = $church_id;
+                        } else {
+                            $region_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+
+                        }
+                        
+                        ?>
+                        <input type="hidden" id="region_id" name="region_id" value="<?=$region_id; ?>">
+                    <?php } else{?>
+        <div class="col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label for="name">*<?=translate_phrase('Region'); ?></label>
+                            <select id="region_id" name="region_id" class="js-select2">
+                                <?php
+                                    $rid= $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                                    $part = $this->Crud->read2_order('ministry_id', $rid, 'type', 'region', 'church', 'name', 'asc');
+                                    if(!empty($part)){
+                                        foreach($part as $p){
+                                            $sel = '';
+                                            if(!empty($e_regional_id)){
+                                                if($e_regional_id == $p->id){
+                                                    $sel = 'selected';
+                                                }
                                             }
+                                            echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name).'</option>';
                                         }
-                                        echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name).'</option>';
                                     }
-                                }
-                            ?>
-                        </select>
+                                ?>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            <?php } ?>
+            <?php } }?>
            
         </div>
         
