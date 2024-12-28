@@ -1391,6 +1391,7 @@ class Ministry extends BaseController {
 					$prayer = $this->request->getPost('prayer');
 					$church_id = $this->request->getPost('church_id');
 					$reminder = $this->request->getPost('reminder');
+					$prayer_title = $this->request->getPost('prayer_title');
 					$end_time = $this->request->getPost('end_time');
 					$hour = $this->request->getPost('hour');
 					$minute = $this->request->getPost('minute');
@@ -1444,6 +1445,7 @@ class Ministry extends BaseController {
 						'start_time' => $start_time,
 						'end_time' => $end,
 						'prayer' => $prayer,
+						'prayer_title' => $prayer_title,
 						'reminder' => $reminder,
 						'church_id' => $church_id,
 					];
@@ -1492,11 +1494,13 @@ class Ministry extends BaseController {
 
 								// Populate data array with record details
 								$data['record_key'] = $param5; // Unique key for identification
-								$data['start_time'] = $record['start_time'];
-								$data['end_time'] = $record['end_time'];
-								$data['prayer'] = $record['prayer'];
-								$data['reminder'] = $record['reminder'];
-								$data['church_idz'] = $record['church_id'];
+								$data['start_time'] = isset($record['start_time']) ? $record['start_time'] : ''; 
+								$data['end_time'] = isset($record['end_time']) ? $record['end_time'] : '';
+								$data['prayer'] = isset($record['prayer']) ? $record['prayer'] : '';
+								$data['prayer_title'] = isset($record['prayer_title']) ? $record['prayer_title'] : '';
+								$data['reminder'] = isset($record['reminder']) ? $record['reminder'] : '0';
+								$data['church_idz'] = isset($record['church_id']) ? $record['church_id'] : '0';
+
 							}
 						}
 					}
@@ -1508,6 +1512,7 @@ class Ministry extends BaseController {
 					$date = $this->request->getPost('date'); // Date of the assignment
 					$record_index = $this->request->getPost('record_index'); // Record index (e.g., record_1)
 					$prayer = $this->request->getPost('prayer'); // Prayer text
+					$prayer_title = $this->request->getPost('prayer_title'); // Prayer text
 					$church_id = $this->request->getPost('church_id'); // Church ID
 					$reminder = $this->request->getPost('reminder'); // Reminder time
 					$end_time = $this->request->getPost('end_time'); // End time
@@ -1547,6 +1552,7 @@ class Ministry extends BaseController {
 							'start_time' => $start_time,
 							'end_time' => $end,
 							'prayer' => $prayer,
+							'prayer_title' => $prayer_title,
 							'reminder' => $reminder,
 							'church_id' => $church_id,
 						];

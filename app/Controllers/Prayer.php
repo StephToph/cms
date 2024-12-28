@@ -63,7 +63,7 @@ class Prayer extends BaseController {
 						$assignment = json_decode($q->assignment, true); // Decode JSON assignment
 				
 						// Check if the date exists in the assignment
-						if (array_key_exists($datez, $assignment)) {
+					    if (is_array($assignment) && array_key_exists($datez, $assignment)) {
 							// Extract records for the specified date
 							$records = $assignment[$datez];
 				
