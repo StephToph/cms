@@ -14,7 +14,6 @@
 	<!-- responsive stylesheet -->
 	<link rel="stylesheet" href="<?=site_url(); ?>assets/prayer/css/responsive.css">
     <!-- Bootstrap CSS CDN -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     
 </head>
     
@@ -102,7 +101,7 @@
                 // Calculate the number of weeks in the month
             ?>
                 <div class="section-title pull-left" id="selectedScheduleInfo">
-                    <b><h2 ></h2>
+                    <b><h3></h3>
                     </b>
                 </div>  
             </div>
@@ -268,18 +267,18 @@
                 var endDateFormatted = formatDate(endOfWeek);
 
                 // Update the selected schedule information
-                $('#selectedScheduleInfo h2').text('Week ' + week + ' - ' + startDateFormatted + ' - ' + endDateFormatted);
+                $('#selectedScheduleInfo h3').text('Week ' + week + ' - ' + startDateFormatted + ' - ' + endDateFormatted);
             }
 
-            // Function to generate tabs and event content dynamically
+           
             function generateWeeklyTabs(year, month, selectedWeek) {
                 var firstDay = new Date(year, month - 1, 1); // First day of the selected month
                 var lastDay = new Date(year, month, 0); // Last day of the selected month
                 var totalDaysInMonth = lastDay.getDate();
                 
                 var tabMenu = '';
-                var tabContent = '';
                 var activeClass = ''; // Initially no active class
+                var firstTabId = '';  // Store the ID of the first tab (Sunday)
 
                 // Calculate the start of the selected week (assumed Sunday to Saturday)
                 var startOfWeek = new Date(year, month - 1, (selectedWeek - 1) * 7 + 1); // Start of the selected week
@@ -287,7 +286,15 @@
                 // Get the current date
                 var currentDate = new Date();
                 var currentDayFormatted = formatDate(currentDate); // Format current day to dd/mm/yyyy
+                 // Check if the current date is in the selected week
+                
+                var isCurrentDayInWeek = false;
+                var currentDayTab = ''; 
 
+
+                $('#weeklyTabMenu').html(''); // Clear previous tabs
+                $('#weeklyTabContent').html(''); // Clear previous content
+             
                 // Generate tabs for each day of the selected week (Sunday to Saturday)
                 for (var i = 0; i < 7; i++) {
                     var currentDay = new Date(startOfWeek);
@@ -295,70 +302,111 @@
 
                     var dayName = getDayName(currentDay); // Get the day name (Sunday, Monday, etc.)
                     var formattedDate = formatDate(currentDay); // Format the date as dd/mm/yyyy
-
+                    
+                    
                     // Check if the current day matches this tab's date
-                    if (formattedDate === currentDayFormatted) {
-                        activeClass = 'active'; // Set this tab as active
+                    var isCurrentDay = formattedDate === currentDayFormatted;
+
+                    // Check if the current day is within the selected week
+                    if (isCurrentDay) {
+                        isCurrentDayInWeek = true;
+                        currentDayTab = dayName.toLowerCase() + '-' + formattedDate.replace(/\//g, '-');
+                    }
+
+                    // Set the active class based on whether the current day or Sunday should be active
+                    if (isCurrentDayInWeek && isCurrentDay) {
+                        activeClass = 'active'; // Set current day as active if it's in the selected week
+                    } else if (i === 0 && !isCurrentDayInWeek) {
+                        activeClass = 'active'; // Set Sunday as active if current day is not in the week
                     } else {
                         activeClass = ''; // No active class for other days
                     }
-                   // Create a unique ID using the day name and formatted date
-                    var uniqueId = dayName.toLowerCase() + '-' + formattedDate;  // Combine dayName and formattedDate
+
+                    // Set first tab ID (if it's Sunday or the current day)
+                    if (i === 0 || isCurrentDay) {
+                        firstTabId = dayName.toLowerCase() + '-' + formattedDate.replace(/\//g, '-'); // Set first tab ID with safe date format
+                    }
+
+
+                    // Create a unique ID using the day name and formatted date
+                    var uniqueId = dayName.toLowerCase() + '-' + formattedDate.replace(/\//g, '-');  // Replace "/" with "-" for valid ID
 
                     // Create tab menu items for each day of the week (from Sunday to Saturday)
                     tabMenu += `<li role="presentation" class="${activeClass}">
-                                    <a href="#${uniqueId}" aria-controls="${uniqueId}" role="tab" data-toggle="tab">
+                                    <a href="#${uniqueId}" aria-controls="${uniqueId}" role="tab" data-toggle="tab" class="tab-link" data-date="${formattedDate}" data-day="${dayName}">
                                         ${dayName} ${formattedDate}
                                     </a>
                                 </li>`;
-
-                    // Generate event content dynamically
-                    var eventContent = generateEventContent(dayName, formattedDate, formatDate(startOfWeek)); // Generate events dynamically
-
-                    // Create tab content items for each day (Events for each day would go here)
-                    tabContent += `<div role="tabpanel" class="tab-pane ${activeClass}" id="${uniqueId}">
-                                        <div class="content">
-                                            ${eventContent}
-                                        </div>
-                                    </div>`;
-
-
-                    // Remove active class after the first iteration
-                    activeClass = '';
                 }
+                // Insert the generated tab menu into the DOM
 
-                // Insert the generated tab menu and tab content into the DOM
                 $('#weeklyTabMenu').html(tabMenu);
-                $('#weeklyTabContent').html(tabContent);
+
+                // Bind click event for each tab to load event content dynamically
+                $('.tab-link').on('click', function(e) {
+                    var selectedDate = $(this).data('date');  // Get the selected date
+                    var selectedDay = $(this).data('day');    // Get the selected day (e.g., Sunday, Monday)
+                    var selectedTabId = $(this).attr('href').substring(1); // Get the ID of the tab content (remove '#')
+
+                    // Load the event content for the selected day
+                    loadEventContent(selectedTabId, selectedDay, selectedDate);
+                });
+                // Load the content for the first tab (Sunday if current day is not in the week, otherwise the current day)
+                
+                loadEventContent(firstTabId, getDayName(new Date(startOfWeek)), formatDate(startOfWeek));
+                
+            }
+            
+            // Function to load the event content using AJAX
+            function loadEventContent(tabId, dayName, date) {
+                $.ajax({
+                    url: site_url + 'prayer/index/get_content',  // Endpoint to get events
+                    type: 'post',
+                    data: { day: dayName, date: date, tabz:tabId },  // Send selected day and date as parameters
+                    success: function(response) {
+                        // Insert the event content into the corresponding tab content area
+                        $('#weeklyTabContent').html(response);  // Insert content into the clicked tab's content
+                        
+                        $('#' + tabId).collapse('show');
+                    },
+                    error: function() {
+                        // Handle AJAX errors
+                        $('#weeklyTabContent').html('<p>Error fetching events.</p>');
+                    }
+                });
             }
 
-
-            // Function to get the day name (e.g., "Sunday", "Monday", etc.)
+            // Helper function to get the day name (e.g., "Sunday", "Monday", etc.)
             function getDayName(date) {
                 var daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
                 return daysOfWeek[date.getDay()];
             }
 
-            function generateEventContent(dayName, date, startOfWeek) {
-                var eventContent = '';
+            // Helper function to format the date in dd/mm/yyyy format
+            function formatDate(date) {
+                var day = date.getDate();
+                var month = date.getMonth() + 1; // Months are zero-based
+                var year = date.getFullYear();
+                return (day < 10 ? '0' + day : day) + '/' + (month < 10 ? '0' + month : month) + '/' + year;
+            }
 
-                // Send an AJAX request to fetch events for the given date (dayName and date)
+
+            function generateEventContent(dayName, date, startOfWeek, callback) {
                 $.ajax({
                     url: site_url + 'prayer/index/get_content',  // Endpoint to get events
                     type: 'post',
                     data: { day: dayName, date: date, week_start: startOfWeek },  // Pass the day and date as query parameters
                     success: function(response) {
-                        // No need to parse the response as it's already in JSON format
-                        var events = response;  // `response` is automatically parsed to an object/array
-                        // Insert the event content into the tab content container
-                        $('#' + dayName.toLowerCase()).html(events);
+                        // Pass the response (events) to the callback function
+                        callback(response);
                     },
                     error: function() {
                         // Handle AJAX errors
-                        $('#' + dayName.toLowerCase()).html('<p>Error fetching events.</p>');
+                        callback('<p>Error fetching events.</p>');
                     }
                 });
             }
+
 
 
             // Initialize the week dropdown and tabs on page load
