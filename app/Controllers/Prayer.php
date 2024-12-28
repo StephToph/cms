@@ -132,23 +132,17 @@ class Prayer extends BaseController {
 		$cal_ass = $this->Crud->read('prayer');
 		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
 		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
-		
+
 		if (!empty($cal_ass)) {
 			foreach ($cal_ass as $key => $value) {
 				$assignment = json_decode($value->assignment, true);
-				
+
 				$class = 'fc-event-primary';
 				$name = $value->title;
 
 				if (!empty($assignment) && is_array($assignment)) {
-					// Initialize an empty array to hold the results for each date
-					$calendar_events = [];
-
 					// Loop through the assignment array
 					foreach ($assignment as $date => $records) {
-						// Initialize an empty array to hold events for each date
-						$calendar_events[$date] = [];
-
 						// Loop through each record for the current date
 						foreach ($records as $record_key => $record_val) {
 							// Extract start time, end time, and other details
@@ -163,30 +157,32 @@ class Prayer extends BaseController {
 							$start = $date . ' ' . $start_time;
 							$end = $date . ' ' . $end_time;
 
+							// Adjusted id logic: Create a globally unique event id by combining date and record_key
+							$event_id = $date . '-' . $record_key; // Combine date and record_key to make it unique
 
-							$cal_events[$record_key] = [
-								'id' => $value->id,
-								'title' => strtoupper(($prayer_title)),
+							// Add event to the cal_events array without overwriting
+							$cal_events[$event_id] = [
+								'id' => $event_id,  // Set the event id
+								'title' => strtoupper($prayer_title),
 								'start' => date('Y-m-d H:i', strtotime($start)),
 								'end' => date('Y-m-d H:i', strtotime($end)),
 								'extendedProps' => ['church' => ucwords($church)],
-								'publicId' => $value->id,
+								'publicId' => $event_id,  // Set publicId correctly (same as event_id in this case)
 								'description' => ucwords($this->Crud->convertText($prayer)),
 								'className' => $class,
 							];
 						}
 					}
-
 				}
-				
-				
 			}
 		}
-		
 
-		$data['cal_events'] = (array_values($cal_events));
-		// print_r(array_values($cal_events));
-	
+		// Convert the $cal_events array to an indexed array (for easy output or JSON response)
+		$data['cal_events'] = array_values($cal_events);
+
+		// Output the calendar events
+		// print_r($data['cal_events']);
+
 		if($param1 == 'manage') { // view for form data posting
 			return view($mod.'_form', $data);
 		} else { // view for main page

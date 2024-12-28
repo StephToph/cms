@@ -210,7 +210,7 @@ $this->Crud = new Crud();
                         foreach ($e_church_id as $ch) {
                             echo '<option value="'.$ch.'">'.ucwords($this->Crud->read_field('id', $ch,'church', 'name').' - '.$this->Crud->read_field('id', $ch,'church', 'type')).'</option>';
 
-                            $load_church = $this->Crud->read_single_order($ch_type,$ch,'church', 'name','asc');
+                            $load_church = $this->Crud->read_single_order($ch_type, $ch,'church', 'name','asc');
                             if(!empty($load_church)){
                                 foreach($load_church as $lc){
                                     echo '<option value="'.$lc->id.'">'.ucwords($this->Crud->read_field('id', $lc->id,'church', 'name').' - '.$this->Crud->read_field('id', $lc->id,'church', 'type')).'</option>';
