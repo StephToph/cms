@@ -19,6 +19,19 @@ $background_image = 'assets/images/prayercloud.webp';
        
     </head>
 
+    <style>
+      .fc-list {
+            width: 100%; /* Full width of the parent container */
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        .fc-scroller {
+            display: inline-block; /* Ensure the content size adapts to its contents */
+            white-space: nowrap; /* Prevent wrapping of table rows */
+        }
+
+    </style>
+    
 
     <body class="nk-body bg-white npc-landing">
         <div class="nk-app-root">
