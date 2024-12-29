@@ -56,14 +56,41 @@ $this->Crud = new Crud();
 
         <!-- Prayer Description -->
         <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Prayer Description</h6>
+            <h6 class="overline-title">Prayer Point</h6>
             <p id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
         </div>
 
         <!-- Reminder -->
-        <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Reminder</h6>
-            <p id="preview-event-reminder"><?= $reminder == 0 ? 'No Reminder' : 'Reminder Set'; ?></p>
+        <div class="col-sm-4 mb-3">
+            <h6 class="overline-title">First Reminder</h6>
+            <p id="preview-event-reminder"><?= $reminder == 0 ? 'No Reminder' : $reminder.'min(s)'; ?></p>
+        </div>
+        <div class="col-sm-4 mb-3">
+            <h6 class="overline-title">Second Reminder</h6>
+            <p id="preview-event-reminder"><?= $reminder2 == 0 ? 'No Reminder' : $reminder2.'min(s)'; ?></p>
+        </div>
+        <div class="col-sm-4 mb-3">
+            <h6 class="overline-title">Time Zone</h6>
+            <?php
+                // Define the array of time zones (name => value)
+                $timeZones = [
+                    "EST" => "Eastern Standard Time (EST)",
+                    "CST" => "Central Standard Time (CST)",
+                    "MST" => "Mountain Standard Time (MST)",
+                    "PST" => "Pacific Standard Time (PST)",
+                    "AKST" => "Alaska Standard Time (AKST)"
+                ];
+            ?>
+            <p id="preview-event-reminder">
+                <?php
+                // Check if the time_zone is set and exists in the array, then display the full meaning
+                if (!empty($time_zone) && isset($timeZones[$time_zone])) {
+                    echo $timeZones[$time_zone];  // Show the full meaning of the selected time zone
+                } else {
+                    echo '';  // Display an empty string if no valid time zone is selected
+                }
+                ?>
+            </p>
         </div>
 
         <!-- Church -->
