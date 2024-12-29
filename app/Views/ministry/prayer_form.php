@@ -567,7 +567,8 @@ $this->Crud = new Crud();
                                 if ($e_church_type == 'region') {
                                     echo 'selected';
                                 }
-                            } ?>>
+                            } ?>> Regional
+                                Church</option>
                             <option value="zone" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'zone') {
                                     echo 'selected';
