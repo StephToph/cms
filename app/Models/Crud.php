@@ -5202,4 +5202,39 @@ class Crud extends Model {
 
 		return $sub_churches;
 	}
+
+	// Define a function to create the room and return the link
+    public function createRoom()
+    {
+        // Get the room name from the URL or parameters
+        $roomName = $this->request->getVar('room_name');
+
+        if (!$roomName) {
+            return $this->failValidationError('Room name is required');
+        }
+
+        // Generate the room ID (could be based on the name, a UUID, or another method)
+        $roomId = $this->generateRoomId($roomName);
+
+        // Jitsi URL for creating and joining the room
+        $jitsiBaseUrl = 'https://meet.jit.si'; // Or your own Jitsi server URL
+
+        // Room link to join
+        $roomLink = $jitsiBaseUrl . '/' . $roomId;
+
+        // Return the room details as a response
+        return $this->respond([
+            'room_name' => $roomName,
+            'room_id' => $roomId,
+            'room_link' => $roomLink
+        ]);
+    }
+
+    // Function to generate a unique room ID
+    private function generateRoomId($roomName)
+    {
+        // Generate a unique ID for the room based on the room name
+        // For example, we could use the room name and a timestamp to ensure uniqueness
+        return strtolower(url_title($roomName)) . '-' . time();
+    }
 }
