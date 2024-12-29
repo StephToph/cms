@@ -37,18 +37,18 @@ $this->Crud = new Crud();
         </div>
 
         <!-- Start Time -->
-        <div class="col-sm-4 mb-3">
+        <div class="col-sm-6 mb-3">
             <h6 class="overline-title">Start Time</h6>
             <p id="preview-event-start"><?= $start_time ? date('h:iA',strtotime($start_time)) : 'Not specified'; ?></p>
         </div>
 
         <!-- End Time -->
-        <div class="col-sm-4 mb-3">
+        <div class="col-sm-6 mb-3">
             <h6 class="overline-title">End Time</h6>
             <p id="preview-event-end"><?= $end_time ? date('h:iA',strtotime($end_time)) : 'Not specified'; ?></p>
         </div>
         
-        <div class="col-sm-4 mb-3">
+        <div class="col-sm-6 mb-3">
             <h6 class="overline-title">Time Zone</h6>
             <?php
                 // Define the array of time zones (name => value)
@@ -73,7 +73,7 @@ $this->Crud = new Crud();
         </div>
 
         <!-- Church -->
-        <div class="col-sm-12 mb-3">
+        <div class="col-sm-5 mb-3">
             <h6 class="overline-title">Church</h6>
             <p id="preview-event-church"><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></p>
         </div>
