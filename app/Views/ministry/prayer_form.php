@@ -477,13 +477,47 @@ $this->Crud = new Crud();
         
         <div class="col-sm-6 mb-3">
             <div class="form-group">
-                <label class="form-label" for="name">Notification Reminder(min)</label>
+                <label class="form-label" for="name">First Reminder(min)</label>
                 <input class="form-control" type="number" id="reminder" name="reminder" 
                     value="<?php if (!empty($e_reminder)) { echo $e_reminder; } ?>" 
                     min="1" step="1" required>
             </div>
         </div>
 
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label class="form-label" for="name">Second Reminder(min)</label>
+                <input class="form-control" type="number" id="reminder2" name="reminder2" 
+                    value="<?php if (!empty($e_reminder2)) { echo $e_reminder2; } ?>" 
+                    min="1" step="1" required>
+            </div>
+        </div>
+
+        <div class="col-sm-6 mb-3">
+            <div class="form-group">
+                <label class="form-label">Time Zone</label>
+                <?php
+                    // Define the array of time zones (name => value)
+                    $timeZones = [
+                        "EST" => "Eastern Standard Time (EST)",
+                        "CST" => "Central Standard Time (CST)",
+                        "MST" => "Mountain Standard Time (MST)",
+                        "PST" => "Pacific Standard Time (PST)",
+                        "AKST" => "Alaska Standard Time (AKST)"
+                    ];
+
+                ?>
+                <select class="js-select2" data-search="on" name="time_zone" id="time_zone">
+                    <?php
+                    // Loop through the $timeZones array and generate the <option> elements
+                    foreach ($timeZones as $value => $label) {
+                        $selected = ($e_time_zone == $value) ? 'selected' : '';
+                        echo '<option value="' . $value . '" ' . $selected . '>' . $label . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+        </div>
         <?php
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');

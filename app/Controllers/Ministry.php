@@ -1669,6 +1669,8 @@ class Ministry extends BaseController {
 								$data['e_end_date'] = $e->end_date;
 								$data['e_duration'] = $e->duration;
 								$data['e_reminder'] = $e->reminder;
+								$data['e_reminder2'] = $e->reminder2;
+								$data['e_time_zone'] = $e->time_zone;
 								$data['e_church_id'] = json_decode($e->churches,true);
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_church_type'] = $e->church_type;
@@ -1689,6 +1691,8 @@ class Ministry extends BaseController {
 								$data['e_end_date'] = $e->end_date;
 								$data['e_duration'] = $e->duration;
 								$data['e_reminder'] = $e->reminder;
+								$data['e_reminder2'] = $e->reminder2;
+								$data['e_time_zone'] = $e->time_zone;
 								$data['e_church_id'] = json_decode($e->churches, true);
 								$data['e_ministry_id'] = $e->ministry_id;
 								$data['e_church_type'] = $e->church_type;
@@ -1715,6 +1719,8 @@ class Ministry extends BaseController {
 					$end_date =  $this->request->getVar('end_date');
 					$duration =  $this->request->getVar('duration');
 					$reminder =  $this->request->getVar('reminder');
+					$reminder2 =  $this->request->getVar('reminder2');
+					$time_zone =  $this->request->getVar('time_zone');
 					$ministry_id =  $this->request->getVar('ministry_id');
 					$level =  $this->request->getVar('level');
 					$church_id =  $this->request->getVar('church_id');
@@ -1738,6 +1744,8 @@ class Ministry extends BaseController {
 					$ins_data['end_date'] = $end_date;
 					$ins_data['duration'] = $duration;
 					$ins_data['reminder'] = $reminder;
+					$ins_data['reminder2'] = $reminder2;
+					$ins_data['time_zone'] = $time_zone;
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_type'] = $level;
 					$ins_data['churches'] = json_encode($church_id);

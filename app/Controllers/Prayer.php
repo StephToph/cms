@@ -38,6 +38,10 @@ class Prayer extends BaseController {
 						foreach($edit as $e) {
 							$data['e_id'] = $e->id;
 							$data['e_name'] = $e->title;
+							$data['reminder'] = isset($e->reminder) ? $e->reminder : '0';
+							$data['reminder2'] = isset($e->reminder2) ? $e->reminder2 : '0';
+							$data['time_zone'] = isset($e->time_zone) ? $e->time_zone : '';
+								
 							$assignment = json_decode($e->assignment,true);
 							
 							if (!empty($assignment) && isset($assignment[$date]) && isset($assignment[$date][$record_key])) {
@@ -50,7 +54,6 @@ class Prayer extends BaseController {
 								$data['end_time'] = isset($record['end_time']) ? $record['end_time'] : '';
 								$data['prayer'] = isset($record['prayer']) ? $record['prayer'] : '';
 								$data['prayer_title'] = isset($record['prayer_title']) ? $record['prayer_title'] : '';
-								$data['reminder'] = isset($record['reminder']) ? $record['reminder'] : '0';
 								$data['church_idz'] = isset($record['church_id']) ? $record['church_id'] : '0';
 
 							}
@@ -75,6 +78,7 @@ class Prayer extends BaseController {
 
 				$class = 'fc-event-primary';
 				$name = $value->title;
+				$reminder = $value->reminder;
 
 				if (!empty($assignment) && is_array($assignment)) {
 					// Loop through the assignment array
@@ -103,7 +107,7 @@ class Prayer extends BaseController {
 								'title' => strtoupper($prayer_title),
 								'start' => date('Y-m-d H:i', strtotime($start)),
 								'end' => date('Y-m-d H:i', strtotime($end)),
-								'extendedProps' => ['church' => ucwords($church)],
+								'extendedProps' => ['church' => ucwords($church), 'reminder' => $reminder.' '],
 								'publicId' => $event_id,  // Set publicId correctly (same as event_id in this case)
 								'description' => ($prayer_title),
 								'className' => $class,

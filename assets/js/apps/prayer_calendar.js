@@ -65,8 +65,8 @@
                             editBtn.setAttribute('pageName', editUrl);
                             editBtn.setAttribute('pageTitle', 'Join Prayer: ' + info.event.title); // Set page title
                             editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
-                            editBtn.className = 'btn btn-primary btn-icon text-white mx-1';  // mx-1 for spacing
-                            editBtn.innerHTML = '<em class="icon ni ni-edit"></em>';
+                            editBtn.className = 'btn btn-primary text-white mx-1';  // mx-1 for spacing
+                            editBtn.innerHTML = 'Join';
 
                             // Create View button
                             var viewBtn = document.createElement('a');
@@ -75,8 +75,8 @@
                             viewBtn.setAttribute('pageName', viewUrl);
                             viewBtn.setAttribute('pageTitle', 'View Prayer Point: ' + info.event.title); // Set page title
                             viewBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
-                            viewBtn.className = 'btn btn-success btn-icon text-white pops mx-1';  // mx-1 for spacing
-                            viewBtn.innerHTML = '<em class="icon ni ni-eye"></em>';
+                            viewBtn.className = 'btn btn-success text-white pops mx-1';  // mx-1 for spacing
+                            viewBtn.innerHTML = 'View Prayer';
                             
                             // Append buttons to the buttonsDiv
                             buttonsDiv.appendChild(editBtn);
