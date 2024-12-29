@@ -168,9 +168,11 @@ class Prayer extends BaseController {
 								'end' => date('Y-m-d H:i', strtotime($end)),
 								'extendedProps' => ['church' => ucwords($church)],
 								'publicId' => $event_id,  // Set publicId correctly (same as event_id in this case)
-								'description' => ucwords($this->Crud->convertText($prayer)),
+								'description' => ($this->Crud->convertText($prayer)),
 								'className' => $class,
 							];
+
+							// echo $this->Crud->convertText($prayer).'<br>';
 						}
 					}
 				}
