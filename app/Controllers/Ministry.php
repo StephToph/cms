@@ -4210,5 +4210,7 @@ class Ministry extends BaseController {
 		}
 	}
 
-
+	public function room(){
+		
+	}
 }
