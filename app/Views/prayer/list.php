@@ -21,14 +21,16 @@ $background_image = 'assets/images/prayercloud.webp';
 
     <style>
       .fc-list {
-            width: 100%; /* Full width of the parent container */
-            overflow-x: auto; /* Enable horizontal scrolling */
-        }
+    width: 100%; /* Ensure the parent container takes the full width */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent content from wrapping */
+}
 
-        .fc-scroller {
-            display: inline-block; /* Ensure the content size adapts to its contents */
-            white-space: nowrap; /* Prevent wrapping of table rows */
-        }
+.fc-scroller {
+    min-width: 1000px; /* Set a minimum width for the child container */
+    overflow-x: auto; /* Ensure the child container scrolls horizontally */
+}
+
 
     </style>
     
