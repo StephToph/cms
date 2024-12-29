@@ -19,31 +19,6 @@ $background_image = 'assets/images/prayercloud.webp';
        
     </head>
 
-    <style>
-       /* Ensure the parent container or card keeps the calendar inside */
-.card-inner {
-    position: relative;
-    overflow: hidden; /* Hide anything that goes outside */
-    padding: 0; /* Optional: adjust the padding */
-}
-
-/* Ensure the .fc-scroller div only scrolls within its boundaries */
-.fc-list {
-    width: 100%;              /* Take full width of the parent container */
-    max-width: 100%;          /* Prevent it from overflowing */
-    overflow-x: auto;         /* Enable horizontal scrolling */
-    overflow-y: hidden;      /* Prevent vertical scrolling */
-    white-space: nowrap;      /* Ensure content stays in a single row for horizontal scroll */
-    box-sizing: border-box;   /* Ensure padding and borders are included in width calculations */
-}
-
-/* Optional: Set a height for the calendar container if required */
-#calendar {
-    height: 500px;  /* You can adjust this height based on your needs */
-}
-
-    </style>
-    
 
     <body class="nk-body bg-white npc-landing">
         <div class="nk-app-root">

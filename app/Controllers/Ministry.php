@@ -1012,6 +1012,16 @@ class Ministry extends BaseController {
 						
 				if (!empty($church)) {
 					foreach ($church as $c) {
+						if ($c->type == $church_type) {
+							if ($c->id == $church_id) {
+								// Add only the logged-in user's church if the type matches
+								$churches[] = [
+									'id' => $c->id,
+									'name' => $c->name,
+									'type' => $c->type
+								];
+							}
+						} 
 						if($church_type == 'region' && $c->type == 'region')continue;
 						
 						if($church_type == 'zone'){
@@ -1026,6 +1036,7 @@ class Ministry extends BaseController {
 						if($church_type == 'church'){
 							if($c->type == 'region' || $c->type == 'zone' || $c->type == 'group' || $c->type == 'church')continue;
 						}
+						
 						
 						$churches[] = [
 							'id' => $c->id,
@@ -1836,6 +1847,15 @@ class Ministry extends BaseController {
 							}
 							
 						}
+						$user_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');  
+						if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator'){
+							
+							// Check if the logged-in user's church ID is in the list of churches
+							if (!in_array($user_church_id, $church_id)) {
+								continue; // Skip the current loop if the user's church ID is not in the list
+							}
+						}
+    					
 						
 
 						// add manage buttons
@@ -1846,20 +1866,32 @@ class Ministry extends BaseController {
 
 								$all_btn = '
 									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								
-								';
-							} else {
-
-								$all_btn = '
-									<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
-									<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
-									<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
 									<li><a href="javascript:;" class="text-info" onclick="time('.$id.')" pageTitle="Time Table for ' . $title . '" ><em class="icon ni ni-users"></em><span>'.translate_phrase('Time Management').'</span></a></li>
 									
 								';
+							} else {
+								if($role != 'developer' && $role != 'administrator' && $role != 'ministry administrator' && $role != 'regional manager'){
+									$all_btn = '
+										
+										<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+										<li><a href="javascript:;" class="text-info" onclick="time('.$id.')" pageTitle="Time Table for ' . $title . '" ><em class="icon ni ni-users"></em><span>'.translate_phrase('Time Management').'</span></a></li>
+										
+									';
 
+								}  else {
+									$all_btn = '
+										<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+										<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $title . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+										<li><a href="javascript:;" class="text-success pop" pageTitle="View ' . $title . '" pageSize="modal-xl" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
+										<li><a href="javascript:;" class="text-info" onclick="time('.$id.')" pageTitle="Time Table for ' . $title . '" ><em class="icon ni ni-users"></em><span>'.translate_phrase('Time Management').'</span></a></li>
+										
+									';
+									
+								
+
+								}
+								
 							}
-							
 						}
 
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');

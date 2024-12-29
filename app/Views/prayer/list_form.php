@@ -37,38 +37,17 @@ $this->Crud = new Crud();
         </div>
 
         <!-- Start Time -->
-        <div class="col-sm-6 mb-3">
+        <div class="col-sm-4 mb-3">
             <h6 class="overline-title">Start Time</h6>
             <p id="preview-event-start"><?= $start_time ? date('h:iA',strtotime($start_time)) : 'Not specified'; ?></p>
         </div>
 
         <!-- End Time -->
-        <div class="col-sm-6 mb-3">
+        <div class="col-sm-4 mb-3">
             <h6 class="overline-title">End Time</h6>
             <p id="preview-event-end"><?= $end_time ? date('h:iA',strtotime($end_time)) : 'Not specified'; ?></p>
         </div>
-
-        <!-- Prayer Title -->
-        <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Prayer Title</h6>
-            <p id="preview-event-prayer-title"><?= ucwords($prayer_title); ?></p>
-        </div>
-
-        <!-- Prayer Description -->
-        <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Prayer Point</h6>
-            <p id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
-        </div>
-
-        <!-- Reminder -->
-        <div class="col-sm-4 mb-3">
-            <h6 class="overline-title">First Reminder</h6>
-            <p id="preview-event-reminder"><?= $reminder == 0 ? 'No Reminder' : $reminder.'min(s)'; ?></p>
-        </div>
-        <div class="col-sm-4 mb-3">
-            <h6 class="overline-title">Second Reminder</h6>
-            <p id="preview-event-reminder"><?= $reminder2 == 0 ? 'No Reminder' : $reminder2.'min(s)'; ?></p>
-        </div>
+        
         <div class="col-sm-4 mb-3">
             <h6 class="overline-title">Time Zone</h6>
             <?php
@@ -97,6 +76,19 @@ $this->Crud = new Crud();
         <div class="col-sm-12 mb-3">
             <h6 class="overline-title">Church</h6>
             <p id="preview-event-church"><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></p>
+        </div>
+
+
+        <!-- Prayer Title -->
+        <div class="col-sm-12 mb-3">
+            <h6 class="overline-title">Prayer Title</h6>
+            <p id="preview-event-prayer-title"><?= ucwords($prayer_title); ?></p>
+        </div>
+
+        <!-- Prayer Description -->
+        <div class="col-sm-12 mb-3">
+            <h6 class="overline-title">Prayer Point</h6>
+            <p id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
         </div>
 
     </div>

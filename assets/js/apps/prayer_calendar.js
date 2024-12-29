@@ -15,8 +15,7 @@
             r = n + "-" + a + "-" + t,
             v = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
             e = document.getElementById("calendar"),
-            // Dynamically determine initial view based on screen width
-            initialView = (g.Win.width < g.Break.md ? "listWeek" : "dayGridMonth"),
+            initialView = e.getAttribute("data-initial-view") || (g.Win.width < g.Break.md ? "listWeek" : "dayGridMonth"),  // Use the value from the data attribute
             headerToolbarConfig = initialView === "listWeek"
                 ? { left: "title prev,next", center: null, right: null } // No right toolbar for view switching
                 : { left: "title prev,next", center: null, right: "today dayGridMonth,timeGridWeek,timeGridDay,listWeek" }, // Default header with view switching
@@ -32,8 +31,8 @@
                 initialView: initialView, // Set the initial view dynamically
                 themeSystem: "bootstrap5",
                 headerToolbar: headerToolbarConfig,
-                height: "auto", // Auto height for responsiveness
-                contentHeight: "auto", // Adjust content height dynamically
+                height: 800,
+                contentHeight: 780,
                 aspectRatio: 3,
                 editable: !0,
                 droppable: !0,
@@ -41,48 +40,59 @@
                     dayGridMonth: { dayMaxEventRows: 2 },
                     listWeek: {
                         eventContent: function (info) {
+                            // Create a div row for the event layout
                             var rowDiv = document.createElement('div');
-                            rowDiv.classList.add('row', 'align-items-center');
+                            rowDiv.classList.add('row', 'align-items-center');  // Using Bootstrap's row and align-items-center for vertical alignment
                     
+                            // Create title div with col-6
                             var titleDiv = document.createElement('div');
                             titleDiv.classList.add('col');
                             titleDiv.innerHTML = '<strong>' + info.event.title + '</strong>';
                     
+                            // Create category div with col-3
                             var categoryDiv = document.createElement('div');
                             categoryDiv.classList.add('col');
                             categoryDiv.innerHTML = '<strong>' + info.event.extendedProps.church + '</strong>';
                     
+                            // Create buttons div with col-3
                             var buttonsDiv = document.createElement('div');
-                            buttonsDiv.classList.add('col', 'text-end');
+                            buttonsDiv.classList.add('col', 'text-end');  // text-end for right alignment
                     
+                            // Create Edit button
                             var editBtn = document.createElement('a');
-                            var editUrl = site_url + 'church/activity/manage/edit/' + info.event.id;
+                            var editUrl = site_url + 'church/activity/manage/edit/' + info.event.id;  // Update the URL format as needed
                             editBtn.href = 'javascript:;';
                             editBtn.setAttribute('pageName', editUrl);
-                            editBtn.setAttribute('pageTitle', 'Join Prayer: ' + info.event.title);
-                            editBtn.setAttribute('pageSize', 'modal-xl');
-                            editBtn.className = 'btn btn-primary text-white mt-2 mx-1';
+                            editBtn.setAttribute('pageTitle', 'Join Prayer: ' + info.event.title); // Set page title
+                            editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
+                            editBtn.className = 'btn btn-primary text-white my-2 mx-1';  // mx-1 for spacing
                             editBtn.innerHTML = 'Join';
 
+                            // Create View button
                             var viewBtn = document.createElement('a');
-                            var viewUrl = site_url + 'prayer/index/manage/view/' + info.event.id;
+                            var viewUrl = site_url + 'prayer/index/manage/view/' + info.event.id;  // Update the URL format as needed
                             viewBtn.href = 'javascript:;';
                             viewBtn.setAttribute('pageName', viewUrl);
-                            viewBtn.setAttribute('pageTitle', 'View Prayer Point: ' + info.event.title);
-                            viewBtn.setAttribute('pageSize', 'modal-xl');
-                            viewBtn.className = 'btn btn-success text-white pops mt-2 mx-1';
-                            viewBtn.innerHTML = 'View Prayer';
+                            viewBtn.setAttribute('pageTitle', 'View Prayer Point: ' + info.event.title); // Set page title
+                            viewBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
+                            viewBtn.className = 'btn btn-success text-white my-2 pops mx-1';  // mx-1 for spacing
+                            viewBtn.innerHTML = 'View Prayer ';
                             
+                            // Append buttons to the buttonsDiv
                             buttonsDiv.appendChild(editBtn);
                             buttonsDiv.appendChild(viewBtn);
                     
+                            // Append title, category, and buttons divs to the rowDiv
                             rowDiv.appendChild(titleDiv);
                             rowDiv.appendChild(categoryDiv);
                             rowDiv.appendChild(buttonsDiv);
                             
+                            
+                            // Return the array of elements (in this case, the single rowDiv element)
                             return { domNodes: [rowDiv] };
                         }
                     }
+                    
                 },
                 direction: g.State.isRTL ? "rtl" : "ltr",
                 nowIndicator: !0,
@@ -115,7 +125,7 @@
                         s = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"),
                         o = d.toUTCString().split(" "),
                         l = ((o = "00:00:00" == (o = o[o.length - 2]) ? "" : o), e.event._def.ui.classNames[0].slice(3)),
-                        id = e.event._def.publicId, 
+                        id = e.event._def.publicId, // Store the event ID
                         i =
                             (f("#edit-event-title").val(t),
                             f("#edit-event-start-date").val(i).datepicker("update"),
@@ -134,7 +144,7 @@
                             f("#preview-event-start").text(i),
                             f("#preview-event-end").text(s),
                             f("#preview-event-description").text(a),
-                            f("#preview-event-id").text(id), 
+                            f("#preview-event-id").text(id), // Add the event ID to the preview modal
                             a || f("#preview-event-description-check").css("display", "none"),
                             u(),
                             document.querySelectorAll(".fc-more-popover"));
@@ -143,7 +153,7 @@
                             e.remove();
                         }),
                         p.modal("show");
-
+                        // Update the button's pageName attribute with the event ID
                         var button = document.querySelector('.pop');
                         if (button) {
                             var baseUrl = button.getAttribute('pageName').split('/manage/edit/')[0];
@@ -152,44 +162,81 @@
                 },
                 events: calEvents,
             });
-
         function u() {
             document.querySelectorAll(".event-popover").forEach(function (e) {
                 e.remove();
             });
         }
-
         function h(e) {
             return 1 < (e = e.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [e]).length && ((e = e.slice(1)).pop(), (e[5] = +e[0] < 12 ? " AM" : " PM"), (e[0] = +e[0] % 12 || 12)), (e = e.join(""));
         }
-
         $(document).on('click', '.pops', function (event) {
+            // Prevent the event from bubbling up to the parent elements
+           // Prevents the click event from propagating to parent elements
+
             var pageTitle = $(this).attr('pageTitle');
             var pageName = $(this).attr('pageName');
             var pageSize = $(this).attr('pageSize');
+
+            // Add the appropriate class for modal size
             $(".modal-dialog").removeClass("modal-lg modal-sm modal-xl").addClass(pageSize);
             $(".modal-center .modal-title").html(pageTitle);
             $(".modal-center .modal-body").html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><br>Loading Please Wait..</div>');
-            $(".modal-center .modal-body").load(pageName, function () {});
+            
+            // Load the content into the modal body
+            $(".modal-center .modal-body").load(pageName, function () {
+                // Optional: Add any additional logic after content loads
+            });
             var add_url = site_url + 'church/activity/manage';
             $("#add_btn").attr('pageName', add_url);
+            
+            // Show the modal
             $(".modal-center").modal("show");
         });
-
-        c.render();
-        n.on("click", function (e) {
-            e.preventDefault();
-            var e = f("#event-title").val(),
-                t = f("#event-start-date").val(),
-                a = f("#event-end-date").val(),
-                n = f("#event-start-time").val(),
-                i = f("#event-end-time").val(),
-                r = f("#event-description").val(),
-                d = f("#event-theme").val(),
-                n = n ? "T" + n + "Z" : "",
-                i = i ? "T" + i + "Z" : "";
-            c.addEvent({ id: "added-event-id-" + Math.floor(9999999 * Math.random()), title: e, start: t + n, end: a + i, className: "fc-" + d, description: r }), s.modal("hide");
-        });
+        
+        c.render(),
+            n.on("click", function (e) {
+                e.preventDefault();
+                var e = f("#event-title").val(),
+                    t = f("#event-start-date").val(),
+                    a = f("#event-end-date").val(),
+                    n = f("#event-start-time").val(),
+                    i = f("#event-end-time").val(),
+                    r = f("#event-description").val(),
+                    d = f("#event-theme").val(),
+                    n = n ? "T" + n + "Z" : "",
+                    i = i ? "T" + i + "Z" : "";
+                c.addEvent({ id: "added-event-id-" + Math.floor(9999999 * Math.random()), title: e, start: t + n, end: a + i, className: "fc-" + d, description: r }), s.modal("hide");
+            }),
+            a.on("click", function (e) {
+                e.preventDefault();
+                var e = f("#edit-event-title").val(),
+                    t = f("#edit-event-start-date").val(),
+                    a = f("#edit-event-end-date").val(),
+                    n = f("#edit-event-start-time").val(),
+                    i = f("#edit-event-end-time").val(),
+                    r = f("#edit-event-description").val(),
+                    d = f("#edit-event-theme").val(),
+                    n = n ? "T" + n + "Z" : "",
+                    i = i ? "T" + i + "Z" : "";
+                c.getEventById(m[0].dataset.id).remove(), c.addEvent({ id: m[0].dataset.id, title: e, start: t + n, end: a + i, className: "fc-" + d, description: r }), o.modal("hide");
+            }),
+            t.on("click", function (e) {
+                e.preventDefault(), c.getEventById(m[0].dataset.id).remove();
+            }),
+            g.Select2(".select-calendar-theme", {
+                templateResult: function (e) {
+                    return e.id ? f('<span class="fc-' + e.element.value + '"> <span class="dot"></span>' + e.text + "</span>") : e.text;
+                },
+            }),
+            s.on("hidden.bs.modal", function (e) {
+                setTimeout(function () {
+                    f("#addEventForm input,#addEventForm textarea").val(""), f("#event-theme").val("event-primary"), f("#event-theme").trigger("change.select2");
+                }, 1e3);
+            }),
+            p.on("hidden.bs.modal", function (e) {
+                f("#preview-event-header").removeClass().addClass("modal-header");
+            });
     }),
         g.coms.docReady.push(g.Calendar);
 })(NioApp, jQuery);

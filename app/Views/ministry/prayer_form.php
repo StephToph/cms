@@ -511,7 +511,7 @@ $this->Crud = new Crud();
                     <?php
                     // Loop through the $timeZones array and generate the <option> elements
                     foreach ($timeZones as $value => $label) {
-                        $selected = ($e_time_zone == $value) ? 'selected' : '';
+                        $selected = (!empty($e_time_zone) && $e_time_zone == $value) ? 'selected' : '';
                         echo '<option value="' . $value . '" ' . $selected . '>' . $label . '</option>';
                     }
                     ?>
@@ -563,7 +563,11 @@ $this->Crud = new Crud();
                         $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
                         if ($log_church_type == 'region') { ?>
-
+                             <option value="region" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'region') {
+                                    echo 'selected';
+                                }
+                            } ?>>
                             <option value="zone" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'zone') {
                                     echo 'selected';
@@ -584,7 +588,11 @@ $this->Crud = new Crud();
                             } ?>>
                                 Church Assembly</option>
                         <?php } elseif ($log_church_type == 'zone') { ?>
-
+                            <option value="zone" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'zone') {
+                                    echo 'selected';
+                                }
+                            } ?>>
                             <option value="group" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'group') {
                                     echo 'selected';
@@ -599,7 +607,12 @@ $this->Crud = new Crud();
                                 Church Assembly</option>
 
                         <?php } elseif ($log_church_type == 'group') { ?>
-
+                            <option value="group" <?php if (!empty($e_church_type)) {
+                                if ($e_church_type == 'group') {
+                                    echo 'selected';
+                                }
+                            } ?>>Group
+                                Church</option>
                             <option value="church" <?php if (!empty($e_church_type)) {
                                 if ($e_church_type == 'church') {
                                     echo 'selected';
