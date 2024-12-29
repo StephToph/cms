@@ -24,107 +24,43 @@ class Prayer extends BaseController {
 		$data['param3'] = $param3;
 		$data['form_link'] = $form_link;
 		
-		if ($param1 == 'get_content') {
-			// Get and validate POST parameters
-			$day = $this->request->getPost('day');
-			$date = $this->request->getPost('date');
-			$tabz = $this->request->getPost('tabz');
+		if ($param1 == 'manage') {
+			if($param2 == 'view') {
+				if($param3) {
+					$parts = explode(' ', $param3);
 
-			// Ensure inputs are provided
-			if (empty($day) || empty($date)) {
-				echo $this->Crud->msg('danger', 'Missing parameters');
-				die;
-			}
-			
-			$dateParts = explode('/', $date); 
-			if (count($dateParts) == 3) {
-				$datez = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
-			} else {
-				echo $this->Crud->msg('danger', 'Invalid date format');
-				die;
-			}
-			
-			$startOfWeek = date('Y-m-d', strtotime('Sunday', strtotime($datez)));  
-			if (date('l', strtotime($datez)) == 'Saturday') {
-				$startOfWeek = date('Y-m-d', strtotime('last Sunday', strtotime($datez)));  
-			}
+					// Assign the parts to variables
+					$id = $parts[0]; // The first part will be the date
+					$date = $parts[1]; // The first part will be the date
+					$record_key = $parts[2];
+					$edit = $this->Crud->read_single('id', $id, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_name'] = $e->title;
+							$assignment = json_decode($e->assignment,true);
+							
+							if (!empty($assignment) && isset($assignment[$date]) && isset($assignment[$date][$record_key])) {
+								// Fetch the specific record using record_index ($param5)
+								$record = $assignment[$date][$record_key];
+								// print_r($record);
+								// Populate data array with record details
+								$data['record_key'] = $record_key; // Unique key for identification
+								$data['start_time'] = isset($record['start_time']) ? $record['start_time'] : ''; 
+								$data['end_time'] = isset($record['end_time']) ? $record['end_time'] : '';
+								$data['prayer'] = isset($record['prayer']) ? $record['prayer'] : '';
+								$data['prayer_title'] = isset($record['prayer_title']) ? $record['prayer_title'] : '';
+								$data['reminder'] = isset($record['reminder']) ? $record['reminder'] : '0';
+								$data['church_idz'] = isset($record['church_id']) ? $record['church_id'] : '0';
 
-			$endOfWeek = date('Y-m-d', strtotime('Saturday', strtotime($datez))); 
-			$dayName = date('l', strtotime($datez));
-			// echo $datez;
-			$query = $this->Crud->prayer_range($datez, 'start_date', $datez, 'end_date', 'prayer');
-			// print_r($query);
-			$timez = '<div role="tabpanel" class="tab-pane fade in active" id="'.$tabz.'">
-                        <div class="content">';
-				
-				if (!empty($query)) {
-					// Loop through each result in the query
-					foreach ($query as $q) {
-						$assignment = json_decode($q->assignment, true); // Decode JSON assignment
-				
-						// Check if the date exists in the assignment
-					    if (is_array($assignment) && array_key_exists($datez, $assignment)) {
-							// Extract records for the specified date
-							$records = $assignment[$datez];
-				
-							// Create a new array with start_time, end_time, church_id, and prayer
-							$formattedRecords = '';
-				
-							// Initialize index for each record
-							$index = 1;
-				
-							foreach ($records as $record) {
-								$time = $record['start_time'] . ' ' . $record['end_time'];
-								$room = 'Room 1'; 
-								$church = $this->Crud->read_field('id', $record['church_id'], 'church', 'name'); // Fetch church name
-								$title = $record['prayer'];
-				
-								// Generate a unique ID for each event using the index
-								$uniqueId = strtolower($dayName) . '-event-' . $index;
-				
-								// Build the HTML content for each event
-								$formattedRecords .= '
-									<div class="single-content">
-										<p class="time">' . date('h:i A', strtotime($record['start_time'])) . ' - ' . date('h:i A', strtotime($record['end_time'])) . ' / ' . $room . '</p>
-										<h4 data-toggle="collapse" data-target="#' . $uniqueId . '" aria-expanded="true" aria-controls="' . $uniqueId . '">' . ucwords($title) . '</h4>
-										<div class="box collapse" id="' . $uniqueId . '">
-											<div class="bottom-content clearfix">
-												<div class="img-holder">
-													<img src="' . site_url() . 'assets/prayer/img/2.png" alt="Speaker">
-												</div>
-												<div class="speaker-name">
-													<p><span>Church:</span> ' . $church . '</p>
-												</div>
-												<div class="see-details">
-													<a href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Join Prayer</a>
-												</div>
-											</div>
-										</div>
-									</div>
-								';
-				
-								// Increment the index for the next event
-								$index++;
 							}
-				
-							// Add formatted records to the timez variable
-							$timez .= $formattedRecords;
-						} else {
-							// If no records found for the date, add a message
-							$timez .= '<div class="single-content"><h4>No records found for the provided date</h4></div>';
+							
+
+							$data['e_reg_date'] = $e->reg_date;
 						}
 					}
-				} else {
-					$timez .= '<div class="single-content"><h4>No records found for the provided date</h4></div>';
 				}
-						
-
-			$timez .= '</div></div>';
-
-			
-			echo $timez;
-			die;
-		
+			}
 		}
 
 		$cal_events = array();
@@ -158,7 +94,8 @@ class Prayer extends BaseController {
 							$end = $date . ' ' . $end_time;
 
 							// Adjusted id logic: Create a globally unique event id by combining date and record_key
-							$event_id = $date . '-' . $record_key; // Combine date and record_key to make it unique
+							$event_id = urlencode($value->id) . '%20' . urlencode($date) . '%20' . urlencode($record_key);
+ 							// Combine date and record_key to make it unique
 
 							// Add event to the cal_events array without overwriting
 							$cal_events[$event_id] = [
@@ -168,11 +105,10 @@ class Prayer extends BaseController {
 								'end' => date('Y-m-d H:i', strtotime($end)),
 								'extendedProps' => ['church' => ucwords($church)],
 								'publicId' => $event_id,  // Set publicId correctly (same as event_id in this case)
-								'description' => ($this->Crud->convertText($prayer)),
+								'description' => ($prayer_title),
 								'className' => $class,
 							];
 
-							// echo $this->Crud->convertText($prayer).'<br>';
 						}
 					}
 				}
@@ -186,7 +122,7 @@ class Prayer extends BaseController {
 		// print_r($data['cal_events']);
 
 		if($param1 == 'manage') { // view for form data posting
-			return view($mod.'_form', $data);
+			return view('prayer/list_form', $data);
 		} else { // view for main page
 			
 			$data['title'] = translate_phrase('Prayer Cloud').' - '.app_name;

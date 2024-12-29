@@ -76,7 +76,7 @@ $this->Crud = new Crud();
             </table>
         </div>
 
-        <div class="col-sm-12 mb-3">
+        <div class="col-sm-12 mb-3 table-responsive">
             <h5 class="text-info">Time Slot Management</h5>
             <table class="table table-hovered">
                 <thead>

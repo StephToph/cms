@@ -65,12 +65,12 @@
                             editBtn.setAttribute('pageName', editUrl);
                             editBtn.setAttribute('pageTitle', 'Join Prayer: ' + info.event.title); // Set page title
                             editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
-                            editBtn.className = 'btn btn-primary btn-icon pops text-white mx-1';  // mx-1 for spacing
+                            editBtn.className = 'btn btn-primary btn-icon text-white mx-1';  // mx-1 for spacing
                             editBtn.innerHTML = '<em class="icon ni ni-edit"></em>';
 
                             // Create View button
                             var viewBtn = document.createElement('a');
-                            var viewUrl = site_url + 'church/activity/manage/view/' + info.event.id;  // Update the URL format as needed
+                            var viewUrl = site_url + 'prayer/index/manage/view/' + info.event.id;  // Update the URL format as needed
                             viewBtn.href = 'javascript:;';
                             viewBtn.setAttribute('pageName', viewUrl);
                             viewBtn.setAttribute('pageTitle', 'View Prayer Point: ' + info.event.title); // Set page title
