@@ -2125,20 +2125,30 @@ class Crud extends Model {
 	}
 
 	public function convertText($html) {
-		// Decode HTML entities to get the raw text
-		$html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-	
-		// Strip all HTML tags
-		$text = strip_tags($html);
-	
-		// Optional: Clean up any extra spaces or newlines
-		$text = trim($text);
-	
-		// Add support for apostrophes in JavaScript
-		$text = str_replace("'", "`", $text);
-	
-		return $text;
+		// Check if the input is empty
+		if (empty($html)) {
+			return '';
+		}
+		
+		  // Step 1: Decode HTML entities (if any)
+		  $text = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+		  // Step 2: Strip all HTML tags
+		  $text = strip_tags($text);
+	  
+		  // Step 3: Replace non-breaking spaces (\u00a0) with regular spaces
+		  $text = str_replace("\u00a0", " ", $text); // Unicode for non-breaking space
+	  
+		  // Step 4: Remove all non-alphanumeric characters (letters and numbers only)
+		  // This regex will remove everything except letters (a-z, A-Z) and numbers (0-9)
+		  $text = preg_replace('/[^a-zA-Z0-9\s]/', '', $text);
+	  
+		  // Step 5: Remove extra spaces and trim the string
+		  $text = preg_replace('/\s+/', ' ', $text); // Replace multiple spaces with one space
+		  $text = trim($text); // Trim leading and trailing spaces
+		  return $text;
 	}
+	
 
 	public function removeKeysFromJson($jsonData) {
 		 // Decode JSON to PHP associative array
