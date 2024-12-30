@@ -43,6 +43,8 @@ class Autoload extends AutoloadConfig
     public $psr4 = [
         APP_NAMESPACE => APPPATH, // For custom app namespace
         'Config'      => APPPATH . 'Config',
+        'App' => APPPATH, // Existing PSR-4 autoload
+        'Firebase\JWT' => APPPATH . 'Libraries/php-jwt/src',
     ];
 
     /**
