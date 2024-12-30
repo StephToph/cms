@@ -76,8 +76,7 @@ $background_image = 'assets/images/prayercloud.webp';
                             <div class="row flex-row-reverse justify-content-center text-center g-gs">
                                 <div class="col-lg-6 col-md-7">
                                     <div class="header-caption">
-                                        <h1 id="header-title"  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);" class="display-1">Join Prayer: <?=strtoupper($room_name); ?></h1>
-                                        <p class="lead">Please provide your details to join the prayer session.</p>
+                                        <h2 id="header-title"  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);" class="display-1">Join Prayer: <?=strtoupper($room_name); ?></h2>
                                     </div>
                                 </div>
                             </div>
@@ -133,23 +132,17 @@ $background_image = 'assets/images/prayercloud.webp';
         <script src="<?=site_url(); ?>assets/prayer/assets/js/bundlee5ca.js?ver=3.2.3"></script>
         <script src="<?=site_url(); ?>assets/prayer/assets/js/scriptse5ca.js?ver=3.2.3"></script>
 
-        
-        <script src="https://meet.jit.si/external_api.js"></script>
+        <script src='https://8x8.vc/libs/external_api.min.js'></script>
         <script>
-            const domain = 'meet.jit.si';
+            const domain = '8x8.vc';
+            const jwtToken = '<?= $jwtToken ?>';  
+            console.log(jwtToken);
             const options = {
-                roomName: '<?=ucwords($room_name); ?>',
+                roomName: 'vpaas-magic-cookie-0ab53463adb9451ab8ddd32e5206ef9f/<?=ucwords($room_name); ?>',
                 width: '100%', 
-                height: 400,
+                height: 500,
                 parentNode: document.querySelector('#jitsi-meeting'),
-                configOverwrite: {
-                    startWithAudioMuted: true,
-                    startWithVideoMuted: false,
-                },
-                userInfo: {
-                    displayName: '<?=$name; ?>',
-                    church: '<?=$church; ?>'
-                }
+                jwt: jwtToken  
             };
             const api = new JitsiMeetExternalAPI(domain, options);
         </script>

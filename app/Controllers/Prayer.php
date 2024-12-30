@@ -197,11 +197,18 @@ class Prayer extends BaseController {
 	}
 
 	public function room(){
+		
+        $role = 'moderator';  // Role: 'moderator' or 'participant'
+
+        // Generate the JWT token by calling the model function
+        $jwtToken = $this->Crud->generateJaaSToken($this->session->get('room_name'), $role, $this->session->get('name'), $this->session->get('church'));
+
 		$data['room_name'] = $this->session->get('room_name');
 		$data['link'] = $this->session->get('link');
 		$data['name'] = $this->session->get('name');
 		$data['church'] = $this->session->get('church');
-
+		$data['jwtToken'] = $jwtToken;
+		
 		
 		$data['title'] = translate_phrase('Join Prayer Cloud').' - '.app_name;
 
