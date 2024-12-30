@@ -1737,10 +1737,47 @@ class Ministry extends BaseController {
 					$level =  $this->request->getVar('level');
 					$church_id =  $this->request->getVar('church_id');
 					
+					// Get the church ID from the log entry
 					$log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-					if(empty($church_id)){
-						$church_id[] = $log_church_id;
+
+					// Check if $church_id is empty and assign $log_church_id to it
+					$combinedChurchIds = empty($church_id) ? [$log_church_id] : $church_id;
+
+					// Proceed only if $church_id is not empty
+					if (!empty($church_id)) {
+						// Determine the appropriate level ID column
+						switch ($level) {
+							case 'zone':
+								$lev = 'zonal_id';
+								break;
+							case 'group':
+								$lev = 'group_id';
+								break;
+							case 'church':
+								$lev = 'church_id';
+								break;
+							default:
+								$lev = 'regional_id';
+								break;
+						}
+
+						// Initialize the array to hold all the church IDs
+						$church_idz = [];
+
+						// Query all churches in one go for all church_id values
+						foreach ($church_id as $ch) {
+							$chuz = $this->Crud->read_single_order($lev, $ch, 'church', 'name', 'asc');
+							if (!empty($chuz)) {
+								foreach ($chuz as $c) {
+									$church_idz[] = $c->id;
+								}
+							}
+						}
+
+						// Merge both arrays ($church_id and $church_idz)
+						$combinedChurchIds = array_merge($church_id, $church_idz);
 					}
+
 					
 					  
 					// Validate if the end_date is not less than start_date
@@ -1760,7 +1797,7 @@ class Ministry extends BaseController {
 					$ins_data['time_zone'] = $time_zone;
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_type'] = $level;
-					$ins_data['churches'] = json_encode($church_id);
+					$ins_data['churches'] = json_encode($combinedChurchIds);
 					$ins_data['link'] = json_encode($this->Crud->createRoom($title));
 					// do create or update
 					if($e_id) {
@@ -1844,7 +1881,13 @@ class Ministry extends BaseController {
 						$church = '';
 						if(!empty($church_id)){
 							foreach($church_id as $ch){
-								$church .= '<small class="badge badge-dim bg-primary mx-1">'.$this->Crud->read_field('id', $ch, 'church', 'name').'</small>';
+								$church_name = $this->Crud->read_field('id', $ch, 'church', 'name');
+        						$church_type_of_church = $this->Crud->read_field('id', $ch, 'church', 'type'); // Assuming `church_type` is a field in the `church` table
+								// Compare the church_type from the query with the church_type from the database
+								if ($church_type_of_church == $church_type) {
+									// If they match, append the church name to the $church string
+									$church .= '<small class="badge badge-dim bg-primary mx-1">'.$church_name.'</small>';
+        						}
 							}
 							
 						}
