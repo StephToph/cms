@@ -1702,6 +1702,7 @@ class Ministry extends BaseController {
 								$data['e_end_date'] = $e->end_date;
 								$data['e_duration'] = $e->duration;
 								$data['e_reminder'] = $e->reminder;
+								$data['e_link'] = $e->link;
 								$data['e_reminder2'] = $e->reminder2;
 								$data['e_time_zone'] = $e->time_zone;
 								$data['e_church_id'] = json_decode($e->churches, true);
@@ -1760,7 +1761,7 @@ class Ministry extends BaseController {
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_type'] = $level;
 					$ins_data['churches'] = json_encode($church_id);
-					
+					$ins_data['link'] = json_encode($this->Crud->createRoom($title));
 					// do create or update
 					if($e_id) {
 						$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
@@ -4211,6 +4212,7 @@ class Ministry extends BaseController {
 	}
 
 	public function room(){
-		
+		print_r($this->Crud->createRoom('PRAYING FOR THE REGIONAL PASTOR'));
+		// return view('room');
 	}
 }

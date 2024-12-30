@@ -64,6 +64,65 @@ class Prayer extends BaseController {
 					}
 				}
 			}
+
+			if($param2 == 'join') {
+				if($param3) {
+					$parts = explode(' ', $param3);
+
+					// Assign the parts to variables
+					$id = $parts[0]; // The first part will be the date
+					$date = $parts[1]; // The first part will be the date
+					$record_key = $parts[2];
+					$edit = $this->Crud->read_single('id', $id, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_name'] = $e->title;
+							$data['e_link'] = json_decode($e->link, true);
+							$data['e_churches'] = json_decode($e->churches, true);
+							$data['reminder'] = isset($e->reminder) ? $e->reminder : '0';
+							$data['reminder2'] = isset($e->reminder2) ? $e->reminder2 : '0';
+							$data['time_zone'] = isset($e->time_zone) ? $e->time_zone : '';
+								
+							$assignment = json_decode($e->assignment,true);
+							
+							if (!empty($assignment) && isset($assignment[$date]) && isset($assignment[$date][$record_key])) {
+								// Fetch the specific record using record_index ($param5)
+								$record = $assignment[$date][$record_key];
+								// print_r($record);
+								// Populate data array with record details
+								$data['record_key'] = $record_key; // Unique key for identification
+								$data['start_time'] = isset($record['start_time']) ? $record['start_time'] : ''; 
+								$data['end_time'] = isset($record['end_time']) ? $record['end_time'] : '';
+								$data['prayer'] = isset($record['prayer']) ? $record['prayer'] : '';
+								$data['prayer_title'] = isset($record['prayer_title']) ? $record['prayer_title'] : '';
+								$data['church_idz'] = isset($record['church_id']) ? $record['church_id'] : '0';
+
+							}
+							
+
+							$data['e_reg_date'] = $e->reg_date;
+						}
+					}
+				}
+
+				if($_POST){
+					$room_name = $this->request->getPost('room_name');
+					$link = $this->request->getPost('link');
+					$name = $this->request->getPost('name');
+					$church = $this->request->getPost('church');
+					
+
+					$this->session->set('room_name', $room_name);
+					$this->session->set('link', $link);
+					$this->session->set('name', $name);
+					$this->session->set('church', $church);
+
+					echo $this->Crud->msg('success', 'Loading Information, Please wait');
+					echo '<script>window.location.replace("'.site_url('prayer/room').'");</script>';
+					exit;
+				}
+			}
 		}
 
 		$cal_events = array();
@@ -135,6 +194,18 @@ class Prayer extends BaseController {
 			return view('prayer/list', $data);
 		}
 	
+	}
+
+	public function room(){
+		$data['room_name'] = $this->session->get('room_name');
+		$data['link'] = $this->session->get('link');
+		$data['name'] = $this->session->get('name');
+		$data['church'] = $this->session->get('church');
+
+		
+		$data['title'] = translate_phrase('Join Prayer Cloud').' - '.app_name;
+
+		return view('prayer/room', $data);
 	}
 
 }

@@ -1,3 +1,8 @@
+<?php
+    use App\Models\Crud;
+
+    $this->Crud = new Crud();
+?>
 <?php 
 
 $logo = 'assets/new_logo1.png';
@@ -20,21 +25,32 @@ $background_image = 'assets/images/prayercloud.webp';
     </head>
 
     <style>
-            .fc-list {
-            width: 100%; /* Ensure the parent container takes the full width */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent content from wrapping */
+        /* Ensure the parent div has a defined height */
+        .card-inner {
+            position: relative; /* Make sure the parent div is positioned relative */
+            height: 100%; /* Full height of the container */
+            max-width: 100%; /* Optional: Make sure it doesn’t exceed its width */
         }
 
-        .fc-scroller {
-            min-width: 1000px; /* Set a minimum width for the child container */
-            overflow-x: auto; /* Ensure the child container scrolls horizontally */
+        /* Make the Jitsi iframe fill its parent container */
+        #jitsi-meeting {
+            width: 100%; /* Fill the full width of the parent */
+            height: 100%; /* Fill the full height of the parent */
+            min-height: 400px; /* Optional: Ensure it has a minimum height */
+        }
+
+        /* Ensure responsiveness */
+        @media (max-width: 768px) {
+            #jitsi-meeting {
+                height: 60vh; /* Adjust height for smaller screens */
+            }
         }
 
 
     </style>
     
 
+    
     <body class="nk-body bg-white npc-landing">
         <div class="nk-app-root">
             <div class="nk-main">
@@ -60,7 +76,8 @@ $background_image = 'assets/images/prayercloud.webp';
                             <div class="row flex-row-reverse justify-content-center text-center g-gs">
                                 <div class="col-lg-6 col-md-7">
                                     <div class="header-caption">
-                                        <h2 class="header-title" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">Prayer Cloud</h2>
+                                        <h1 id="header-title"  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);" class="display-1">Join Prayer: <?=strtoupper($room_name); ?></h1>
+                                        <p class="lead">Please provide your details to join the prayer session.</p>
                                     </div>
                                 </div>
                             </div>
@@ -75,21 +92,12 @@ $background_image = 'assets/images/prayercloud.webp';
                             <div class="nk-content-body">
                                 
                                 <div class="nk-block" id="calendar_resp">
-                                    <div class="d-flex flex-row-reverse ">
-                                        
-                                        <!-- <?php if(empty($switch_id)){?>
-                                            <div class="my-2">
-                                                <a href="javascript:;" id="add_btn" pageName="<?=site_url('church/activity/manage'); ?>" pageTitle="Add" pageSize="modal-xl" class="btn btn-primary pop"><em class="icon ni ni-plus-c"></em> <span>Add Activity</span></a>
-                                            </div>
-                                        <?php } ?>
-                                        <div class="my-2">
-                                            <a href="javascript:;" pageName="<?=site_url('church/activity/manage/generate'); ?>" pageTitle="Generate" pageSize="modal-lg" class="btn btn-info pop mx-1"><em class="icon ni ni-list-index"></em> <span>Generate</span></a>
-                                        </div> -->
-                                    </div>
+                                    
                                     <div class="card bg-lighter">
                                         <div class="card-inner">
-                                            <div id="calendar" data-initial-view="listWeek" class="nk-calendar"></div>
+                                            <div id="jitsi-meeting" data-initial-view="listWeek" class="embed-responsive"></div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -117,76 +125,33 @@ $background_image = 'assets/images/prayercloud.webp';
             </div>
         </div>
         
-    <div class="modal fade" id="previewEventPopu">
-        <div class="modal-dialog modal-md" role="document">
-            <div class="modal-content">
-                <div id="preview-event-header" class="modal-header">
-                    <h5 id="preview-event-title" class="modal-title">Placeholder Title</h5><a href="#" class="close"
-                        data-bs-dismiss="modal" aria-label="Close"><em class="icon ni ni-cross"></em></a>
-                </div>
-                <div class="modal-body">
-                    <div class="row gy-3 py-1">
-                        <div class="col-sm-6">
-                            <h6 class="overline-title">Start Time</h6>
-                            <p id="preview-event-start"></p>
-                        </div>
-                        <div class="col-sm-6" id="preview-event-end-check">
-                            <h6 class="overline-title">End Time</h6>
-                            <p id="preview-event-end"></p>
-                        </div>
-                        <div class="col-sm-10" id="preview-event-description-check">
-                            <h6 class="overline-title">Description</h6>
-                            <p id="preview-event-description"></p>
-                        </div>
-                    </div>
-                    <!-- <ul class="d-flex justify-content-between gx-4 mt-3">
-                        <li><button  pageTitle="Edit " pageSize="modal-lg" pageName="<?=site_url('ministry/calendar/manage/edit/'); ?>" class="btn btn-primary pop">Edit Event</button></li>
-                        <li><button data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#deleteEventPopup"
-                                class="btn btn-danger pop btn-dim">Delete</button></li>
-                    </ul> -->
-                </div>
-            </div>
-            
-        </div>
-    </div>
-
-        <div class="modal modal-center fade" tabindex="-1" id="modal" role="dialog" data-keyboard="false"
-            data-backdrop="static">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <a href="javascript:;" class="close" data-bs-dismiss="modal"><em class="icon ni ni-cross"></em></a>
-                    <div class="modal-header">
-                        <h6 class="modal-title"></h6>
-                    </div>
-                    <div class="modal-body">
-
-                    </div>
-                </div>
-            </div>
-        </div>
     
         <!-- Core Libraries -->
         <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
-        <script src="<?php echo base_url(); ?>/assets/js/jsmodal.js"></script>
-
-        <!-- FullCalendar and Other Dependencies -->
-        <script src="<?php echo base_url(); ?>/assets/js/libs/fullcalendar.js"></script>
 
         <!-- Custom Scripts -->
         <script src="<?=site_url(); ?>assets/prayer/assets/js/bundlee5ca.js?ver=3.2.3"></script>
         <script src="<?=site_url(); ?>assets/prayer/assets/js/scriptse5ca.js?ver=3.2.3"></script>
 
-        <!-- Initialization and Calendar Event Handling -->
+        
+        <script src="https://meet.jit.si/external_api.js"></script>
         <script>
-            var site_url = '<?php echo site_url(); ?>';   
-            var calEventsStr = '<?php if (!empty($cal_events)) { echo json_encode($cal_events); } else { echo "[]"; } ?>';
-            
-            // Parse the JSON string into a JavaScript object/array
-            var calEvents = JSON.parse(calEventsStr);
+            const domain = 'meet.jit.si';
+            const options = {
+                roomName: '<?=ucwords($room_name); ?>',
+                width: '100%', 
+                height: 400,
+                parentNode: document.querySelector('#jitsi-meeting'),
+                configOverwrite: {
+                    startWithAudioMuted: true,
+                    startWithVideoMuted: false,
+                },
+                userInfo: {
+                    displayName: '<?=$name; ?>',
+                    church: '<?=$church;?>'
+                }
+            };
+            const api = new JitsiMeetExternalAPI(domain, options);
         </script>
-
-        <!-- Custom Calendar Logic -->
-        <script src="<?php echo base_url(); ?>/assets/js/apps/prayer_calendar.js?v=<?=time();?>"></script>
-
     </body>
 </html>
