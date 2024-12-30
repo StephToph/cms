@@ -19,7 +19,7 @@
 <body class="body">
     <div class="mail_wrapper">
         <div class="top">
-            <img alt="logo" src="<?php echo site_url('assets/logo.png'); ?>" height="70"/>
+            <img alt="logo" src="<?php echo site_url('assets/new_logo1.png'); ?>" height="70"/>
         </div>
 
         <div class="main"><?php echo ($body); ?></div>
