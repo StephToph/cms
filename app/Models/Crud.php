@@ -4,8 +4,12 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Crud extends Model {
+use Firebase\JWT\JWT;
 
+class Crud extends Model {
+	protected $privateKeyPath = APPPATH . 'Keys/jaasauth.key';  // Adjust the path as needed
+
+    
     public function __construct() {
         $this->session = \Config\Services::session();
         $this->session->start();
@@ -5234,4 +5238,78 @@ class Crud extends Model {
         // For example, we could use the room name and a timestamp to ensure uniqueness
         return strtolower(url_title($roomName)) . '-' . time();
     }
+
+	public function generateJwt($roomName = 'TeamMeeting123', $role = 'participant', $name ='', $church ='')
+    {
+        // Load the private key from file
+        $privateKey = file_get_contents($this->privateKeyPath);
+
+        // Set JWT payload
+        $issuedAt = time();
+        $expirationTime = $issuedAt + 3600;  // Token valid for 1 hour
+        $payload = [
+            'room' => $roomName,
+            'role' => $role,  // 'moderator' or 'participant'
+            'exp' => $expirationTime,  // Expiration time
+            'iat' => $issuedAt, 
+			'context' => [              // Include context object in the payload
+                'user' => [
+                    'name' => 'John Doe',  // Example username (can be dynamic)
+                    'email' => 'john.doe@example.com' // Example email
+                ],
+                'room' => $roomName // Room name context (to match the JWT's room name)
+            ]        // Issued at time
+        ];
+
+        // Encode the JWT token using the Private Key
+        $jwt = JWT::encode($payload, $privateKey, 'RS256');  // RS256 (RSA SHA256) algorithm
+
+        return $jwt;  // Return the generated JWT token
+    }
+
+	public function generateJaaSToken($roomName, $role = 'participant', $name = '', $church = '') {
+		// Path to your private key (replace with the actual path to your private key)
+		$privateKey = file_get_contents($this->privateKeyPath);  // Update with your private key path
+		
+		// Set JWT claims (payload)
+		$issuedAt = time();  // Current timestamp
+		$expirationTime = $issuedAt + 3600;  // Token valid for 1 hour
+		$notBeforeTime = $issuedAt;  // Not before time (current timestamp)
+	
+		// Header with `kid` (Key ID) set to the tenant ID
+		$header = [
+			'alg' => 'RS256',  // Algorithm used for signing
+			'kid' => 'vpaas-magic-cookie-0ab53463adb9451ab8ddd32e5206ef9f/ea351f',  // Key ID (use the tenant ID here)
+			'typ' => 'JWT'  // Token type
+		];
+	
+		// Payload for JWT
+		$payload = [
+			'aud' => 'jitsi',  // Audience (should be 'jitsi')
+			'exp' => $expirationTime,  // Expiration time
+			'iss' => 'chat',  // Issuer (should be 'chat')
+			'nbf' => $notBeforeTime,  // Not before time (timestamp)
+			'room' => '*',  // Room (wildcard or specific room name)
+			'sub' => 'vpaas-magic-cookie-0ab53463adb9451ab8ddd32e5206ef9f',  // Subject (tenant or user identifier)
+			'context' => [  // Context (additional user data)
+				'user' => [
+					'id' => '0f8b7760-c17f-4a12-b134-c6ac37167144',  // Unique user ID
+					'name' => $name,  // User name (pass as parameter)
+					'avatar' => 'https://link.to/user/avatar/picture',  // Avatar URL (pass as needed)
+					'email' => $church,  // User email (pass as parameter)
+					'moderator' => 'false'  // Set to true if the user is a moderator
+				],
+				'features' => [  // Features object (additional meeting features)
+					'livestreaming' => 'true',  // Enable livestreaming
+					'recording' => 'true'  // Enable recording
+				]
+			]
+		];
+	
+		// Encode the JWT token using the Private Key with RS256 algorithm
+		$jwt = JWT::encode($payload, $privateKey, 'RS256', null, $header);
+	
+		return $jwt;  // Return the generated JWT token
+	}
+	
 }
