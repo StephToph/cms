@@ -64,6 +64,7 @@ $background_image = 'assets/images/prayercloud.webp';
                                     
                                     <div class="card bg-lighter">
                                         <div class="card-inner">
+                                            <div id="timer" class="my-3"></div> 
                                             <div id="jitsi-meeting" data-initial-view="listWeek" class="embed-responsive"></div>
                                         </div>
 
@@ -89,16 +90,69 @@ $background_image = 'assets/images/prayercloud.webp';
         <script src='https://8x8.vc/libs/external_api.min.js'></script>
         <script>
             const domain = '8x8.vc';
-            const jwtToken = '<?= $jwtToken ?>';  
-            console.log(jwtToken);
+            const jwtToken = '<?= $jwtToken ?>'; 
+            const timeoutDurationInMinutes = '<?= $duration; ?>';
+    
+            // Convert duration from minutes to seconds
+            const timeoutDuration = timeoutDurationInMinutes * 60; // Convert minutes to seconds
+            // console.log(jwtToken);
             const options = {
                 roomName: 'vpaas-magic-cookie-0ab53463adb9451ab8ddd32e5206ef9f/<?=ucwords($room_name); ?>',
                 width: '100%', 
                 height: 800,
                 parentNode: document.querySelector('#jitsi-meeting'),
+                configOverwrite: {
+                    startWithAudioMuted: true,
+                    startWithVideoMuted: true
+                },
                 jwt: jwtToken  
             };
             const api = new JitsiMeetExternalAPI(domain, options);
+            api.addEventListener('videoConferenceJoined', function() {
+                // Once the user joins, toggle fullscreen
+                api.executeCommand('toggleFullScreen');
+
+                // Start the countdown after the user joins the room
+                let remainingTime = timeoutDuration;
+                const timerElement = document.getElementById("timer");
+
+                const timerInterval = setInterval(function() {
+                    const minutes = Math.floor(remainingTime / 60); // Calculate minutes
+                    const seconds = remainingTime % 60;            // Calculate remaining seconds
+
+
+                    // If you want to display the timer, uncomment the following line
+                    timerElement.textContent = `Time remaining: ${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+                     // Check if there are 5 minutes remaining and show alert
+                    if (remainingTime === 5 * 60) {
+                        alert("Only 5 minutes remaining before the meeting ends!");
+                    }
+
+                    // Once the time runs out
+                    if (remainingTime <= 0) {
+                        clearInterval(timerInterval); // Stop the countdown
+                        alert("Session expired. You will be logged out.");
+                        api.executeCommand('hangup'); // Disconnect the user from the room
+                    } else {
+                        remainingTime--; // Decrease the time by 1 second
+                    }
+                }, 1000); // Update every second (1000 ms)
+            });
+            // Listen for the user leaving the meeting
+            api.addEventListener('videoConferenceLeft', function() {
+                var timerElement = document.getElementById("timer");
+                timerElement.textContent = '';
+                // Redirect the user to the home page when they leave the meeting
+                window.location.href = '<?=site_url('prayer'); ?>'; // Replace '/' with your home page URL if needed
+            });
+            
+            // Listen for the user hanging up (leaving the meeting)
+            api.addEventListener('hangup', function() {
+                var timerElement = document.getElementById("timer");
+                timerElement.textContent = '';
+                // Redirect the user to the home page when they hang up
+                window.location.href = '<?=site_url('prayer'); ?>'; // Replace '/' with your home page URL if needed
+            });
         </script>
     </body>
 </html>

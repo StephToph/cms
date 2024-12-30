@@ -78,10 +78,12 @@ class Prayer extends BaseController {
 						foreach($edit as $e) {
 							$data['e_id'] = $e->id;
 							$data['e_name'] = $e->title;
+							$data['e_church_type'] = $e->church_type;
 							$data['e_link'] = json_decode($e->link, true);
 							$data['e_churches'] = json_decode($e->churches, true);
 							$data['reminder'] = isset($e->reminder) ? $e->reminder : '0';
 							$data['reminder2'] = isset($e->reminder2) ? $e->reminder2 : '0';
+							$data['duration'] = isset($e->duration) ? $e->duration : '0';
 							$data['time_zone'] = isset($e->time_zone) ? $e->time_zone : '';
 								
 							$assignment = json_decode($e->assignment,true);
@@ -111,12 +113,14 @@ class Prayer extends BaseController {
 					$link = $this->request->getPost('link');
 					$name = $this->request->getPost('name');
 					$church = $this->request->getPost('church');
+					$duration = $this->request->getPost('duration');
 					
 
 					$this->session->set('room_name', $room_name);
 					$this->session->set('link', $link);
 					$this->session->set('name', $name);
 					$this->session->set('church', $church);
+					$this->session->set('duration', $duration);
 
 					echo $this->Crud->msg('success', 'Loading Information, Please wait');
 					echo '<script>window.location.replace("'.site_url('prayer/room').'");</script>';
@@ -212,6 +216,7 @@ class Prayer extends BaseController {
 		$data['link'] = $this->session->get('link');
 		$data['name'] = $this->session->get('name');
 		$data['church'] = $this->session->get('church');
+		$data['duration'] = $this->session->get('duration');
 		$data['jwtToken'] = $jwtToken;
 		
 		
