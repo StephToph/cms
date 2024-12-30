@@ -42,7 +42,7 @@ $background_image = 'assets/images/prayercloud.webp';
         /* Ensure responsiveness */
         @media (max-width: 768px) {
             #jitsi-meeting {
-                height: 60vh; /* Adjust height for smaller screens */
+                height: 100vh; /* Adjust height for smaller screens */
             }
         }
 
@@ -54,36 +54,6 @@ $background_image = 'assets/images/prayercloud.webp';
     <body class="nk-body bg-white npc-landing">
         <div class="nk-app-root">
             <div class="nk-main">
-                <header class="header header-32 has-header-main-s1 bg-dark" id="home" style="position: relative;">
-                    <!-- Background Image with Overlay -->
-                    <div class="overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?= site_url($background_image); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.3;"></div>
-
-                    <div class="header-main header-main-s1 is-sticky is-transparent on-dark">
-                        <div class="container header-container">
-                            <div class="header-wrap">
-                                <div class="header-logo">
-                                    <a href="<?= site_url(); ?>" class="logo-link">
-                                        <img class="logo-light logo-img logo-img-lg" style="max-height:50px;" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo">
-                                        <img class="logo-dark logo-img logo-img-lg" style="max-height:50px;" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo-dark">
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="header-content py-6 is-dark mt-lg-n1 mt-n3">
-                        <div class="container">
-                            <div class="row flex-row-reverse justify-content-center text-center g-gs">
-                                <div class="col-lg-6 col-md-7">
-                                    <div class="header-caption">
-                                        <h2 id="header-title"  style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);" class="display-1">Join Prayer: <?=strtoupper($room_name); ?></h2>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-
                 
                 <div class="nk-content ">
                     <div class="container-fluid">
@@ -104,23 +74,7 @@ $background_image = 'assets/images/prayercloud.webp';
                     </div>
                 </div>
 
-                <footer class="footer bg-dark is-dark section section-sm mt-5" style="padding:0.75rem 0" id="footer">
-                    <div class="container">
-                        <div class="row g-3 align-items-center">
-                            <div class="col-md-3">
-                                <div class="footer-logo">
-                                    <a href="<?= site_url(); ?>" class="logo-link">
-                                        <img class="logo-light logo-img" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?> 2x" alt="logo" />
-                                        <img class="logo-dark logo-img" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?> 2x" alt="logo-dark" />
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col-md-9 d-flex justify-content-md-end">
-                            <div class="text-base">&copy; <?=date('Y'); ?> - <?=app_name; ?>. </div>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
+                
             </div>
         </div>
         
@@ -140,7 +94,7 @@ $background_image = 'assets/images/prayercloud.webp';
             const options = {
                 roomName: 'vpaas-magic-cookie-0ab53463adb9451ab8ddd32e5206ef9f/<?=ucwords($room_name); ?>',
                 width: '100%', 
-                height: 500,
+                height: 800,
                 parentNode: document.querySelector('#jitsi-meeting'),
                 jwt: jwtToken  
             };

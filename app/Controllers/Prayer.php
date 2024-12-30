@@ -197,7 +197,12 @@ class Prayer extends BaseController {
 	}
 
 	public function room(){
-		
+		 // Check if all required session variables are empty
+		 if (empty($this->session->get('room_name')) || empty($this->session->get('link')) || empty($this->session->get('name')) || empty($this->session->get('church'))) {
+			// Redirect to the prayer page if any of the session variables are empty
+			// return redirect()->to('prayer'); // Adjust the URL if necessary
+		}
+	
         $role = 'moderator';  // Role: 'moderator' or 'participant'
 
         // Generate the JWT token by calling the model function
