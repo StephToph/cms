@@ -148,7 +148,7 @@ $background_image = 'assets/images/prayercloud.webp';
                 },
                 userInfo: {
                     displayName: '<?=$name; ?>',
-                    church: '<?=$church;?>'
+                    church: '<?=$church; ?>'
                 }
             };
             const api = new JitsiMeetExternalAPI(domain, options);

@@ -13,6 +13,7 @@ use App\Libraries\Ciqrcode;
 use App\Libraries\Multilingual; 
 use App\Filters\SessionExpireFilter;
 
+use Firebase\JWT\JWT; // Import the JWT class
 /**
  * Class BaseController
  *
@@ -31,6 +32,7 @@ class BaseController extends Controller
      * @var CLIRequest|IncomingRequest
      */
     protected $request;
+    protected $jwt;
 
     /**
      * An array of helpers to be loaded automatically upon
@@ -57,7 +59,7 @@ class BaseController extends Controller
         $this->ciqrcode = new Ciqrcode();
         $this->email = \Config\Services::email();
         $this->multilingual = new Multilingual();
-
+        $this->jwt = new JWT();
         // Initialize the session expire filter
     }
 }
