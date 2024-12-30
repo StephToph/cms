@@ -60,12 +60,12 @@
                     
                             // Create Edit button
                             var editBtn = document.createElement('a');
-                            var editUrl = site_url + 'church/activity/manage/edit/' + info.event.id;  // Update the URL format as needed
+                            var editUrl = site_url + 'prayer/index/manage/join/' + info.event.id;  // Update the URL format as needed
                             editBtn.href = 'javascript:;';
                             editBtn.setAttribute('pageName', editUrl);
                             editBtn.setAttribute('pageTitle', 'Join Prayer: ' + info.event.title); // Set page title
-                            editBtn.setAttribute('pageSize', 'modal-xl'); // Set modal size
-                            editBtn.className = 'btn btn-primary text-white my-1 mx-1';  // mx-1 for spacing
+                            editBtn.setAttribute('pageSize', 'modal-md'); // Set modal size
+                            editBtn.className = 'btn btn-primary text-white my-1 pops mx-1';  // mx-1 for spacing
                             editBtn.innerHTML = 'Join';
 
                             // Create View button

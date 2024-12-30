@@ -5204,11 +5204,8 @@ class Crud extends Model {
 	}
 
 	// Define a function to create the room and return the link
-    public function createRoom()
-    {
-        // Get the room name from the URL or parameters
-        $roomName = $this->request->getVar('room_name');
-
+    public function createRoom($roomName=''){
+        
         if (!$roomName) {
             return $this->failValidationError('Room name is required');
         }
@@ -5221,13 +5218,13 @@ class Crud extends Model {
 
         // Room link to join
         $roomLink = $jitsiBaseUrl . '/' . $roomId;
-
+		// echo $roomLink;
         // Return the room details as a response
-        return $this->respond([
-            'room_name' => $roomName,
-            'room_id' => $roomId,
-            'room_link' => $roomLink
-        ]);
+		return [
+			'room_name' => $roomName,
+			'room_id' => $roomId,
+			'room_link' => $roomLink
+		];
     }
 
     // Function to generate a unique room ID
