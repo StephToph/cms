@@ -38,62 +38,97 @@ class Cron extends BaseController {
 									// Calculate the reminder time dynamically (e.g., 30 minutes before the start time)
 									$reminderTime = date('Y-m-d H:i:s', strtotime($meetingStartTime . ' - '.$reminder.' minutes'));
 									
-									echo $reminder.' ';
-									echo $this->isReminderTime($reminderTime, date('Y-m-d H:i:s'));
+									// echo $reminder.' ';
+									// echo $this->isReminderTime($reminderTime, date('Y-m-d H:i:s'));
 									// Check if the reminder should be sent
 									if ($this->isReminderTime($reminderTime, date('Y-m-d H:i:s'))) {
-										
-										$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder.' Minutes';
 
-										$body = $this->reminder_body($prayer_title, $start_time, $end_time, $time_zone, $church_idz, $prayer).'
-										
-										';
-										echo $body.'<br>';
-										
-										if(!empty($churches)){
-											foreach($churches as $ch){
-												$member = $this->Crud->read_single('church_id', $ch, 'user');
-												if(!empty($member)){
-													foreach($member as $mem){
-														$email = $mem->email;
-														$email_status = $this->Crud->send_email($email, $head, $body);
-														if ($email_status > 0) {
-															
-				
-														}
-
-
-													}
-												}
-
-											}
-										}
-										$email_status = $this->Crud->send_email($email, $head, $body);
-										if ($email_status > 0) {
+										if (!isset($record['reminder_status']) || $record['reminder_status'] != 1) {
+											// Add reminder_status to the record and set it to 1
+											$tval[$record_key]['reminder_status'] = 1;
+							
 											
+											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder.' Minutes';
 
+											$body = $this->reminder_body($prayer_title, $start_time, $end_time, $time_zone, $church_idz, $prayer).'
+											
+											';
+											
+											if(!empty($churches)){
+												foreach($churches as $ch){
+													$member = $this->Crud->read_single('church_id', $ch, 'user');
+													if(!empty($member)){
+														foreach($member as $mem){
+															$email = $mem->email;
+															$email_status = $this->Crud->send_email($email, $head, $body);
+															if ($email_status > 0) {
+																
+																
+															}
+
+
+														}
+													}
+
+												}
+											}
+											
+											$this->Crud->updates('id', $p->id, 'prayer', array('assignment'=> json_encode($tval)));
+										
 										}
 
+
+										
 									}
 								}
+
 								if($reminder2 > 0){
 									// Calculate the reminder time dynamically (e.g., 30 minutes before the start time)
 									$reminderTime = date('Y-m-d H:i:s', strtotime($meetingStartTime . ' - '.$reminder2.' minutes'));
-								
+									
+									// echo $reminder.' ';
+									// echo $this->isReminderTime($reminderTime, date('Y-m-d H:i:s'));
 									// Check if the reminder should be sent
 									if ($this->isReminderTime($reminderTime, date('Y-m-d H:i:s'))) {
-										echo "Reminder should be sent for: " . $prayer_title . "\n";
-										// You can call your email function here to send the reminder
+
+										if (!isset($record['reminder_status2']) || $record['reminder_status2'] != 1) {
+											// Add reminder_status to the record and set it to 1
+											$tval[$record_key]['reminder_status2'] = 1;
+							
+											
+											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder2.' Minutes';
+
+											$body = $this->reminder_body($prayer_title, $start_time, $end_time, $time_zone, $church_idz, $prayer).'
+											
+											';
+											
+											if(!empty($churches)){
+												foreach($churches as $ch){
+													$member = $this->Crud->read_single('church_id', $ch, 'user');
+													if(!empty($member)){
+														foreach($member as $mem){
+															$email = $mem->email;
+															$email_status = $this->Crud->send_email($email, $head, $body);
+															
+														}
+													}
+
+												}
+											}
+											
+											$this->Crud->updates('id', $p->id, 'prayer', array('assignment'=> json_encode($tval)));
+										
+										}
+
+
+										
 									}
 								}
 								
 							}
 						}
 					}
-
-
 				}
-
 			}
 		}
 		
@@ -167,11 +202,7 @@ class Cron extends BaseController {
 
 			</div>
 		
-		
 		';
-
-
-
 
 		return $body;
 	} 
