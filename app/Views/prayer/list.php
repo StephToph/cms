@@ -37,35 +37,37 @@ $background_image = 'assets/images/prayercloud.webp';
     <body class="nk-body bg-white npc-landing">
         <div class="nk-app-root">
             <div class="nk-main">
-                <header class="header header-32 has-header-main-s1 bg-dark" id="home" style="position: relative;">
-                    <!-- Background Image with Overlay -->
-                    <div class="overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?= site_url($background_image); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat; opacity: 0.3;"></div>
+            <header class="header header-32 has-header-main-s1" id="home" style="position: relative; background-image: url('<?= site_url($background_image); ?>'); background-size: cover; background-position: center; background-repeat: no-repeat;">
 
-                    <div class="header-main header-main-s1 is-sticky is-transparent on-dark">
-                        <div class="container header-container">
-                            <div class="header-wrap">
-                                <div class="header-logo">
-                                    <a href="<?= site_url(); ?>" class="logo-link">
-                                        <img class="logo-light logo-img logo-img-lg" style="max-height:50px;" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo">
-                                        <img class="logo-dark logo-img logo-img-lg" style="max-height:50px;" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo-dark">
-                                    </a>
+                <!-- Dark background overlay with inline style -->
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.1); z-index: 0;"></div>
+
+                <div class="header-main header-main-s1 is-sticky is-transparent on-dark">
+                    <div class="container header-container">
+                        <div class="header-wrap">
+                            <div class="header-logo">
+                                <a href="<?= site_url(); ?>" class="logo-link">
+                                    <img class="logo-light logo-img logo-img-lg" style="max-height:50px;" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo">
+                                    <img class="logo-dark logo-img logo-img-lg" style="max-height:50px;" src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo-dark">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-content py-6 mt-lg-n1 mt-n3">
+                    <div class="container">
+                        <div class="row flex-row-reverse justify-content-center text-center g-gs">
+                            <div class="col-lg-12 col-md-10">
+                                <div class="header-caption">
+                                    <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); font-size: 4rem; color: white;">USA Region 2 Prayer Cloud</h1>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </header>
 
-                    <div class="header-content py-6 mt-lg-n1 mt-n3">
-                        <div class="container">
-                            <div class="row flex-row-reverse justify-content-center text-center g-gs">
-                                <div class="col-lg-12 col-md-10">
-                                    <div class="header-caption">
-                                        <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);font-size: 4rem;color: white;">USA Region 2 Prayer Cloud</h1>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </header>
 
                 
                 <div class="nk-content ">
