@@ -45,7 +45,7 @@ class Cron extends BaseController {
 
 										if (!isset($record['reminder_status']) || $record['reminder_status'] != 1) {
 											// Add reminder_status to the record and set it to 1
-											$tval[$record_key]['reminder_status'] = 1;
+											$timez[$start_time][$record_key]['reminder_status'] = 1;
 							
 											
 											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder.' Minutes';
@@ -73,7 +73,7 @@ class Cron extends BaseController {
 												}
 											}
 											
-											$this->Crud->updates('id', $p->id, 'prayer', array('assignment'=> json_encode($tval)));
+											$this->Crud->updates('id', $p->id, 'prayer', array('assignment'=> json_encode($timez)));
 										
 										}
 
@@ -93,7 +93,7 @@ class Cron extends BaseController {
 
 										if (!isset($record['reminder_status2']) || $record['reminder_status2'] != 1) {
 											// Add reminder_status to the record and set it to 1
-											$tval[$record_key]['reminder_status2'] = 1;
+											$timez[$start_time][$record_key]['reminder_status2'] = 1;
 							
 											
 											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder2.' Minutes';
@@ -116,7 +116,7 @@ class Cron extends BaseController {
 												}
 											}
 											
-											$this->Crud->updates('id', $p->id, 'prayer', array('assignment'=> json_encode($tval)));
+											$this->Crud->updates('id', $p->id, 'prayer', array('assignment'=> json_encode($timez)));
 										
 										}
 
