@@ -113,6 +113,7 @@ $this->Crud = new Crud();
                     <select class="js-select2" data-search="on" name="church_id" id="church_id" required>
                         <option value="">Select</option>
                         <?php 
+                            $e_churches = $this->Crud->read_single_order('regional_id', 8, 'church', 'name', 'asc');
                             if(!empty($e_churches)){
                                 foreach($e_churches as $ch){
                                     

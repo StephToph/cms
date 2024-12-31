@@ -20,15 +20,14 @@ $background_image = 'assets/images/prayercloud.webp';
     </head>
 
     <style>
-            .fc-list {
+        .fc-list {
             width: 100%; /* Ensure the parent container takes the full width */
-            overflow-x: auto; /* Enable horizontal scrolling */
+           
             white-space: nowrap; /* Prevent content from wrapping */
         }
 
         .fc-scroller {
-            min-width: 1000px; /* Set a minimum width for the child container */
-            overflow-x: auto; /* Ensure the child container scrolls horizontally */
+            overflow-x: auto !important ; /* Ensure the child container scrolls horizontally */
         }
 
 
@@ -60,7 +59,7 @@ $background_image = 'assets/images/prayercloud.webp';
                             <div class="row flex-row-reverse justify-content-center text-center g-gs">
                                 <div class="col-lg-6 col-md-7">
                                     <div class="header-caption">
-                                        <h2 class="header-title" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">Prayer Cloud</h2>
+                                        <h2 class="header-title" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">USA Region 2 Prayer Cloud</h2>
                                     </div>
                                 </div>
                             </div>
