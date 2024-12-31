@@ -5207,6 +5207,8 @@ class Crud extends Model {
 		return $sub_churches;
 	}
 
+
+	////////////////////////JITZI/////////////////////////////////
 	// Define a function to create the room and return the link
     public function createRoom($roomName=''){
         
@@ -5311,5 +5313,116 @@ class Crud extends Model {
 	
 		return $jwt;  // Return the generated JWT token
 	}
-	
+	////////////////////////////////////////////////////////////////////////////
+
+
+	////////////////////////CRON JOB///////////////////////////
+	// Method to create a cron job dynamically
+	public function createCronJob($datetime, $functionName)
+    {
+        // Validate if the function name exists in the Cron controller
+        if (!method_exists('App\Controllers\Cron', $functionName)) {
+            return 'Invalid function name.';
+        }
+
+        // Convert the datetime string into a Unix timestamp
+        $timestamp = strtotime($datetime);
+
+        if ($timestamp === false) {
+            // If strtotime fails, return an error
+            return 'Invalid date/time format.';
+        }
+
+        // Check if the provided datetime is in the past
+        $currentTimestamp = time(); // Get the current timestamp
+        if ($timestamp < $currentTimestamp) {
+            return 'The provided date and time have already passed. Please select a future date and time.';
+        }
+
+        // Generate the cron expression
+        $minute = date('i', $timestamp);
+        $hour = date('H', $timestamp);
+        $day = date('d', $timestamp);
+        $month = date('m', $timestamp);
+
+        // Cron expression for the desired time
+        $cronExpression = "$minute $hour $day $month *"; // Runs once at the specified time
+
+        // Get the correct path to CI4's index.php file
+        $projectPath = $_SERVER['DOCUMENT_ROOT'] . '/public/index.php'; // Adjust path as needed
+
+        // Define the command to run the function dynamically
+        $command = "/usr/bin/php $projectPath cron/$functionName";
+
+        // Prepare the cron job entry
+        $cronJob = "$cronExpression $command" . PHP_EOL;
+
+        // Define the writable directory path directly
+        $cronJobFilePath = FCPATH . 'writable/crontab.txt'; // Correct path to writable directory
+
+        // Check if the writable directory exists and create it if it doesn't
+        if (!is_dir(FCPATH . 'writable')) {
+            // Attempt to create the directory if it doesn't exist
+            if (!mkdir(FCPATH . 'writable', 0777, true)) {
+                return 'Failed to create the writable directory.';
+            }
+        }
+
+        // Check if the directory is writable
+        if (!is_writable(FCPATH . 'writable')) {
+            return 'The writable directory is not writable.';
+        }
+
+        // Append the cron job to the crontab.txt file
+        file_put_contents($cronJobFilePath, shell_exec('crontab -l') . $cronJob);
+
+        // Update the crontab with the new job
+        shell_exec('crontab ' . $cronJobFilePath);
+
+        log_message('info', 'Cron job scheduled: ' . $cronJob);
+
+       // Display the list of all cron jobs after adding the new one
+	   $this->showCronJobs();
+
+		return 'Cron job scheduled for: ' . date('Y-m-d H:i:s', $timestamp);
+	}
+
+	// Method to show all the current cron jobs
+	public function showCronJobs()
+	{
+		// Use `crontab -l` to list all cron jobs
+		$cronJobs = shell_exec('crontab -l');
+
+		// Log or display the cron jobs
+		log_message('info', 'Current cron jobs: ' . $cronJobs);
+
+		// Optionally, you can return the list of cron jobs to the user
+		return $cronJobs;
+	}
+
+
+	// Method to execute the cron job task (this will be called when the cron job runs)
+	public function runTask($functionName)	{
+		// Make sure the function exists
+		if (!method_exists('App\Controllers\Cron', $functionName)) {
+			log_message('error', "The function $functionName does not exist.");
+			return;
+		}
+
+		// Call the method in the Cron controller
+		$cronController = new \App\Controllers\Cron();
+		$cronController->$functionName(); // Dynamically call the method
+
+		$this->create('cron', array('response' => 'Example task executed at ' . date('Y-m-d H:i:s')));
+		// After the task is completed, delete the cron job
+		$this->deleteCronJob($functionName);
+	}
+
+	// Method to delete the cron job after execution
+	public function deleteCronJob($functionName){
+		// Remove the specific cron job from crontab (by identifying the function name)
+		$output = shell_exec("crontab -l | grep -v 'php /path/to/your/project/public/index.php cron/$functionName' | crontab -");
+		log_message('info', 'Cron job deleted: ' . $output);
+	}
+	//////////////////////////////////END///////////////////////////////////////////////////////
 }

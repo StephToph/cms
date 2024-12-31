@@ -32,7 +32,7 @@ $this->Crud = new Crud();
     <div class="row gy-3 py-1">
          <!-- Event Name -->
         <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Event Name</h6>
+            <h6 class="overline-title">Prayer Title</h6>
             <p id="preview-event-name"><?= ucwords($e_name); ?></p>
         </div>
 
@@ -78,12 +78,6 @@ $this->Crud = new Crud();
             <p id="preview-event-church"><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></p>
         </div>
 
-
-        <!-- Prayer Title -->
-        <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Prayer Title</h6>
-            <p id="preview-event-prayer-title"><?= ucwords($prayer_title); ?></p>
-        </div>
 
         <!-- Prayer Description -->
         <div class="col-sm-12 mb-3">
