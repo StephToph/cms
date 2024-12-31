@@ -25,7 +25,11 @@
         <div class="main"><?php echo ($body); ?></div>
 
         <div class="bottom">
-            &copy; <?php echo date('Y'); ?> - <?php echo app_name; ?>
+            &copy; <?php echo date('Y'); ?> - <?php echo app_name; ?><br>
+            <strong>Contact Us:</strong><br>
+            Email: <a href="mailto:hello@loveworldbuddy.com">hello@loveworldbuddy.com</a><br>
+            Phone: <a href="tel:+12405430620" style="text-decoration: none; color: #000;">+1 240 543 0620</a>
+           
         </div>
     </div>
 </body>
