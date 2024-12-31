@@ -225,4 +225,15 @@ class Prayer extends BaseController {
 		return view('prayer/room', $data);
 	}
 
+
+	public function cron(){
+        $datetime = '2024-12-31 03:59:00'; // The datetime when the cron job should run
+        $functionName = 'anotherTask'; // The method to execute in Cron controller
+
+        // Create the cron job
+        $result = $this->Crud->createCronJob($datetime, $functionName);
+
+        echo $result; // Return the result or message
+    }
+
 }

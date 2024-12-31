@@ -68,7 +68,7 @@ class Paths
      * @var string
      */
     public $testsDirectory = __DIR__ . '/../../tests';
-
+    public $writeable = __DIR__. '/writable';
     /**
      * ---------------------------------------------------------------
      * VIEW DIRECTORY NAME
