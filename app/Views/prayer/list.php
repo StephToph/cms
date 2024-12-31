@@ -54,12 +54,12 @@ $background_image = 'assets/images/prayercloud.webp';
                         </div>
                     </div>
 
-                    <div class="header-content py-6 is-dark mt-lg-n1 mt-n3">
+                    <div class="header-content py-6 mt-lg-n1 mt-n3">
                         <div class="container">
                             <div class="row flex-row-reverse justify-content-center text-center g-gs">
-                                <div class="col-lg-6 col-md-7">
+                                <div class="col-lg-12 col-md-10">
                                     <div class="header-caption">
-                                        <h2 class="header-title" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">USA Region 2 Prayer Cloud</h2>
+                                        <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);font-size: 5rem;color: white;">USA Region 2 Prayer Cloud</h1>
                                     </div>
                                 </div>
                             </div>
