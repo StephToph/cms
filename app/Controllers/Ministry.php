@@ -1378,6 +1378,7 @@ class Ministry extends BaseController {
 							$data['e_start_date'] = $e->start_date;
 							$data['e_end_date'] = $e->end_date;
 							$data['e_duration'] = $e->duration;
+							$data['e_time_zone'] = $e->time_zone;
 							$data['e_church_id'] = json_decode($e->churches,true);
 							$data['e_ministry_id'] = $e->ministry_id;
 							$data['e_church_type'] = $e->church_type;
@@ -1405,6 +1406,7 @@ class Ministry extends BaseController {
 					$prayer_title = $this->request->getPost('prayer_title');
 					$end_time = $this->request->getPost('end_time');
 					$hour = $this->request->getPost('hour');
+					$time_zone = $this->request->getPost('time_zone');
 					$minute = $this->request->getPost('minute');
 					$am_pm = $this->request->getPost('am_pm');
 				
@@ -1450,7 +1452,8 @@ class Ministry extends BaseController {
 				
 					// Generate a unique record key
 					$record_key = 'record_' . (count($pass[$date]) + 1);
-				
+					
+					$church_idz = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'churches'), true);
 					// Create new assignment record
 					$new_record = [
 						'start_time' => $start_time,
@@ -1465,7 +1468,27 @@ class Ministry extends BaseController {
 				
 					// Add the new record to the date key
 					$pass[$date][$record_key] = $new_record;
-				
+					
+					$head = 'New Prayer Post Announcement';
+
+					$body = $this->reminder_body($prayer_title, $start_time, $end, $time_zone, $church_id, $prayer).'
+					
+					';
+
+					if(!empty($church_idz)){
+						foreach($church_idz as $ch){
+							$member = $this->Crud->read_single('church_id', $ch, 'user');
+							if(!empty($member)){
+								foreach($member as $mem){
+									$email = $mem->email;
+									$email_status = $this->Crud->send_email($email, $head, $body);
+									
+								}
+							}
+
+						}
+
+					}
 					// Save the updated assignments back to the database
 					$upd['assignment'] = json_encode($pass);
 					if ($this->Crud->updates('id', $prayer_id, 'prayer', $upd) > 0) {
@@ -1560,6 +1583,8 @@ class Ministry extends BaseController {
 				
 					// Check if the date and record_index exist in the assignment array
 					if (isset($pass[$date]) && isset($pass[$date][$record_index])) {
+
+
 						// Update the specific record
 						$pass[$date][$record_index] = [
 							'start_time' => $start_time,
@@ -1571,7 +1596,28 @@ class Ministry extends BaseController {
 							'reminder' => $reminder,
 							'church_id' => $church_id,
 						];
-				
+						$church_idz = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'churches'), true);
+						$time_zone = $this->Crud->read_field('id', $prayer_id, 'prayer', 'time_zone');
+						$head = 'New Prayer Post Announcement';
+
+						$body = $this->reminder_body($prayer_title, $start_time, $end, $time_zone, $church_id, $prayer).'
+						
+						';
+
+						if(!empty($church_idz)){
+							foreach($church_idz as $ch){
+								$member = $this->Crud->read_single('church_id', $ch, 'user');
+								if(!empty($member)){
+									foreach($member as $mem){
+										$email = $mem->email;
+										$email_status = $this->Crud->send_email($email, $head, $body);
+										
+									}
+								}
+
+							}
+
+						}
 						// Save the updated assignments back to the database
 						$upd['assignment'] = json_encode($pass);
 						if ($this->Crud->updates('id', $prayer_id, 'prayer', $upd) > 0) {
@@ -4262,4 +4308,68 @@ class Ministry extends BaseController {
 		print_r($this->Crud->createRoom('PRAYING FOR THE REGIONAL PASTOR'));
 		// return view('room');
 	}
+
+	private function reminder_body($prayer_title='',  $start_time, $end_time, $time_zone, $church_idz, $prayer){
+		// Define the array of time zones (name => value)
+		$timeZones = [
+			"EST" => "Eastern Standard Time (EST)",
+			"CST" => "Central Standard Time (CST)",
+			"MST" => "Mountain Standard Time (MST)",
+			"PST" => "Pacific Standard Time (PST)",
+			"AKST" => "Alaska Standard Time (AKST)"
+		];
+		$body = '
+			<div class="row gy-3 py-1">
+				<!-- Event Name -->
+				<div class="col-sm-12 mb-3">
+					<h6 class="overline-title">Prayer Title</h6>
+					<p id="preview-event-name">'.ucwords($prayer_title).'</p>
+				</div>
+
+				<!-- Start Time -->
+				<div class="col-sm-6 mb-3">
+					<h6 class="overline-title">Start Time</h6>
+					<p id="preview-event-start">'.date('h:iA',strtotime($start_time)).'</p>
+				</div>
+
+				<!-- End Time -->
+				<div class="col-sm-6 mb-3">
+					<h6 class="overline-title">End Time</h6>
+					<p id="preview-event-end">'.date('h:iA',strtotime($end_time)).'</p>
+				</div>
+				
+				<div class="col-sm-6 mb-3">
+					<h6 class="overline-title">Time Zone</h6>
+					
+					<p id="preview-event-reminder">';
+					
+						// Check if the time_zone is set and exists in the array, then display the full meaning
+						if (!empty($time_zone) && isset($timeZones[$time_zone])) {
+							$body .= $timeZones[$time_zone];  // Show the full meaning of the selected time zone
+						} else {
+							echo '';  // Display an empty string if no valid time zone is selected
+						}
+						$body .= '
+					</p>
+				</div>
+
+				<!-- Church -->
+				<div class="col-sm-5 mb-3">
+					<h6 class="overline-title">Church</h6>
+					<p id="preview-event-church">'.ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')).'</p>
+				</div>
+
+
+				<!-- Prayer Description -->
+				<div class="col-sm-12 mb-3">
+					<h6 class="overline-title">Prayer Point</h6>
+					<p id="preview-event-prayer">'.$prayer ? $prayer : 'No description provided'.'</p>
+				</div>
+
+			</div>
+		
+		';
+
+		return $body;
+	} 
 }
