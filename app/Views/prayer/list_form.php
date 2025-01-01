@@ -96,7 +96,7 @@ $this->Crud = new Crud();
         <input type="hidden" name="link" value="<?= isset($e_link['room_link']) ? $e_link['room_link'] : ''; ?>" >
 
         <input type="hidden" name="duration" value="<?= isset($duration) ? $duration : ''; ?>" >
-        <input type="hidden" name="record_key" value="<?= isset($e_record_key) ? $e_record_key : ''; ?>" >
+        <input type="hidden" name="record_key" value="<?= isset($record_key) ? $record_key : ''; ?>" >
         <input type="hidden" name="date" value="<?= isset($e_date) ? $e_date : ''; ?>" >
         <input type="hidden" name="start_time" value="<?= isset($start_time) ? $start_time : ''; ?>" >
         <input type="hidden" name="church_id" value="<?= isset($church_idz) ? $church_idz : ''; ?>" >
