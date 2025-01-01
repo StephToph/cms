@@ -39,7 +39,7 @@ $this->Crud = new Crud();
             <table class="table table-hovered">
                 <tr>
                     <td><b>Church Level</b></td>
-                    <td><?= ucwords($e_church_type); ?> Level</td>
+                    <td style="word-wrap: break-word; white-space: normal;"><?= ucwords($e_church_type); ?> Level</td>
                 </tr>
                 <?php if ($e_church_type != 'all') { ?>
                     <tr>
@@ -103,6 +103,75 @@ $this->Crud = new Crud();
                     <?php } else { ?>
                         <tr>
                             <td colspan="6" class="text-center text-muted">No time slots available.</td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+<?php } ?>
+
+<?php if ($param2 == 'time_report') { ?>
+    <div class="row">
+        <!-- Prayer Record Details -->
+        <div class="col-sm-12 mb-3 table-responsive">
+            <table class="table table-hovered">
+                <tr>
+                    <td><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
+                </tr>
+            </table>
+            <table class="table table-hovered">
+                <tr>
+                    <td><b>Date</b></td>
+                    <td><?= date('d F Y', strtotime($e_date)); ?></td>
+                </tr>
+                <tr>
+                    <td><b>Moderating Church</b></td>
+                    <td style="word-wrap: break-word; white-space: normal;">
+                        <?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?>
+                    </td>
+                </tr>
+                    
+                <tr>
+                    <td><b>Start Time</b></td>
+                    <td><?= date('d F Y', strtotime($start_time)); ?></td>
+                </tr>
+                <tr>
+                    <td><b>Duration</b></td>
+                    <td><?= ($e_duration); ?> Minute(s)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-sm-12 mb-3 table-responsive">
+            <h5 class="text-info">Participant History</h5>
+            <table class="table table-hovered">
+                <thead>
+                    <tr>
+                        <th>Participant</th>
+                        <th>Church</th>
+                        <th>Time Joined</th>
+                        <th>Time Left</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $e_assignment = $this->Crud->read3('start_time', $start_time, 'record', $record_key, 'date', $e_date, 'prayer_report');
+                    if (!empty($e_assignment)) { ?>
+                        <?php foreach ($e_assignment as $record) { ?>
+                            <tr>
+                                <td><?= !empty($record->participant) ? ucwords($record->participant) : 'N/A'; ?></td>
+                                <td><?= !empty($record->participant_church) ? ucwords($this->Crud->read_field('id', $record->participant_church, 'church', 'name')) : 'N/A'; ?></td>
+                                <td><?= !empty($record->join_time) ? date('d F Y h:iA', strtotime($record->join_time)) : 'N/A'; ?></td>
+                                <td><?= !empty($record->leave_time) ? date('d F Y h:iA', strtotime($record->leave_time)) : 'N/A'; ?></td>
+                            </tr>
+
+                        <?php } ?>
+                    <?php } else { ?>
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No Prayer Report History Available.</td>
                         </tr>
                     <?php } ?>
                 </tbody>
