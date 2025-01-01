@@ -96,6 +96,11 @@ $this->Crud = new Crud();
         <input type="hidden" name="link" value="<?= isset($e_link['room_link']) ? $e_link['room_link'] : ''; ?>" >
 
         <input type="hidden" name="duration" value="<?= isset($duration) ? $duration : ''; ?>" >
+        <input type="hidden" name="record_key" value="<?= isset($e_record_key) ? $e_record_key : ''; ?>" >
+        <input type="hidden" name="date" value="<?= isset($e_date) ? $e_date : ''; ?>" >
+        <input type="hidden" name="start_time" value="<?= isset($start_time) ? $start_time : ''; ?>" >
+        <input type="hidden" name="church_id" value="<?= isset($church_idz) ? $church_idz : ''; ?>" >
+        <input type="hidden" name="prayer_id" value="<?= isset($e_id) ? $e_id : ''; ?>" >
 
         
         <div class="row py-1">
@@ -110,7 +115,7 @@ $this->Crud = new Crud();
             <div class="col-sm-12 mb-3">
                 <div class="form-group">
                     <label  class="form-label">Church</label>
-                    <select class="js-select2" data-search="on" name="church_id" id="church_id" required>
+                    <select class="js-select2" data-search="on" name="church_idz" id="church_id" required>
                         <option value="">Select</option>
                         <?php 
                             $e_churches = $this->Crud->read2_order('regional_id', 8, 'type', 'church', 'church', 'name', 'asc');
