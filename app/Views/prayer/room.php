@@ -89,6 +89,15 @@ $background_image = 'assets/images/prayercloud.webp';
 
         <script src='https://8x8.vc/libs/external_api.min.js'></script>
         <script>
+             var site_url = '<?php echo site_url(); ?>';   
+            var name = '<?=addslashes($name); ?>';
+            var church = '<?=$church; ?>';
+            var record_key = '<?=$record_key; ?>';
+            var date = '<?=$date; ?>';
+            var church_id = '<?=$church_id; ?>';
+            var prayer_id = '<?=$prayer_id; ?>';
+            var start_time = '<?=$start_time; ?>';
+            
             const domain = '8x8.vc';
             const jwtToken = '<?= $jwtToken ?>'; 
             const timeoutDurationInMinutes = '<?= $duration; ?>';
@@ -115,7 +124,15 @@ $background_image = 'assets/images/prayercloud.webp';
                 // Start the countdown after the user joins the room
                 let remainingTime = timeoutDuration;
                 const timerElement = document.getElementById("timer");
-
+                $.ajax({
+                    url: site_url + 'prayer/report/joined',
+                    data: {name:name,church:church,church_id:church_id,prayer_id:prayer_id,record_key:record_key,date:date,start_time:start_time},
+                    type: 'post',
+                    success: function (data) {
+                        $('#generate_resp').html(data);
+                        
+                    }
+                });
                 const timerInterval = setInterval(function() {
                     const minutes = Math.floor(remainingTime / 60); // Calculate minutes
                     const seconds = remainingTime % 60;            // Calculate remaining seconds
@@ -142,16 +159,31 @@ $background_image = 'assets/images/prayercloud.webp';
             api.addEventListener('videoConferenceLeft', function() {
                 var timerElement = document.getElementById("timer");
                 timerElement.textContent = '';
-                // Redirect the user to the home page when they leave the meeting
-                window.location.href = '<?=site_url('prayer'); ?>'; // Replace '/' with your home page URL if needed
+                $.ajax({
+                    url: site_url + 'prayer/report/left',
+                    data: {name:name,church:church,church_id:church_id,prayer_id:prayer_id,record_key:record_key,date:date,start_time:start_time},
+                    type: 'post',
+                    success: function (data) {
+                        // Redirect the user to the home page when they leave the meeting
+                        window.location.href = '<?=site_url('prayer'); ?>'; // Replace '/' with your home page URL if needed
+                    }
+                });
+                
             });
             
             // Listen for the user hanging up (leaving the meeting)
             api.addEventListener('hangup', function() {
                 var timerElement = document.getElementById("timer");
                 timerElement.textContent = '';
-                // Redirect the user to the home page when they hang up
-                window.location.href = '<?=site_url('prayer'); ?>'; // Replace '/' with your home page URL if needed
+                $.ajax({
+                    url: site_url + 'prayer/report/left',
+                    data: {name:name,church:church,church_id:church_id,prayer_id:prayer_id,record_key:record_key,date:date,start_time:start_time},
+                    type: 'post',
+                    success: function (data) {
+                        // Redirect the user to the home page when they leave the meeting
+                        window.location.href = '<?=site_url('prayer'); ?>'; // Replace '/' with your home page URL if needed  
+                    }
+                });
             });
         </script>
     </body>

@@ -78,6 +78,7 @@ class Prayer extends BaseController {
 						foreach($edit as $e) {
 							$data['e_id'] = $e->id;
 							$data['e_name'] = $e->title;
+							$data['e_date'] = $date;
 							$data['e_church_type'] = $e->church_type;
 							$data['e_link'] = json_decode($e->link, true);
 							$data['e_churches'] = json_decode($e->churches, true);
@@ -112,15 +113,25 @@ class Prayer extends BaseController {
 					$room_name = $this->request->getPost('room_name');
 					$link = $this->request->getPost('link');
 					$name = $this->request->getPost('name');
-					$church = $this->request->getPost('church');
+					$church = $this->request->getPost('church_idz');
 					$duration = $this->request->getPost('duration');
+					$record_key = $this->request->getPost('record_key');
+					$date = $this->request->getPost('date');
+					$start_time = $this->request->getPost('start_time');
+					$church_id = $this->request->getPost('church_id');
+					$prayer_id = $this->request->getPost('prayer_id');
 					
-
+					// die;
 					$this->session->set('room_name', $room_name);
 					$this->session->set('link', $link);
 					$this->session->set('name', $name);
 					$this->session->set('church', $church);
 					$this->session->set('duration', $duration);
+					$this->session->set('record_key', $record_key);
+					$this->session->set('date', $date);
+					$this->session->set('church_id', $church_id);
+					$this->session->set('prayer_id', $prayer_id);
+					$this->session->set('start_time', $start_time);
 
 					echo $this->Crud->msg('success', 'Loading Information, Please wait');
 					echo '<script>window.location.replace("'.site_url('prayer/room').'");</script>';
@@ -217,6 +228,11 @@ class Prayer extends BaseController {
 		$data['name'] = $this->session->get('name');
 		$data['church'] = $this->session->get('church');
 		$data['duration'] = $this->session->get('duration');
+		$data['record_key'] = $this->session->get('record_key');
+		$data['date'] = $this->session->get('date');
+		$data['church_id'] = $this->session->get('church_id');
+		$data['prayer_id'] = $this->session->get('prayer_id');
+		$data['start_time'] = $this->session->get('start_time');
 		$data['jwtToken'] = $jwtToken;
 		
 		
@@ -225,15 +241,65 @@ class Prayer extends BaseController {
 		return view('prayer/room', $data);
 	}
 
+	public function report($param1 = ''){
 
-	public function cron(){
-        $datetime = '2024-12-31 03:59:00'; // The datetime when the cron job should run
-        $functionName = 'anotherTask'; // The method to execute in Cron controller
+		if($param1 == 'joined'){
+			if($this->request->getMethod() == 'post'){
+				$record_key = $this->request->getPost('record_key');
+				$prayer_id = $this->request->getPost('prayer_id');
+				$church = $this->request->getPost('church');
+				$church_id = $this->request->getPost('church_id');
+				$name = $this->request->getPost('name');
+				$date = $this->request->getPost('date');
+				$start_time = $this->request->getPost('start_time');
 
-        // Create the cron job
-        $result = $this->Crud->createCronJob($datetime, $functionName);
 
-        echo $result; // Return the result or message
-    }
+				$report_id = $this->session->get('report_id');
+				if(!empty($report_id)){
+					$report_id = $this->session->set('report_id', '');
+				}
 
+
+				$inz['prayer_id'] = $prayer_id;
+				$inz['date'] = $date;
+				$inz['record'] = $record_key;
+				$inz['start_time'] = $start_time;
+				$inz['participant'] = $name;
+				$inz['participant_church'] = $church;
+				$inz['church_id'] = $church_id;
+				$inz['reg_date'] = date(fdate);
+				$inz['join_time'] = date(fdate);
+
+				$report_id = $this->Crud->create('prayer_report', $inz);
+				if($report_id > 0){
+					$report_id = $this->session->set('report_id', $report_id);
+				}
+				
+			}
+		}
+
+		if($param1 == 'left'){
+			if($this->request->getMethod() == 'post'){
+				$report_id = $this->session->get('report_id');
+				
+				$inz['leave_time'] = date(fdate);
+
+				$report_id = $this->Crud->updates('id', $report_id, 'prayer_report', $inz);
+				if($report_id > 0){
+					$this->session->set('report_id', '');
+					$this->session->set('room_name', '');
+					$this->session->set('link', '');
+					$this->session->set('name', '');
+					$this->session->set('church', '');
+					$this->session->set('duration', '');
+					$this->session->set('record_key', '');
+					$this->session->set('date', '');
+					$this->session->set('church_id', '');
+					$this->session->set('prayer_id', '');
+					$this->session->set('start_time', '');
+				}
+				
+			}
+		}
+	}
 }
