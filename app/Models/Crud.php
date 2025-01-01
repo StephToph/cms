@@ -2569,6 +2569,25 @@ class Crud extends Model {
 		return $query->getResult();
 	}
 	
+	public function filter_prayer_cloud($search = '', $church_id = '') {
+		$db = db_connect();
+		$builder = $db->table('prayer');
+		$builder->orderBy('id', 'desc'); // Default order
+	
+	
+		// Apply search filter
+		if (!empty($search)) {
+			$builder->like('title', $search);
+		}
+		
+		
+		$query = $builder->get();
+		
+	
+		$db->close();
+		return $query->getResult();
+	}
+	
 	
 	public function filter_forms($limit='', $offset='', $log_id='', $status= '', $search='', $type='', $switch_id='') {
         $db = db_connect();

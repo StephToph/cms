@@ -302,4 +302,62 @@ class Prayer extends BaseController {
 			}
 		}
 	}
+
+	public function get_calendar(){
+		
+		$search = $this->request->getPost('searchTerm');
+		$church_idz = $this->request->getPost('churchId');
+
+		// Initialize an array to hold the events
+		$cal_events = array();
+
+		// Assuming you already have the events fetched and stored in $cal_ass
+		$cal_ass = $this->Crud->filter_prayer_cloud($search, $church_idz); 
+
+		if (!empty($cal_ass)) {
+			foreach ($cal_ass as $key => $value) {
+				$assignment = json_decode($value->assignment, true);
+
+				if (!empty($assignment) && is_array($assignment)) {
+					// Loop through the assignment array
+					foreach ($assignment as $date => $records) {
+						foreach ($records as $record_key => $record_val) {
+							$start_time = isset($record_val['start_time']) ? $record_val['start_time'] : '00:00';
+							$end_time = isset($record_val['end_time']) ? $record_val['end_time'] : '00:00';
+							$prayer_title = isset($record_val['prayer_title']) ? $record_val['prayer_title'] : 'No title';
+							$church_id = isset($record_val['church_id']) ? $record_val['church_id'] : 'Unknown Church';
+							$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+							if(!empty($church_idz) && $church_idz != 'all'){
+								if($church_idz != $church_id)continue;
+							}
+							// Concatenate the date with start time and end time
+							$start = $date . ' ' . $start_time;
+							$end = $date . ' ' . $end_time;
+
+							// Create a globally unique event id
+							$event_id = urlencode($value->id) . '%20' . urlencode($date) . '%20' . urlencode($record_key);
+
+							// Add the event to the cal_events array
+							$cal_events[] = [
+								'id' => $event_id,
+								'title' => strtoupper($prayer_title),
+								'start' => date('Y-m-d\TH:i:s', strtotime($start)),  // ISO 8601 format
+								'end' => date('Y-m-d\TH:i:s', strtotime($end)),  // ISO 8601 format
+								'extendedProps' => [
+									'church' => ucwords($church),
+									'reminder' => isset($value->reminder) ? $value->reminder : ''
+								],
+								'description' => $prayer_title,
+								'className' => 'fc-event-primary',  // You can customize the className based on your data
+							];
+						}
+					}
+				}
+			}
+		}
+
+		// Send the events data as JSON
+		echo json_encode($cal_events);
+
+	}
 }
