@@ -1,15 +1,39 @@
 <?php 
+    use App\Models\Crud;
 
-$logo = 'assets/new_logo1.png';
-$background_image = 'assets/images/prayercloud.webp';
+    $this->Crud = new Crud();
 
-$searchTerm = isset($_GET['searchTerm']) ? $_GET['searchTerm'] : '';
-$churchId = isset($_GET['churchId']) ? $_GET['churchId'] : '';
+
+    $logo = 'assets/new_logo1.png';
+    $background_image = 'assets/images/prayercloud.webp';
+
+    $parts = explode('-', $param1);
+    $prayer_id = $parts[0];
+    $code = implode('-', array_slice($parts, 1));
+    $searchTerm = '';
+    if(!empty($prayer_id)){
+        $searchTerm = $this->Crud->read_field('id', $prayer_id, 'prayer', 'title');
+    }
+
+    $data = json_decode( $this->Crud->read_field('id', $prayer_id, 'prayer', 'assignment'), true);
+
+    // Function to find the church_id based on the code
+    function getChurchIdByCode($data, $search_code) {
+        foreach ($data as $date => $records) {
+            foreach ($records as $key => $record) {
+                if (isset($record['code']) && $record['code'] === $search_code) {
+                    return $record['church_id'];
+                }
+            }
+        }
+        return null; // If no record is found with the code
+    }
+
+    // Call the function
+    $churchId = getChurchIdByCode($data, $code);
+
 ?>
 <?php
-use App\Models\Crud;
-
-$this->Crud = new Crud();
 ?>
 <!DOCTYPE html>
 <html lang="zxx" class="js">
@@ -68,7 +92,7 @@ $this->Crud = new Crud();
                         <div class="row flex-row-reverse justify-content-center text-center g-gs">
                             <div class="col-lg-12 col-md-10">
                                 <div class="header-caption">
-                                    <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); font-size: 4rem; color: white;">USA Region 2 Prayer Cloud</h1>
+                                    <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); font-size: 4rem; color: white;"><?=$this->Crud->read_field('id', $churchId, 'church', 'name'); ?> Prayer Cloud</h1>
                                 </div>
                             </div>
                         </div>
@@ -95,7 +119,7 @@ $this->Crud = new Crud();
                                                             foreach($e_churches as $ch){
                                                                 $zel = '';
                                                                 $church_id = htmlspecialchars($churchId); 
-                                                                
+
                                                                 if(!empty($church_id)){
                                                                     if($church_id == $ch->id){
                                                                         $zel = 'selected';

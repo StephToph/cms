@@ -37,6 +37,7 @@ $routes->get('logout', 'Auth::logout');
 $routes->get('profile', 'Auth::profile');
 $routes->get('profile_view', 'Auth::profile_view');
 $routes->get('ministry', 'Ministry::index');
+$routes->get('prayers', 'Prayer::index');
 
 /*
  * --------------------------------------------------------------------

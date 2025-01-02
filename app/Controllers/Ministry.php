@@ -1454,6 +1454,7 @@ class Ministry extends BaseController {
 					$record_key = 'record_' . (count($pass[$date]) + 1);
 					
 					$church_idz = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'churches'), true);
+					$code =  $this->generateUniqueCode();
 					// Create new assignment record
 					$new_record = [
 						'start_time' => $start_time,
@@ -1464,6 +1465,7 @@ class Ministry extends BaseController {
 						'prayer_title' => $prayer_title,
 						'reminder' => $reminder,
 						'church_id' => $church_id,
+						'code' => $code,
 					];
 				
 					// Add the new record to the date key
@@ -1471,7 +1473,7 @@ class Ministry extends BaseController {
 					
 					$head = 'New Prayer Post Announcement';
 
-					$body = $this->reminder_body($prayer_title, $start_time, $end, $time_zone, $church_id, $prayer).'
+					$body = $this->reminder_body($prayer_title, $start_time, $end, $time_zone, $church_id, $prayer, $code, $prayer_id).'
 					
 					';
 
@@ -1481,7 +1483,7 @@ class Ministry extends BaseController {
 							if(!empty($member)){
 								foreach($member as $mem){
 									$email = $mem->email;
-									$email_status = $this->Crud->send_email($email, $head, $body);
+									// $email_status = $this->Crud->send_email($email, $head, $body);
 									
 								}
 							}
@@ -1583,7 +1585,7 @@ class Ministry extends BaseController {
 				
 					// Check if the date and record_index exist in the assignment array
 					if (isset($pass[$date]) && isset($pass[$date][$record_index])) {
-
+						$code =  $this->generateUniqueCode();
 
 						// Update the specific record
 						$pass[$date][$record_index] = [
@@ -1595,12 +1597,13 @@ class Ministry extends BaseController {
 							'prayer_title' => $prayer_title,
 							'reminder' => $reminder,
 							'church_id' => $church_id,
+							'code' => $code,
 						];
 						$church_idz = json_decode($this->Crud->read_field('id', $prayer_id, 'prayer', 'churches'), true);
 						$time_zone = $this->Crud->read_field('id', $prayer_id, 'prayer', 'time_zone');
 						$head = 'New Prayer Post Announcement';
 
-						$body = $this->reminder_body($prayer_title, $start_time, $end, $time_zone, $church_id, $prayer).'
+						$body = $this->reminder_body($prayer_title, $start_time, $end, $time_zone, $church_id, $prayer, $code, $prayer_id).'
 						
 						';
 
@@ -1610,7 +1613,7 @@ class Ministry extends BaseController {
 								if(!empty($member)){
 									foreach($member as $mem){
 										$email = $mem->email;
-										$email_status = $this->Crud->send_email($email, $head, $body);
+										// $email_status = $this->Crud->send_email($email, $head, $body);
 										
 									}
 								}
@@ -1709,6 +1712,7 @@ class Ministry extends BaseController {
 								$data['prayer_title'] = isset($record['prayer_title']) ? $record['prayer_title'] : '';
 								$data['reminder'] = isset($record['reminder']) ? $record['reminder'] : '0';
 								$data['church_idz'] = isset($record['church_id']) ? $record['church_id'] : '0';
+								$data['code'] = isset($record['code']) ? $record['code'] : '0';
 
 							}
 						}
@@ -4401,7 +4405,7 @@ class Ministry extends BaseController {
 		// return view('room');
 	}
 
-	private function reminder_body($prayer_title='',  $start_time, $end_time, $time_zone, $church_idz, $prayer){
+	private function reminder_body($prayer_title='',  $start_time, $end_time, $time_zone, $church_idz, $prayer, $code, $prayer_id){
 		// Define the array of time zones (name => value)
 		$timeZones = [
 			"EST" => "Eastern Standard Time (EST)",
@@ -4410,6 +4414,11 @@ class Ministry extends BaseController {
 			"PST" => "Pacific Standard Time (PST)",
 			"AKST" => "Alaska Standard Time (AKST)"
 		];
+
+		
+		// Define the prayer URL link based on the code
+	    $join_link = site_url('prayer/index/'.$prayer_id.'-'.$code);
+	
 		$body = '
 			<div class="row gy-3 py-1">
 				<!-- Event Name -->
@@ -4457,11 +4466,23 @@ class Ministry extends BaseController {
 					<h6 class="overline-title">Prayer Point</h6>
 					<p id="preview-event-prayer">'.$prayer ? $prayer : 'No description provided'.'</p>
 				</div>
-
+				
+				<!-- Join Link -->
+				<div class="col-sm-12 mb-3">
+					<h6 class="overline-title">Join the Prayer</h6>
+					<p><a href="' . $join_link . '" target="_blank">Click here to join the prayer session</a></p>
+				</div>
 			</div>
 		
 		';
 
 		return $body;
 	} 
+
+	private function generateUniqueCode() {
+		// This can be replaced with other unique generation logic
+		return substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 3) . '-' .
+			   substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 4) . '-' .
+			   substr(str_shuffle('abcdefghijklmnopqrstuvwxyz0123456789'), 0, 3);
+	}
 }
