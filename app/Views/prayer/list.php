@@ -10,27 +10,31 @@
     $parts = explode('-', $param1);
     $prayer_id = $parts[0];
     $code = implode('-', array_slice($parts, 1));
-    $searchTerm = '';
+    $searchTerm = '';$churchId = 0;
     if(!empty($prayer_id)){
         $searchTerm = $this->Crud->read_field('id', $prayer_id, 'prayer', 'title');
     }
 
-    $data = json_decode( $this->Crud->read_field('id', $prayer_id, 'prayer', 'assignment'), true);
+    if(!empty($code)){
+        $data = json_decode( $this->Crud->read_field('id', $prayer_id, 'prayer', 'assignment'), true);
 
-    // Function to find the church_id based on the code
-    function getChurchIdByCode($data, $search_code) {
-        foreach ($data as $date => $records) {
-            foreach ($records as $key => $record) {
-                if (isset($record['code']) && $record['code'] === $search_code) {
-                    return $record['church_id'];
+        // Function to find the church_id based on the code
+        function getChurchIdByCode($data, $search_code) {
+            foreach ($data as $date => $records) {
+                foreach ($records as $key => $record) {
+                    if (isset($record['code']) && $record['code'] === $search_code) {
+                        return $record['church_id'];
+                    }
                 }
             }
+            return null; // If no record is found with the code
         }
-        return null; // If no record is found with the code
-    }
+    
+        // Call the function
+        $churchId = getChurchIdByCode($data, $code);
 
-    // Call the function
-    $churchId = getChurchIdByCode($data, $code);
+    }
+   
 
 ?>
 <?php
