@@ -119,10 +119,9 @@ $this->Crud = new Crud();
         <div class="col-sm-12 mb-3 table-responsive">
             <table class="table table-hovered">
                 <tr>
-                    <td><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
+                    <td colspan="4" ><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
                 </tr>
-            </table>
-            <table class="table table-hovered">
+                
                 <tr>
                     <td><b>Date</b></td>
                     <td><?= date('d F Y', strtotime($e_date)); ?></td>
@@ -178,6 +177,38 @@ $this->Crud = new Crud();
             </table>
         </div>
 
+
+    </div>
+<?php } ?>
+<?php if ($param2 == 'time_link') { ?>
+    <div class="row">
+        <!-- Prayer Record Details -->
+        <div class="col-sm-12 mb-3 table-responsive">
+            <table class="table table-hovered">
+                <tr>
+                    <td><b>Title</b></td>
+                    <td><h5 class=""><?= ucwords($e_title); ?></h5></td>
+                </tr>
+                
+                <tr>
+                    <td><b>Scheduled for</b></td>
+                    <td><?= date('d F Y', strtotime($e_date)).' '.date('d F Y', strtotime($start_time)); ?></td>
+                </tr>
+                <tr>
+                    <td><b>Moderator</b></td>
+                    <td style="word-wrap: break-word; white-space: normal;">
+                        <?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?> Church
+                    </td>
+                </tr> 
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <a href="<?= site_url('prayer/index/') . '?searchTerm=' . urlencode($e_title) . '&churchId=' . urlencode($church_idz); ?>" class="btn btn-primary btn-lg" target="_blank">Join Prayer</a>
+
+                    </td>
+                </tr>
+                    
+            </table>
+        </div>
 
     </div>
 <?php } ?>
