@@ -45,6 +45,7 @@ class Autoload extends AutoloadConfig
         'Config'      => APPPATH . 'Config',
         'App' => APPPATH, // Existing PSR-4 autoload
         'Firebase\JWT' => APPPATH . 'Libraries/php-jwt/src',
+        'SendGrid' => APPPATH . 'Libraries/sendgrid/sendgrid-php',
     ];
 
     /**

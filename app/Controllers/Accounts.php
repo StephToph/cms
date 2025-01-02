@@ -7406,7 +7406,7 @@ class Accounts extends BaseController {
 							$cell = $this->Crud->read_field('id', $q->cell_id, 'cells', 'name');
 						}
 						$name = $firstname.' '.$othername.' '.$surname;
-						$names = '<a href="' . site_url('account/membership/view/' . $id) . '" class="text-primary">
+						$names = '<a href="' . site_url('accounts/membership/view/' . $id) . '" class="text-primary">
 							<b>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)) . '</b></span>
 						</a>';
 
@@ -8053,7 +8053,7 @@ class Accounts extends BaseController {
 							$cell = $this->Crud->read_field('id', $q->cell_id, 'cells', 'name');
 						}
 						$name = $firstname.' '.$othername.' '.$surname;
-						$names = '<a href="' . site_url('account/membership/view/' . $id) . '" class="text-primary">
+						$names = '<a href="' . site_url('accounts/membership/view/' . $id) . '" class="text-primary">
 							<b>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)) . '</b></span>
 						</a>';
 
