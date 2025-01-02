@@ -13,6 +13,19 @@
 <?=$this->endSection();?>
 
 <?=$this->section('content');?>
+<style>
+    .fc-list {
+        width: 100%; /* Ensure the parent container takes the full width */
+        
+        white-space: nowrap; /* Prevent content from wrapping */
+    }
+
+    .fc-scroller {
+        overflow-x: auto !important ; /* Ensure the child container scrolls horizontally */
+    }
+
+
+</style>
 <!-- content @s -->
 <div class="nk-content ">
         <div class="container-fluid">

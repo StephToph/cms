@@ -192,7 +192,7 @@ $this->Crud = new Crud();
                 
                 <tr>
                     <td><b>Scheduled for</b></td>
-                    <td><?= date('d F Y', strtotime($e_date)).' '.date('d F Y', strtotime($start_time)); ?></td>
+                    <td><?= date('d F Y', strtotime($e_date)).' '.date('h:iA', strtotime($start_time)); ?></td>
                 </tr>
                 <tr>
                     <td><b>Moderator</b></td>
@@ -202,7 +202,7 @@ $this->Crud = new Crud();
                 </tr> 
                 <tr>
                     <td colspan="6" class="text-center">
-                        <a href="<?= site_url('prayer/index/') . '?searchTerm=' . urlencode($e_title) . '&churchId=' . urlencode($church_idz); ?>" class="btn btn-primary btn-lg" target="_blank">Join Prayer</a>
+                        <a href="<?= site_url('prayer/index/'.$e_id.'-'.$code); ?>" class="btn btn-primary btn-lg" target="_blank">Join Prayer</a>
 
                     </td>
                 </tr>
