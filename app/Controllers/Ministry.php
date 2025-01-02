@@ -1637,7 +1637,47 @@ class Ministry extends BaseController {
 				
 				
 
-			}  elseif($param2 == 'time_report'){
+			} elseif($param2 == 'time_report'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['e_id'] = $e->id;
+							$data['e_title'] = $e->title;
+							$data['e_date'] = $param4; // The specific date being edited
+							$data['e_start_date'] = $e->start_date;
+							$data['e_end_date'] = $e->end_date;
+							$data['e_duration'] = $e->duration;
+							$data['e_church_id'] = json_decode($e->churches, true);
+							$data['e_ministry_id'] = $e->ministry_id;
+							$data['e_church_type'] = $e->church_type;
+
+							// Decode assignment array
+							$assignment = json_decode($e->assignment, true);
+
+							// Check if the record_index exists for the specific date
+							if (!empty($assignment) && isset($assignment[$param4]) && isset($assignment[$param4][$param5])) {
+								// Fetch the specific record using record_index ($param5)
+								$record = $assignment[$param4][$param5];
+
+								// Populate data array with record details
+								$data['record_key'] = $param5; // Unique key for identification
+								$data['start_time'] = isset($record['start_time']) ? $record['start_time'] : ''; 
+								$data['end_time'] = isset($record['end_time']) ? $record['end_time'] : '';
+								$data['prayer'] = isset($record['prayer']) ? $record['prayer'] : '';
+								$data['prayer_title'] = isset($record['prayer_title']) ? $record['prayer_title'] : '';
+								$data['reminder'] = isset($record['reminder']) ? $record['reminder'] : '0';
+								$data['church_idz'] = isset($record['church_id']) ? $record['church_id'] : '0';
+
+							}
+						}
+					}
+
+				}
+
+				
+			} elseif($param2 == 'time_link'){
 				if($param3) {
 					$edit = $this->Crud->read_single('id', $param3, $table);
 
@@ -2170,6 +2210,12 @@ class Ministry extends BaseController {
 											   pageSize="modal-xl" 
 											   pageName="' . site_url($mod . '/manage/time_report/' . $id . '/' . $formatted_date . '/' . $record_key) . '">
 												<em class="icon ni ni-reports"></em> <span>Report</span>
+											</a>
+											<a href="javascript:;" class="mx-1 btn btn-sm btn-outline-primary pop" 
+											   pageTitle="Share Meeting Link" 
+											   pageSize="modal-lg" 
+											   pageName="' . site_url($mod . '/manage/time_link/' . $id . '/' . $formatted_date . '/' . $record_key) . '">
+												<em class="icon ni ni-share-alt"></em> <span>Share Link</span>
 											</a>
 										</div>
 									</td>

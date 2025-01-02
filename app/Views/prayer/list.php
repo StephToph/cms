@@ -2,6 +2,9 @@
 
 $logo = 'assets/new_logo1.png';
 $background_image = 'assets/images/prayercloud.webp';
+
+$searchTerm = isset($_GET['searchTerm']) ? $_GET['searchTerm'] : '';
+$churchId = isset($_GET['churchId']) ? $_GET['churchId'] : '';
 ?>
 <?php
 use App\Models\Crud;
@@ -90,8 +93,15 @@ $this->Crud = new Crud();
                                                         $e_churches = $this->Crud->read2_order('regional_id', 8, 'type', 'church', 'church', 'name', 'asc');
                                                         if(!empty($e_churches)){
                                                             foreach($e_churches as $ch){
+                                                                $zel = '';
+                                                                $church_id = htmlspecialchars($churchId); 
                                                                 
-                                                                echo '<option value="'.$ch->id.'">'.ucwords($ch->name).'</option>';
+                                                                if(!empty($church_id)){
+                                                                    if($church_id == $ch->id){
+                                                                        $zel = 'selected';
+                                                                    }
+                                                                }
+                                                                echo '<option value="'.$ch->id.'" '.$zel.'>'.ucwords($ch->name).'</option>';
 
                                                             }
                                                         }
@@ -101,7 +111,7 @@ $this->Crud = new Crud();
                                         </div>
                                         <div class="col-sm-3 mx-2 mb-3">
                                             <div class="form-group">
-                                                <input class="form-control" type="text" id="search" name="search" placeholder="Search Prayer" >
+                                                <input class="form-control" type="text" id="search" name="search" placeholder="Search Prayer" value="<?= htmlspecialchars($searchTerm); ?>" >
                                             </div>
                                         </div>
                                     </div>
