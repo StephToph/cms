@@ -9195,5 +9195,22 @@ class Accounts extends BaseController {
 		}
 	}
 
+	public function update_church(){
+		$mem = $this->Crud->read_single('church_id >', 0,'user');
+		if(!empty($mem)){
+			foreach($mem as $m){
+				$church_id = $m->church_id;
+				$inz['church_type'] = $this->Crud->read_field('id', $church_id, 'church', 'type');
+				$inz['regional_id'] = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+				$inz['zonal_id'] = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+				$inz['group_id'] = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+				
+				$this->Crud->updates('id', $m->id, 'user', $inz);
+
+			}
+		}
+
+	}
+
 
 }
