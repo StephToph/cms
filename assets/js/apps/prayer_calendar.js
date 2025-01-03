@@ -10,15 +10,11 @@
             t = String(e.getDate()).padStart(2, "0"),
             a = String(e.getMonth() + 1).padStart(2, "0"),
             n = e.getFullYear(),
-            i = new Date(e),
-            i = (i.setDate(e.getDate() + 1), String(i.getDate()).padStart(2, "0"), String(i.getMonth() + 1).padStart(2, "0"), i.getFullYear(), new Date(e)),
-            e = (i.setDate(i.getDate() - 1), String(i.getDate()).padStart(2, "0")),
-            r = String(i.getMonth() + 1).padStart(2, "0"),
-            d = n + "-" + a,
-            i = i.getFullYear() + "-" + r + "-" + e,
-            r = n + "-" + a + "-" + t,
-            v = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-            e = document.getElementById("calendar"),
+            r = n + "-" + a + "-" + t;
+
+        var initialDate = r; // Default to current date if no events are found
+
+        var e = document.getElementById("calendar"),
             initialView = e.getAttribute("data-initial-view") || (g.Win.width < g.Break.md ? "listWeek" : "dayGridMonth"),  
             headerToolbarConfig = initialView === "listWeek"
                 ? { left: "title prev,next", center: null, right: null }
@@ -32,7 +28,8 @@
         // Reinitialize the calendar with updated data
         calendar = new FullCalendar.Calendar(e, {
             timeZone: "UTC",
-            initialView: initialView, 
+            initialView: initialView,
+            initialDate: initialDate,  // Use the current date if no events are found
             themeSystem: "bootstrap5",
             headerToolbar: headerToolbarConfig,
             height: 800,
@@ -102,7 +99,12 @@
                     success: function (response) {
                         // Check if response is an array
                         if (Array.isArray(response)) {
-                            
+                            // If events are available, set the initial date to the first event's start date
+                            if (response.length > 0) {
+                                var firstEventStart = response[0].start;
+                                initialDate = firstEventStart.split("T")[0];  // Get the date part
+                            }
+
                             successCallback(response);  // Pass the response as-is to FullCalendar
                             console.log(response);  // Log the new events for debugging
                         } else {
