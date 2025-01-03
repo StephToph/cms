@@ -424,7 +424,7 @@ $this->Crud = new Crud();
             <div class="form-group">
                 <label class="form-label">Prayer Point</label>
                 <textarea class="form-control summernote" name="prayer" rows="4" readonly>
-                    <?php echo isset($prayer) ? htmlspecialchars(strip_tags($prayer)) : ''; ?>
+                    <?php echo isset($prayer) ? (($prayer)) : ''; ?>
                 </textarea>
             </div>
         </div>
