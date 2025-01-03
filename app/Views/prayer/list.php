@@ -96,7 +96,7 @@
                         <div class="row flex-row-reverse justify-content-center text-center g-gs">
                             <div class="col-lg-12 col-md-10">
                                 <div class="header-caption">
-                                    <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); font-size: 4rem; color: white;"><?=$this->Crud->read_field('id', $churchId, 'church', 'name'); ?> Prayer Cloud</h1>
+                                    <h1 class="header-title text-uppercase" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.8); font-size: 4rem; color: white;"><?=$this->Crud->read_field('id', $prayer_id, 'prayer', 'title'); ?> Prayer Cloud</h1>
                                 </div>
                             </div>
                         </div>

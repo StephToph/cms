@@ -143,7 +143,20 @@
                 calendar.render(); 
             }).data('events-attached', true);  // Mark that the event is attached
         }
-        
+
+        // Event listener for "Join" and "View Prayer" buttons
+        $(document).on('click', '.pops', function () {
+            var pageName = $(this).attr('pageName');  // Get the pageName (URL)
+            var pageTitle = $(this).attr('pageTitle');  // Get the pageTitle
+            var pageSize = $(this).attr('pageSize');  // Get the pageSize for modal
+
+            $(".modal-dialog").addClass(pageSize);
+            $(".modal-center .modal-title").html(pageTitle);
+            $(".modal-center .modal-body").html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div><br>Loading Please Wait..</div>');
+            $(".modal-center .modal-body").load(pageName);
+            $(".modal-center").modal("show");
+        });
+
     },
         g.coms.docReady.push(g.Calendar);
 })(NioApp, jQuery);
