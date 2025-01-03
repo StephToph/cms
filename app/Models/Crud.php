@@ -1923,7 +1923,10 @@ class Crud extends Model {
 		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$church_type = $this->read_field('id', $log_id, 'user', 'church_type');
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
+
+
 		if(!empty($switch_id)){
             $church_type = $this->read_field('id', $switch_id, 'church', 'type');
             if($church_type == 'region'){
@@ -1946,11 +1949,28 @@ class Crud extends Model {
 			$church_id = $switch_id;
 		
         }
+
+
 		if($role != 'developer' && $role != 'administrator'){
 			if($role == 'ministry administrator'){
 				$builder->where('ministry_id', $ministry_id);
-			}else {
-				$builder->where('church_id', $church_id);
+			} else {
+				if($church_type == 'region'){
+					$builder->where('regional_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'zone'){
+					$builder->where('zonal_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'group'){
+					$builder->where('group_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'church'){
+					$builder->where('church_id', $church_id);
+				}
+				
 			}
 			
 		} 
@@ -1981,6 +2001,7 @@ class Crud extends Model {
 		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$church_type = $this->read_field('id', $log_id, 'user', 'church_type');
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
 		if(!empty($switch_id)){
             $church_type = $this->read_field('id', $switch_id, 'church', 'type');
@@ -2008,36 +2029,20 @@ class Crud extends Model {
 			if($role == 'ministry administrator'){
     			$builder->where('ministry_id', $ministry_id);
     		}  else {
-    		     // Determine the churches based on the user's role
-				$church_ids = [$church_id]; // Start with the user's church
-				if ($include_sub_churches == 'true') {
-					if ($role == 'regional manager') {
-						// Fetch zonal and group churches under the regional church
-						$zonal_churches = $this->get_sub_church_ids($church_id, 'zone');
-						$group_churches = $this->get_sub_church_ids($church_id, 'group');
-						$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
-						
-						$church_ids = array_merge($church_ids, $zonal_churches, $group_churches, $assembly_churches);
-					} 
-					
-					if ($role == 'zonal manager') {
-						// Fetch group churches under the zonal church
-						$group_churches = $this->get_sub_church_ids($church_id, 'group');
-						$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
-						
-						$church_ids = array_merge($church_ids, $group_churches, $assembly_churches);
-					}
-
-					if ($role == 'group manager') {
-						// Fetch group churches under the zonal church
-						$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
-						
-						$church_ids = array_merge($church_ids, $assembly_churches);
-					}
+    		    if($church_type == 'region'){
+					$builder->where('regional_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
 				}
-				// Filter by church IDs
-				if (!empty($church_ids)) {
-					$builder->whereIn('church_id', $church_ids);
+				if($church_type == 'zone'){
+					$builder->where('zonal_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'group'){
+					$builder->where('group_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'church'){
+					$builder->where('church_id', $church_id);
 				}
 
     		}
