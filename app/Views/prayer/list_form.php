@@ -32,24 +32,24 @@ $this->Crud = new Crud();
     <div class="row gy-3 py-1">
          <!-- Event Name -->
         <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Prayer Title</h6>
-            <p id="preview-event-name"><?= ucwords($e_name); ?></p>
+            <h5 class="overline-title">Prayer Title</h5>
+            <p class="text-dark" id="preview-event-name"><?= ucwords($e_name); ?></p>
         </div>
 
         <!-- Start Time -->
         <div class="col-sm-6 mb-3">
-            <h6 class="overline-title">Start Time</h6>
-            <p id="preview-event-start"><?= $start_time ? date('h:iA',strtotime($start_time)) : 'Not specified'; ?></p>
+            <h5 class="overline-title">Start Time</h5>
+            <p class="text-dark" id="preview-event-start"><?= $start_time ? date('h:iA',strtotime($start_time)) : 'Not specified'; ?></p>
         </div>
 
         <!-- End Time -->
         <div class="col-sm-6 mb-3">
-            <h6 class="overline-title">End Time</h6>
-            <p id="preview-event-end"><?= $end_time ? date('h:iA',strtotime($end_time)) : 'Not specified'; ?></p>
+            <h5 class="overline-title">End Time</h5>
+            <p class="text-dark" id="preview-event-end"><?= $end_time ? date('h:iA',strtotime($end_time)) : 'Not specified'; ?></p>
         </div>
         
         <div class="col-sm-6 mb-3">
-            <h6 class="overline-title">Time Zone</h6>
+            <h5 class="overline-title">Time Zone</h5>
             <?php
                 // Define the array of time zones (name => value)
                 $timeZones = [
@@ -60,7 +60,7 @@ $this->Crud = new Crud();
                     "AKST" => "Alaska Standard Time (AKST)"
                 ];
             ?>
-            <p id="preview-event-reminder">
+            <p class="text-dark" id="preview-event-reminder">
                 <?php
                 // Check if the time_zone is set and exists in the array, then display the full meaning
                 if (!empty($time_zone) && isset($timeZones[$time_zone])) {
@@ -74,15 +74,15 @@ $this->Crud = new Crud();
 
         <!-- Church -->
         <div class="col-sm-5 mb-3">
-            <h6 class="overline-title">Church</h6>
-            <p id="preview-event-church"><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></p>
+            <h5 class="overline-title">Church</h5>
+            <p class="text-dark" id="preview-event-church"><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></p>
         </div>
 
 
         <!-- Prayer Description -->
         <div class="col-sm-12 mb-3">
-            <h6 class="overline-title">Prayer Point</h6>
-            <p id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
+            <h5 class="overline-title">Prayer Point</h5>
+            <p class="text-dark" id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
         </div>
 
     </div>
