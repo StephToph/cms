@@ -29,7 +29,7 @@ $this->Crud = new Crud();
 <?php } ?>
 
 <?php if ($param2 == 'view') { ?>
-    <div class="row gy-3 py-1">
+    <div class="row gy-3 py-1" id="event-content">
          <!-- Event Name -->
         <div class="col-sm-12 mb-3">
             <h5 class="overline-title">Prayer Title</h5>
@@ -39,13 +39,13 @@ $this->Crud = new Crud();
         <!-- Start Time -->
         <div class="col-sm-6 mb-3">
             <h5 class="overline-title">Start Time</h5>
-            <p class="text-dark" id="preview-event-start"><?= $start_time ? date('h:iA',strtotime($start_time)) : 'Not specified'; ?></p>
+            <p class="text-dark" id="preview-event-start"><?=date('h:iA',strtotime($start_time)); ?></p>
         </div>
 
         <!-- End Time -->
         <div class="col-sm-6 mb-3">
             <h5 class="overline-title">End Time</h5>
-            <p class="text-dark" id="preview-event-end"><?= $end_time ? date('h:iA',strtotime($end_time)) : 'Not specified'; ?></p>
+            <p class="text-dark" id="preview-event-end"><?=date('h:iA',strtotime($end_time)); ?></p>
         </div>
         
         <div class="col-sm-6 mb-3">
@@ -82,18 +82,25 @@ $this->Crud = new Crud();
         <!-- Prayer Description -->
         <div class="col-sm-12 mb-3">
             <h5 class="overline-title">Prayer Point</h5>
-            <p class="text-dark" id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
+            <p class="text-dark" id="preview-event-prayer"><?=$prayer; ?></p>
         </div>
-
+    
+        
+    </div>
+    <div class="row gy-3 py-1">
         <div class="col-sm-12 text-center">
             <hr />
             <button class="btn btn-primary bb_for_btn" id="bt"  onclick="downloadPDF()" type="button">
-                <i class="icon ni ni-save"></i>  DOWNLOAD PRAYER POST
+                  DOWNLOAD PRAYER POST
             </button>
         </div>
-
+        <div class="col-sm-12 my-2">
+            <div id="bb_ajax_msg"></div>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
 
 <?php } ?>
 
@@ -161,34 +168,30 @@ $this->Crud = new Crud();
 <script>
    var site_url = '<?php echo site_url(); ?>';
    function downloadPDF() {
-        // Using jsPDF to generate the PDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Set title of the PDF
-        doc.setFontSize(16);
-        doc.text("Prayer Event Details", 20, 20);
-
-        // Event Title
-        doc.setFontSize(12);
-        doc.text("Prayer Title: " + document.getElementById('preview-event-name').innerText, 20, 30);
-
-        // Start Time
-        doc.text("Start Time: " + document.getElementById('preview-event-start').innerText, 20, 40);
-
-        // End Time
-        doc.text("End Time: " + document.getElementById('preview-event-end').innerText, 20, 50);
-
-        // Time Zone
-        doc.text("Time Zone: " + document.getElementById('preview-event-reminder').innerText, 20, 60);
-
-        // Church Name
-        doc.text("Church: " + document.getElementById('preview-event-church').innerText, 20, 70);
-
-        // Prayer Point
-        doc.text("Prayer Point: " + document.getElementById('preview-event-prayer').innerText, 20, 80);
-
-        // Save the PDF
-        doc.save("prayer_event_details.pdf");
+        $('#bb_ajax_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> <span>Processing Request..</span></div>');
+        const element = document.getElementById('event-content'); // Get the content to capture
+        
+        // Use html2pdf with enhanced options for dynamic adjustment
+        html2pdf()
+            .from(element)
+            .set({
+                margin: [10, 10, 10, 20],  // Set margins to prevent clipping
+                filename: 'prayer_event_details.pdf', // Output filename
+                html2canvas: {
+                    scale: 6,  // Increase resolution for better quality
+                    letterRendering: true, // Improve text rendering
+                    useCORS: true,  // Allow cross-origin images
+                    backgroundColor: '#ffffff'  // Set background color for clarity
+                },
+                jsPDF: {
+                    unit: 'mm',  // Use millimeters for units
+                    format: 'a4', // PDF format (A4 size)
+                    orientation: 'portrait',  // Portrait orientation for the page
+                    autoSize: true, // Ensure the content fits on the page
+                    compressPDF: true  // Compress the PDF for smaller file size
+                }
+            })
+            .save(); // Automatically triggers PDF download
+            $('#bb_ajax_msg').html('');
     }
 </script>
