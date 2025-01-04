@@ -51,7 +51,7 @@
         <link rel="shortcut icon" href="<?=site_url(); ?>assets/new_logo1.png" />
         <title><?=$title; ?></title>
         <link rel="stylesheet" href="<?=site_url(); ?>assets/prayer/assets/css/dashlitee5ca.css?ver=<?=time(); ?>" />
-        <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/prayer/assets/css/themee5ca.css?ver=3.2.3" />
+        <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/css/skins/theme-egyptian.css?ver=3.2.3">
        
     </head>
 
