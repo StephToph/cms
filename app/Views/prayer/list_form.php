@@ -88,7 +88,7 @@ $this->Crud = new Crud();
         <div class="col-sm-12 text-center">
             <hr />
             <button class="btn btn-primary bb_for_btn" id="bt" type="button">
-                <i class="icon ni ni-save"></i> Donload
+                <i class="icon ni ni-save"></i>  DOWNLOAD PRAYER POST
             </button>
         </div>
 
