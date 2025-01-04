@@ -90,7 +90,7 @@ $this->Crud = new Crud();
     <div class="row gy-3 py-1">
         <div class="col-sm-12 text-center">
             <hr />
-            <button class="btn btn-primary bb_for_btn" id="bt"  onclick="downloadPDF()" type="button">
+            <button class="btn btn-primary bb_for_btn" id="bt"  onclick="downloadImage()" type="button">
                   DOWNLOAD PRAYER POST
             </button>
         </div>
@@ -98,8 +98,7 @@ $this->Crud = new Crud();
             <div id="bb_ajax_msg"></div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+    <script src="<?php echo site_url(); ?>assets/js/html2canvas.min.js"></script>
 
 
 <?php } ?>
@@ -193,5 +192,32 @@ $this->Crud = new Crud();
             })
             .save(); // Automatically triggers PDF download
             $('#bb_ajax_msg').html('');
+    }
+
+    function downloadImage() {
+        const element = document.getElementById('event-content'); // Get the content to capture
+
+        // Use html2canvas to capture the content as an image
+        html2canvas(element, { 
+            scale: 2,  // Increase the scale for better resolution
+            useCORS: true,  // Enable cross-origin resource sharing (if needed)
+            backgroundColor: '#fff'  // Set a background color (optional)
+        }).then(function(canvas) {
+            // Check if canvas is captured
+            console.log(canvas);
+            
+            // Convert the canvas to an image (PNG format)
+            const imgData = canvas.toDataURL('image/png');
+
+            // Create an anchor element to trigger the download
+            const link = document.createElement('a');
+            link.href = imgData;
+            link.download = 'prayer_event_details.png';  // Set the file name
+            link.click();  // Trigger the download
+
+            console.log('Image download initiated!');
+        }).catch(function(error) {
+            console.error('Error capturing the content:', error);
+        });
     }
 </script>
