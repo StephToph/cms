@@ -87,12 +87,14 @@ $this->Crud = new Crud();
 
         <div class="col-sm-12 text-center">
             <hr />
-            <button class="btn btn-primary bb_for_btn" id="bt" type="button">
+            <button class="btn btn-primary bb_for_btn" id="bt"  onclick="downloadPDF()" type="button">
                 <i class="icon ni ni-save"></i>  DOWNLOAD PRAYER POST
             </button>
         </div>
 
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <?php } ?>
 
 <?php echo form_close(); ?>
@@ -158,5 +160,35 @@ $this->Crud = new Crud();
 
 <script>
    var site_url = '<?php echo site_url(); ?>';
+   function downloadPDF() {
+        // Using jsPDF to generate the PDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
+        // Set title of the PDF
+        doc.setFontSize(16);
+        doc.text("Prayer Event Details", 20, 20);
+
+        // Event Title
+        doc.setFontSize(12);
+        doc.text("Prayer Title: " + document.getElementById('preview-event-name').innerText, 20, 30);
+
+        // Start Time
+        doc.text("Start Time: " + document.getElementById('preview-event-start').innerText, 20, 40);
+
+        // End Time
+        doc.text("End Time: " + document.getElementById('preview-event-end').innerText, 20, 50);
+
+        // Time Zone
+        doc.text("Time Zone: " + document.getElementById('preview-event-reminder').innerText, 20, 60);
+
+        // Church Name
+        doc.text("Church: " + document.getElementById('preview-event-church').innerText, 20, 70);
+
+        // Prayer Point
+        doc.text("Prayer Point: " + document.getElementById('preview-event-prayer').innerText, 20, 80);
+
+        // Save the PDF
+        doc.save("prayer_event_details.pdf");
+    }
 </script>
