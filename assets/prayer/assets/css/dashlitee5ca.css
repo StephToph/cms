@@ -9,13 +9,6 @@
 
 
 @font-face {
-    font-family: 'SF Pro Display';
-    src: url('../fonts/sf-pro/SFPRODISPLAYBOLD.OTF') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
     font-family: 'GT Walsheim Pro';
     src: url('../fonts/gt/GTWalsheimPro-Light.eot');
     src: local('GT Walsheim Pro Light'), local('GTWalsheimPro-Light'),
@@ -522,8 +515,8 @@
     --bs-font-sans-serif: 'GT Walsheim Pro', "sans-serif";
     --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
-    --bs-body-font-family: 'SF Pro Display', sans-serif;
-    --bs-body-font-size: 0.875rem;
+    --bs-body-font-family:'GT Walsheim Pro', "sans-serif";
+    --bs-body-font-size: 0.975rem;
     --bs-body-font-weight: 400;
     --bs-body-line-height: 1.65;
     --bs-body-color: #8094ae;
@@ -668,7 +661,7 @@ h5,
 h6 {
     margin-top: 0;
     margin-bottom: 0.5rem;
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-weight: 500;
     line-height: 1.2;
     color: var(--bs-heading-color);
@@ -3334,7 +3327,7 @@ textarea.form-control.is-invalid {
 .btn {
     --bs-btn-padding-x: 1.125rem;
     --bs-btn-padding-y: 0.4375rem;
-    --bs-btn-font-family: 'SF Pro Display', sans-serif;
+    --bs-btn-font-family:'GT Walsheim Pro', "sans-serif";
     --bs-btn-font-size: 0.8125rem;
     --bs-btn-font-weight: 700;
     --bs-btn-line-height: 1.25rem;
@@ -6112,7 +6105,7 @@ fieldset:disabled .btn {
     z-index: var(--bs-tooltip-zindex);
     display: block;
     margin: var(--bs-tooltip-margin);
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-style: normal;
     font-weight: 400;
     line-height: 1.65;
@@ -6220,7 +6213,7 @@ fieldset:disabled .btn {
     z-index: var(--bs-popover-zindex);
     display: block;
     max-width: var(--bs-popover-max-width);
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-style: normal;
     font-weight: 400;
     line-height: 1.65;
@@ -14886,7 +14879,7 @@ svg {
     position: relative;
     border: 1px solid currentColor;
     line-height: 1.125rem;
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-size: 0.675rem;
     letter-spacing: 0.01em;
     vertical-align: middle;
@@ -15466,7 +15459,7 @@ a.alert:hover {
     align-items: center;
     font-size: 0.85rem;
     font-weight: 500;
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     line-height: 1;
     border: none;
     background: 0 0;
@@ -17437,7 +17430,7 @@ input[type="radio"]:checked ~ label {
 .nav-tabs-card {
     padding-left: 1.25rem;
     padding-right: 1.25rem;
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
 }
 @media (min-width: 576px) {
     .nav-tabs-card {
@@ -20957,7 +20950,7 @@ input[type="radio"]:checked ~ label {
     border-radius: 4px;
     box-shadow: none;
     border: 1px solid #dbdfea;
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-size: 13px;
     font-weight: 400;
     display: block;
@@ -21056,7 +21049,7 @@ input[type="radio"]:checked ~ label {
 }
 .select2-container--default .select2-selection--single {
     height: calc(2.125rem + 2px);
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-size: 13px;
     font-weight: 400;
     background-color: #fff;
@@ -21173,7 +21166,7 @@ input[type="radio"]:checked ~ label {
     background-color: #fff;
     border: 1px solid #dbdfea;
     border-radius: 4px;
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-size: 13px;
     font-weight: 400;
     cursor: text;
@@ -27893,7 +27886,7 @@ body.toggle-shown {
     transform: translateX(5px);
 }
 .pmo-text {
-    font-family: 'SF Pro Display', sans-serif;
+    font-family:'GT Walsheim Pro', "sans-serif";
     font-size: 14px;
     line-height: 22px;
     font-weight: 500;
@@ -28346,7 +28339,7 @@ body.toggle-shown {
 .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk .btn,
 .fc .fc-toolbar.fc-header-toolbar .fc-toolbar-chunk .dual-listbox .dual-listbox__button {
     position: relative;
-    font-family: 'SF Pro Display', sans-serif;;
+    font-family:'GT Walsheim Pro', "sans-serif";;
     font-weight: 700;
     font-size: 12px;
     background: 0 0;
