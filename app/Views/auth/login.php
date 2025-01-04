@@ -13,6 +13,7 @@
     <link rel="shortcut icon" href="<?=site_url(); ?>assets/new_logo1.png">
     <!-- Page Title  -->
     <title><?=$title; ?></title>
+    
     <!-- StyleSheets  -->
     <link rel="stylesheet" href="<?=site_url(); ?>assets/css/dashlitee5ca.css?ver=3.2.3">
     <link id="skin-default" rel="stylesheet" href="<?=site_url(); ?>assets/css/skins/theme-blue.css">

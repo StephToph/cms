@@ -13,6 +13,8 @@
             r = n + "-" + a + "-" + t;
 
         var initialDate = r; // Default to current date if no events are found
+        var initialView = "dayGridMonth";  // Default to month view
+        var initialVisibleRange = { start: r, end: r };  // Default to current week if no events are found
 
         var e = document.getElementById("calendar"),
             initialView = e.getAttribute("data-initial-view") || (g.Win.width < g.Break.md ? "listWeek" : "dayGridMonth"),  
@@ -30,6 +32,7 @@
             timeZone: "UTC",
             initialView: initialView,
             initialDate: initialDate,  // Use the current date if no events are found
+            visibleRange: initialVisibleRange,  // Set the visible range to the current week if no events
             themeSystem: "bootstrap5",
             headerToolbar: headerToolbarConfig,
             height: 800,
@@ -99,10 +102,26 @@
                     success: function (response) {
                         // Check if response is an array
                         if (Array.isArray(response)) {
-                            // If events are available, set the initial date to the first event's start date
+                            // If events are available, find the next event date
                             if (response.length > 0) {
-                                var firstEventStart = response[0].start;
-                                initialDate = firstEventStart.split("T")[0];  // Get the date part
+                                var eventDates = response.map(function(event) {
+                                    return event.start.split("T")[0];  // Extract date part from event's start date
+                                });
+                                
+                                // Find the next available event date
+                                var nextEventDate = eventDates.find(function(date) {
+                                    return new Date(date) > new Date();  // Find the first future event date
+                                });
+
+                                // If a future event exists, set the initial date to that event's date
+                                if (nextEventDate) {
+                                    initialDate = nextEventDate;  // Set to the next event date
+                                    initialVisibleRange = { start: nextEventDate, end: nextEventDate };  // Set visible range to the event's week
+                                } else {
+                                    // If no future event exists, set it to the current date or week
+                                    initialDate = r;  // Set to current date if no future event is found
+                                    initialVisibleRange = { start: r, end: r };  // Set the visible range to the current week
+                                }
                             }
 
                             successCallback(response);  // Pass the response as-is to FullCalendar
