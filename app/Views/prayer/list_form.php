@@ -85,6 +85,13 @@ $this->Crud = new Crud();
             <p class="text-dark" id="preview-event-prayer"><?= $prayer ? $prayer : 'No description provided'; ?></p>
         </div>
 
+        <div class="col-sm-12 text-center">
+            <hr />
+            <button class="btn btn-primary bb_for_btn" id="bt" type="button">
+                <i class="icon ni ni-save"></i> Donload
+            </button>
+        </div>
+
     </div>
 <?php } ?>
 

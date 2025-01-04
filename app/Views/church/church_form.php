@@ -252,7 +252,7 @@ $this->Crud = new Crud();
                         $('#zonal_id').append('<option value="">Select Zone</option>'); 
                         $.each(data, function(index, region) {
                             var selected = '';
-                            if (region.id === eZonalId) {
+                            if (region.id == eZonalId) {
                                 selected = 'selected';
                             }
                             $('#zonal_id').append('<option value="' + region.id + '" ' + selected + '>' + region.name + '</option>');
@@ -343,33 +343,33 @@ $this->Crud = new Crud();
         
         $('#regional_id').trigger('change');
         
-        $('#zonal_id').trigger('change');
-        $('#zonal_id').on('change', function() {
-            var zonalId = $(this).val();
-            if (zonalId === '') {
-                $('#group_id').empty();
-                $('#group_id').append('<option value="">Select</option>'); // reset to default option
-            } else {
-                $.ajax({
-                    type: 'POST',
-                    url: '<?=site_url('church/get_group')?>', // replace with your controller and function
-                    data: {zonal_id: zonalId},
-                    dataType: 'json',
-                    success: function(data) {
-                        $('#group_id').empty();
-                        if (data.length === 0) {
-                            $('#group_id').append('<option value="">No Group Church found</option>'); // display a message if no regions are found
-                        } else {
-                            $.each(data, function(index, region) {
-                                $('#group_id').append('<option value="' + region.id + '">' + region.name + '</option>');
-                            });
-                        }
-                    }
-                });
-            }
+        // $('#zonal_id').on('change', function() {
+        //     var zonalId = $(this).val();
+        //     if (zonalId === '') {
+        //         $('#group_id').empty();
+        //         $('#group_id').append('<option value="">Select</option>'); // reset to default option
+        //     } else {
+        //         $.ajax({
+        //             type: 'POST',
+        //             url: '<?=site_url('church/get_group')?>', // replace with your controller and function
+        //             data: {zonal_id: zonalId},
+        //             dataType: 'json',
+        //             success: function(data) {
+        //                 $('#group_id').empty();
+        //                 if (data.length === 0) {
+        //                     $('#group_id').append('<option value="">No Group Church found</option>'); // display a message if no regions are found
+        //                 } else {
+        //                     $.each(data, function(index, region) {
+        //                         $('#group_id').append('<option value="' + region.id + '">' + region.name + '</option>');
+        //                     });
+        //                 }
+        //             }
+        //         });
+        //     }
             
-        });
-    
+        // });
+        
+        // $('#zonal_id').trigger('change');
     });
 
 </script>
