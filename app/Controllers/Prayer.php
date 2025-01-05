@@ -474,6 +474,6 @@ class Prayer extends BaseController {
 			</html>
 			';
 
-		$email_status = $this->Crud->prayer_email($email, $head, $body);
+		echo $this->Crud->prayer_email($email, $head, $body);
 	}
 }
