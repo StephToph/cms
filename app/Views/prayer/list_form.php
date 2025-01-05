@@ -27,10 +27,9 @@ $this->Crud = new Crud();
         </div>
     </div>
 <?php } ?>
-
 <?php if ($param2 == 'view') { ?>
     <div class="row gy-3 py-1" id="event-content">
-         <!-- Event Name -->
+        <!-- Event Name -->
         <div class="col-sm-12 mb-3">
             <h5 class="overline-title">Prayer Title</h5>
             <p class="text-dark" id="preview-event-name"><?= ucwords($e_name); ?></p>
@@ -39,18 +38,19 @@ $this->Crud = new Crud();
         <!-- Start Time -->
         <div class="col-sm-6 mb-3">
             <h5 class="overline-title">Start Time</h5>
-            <p class="text-dark" id="preview-event-start"><?=date('h:iA',strtotime($start_time)); ?></p>
+            <p class="text-dark" id="preview-event-start"><?= date('h:iA', strtotime($start_time)); ?></p>
         </div>
 
         <!-- End Time -->
         <div class="col-sm-6 mb-3">
             <h5 class="overline-title">End Time</h5>
-            <p class="text-dark" id="preview-event-end"><?=date('h:iA',strtotime($end_time)); ?></p>
+            <p class="text-dark" id="preview-event-end"><?= date('h:iA', strtotime($end_time)); ?></p>
         </div>
-        
+
         <div class="col-sm-6 mb-3">
             <h5 class="overline-title">Time Zone</h5>
-            <?php
+            <p class="text-dark" id="preview-event-reminder">
+                <?php
                 // Define the array of time zones (name => value)
                 $timeZones = [
                     "EST" => "Eastern Standard Time (EST)",
@@ -59,8 +59,7 @@ $this->Crud = new Crud();
                     "PST" => "Pacific Standard Time (PST)",
                     "AKST" => "Alaska Standard Time (AKST)"
                 ];
-            ?>
-            <p class="text-dark" id="preview-event-reminder">
+                ?>
                 <?php
                 // Check if the time_zone is set and exists in the array, then display the full meaning
                 if (!empty($time_zone) && isset($timeZones[$time_zone])) {
@@ -78,30 +77,50 @@ $this->Crud = new Crud();
             <p class="text-dark" id="preview-event-church"><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></p>
         </div>
 
-
         <!-- Prayer Description -->
         <div class="col-sm-12 mb-3">
             <h5 class="overline-title">Prayer Point</h5>
-            <p class="text-dark" id="preview-event-prayer"><?=$prayer; ?></p>
+            <p class="text-dark" id="preview-event-prayer"><?= $prayer; ?></p>
         </div>
-    
-        
     </div>
+
     <div class="row gy-3 py-1">
         <div class="col-sm-12 text-center">
             <hr />
-            <button class="btn btn-primary bb_for_btn" id="bt"  onclick="downloadImage()" type="button">
-                  DOWNLOAD PRAYER POST
+            <button class="btn btn-primary bb_for_btn" id="bt" onclick="downloadPDF()" type="button">
+                DOWNLOAD PRAYER POST
             </button>
         </div>
         <div class="col-sm-12 my-2">
             <div id="bb_ajax_msg"></div>
         </div>
     </div>
-    <script src="<?php echo site_url(); ?>assets/js/html2canvas.min.js"></script>
 
+    <!-- Include html2canvas and jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.getElementById('event-content'); // Get the content to capture
 
+            // Use html2canvas to capture the content as an image
+            html2canvas(element, { 
+                scale: 2,  // Increase the scale for better resolution
+                useCORS: true,  // Enable cross-origin resource sharing (if needed)
+                backgroundColor: '#fff'  // Set a background color (optional)
+            }, function(canvas) {
+                // Convert the canvas to an image (PNG format)
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Create an anchor element to trigger the download
+                const link = document.createElement('a');
+                link.href = imgData;  // The image data URL
+                link.download = 'prayer_event_details.png';  // Set the file name for download
+                link.click();  // Trigger the download
+            });
+        }
+    </script>
 <?php } ?>
+
 
 <?php echo form_close(); ?>
 
@@ -194,30 +213,5 @@ $this->Crud = new Crud();
             $('#bb_ajax_msg').html('');
     }
 
-    function downloadImage() {
-        const element = document.getElementById('event-content'); // Get the content to capture
-
-        // Use html2canvas to capture the content as an image
-        html2canvas(element, { 
-            scale: 2,  // Increase the scale for better resolution
-            useCORS: true,  // Enable cross-origin resource sharing (if needed)
-            backgroundColor: '#fff'  // Set a background color (optional)
-        }).then(function(canvas) {
-            // Check if canvas is captured
-            console.log(canvas);
-            
-            // Convert the canvas to an image (PNG format)
-            const imgData = canvas.toDataURL('image/png');
-
-            // Create an anchor element to trigger the download
-            const link = document.createElement('a');
-            link.href = imgData;
-            link.download = 'prayer_event_details.png';  // Set the file name
-            link.click();  // Trigger the download
-
-            console.log('Image download initiated!');
-        }).catch(function(error) {
-            console.error('Error capturing the content:', error);
-        });
-    }
+    
 </script>
