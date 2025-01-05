@@ -192,7 +192,7 @@ $this->Crud = new Crud();
         html2pdf()
             .from(element)
             .set({
-                margin: [10, 10, 10, 25],  // Set margins to prevent clipping
+                margin: [10, 10, 10, 23],  // Set margins to prevent clipping
                 filename: 'prayer_event_details.pdf', // Output filename
                 html2canvas: {
                     scale: 4,  // Increase resolution for better quality
