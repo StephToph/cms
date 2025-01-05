@@ -35,8 +35,8 @@
             visibleRange: initialVisibleRange,  // Set the visible range to the current week if no events
             themeSystem: "bootstrap5",
             headerToolbar: headerToolbarConfig,
-            height: 800,
-            contentHeight: 780,
+            height: 'auto',
+            contentHeight: 'auto',
             aspectRatio: 3,
             editable: !0,
             droppable: !0,
