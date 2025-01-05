@@ -1778,7 +1778,7 @@ class Crud extends Model {
 		return false;
 	}
 
-	public function prayer_email($from, $from_name,$to, $subject, $body, $bcc='') {
+	public function prayer_email($to, $subject, $body, $bcc='') {
 		$emailServ = \Config\Services::email();
 
 		$config['charset']  = 'iso-8859-1';
@@ -1786,7 +1786,7 @@ class Crud extends Model {
 		$config['wordWrap'] = true;
 		$emailServ->initialize($config);
 
-		$emailServ->setFrom($from, $from_name);
+		$emailServ->setFrom(push_email, app_name);
 		$emailServ->setTo($to);
 		if(!empty($bcc)) $emailServ->setBCC($bcc);
 

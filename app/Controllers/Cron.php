@@ -50,7 +50,7 @@ class Cron extends BaseController {
 											$timez[$tim][$record_key]['reminder_status'] = 1;
 							
 											
-											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder.' Minutes';
+											$head = 'USA REGIONAL CAMP MEETING PRAYER POINT FOR TODAY.';
 
 											$body = $this->reminder_body($prayer_id, $start_time, $tim, $time_zone, $code).'
 											
@@ -96,8 +96,7 @@ class Cron extends BaseController {
 											$timez[$tim][$record_key]['reminder_status2'] = 1;
 							
 											
-											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder2.' Minutes';
-
+											$head = 'USA REGIONAL CAMP MEETING PRAYER POINT FOR TODAY.';
 											$body = $this->reminder_body($prayer_id, $start_time, $tim, $time_zone, $code).'
 											
 											';
