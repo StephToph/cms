@@ -1777,6 +1777,28 @@ class Crud extends Model {
 		if($emailServ->send()) return true;
 		return false;
 	}
+
+	public function prayer_email($from, $from_name,$to, $subject, $body, $bcc='') {
+		$emailServ = \Config\Services::email();
+
+		$config['charset']  = 'iso-8859-1';
+		$config['mailType'] = 'html';
+		$config['wordWrap'] = true;
+		$emailServ->initialize($config);
+
+		$emailServ->setFrom($from, $from_name);
+		$emailServ->setTo($to);
+		if(!empty($bcc)) $emailServ->setBCC($bcc);
+
+		$emailServ->setSubject($subject);
+		$temp['body'] = $body;
+
+		$template = view('designs/prayer_email', $temp);
+		$emailServ->setMessage($template);
+
+		if($emailServ->send()) return true;
+		return false;
+	}
 	//////////////////// END SEND EMAIL //////////////////
 
 	
