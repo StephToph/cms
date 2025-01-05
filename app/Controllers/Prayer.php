@@ -360,4 +360,120 @@ class Prayer extends BaseController {
 		echo json_encode($cal_events);
 
 	}
+
+	public function email($email=''){
+		if(empty($email)){
+			$email = 'tofunmi015@gmail.com';
+		}
+		$start_date = '2025-01-06';
+		$start_time = '15:52 AM';
+		$head = 'USA REGIONAL CAMP MEETING PRAYER POINT FOR TODAY';
+		$body = '
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Prayer Session Invitation</title>
+				<style>
+					/* Global styles for light theme */
+					body {
+						font-family: Arial, sans-serif;
+						color: #333;
+						line-height: 1.6;
+						margin: 0;
+						padding: 0;
+						background-color: #f9f9f9;
+					}
+					.container {
+						padding: 20px;
+						background-color: #f9f9f9;
+					}
+					.header {
+						text-align: center;
+						font-size: 24px;
+						color: #0056b3;
+						margin-bottom: 20px;
+					}
+					.message {
+						background-color: #ffffff;
+						border-radius: 8px;
+						padding: 20px;
+						box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+					}
+					.btn {
+						display: inline-block;
+						padding: 15px 25px;
+						font-size: 18px;
+						color: #fff;
+						background-color: #007bff;
+						text-decoration: none;
+						border-radius: 5px;
+						margin-top: 20px;
+					}
+					.footer {
+						margin-top: 30px;
+						text-align: center;
+						font-size: 14px;
+						color: #666;
+					}
+
+					/* Dark theme styles */
+					@media (prefers-color-scheme: dark) {
+						body {
+							color: #fff;
+							background-color: #1c1c1c;
+						}
+						.container {
+							background-color: #333;
+						}
+						.header {
+							color: #4db8ff;
+						}
+						.message {
+							background-color: #2e2e2e;
+							border-radius: 8px;
+							padding: 20px;
+							box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+						}
+						.btn {
+							background-color: #4db8ff;
+						}
+						.footer {
+							color: #aaa;
+						}
+					}
+				</style>
+			</head>
+			<body>
+
+				<div class="container">
+					<div class="header">
+						<p>Dear Esteemed Pastor,</p>
+					</div>
+
+					<div class="message">
+						<p>Greetings in the matchless name of our Lord Jesus Christ.</p>
+						<p>Welcome to our glorious year of completeness!</p>
+
+						<p>Kindly note that the prayer session for your church is coming up on <strong>' . date('d F, Y', strtotime($start_date)) . '</strong> by <strong>' . date('h:iA', strtotime($start_time)) . ' UTC</strong>. Kindly promote maximum participation of your brethren.</p>
+
+						<p>God bless you.</p>
+
+						<a href="' . site_url('prayer/index/1-wzx-pm4d-g7q') . '" class="btn" target="_blank">Join Prayer</a>
+
+						<p>In service,<br>The 2025 Regional Camp Meeting Prayer committee</p>
+					</div>
+				</div>
+
+				<div class="footer">
+					<p>&copy; 2025 The Regional Camp Meeting. All rights reserved.</p>
+				</div>
+
+			</body>
+			</html>
+			';
+
+		$email_status = $this->Crud->prayer_email($email, $head, $body);
+	}
 }

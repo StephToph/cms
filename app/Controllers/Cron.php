@@ -9,6 +9,7 @@ class Cron extends BaseController {
 		$prayer = $this->Crud->prayer_range(date('Y-m-d'), 'start_date', date('Y-m-d'), 'end_date', 'prayer');
 		if(!empty($prayer)){
 			foreach($prayer as $p){
+				$prayer_id = $p->id;
 				$reminder = $p->reminder;
 				$reminder2 = $p->reminder2;
 				$time_zone = $p->time_zone;
@@ -27,6 +28,7 @@ class Cron extends BaseController {
 							$prayer = isset($record['prayer']) ? $record['prayer'] : '';
 							$church_idz = isset($record['church_id']) ? $record['church_id'] : '';
 							$end_time = isset($record['end_time']) ? $record['end_time'] : '';
+							$code = isset($record['code']) ? $record['code'] : '';
 							
 							
 							// Calculate reminder time if start_time exists
@@ -50,24 +52,22 @@ class Cron extends BaseController {
 											
 											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder.' Minutes';
 
-											$body = $this->reminder_body($prayer_title, $start_time, $end_time, $time_zone, $church_idz, $prayer).'
+											$body = $this->reminder_body($prayer_id, $start_time, $tim, $time_zone, $code).'
 											
 											';
 											
-											if(!empty($churches)){
-												foreach($churches as $ch){
-													$member = $this->Crud->read_single('church_id', $ch, 'user');
-													if(!empty($member)){
-														foreach($member as $mem){
-															$email = $mem->email;
-															$email_status = $this->Crud->send_email($email, $head, $body);
-															if ($email_status > 0) {
-																
-																
-															}
-
-
+											if(!empty($church_idz)){
+												$member = $this->Crud->read2('is_member', 0, 'church_id', $church_idz, 'user');
+												if(!empty($member)){
+													foreach($member as $mem){
+														$email = $mem->email;
+														$email_status = $this->Crud->prayer_email($email, $head, $body);
+														if ($email_status > 0) {
+															
+															
 														}
+
+
 													}
 
 												}
@@ -98,19 +98,22 @@ class Cron extends BaseController {
 											
 											$head = 'Reminder: '.strtoupper($prayer_title).' - '.date(' h:iA', strtotime($start_time)).' '.strtoupper($time_zone).' starts in '.$reminder2.' Minutes';
 
-											$body = $this->reminder_body($prayer_title, $start_time, $end_time, $time_zone, $church_idz, $prayer).'
+											$body = $this->reminder_body($prayer_id, $start_time, $tim, $time_zone, $code).'
 											
 											';
 											
-											if(!empty($churches)){
-												foreach($churches as $ch){
-													$member = $this->Crud->read_single('church_id', $ch, 'user');
-													if(!empty($member)){
-														foreach($member as $mem){
-															$email = $mem->email;
-															$email_status = $this->Crud->send_email($email, $head, $body);
+											if(!empty($church_idz)){
+												$member = $this->Crud->read2('is_member', 0, 'church_id', $church_idz, 'user');
+												if(!empty($member)){
+													foreach($member as $mem){
+														$email = $mem->email;
+														$email_status = $this->Crud->prayer_email($email, $head, $body);
+														if ($email_status > 0) {
+															
 															
 														}
+
+
 													}
 
 												}
@@ -143,7 +146,7 @@ class Cron extends BaseController {
     }
 
 
-	private function reminder_body($prayer_title='',  $start_time, $end_time, $time_zone, $church_idz, $prayer){
+	private function reminder_body($prayer_id='',  $start_time, $start_date, $time_zone, $code){
 		// Define the array of time zones (name => value)
 		$timeZones = [
 			"EST" => "Eastern Standard Time (EST)",
@@ -152,54 +155,29 @@ class Cron extends BaseController {
 			"PST" => "Pacific Standard Time (PST)",
 			"AKST" => "Alaska Standard Time (AKST)"
 		];
+		if (!empty($time_zone) && isset($timeZones[$time_zone])) {
+			$time = $timeZones[$time_zone];  // Show the full meaning of the selected time zone
+		} else {
+			$time ='';  // Display an empty string if no valid time zone is selected
+		}
 		$body = '
-			<div class="row gy-3 py-1">
-				<!-- Event Name -->
-				<div class="col-sm-12 mb-3">
-					<h6 class="overline-title">Prayer Title</h6>
-					<p id="preview-event-name">'.ucwords($prayer_title).'</p>
+			 <div class="container">
+				<div class="header">
+					<p>Dear Esteemed Pastor,</p>
 				</div>
 
-				<!-- Start Time -->
-				<div class="col-sm-6 mb-3">
-					<h6 class="overline-title">Start Time</h6>
-					<p id="preview-event-start">'.date('h:iA',strtotime($start_time)).'</p>
-				</div>
+				<div class="message">
+					<p>Greetings in the matchless name of our Lord Jesus Christ.</p>
+					<p>Welcome to our glorious year of completeness!</p>
 
-				<!-- End Time -->
-				<div class="col-sm-6 mb-3">
-					<h6 class="overline-title">End Time</h6>
-					<p id="preview-event-end">'.date('h:iA',strtotime($end_time)).'</p>
-				</div>
-				
-				<div class="col-sm-6 mb-3">
-					<h6 class="overline-title">Time Zone</h6>
-					
-					<p id="preview-event-reminder">';
-					
-						// Check if the time_zone is set and exists in the array, then display the full meaning
-						if (!empty($time_zone) && isset($timeZones[$time_zone])) {
-							$body .= $timeZones[$time_zone];  // Show the full meaning of the selected time zone
-						} else {
-							echo '';  // Display an empty string if no valid time zone is selected
-						}
-						$body .= '
-					</p>
-				</div>
+					<p>Kindly note that the prayer session for your church is coming up on <strong>' . date('d F, Y', strtotime($start_date)) . '</strong> by <strong>' . date('h:iA', strtotime($start_time)) . ' ' . $time . '</strong>. Kindly promote maximum participation of your brethren.</p>
 
-				<!-- Church -->
-				<div class="col-sm-5 mb-3">
-					<h6 class="overline-title">Church</h6>
-					<p id="preview-event-church">'.ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')).'</p>
+					<p>God bless you.</p>
+
+					<a href="' . site_url('prayer/index/'.$prayer_id.'-'.$code) . '" class="btn" target="_blank">Join Prayer</a>
+
+					<p>In service,<br>The 2025 Regional Camp Meeting Prayer committee</p>
 				</div>
-
-
-				<!-- Prayer Description -->
-				<div class="col-sm-12 mb-3">
-					<h6 class="overline-title">Prayer Point</h6>
-					<p id="preview-event-prayer">'.$prayer ? $prayer : 'No description provided'.'</p>
-				</div>
-
 			</div>
 		
 		';
