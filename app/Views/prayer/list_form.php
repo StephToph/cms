@@ -95,9 +95,9 @@ $this->Crud = new Crud();
             <div id="bb_ajax_msg"></div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
 
-    <!-- Include html2canvas and jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
     <script>
         function downloadImage() {
             const element = document.getElementById('event-content'); // Get the content to capture
@@ -186,17 +186,16 @@ $this->Crud = new Crud();
 <script>
    var site_url = '<?php echo site_url(); ?>';
    function downloadPDF() {
-        $('#bb_ajax_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div> <span>Processing Request..</span></div>');
         const element = document.getElementById('event-content'); // Get the content to capture
         
         // Use html2pdf with enhanced options for dynamic adjustment
         html2pdf()
             .from(element)
             .set({
-                margin: [10, 10, 10, 20],  // Set margins to prevent clipping
+                margin: [10, 10, 10, 25],  // Set margins to prevent clipping
                 filename: 'prayer_event_details.pdf', // Output filename
                 html2canvas: {
-                    scale: 6,  // Increase resolution for better quality
+                    scale: 4,  // Increase resolution for better quality
                     letterRendering: true, // Improve text rendering
                     useCORS: true,  // Allow cross-origin images
                     backgroundColor: '#ffffff'  // Set background color for clarity
@@ -210,8 +209,5 @@ $this->Crud = new Crud();
                 }
             })
             .save(); // Automatically triggers PDF download
-            $('#bb_ajax_msg').html('');
-    }
-
-    
+    } 
 </script>
