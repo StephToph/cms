@@ -116,7 +116,13 @@ $this->Crud = new Crud();
 <?php if ($param2 == 'time_report') { ?>
     <div class="row">
         <!-- Prayer Record Details -->
+        <div class="col-sm-12 mb-3 d-flex justify-content-end">
+            <button class="btn btn-info text-uppercase" type="button" id="exportReportBtn">
+                <i class="icon ni ni-printer"></i> <span>Export Report</span> 
+            </button>
+        </div>
         <div class="col-sm-12 mb-3 table-responsive">
+            
             <table class="table table-hovered">
                 <tr>
                     <td colspan="4" ><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
@@ -1249,5 +1255,39 @@ $this->Crud = new Crud();
             $('#church_div').hide(600); // Hide the Church dropdown if the level is 'all'
         }
     });
+    
+    /////////////////EZPORT//////////////
+    $(document).ready(function() {
+    $('#exportReportBtn').click(function() {
+        // Collect data to send to the backend for export
+        var data = {
+            title: "<?= ucwords($e_title); ?>",
+            date: "<?= date('d F Y', strtotime($e_date)); ?>",
+            church: "<?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?>",
+            startTime: "<?= date('d F Y', strtotime($start_time)); ?>",
+            duration: "<?= $e_duration; ?>",
+            participants: <?php echo json_encode($e_assignment); ?>
+        };
+
+        // Send data to backend using jQuery AJAX
+        $.ajax({
+            url: "<?= base_url('ministry/prayer/exportReport'); ?>",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function(response) {
+                // Trigger file download
+                var blob = new Blob([response], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                var link = document.createElement("a");
+                link.href = URL.createObjectURL(blob);
+                link.download = "report.xlsx";
+                link.click();
+            },
+            error: function(xhr, status, error) {
+                console.error("Export failed: " + error);
+            }
+        });
+    });
+});
 
 </script>

@@ -1679,6 +1679,14 @@ class Ministry extends BaseController {
 
 				}
 
+				if($this->request->getMethod() == 'post'){
+
+
+
+					echo 'ter';
+					die;
+				}
+
 				
 			} elseif($param2 == 'time_link'){
 				if($param3) {
@@ -2318,6 +2326,48 @@ class Ministry extends BaseController {
 			echo json_encode($resp);
 			die;
 		}
+		
+
+
+		if($param1 == 'exportReport'){
+			// Get the JSON data sent from the frontend
+			$data = $this->request->getJSON();
+	
+			$sheet = $this->spreadsheet->getActiveSheet();
+	
+			// Set title and other general info
+			$sheet->setCellValue('A1', 'Event Report');
+			$sheet->setCellValue('A2', 'Title: ' . $data->title);
+			$sheet->setCellValue('A3', 'Date: ' . $data->date);
+			$sheet->setCellValue('A4', 'Moderating Church: ' . $data->church);
+			$sheet->setCellValue('A5', 'Start Time: ' . $data->startTime);
+			$sheet->setCellValue('A6', 'Duration: ' . $data->duration . ' minutes');
+	
+			// Add participant history headers
+			$sheet->setCellValue('A7', 'Participant');
+			$sheet->setCellValue('B7', 'Church');
+			$sheet->setCellValue('C7', 'Time Joined');
+			$sheet->setCellValue('D7', 'Time Left');
+	
+			// Populate participant data
+			$row = 8;
+			foreach ($data->participants as $participant) {
+				$sheet->setCellValue('A' . $row, $participant->participant ?? 'N/A');
+				$sheet->setCellValue('B' . $row, $participant->participant_church ?? 'N/A');
+				$sheet->setCellValue('C' . $row, $participant->join_time ?? 'N/A');
+				$sheet->setCellValue('D' . $row, $participant->leave_time ?? 'N/A');
+				$row++;
+			}
+	
+			 // Output as Excel file
+			$this->response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			$this->response->setHeader('Content-Disposition', 'attachment;filename="report.xlsx"');
+			$this->response->setBody($this->writer->save('php://output'));
+	 
+	
+			return $this->response;
+		}
+	
 	
 		$cal_events = array();
 		$cal_ass = $this->Crud->read('prayer');
