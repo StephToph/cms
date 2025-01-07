@@ -122,37 +122,32 @@ $this->Crud = new Crud();
             </button>
         </div>
         <div class="col-sm-12 mb-3 table-responsive">
-            
-            <table class="table table-hovered">
+            <table class="table table-hovered" id="eventDataTable">
                 <tr>
-                    <td colspan="4" ><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
+                    <td colspan="4"><h5 class="text-center text-info"><?= ucwords($e_title); ?></h5></td>
                 </tr>
-                
                 <tr>
                     <td><b>Date</b></td>
                     <td><?= date('d F Y', strtotime($e_date)); ?></td>
                 </tr>
                 <tr>
                     <td><b>Moderating Church</b></td>
-                    <td style="word-wrap: break-word; white-space: normal;">
-                        <?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?>
-                    </td>
+                    <td><?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?></td>
                 </tr>
-                    
                 <tr>
                     <td><b>Start Time</b></td>
                     <td><?= date('d F Y', strtotime($start_time)); ?></td>
                 </tr>
                 <tr>
                     <td><b>Duration</b></td>
-                    <td><?= ($e_duration); ?> Minute(s)</td>
+                    <td><?= $e_duration; ?> Minute(s)</td>
                 </tr>
             </table>
         </div>
 
         <div class="col-sm-12 mb-3 table-responsive">
             <h5 class="text-info">Participant History</h5>
-            <table class="table table-hovered">
+            <table class="table table-hovered" id="participantsTable">
                 <thead>
                     <tr>
                         <th>Participant</th>
@@ -162,17 +157,18 @@ $this->Crud = new Crud();
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Table rows are populated dynamically using PHP -->
                     <?php 
-                    $e_assignment = $this->Crud->read3('start_time', $start_time, 'record', $record_key, 'date', $e_date, 'prayer_report');
-                    if (!empty($e_assignment)) { ?>
-                        <?php foreach ($e_assignment as $record) { ?>
+                         $e_assignment = $this->Crud->read3('start_time', $start_time, 'record', $record_key, 'date', $e_date, 'prayer_report');
+                         if (!empty($e_assignment)) { 
+                            foreach ($e_assignment as $record) { ?>
                             <tr>
-                                <td><?= !empty($record->participant) ? ucwords($record->participant) : 'N/A'; ?></td>
-                                <td><?= !empty($record->participant_church) ? ucwords($this->Crud->read_field('id', $record->participant_church, 'church', 'name')) : 'N/A'; ?></td>
-                                <td><?= !empty($record->join_time) ? date('d F Y h:iA', strtotime($record->join_time)) : 'N/A'; ?></td>
-                                <td><?= !empty($record->leave_time) ? date('d F Y h:iA', strtotime($record->leave_time)) : 'N/A'; ?></td>
+                                <td class="participant"><?= !empty($record->participant) ? ucwords($record->participant) : 'N/A'; ?></td>
+                                <td class="church"><?= !empty($record->participant_church) ? ucwords($this->Crud->read_field('id', $record->participant_church, 'church', 'name')) : 'N/A'; ?></td>
+                                <td class="join_time"><?= !empty($record->join_time) ? date('d F Y h:iA', strtotime($record->join_time)) : 'N/A'; ?></td>
+                                <td class="leave_time"><?= !empty($record->leave_time) ? date('d F Y h:iA', strtotime($record->leave_time)) : 'N/A'; ?></td>
                             </tr>
-
+                            
                         <?php } ?>
                     <?php } else { ?>
                         <tr>
@@ -183,8 +179,10 @@ $this->Crud = new Crud();
             </table>
         </div>
 
-
     </div>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
 <?php } ?>
 <?php if ($param2 == 'time_link') { ?>
     <div class="row">
@@ -1257,37 +1255,95 @@ $this->Crud = new Crud();
     });
     
     /////////////////EZPORT//////////////
-    $(document).ready(function() {
-    $('#exportReportBtn').click(function() {
-        // Collect data to send to the backend for export
-        var data = {
-            title: "<?= ucwords($e_title); ?>",
-            date: "<?= date('d F Y', strtotime($e_date)); ?>",
-            church: "<?= ucwords($this->Crud->read_field('id', $church_idz, 'church', 'name')); ?>",
-            startTime: "<?= date('d F Y', strtotime($start_time)); ?>",
-            duration: "<?= $e_duration; ?>",
-            participants: <?php echo json_encode($e_assignment); ?>
-        };
-
-        // Send data to backend using jQuery AJAX
-        $.ajax({
-            url: "<?= base_url('ministry/prayer/exportReport'); ?>",
-            type: "POST",
-            contentType: "application/json",
-            data: JSON.stringify(data),
-            success: function(response) {
-                // Trigger file download
-                var blob = new Blob([response], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                var link = document.createElement("a");
-                link.href = URL.createObjectURL(blob);
-                link.download = "report.xlsx";
-                link.click();
-            },
-            error: function(xhr, status, error) {
-                console.error("Export failed: " + error);
+    document.getElementById('exportReportBtn').addEventListener('click', function() {
+        let eventTable = document.getElementById("eventDataTable");
+        let participantsTable = document.getElementById("participantsTable");
+        
+        let eventCsv = [];
+        let participantsCsv = [];
+        
+        // Export Event Data Table (eventDataTable)
+        let eventRows = eventTable.rows;
+        for (let i = 0; i < eventRows.length; i++) {
+            let row = eventRows[i];
+            let rowData = [];
+            
+            // Loop through each cell in the row
+            for (let j = 0; j < row.cells.length; j++) {
+                rowData.push(row.cells[j].innerText);
             }
-        });
+            eventCsv.push(rowData.join(","));
+        }
+
+        // Export Participant Data Table (participantsTable)
+        let participantRows = participantsTable.rows;
+        for (let i = 0; i < participantRows.length; i++) {
+            let row = participantRows[i];
+            let rowData = [];
+            
+            // Loop through each cell in the row
+            for (let j = 0; j < row.cells.length; j++) {
+                rowData.push(row.cells[j].innerText);
+            }
+            participantsCsv.push(rowData.join(","));
+        }
+
+        // Combine the CSV content
+        let csvString = "Event Data:\n" + eventCsv.join("\n") + "\n\nParticipant History:\n" + participantsCsv.join("\n");
+
+        // Create Blob and download CSV
+        let blob = new Blob([csvString], { type: "text/csv" });
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "prayer-report.csv";
+        link.click();
     });
-});
+    document.getElementById('exportReportBtn').addEventListener('click', function() {
+        // Getting event and participant tables
+        let eventTable = document.getElementById("eventDataTable");
+        let participantsTable = document.getElementById("participantsTable");
+
+        // Create a new workbook
+        let wb = XLSX.utils.book_new();
+        
+        // Export Event Data Table to Excel
+        let eventRows = [];
+        let eventTableRows = eventTable.rows;
+
+        // Loop through the event data table rows and create an array of data
+        for (let i = 0; i < eventTableRows.length; i++) {
+            let row = eventTableRows[i];
+            let rowData = [];
+            for (let j = 0; j < row.cells.length; j++) {
+                rowData.push(row.cells[j].innerText);
+            }
+            eventRows.push(rowData);
+        }
+
+        // Add the event table to the workbook as a sheet
+        let eventSheet = XLSX.utils.aoa_to_sheet(eventRows);
+        XLSX.utils.book_append_sheet(wb, eventSheet, "Event Data");
+
+        // Export Participant Data Table to Excel
+        let participantRows = [];
+        let participantTableRows = participantsTable.rows;
+
+        // Loop through the participant data table rows and create an array of data
+        for (let i = 0; i < participantTableRows.length; i++) {
+            let row = participantTableRows[i];
+            let rowData = [];
+            for (let j = 0; j < row.cells.length; j++) {
+                rowData.push(row.cells[j].innerText);
+            }
+            participantRows.push(rowData);
+        }
+
+        // Add the participants table to the workbook as another sheet
+        let participantSheet = XLSX.utils.aoa_to_sheet(participantRows);
+        XLSX.utils.book_append_sheet(wb, participantSheet, "Participant History");
+
+        // Generate the Excel file and prompt for download
+        XLSX.writeFile(wb, "prayer_report.xlsx");
+    });
 
 </script>

@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class Ministry extends BaseController {
 
 	public function index($param1='', $param2='', $param3='') {
@@ -2332,7 +2334,11 @@ class Ministry extends BaseController {
 		if($param1 == 'exportReport'){
 			// Get the JSON data sent from the frontend
 			$data = $this->request->getJSON();
-	
+			
+
+			// echo $data->title;
+			// print_r($data);
+			// die;
 			$sheet = $this->spreadsheet->getActiveSheet();
 	
 			// Set title and other general info
@@ -2358,12 +2364,23 @@ class Ministry extends BaseController {
 				$sheet->setCellValue('D' . $row, $participant->leave_time ?? 'N/A');
 				$row++;
 			}
-	
-			 // Output as Excel file
-			$this->response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-			$this->response->setHeader('Content-Disposition', 'attachment;filename="report.xlsx"');
-			$this->response->setBody($this->writer->save('php://output'));
-	 
+
+			 // Start output buffering to prevent any premature output
+			 ob_start();
+			 $writer = $this->writer;
+			 // Save the Excel file to output (capture output)
+			 $writer->save('php://output');
+
+			 // Get the contents of the buffer and clean it
+			 $content = ob_get_clean();
+ 
+			 // Set the headers for the file download
+			 $this->response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			 $this->response->setHeader('Content-Disposition', 'attachment;filename="prayer-report.xlsx"');
+			 $this->response->setHeader('Cache-Control', 'max-age=0'); // Ensure no caching
+ 
+			 // Send the content of the file to the browser
+			 $this->response->setBody($content);
 	
 			return $this->response;
 		}
