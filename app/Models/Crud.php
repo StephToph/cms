@@ -6,6 +6,8 @@ use CodeIgniter\Model;
 
 use Firebase\JWT\JWT;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class Crud extends Model {
 	protected $privateKeyPath = APPPATH . 'Keys/jaasauth.key';  // Adjust the path as needed
 
@@ -5228,6 +5230,41 @@ class Crud extends Model {
 			return $minutes . ' mins';
 		}
 	}
+
+	public function generateExcelReport($headers, $content) {
+        // Create a new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set dynamic headers for the Excel file
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $column++;
+        }
+
+        // Populate the data dynamically from the passed $content array
+        $row = 2;
+        foreach ($content as $data) {
+            $column = 'A';
+            foreach ($data as $value) {
+                $sheet->setCellValue($column . $row, $value);
+                $column++;
+            }
+            $row++;
+        }
+
+        // Create a writer instance and return the file content
+        $writer = new Xlsx($spreadsheet);
+
+        // Use output buffering to capture the generated file content
+        ob_start();
+        $writer->save('php://output');
+        $excelContent = ob_get_contents();
+        ob_end_clean();
+
+        return $excelContent;
+    }
 
 	public function get_sub_churches($id){
 		$sub_churches = [];

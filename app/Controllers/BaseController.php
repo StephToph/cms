@@ -13,6 +13,9 @@ use App\Libraries\Ciqrcode;
 use App\Libraries\Multilingual; 
 use App\Filters\SessionExpireFilter;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 use Firebase\JWT\JWT; // Import the JWT class
 /**
  * Class BaseController
@@ -33,7 +36,8 @@ class BaseController extends Controller
      */
     protected $request;
     protected $jwt;
-
+    protected $spreadsheet;
+    protected $writer;
     /**
      * An array of helpers to be loaded automatically upon
      * class instantiation. These helpers will be available
@@ -60,6 +64,8 @@ class BaseController extends Controller
         $this->email = \Config\Services::email();
         $this->multilingual = new Multilingual();
         $this->jwt = new JWT();
+        $this->spreadsheet = new Spreadsheet();
+        $this->writer = new Xlsx($this->spreadsheet);
         // Initialize the session expire filter
     }
 }
