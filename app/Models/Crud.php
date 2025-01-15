@@ -3088,7 +3088,7 @@ class Crud extends Model {
         $builder = $db->table('service_report');
 
         // build query
-		$builder->orderBy('id', 'desc');
+		$builder->orderBy('date', 'desc');
 		
         if(!empty($search)) {
             $builder->like('type', $search);

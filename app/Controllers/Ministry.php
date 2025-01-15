@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class Ministry extends BaseController {
 
 	public function index($param1='', $param2='', $param3='') {
