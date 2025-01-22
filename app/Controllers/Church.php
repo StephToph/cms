@@ -1934,6 +1934,7 @@ class Church extends BaseController{
 	}
 
 
+
 	public function pastor($param1 = '', $param2 = '', $param3 = '')
 	{
 		// check session login
@@ -2374,6 +2375,482 @@ class Church extends BaseController{
 
 	}
 
+	
+	public function form($param1='', $param2='', $param3='', $param4='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+		$mod = 'church/form';
+
+		$log_id = $this->session->get('td_id');
+		$switch_id = $this->session->get('switch_church_id');
+        
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if($role_r == 0){
+			return redirect()->to(site_url('dashboard'));	
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+		
+		$table = 'formfields';
+		
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= '/'.$param3.'/';}
+		if($param4){$form_link .= $param4;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['param4'] = $param4;
+		$data['form_link'] = rtrim($form_link, '/');
+		$data['current_language'] = $this->session->get('current_language');
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					//echo var_dump($edit);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($this->request->getMethod() == 'post'){
+						$del_id =  $this->request->getVar('d_id');
+						
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'form', 'name');
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							///// store activities
+							$action = $by.' deleted Form Field ('.$code.')';
+							$this->Crud->activity('form', $del_id, $action);
+
+							echo $this->Crud->msg('success', 'Form Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						die;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_field_name'] = $e->field_name;
+								$data['e_field_type'] = $e->field_type;
+								$data['e_field_options'] = $e->field_options;
+								$data['e_is_required'] = $e->is_required;
+							}
+						}
+					}
+				}
+
+				
+				if($this->request->getMethod() == 'post'){
+					$e_id =  $this->request->getVar('e_id');
+					$field_name =  $this->request->getVar('field_name');
+					$field_type =  $this->request->getVar('field_type');
+					$field_options =  $this->request->getVar('field_options');
+					$is_required =  $this->request->getVar('is_required');
+					
+
+					$church_id = $this->session->get('form_church_id');
+					$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+
+					$ins_data['field_name'] = $field_name;
+					$ins_data['field_type'] = $field_type;
+					$ins_data['field_options'] = rtrim($field_options, ',');
+					$ins_data['is_required'] = $is_required;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['ministry_id'] = $ministry_id;
+					
+					// do create or update
+					if($e_id) {
+						$upd_rec = $this->Crud->updates('id', $e_id, $table, $ins_data);
+						if($upd_rec > 0) {
+							
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $e_id, $table, 'field_name');
+							$action = $by.' updated Form Field ('.$code.')';
+							$this->Crud->activity('form', $e_id, $action);
+
+							echo $this->Crud->msg('success', 'Form Updated');
+							echo '<script>
+								load("","");
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+						
+					} else{
+						
+						$ins_data['created_at'] = date(fdate);
+						
+						if($this->Crud->check2('field_name', $field_name, 'church_id', $church_id, $table) > 0) {
+							echo $this->Crud->msg('warning', ('Form Field Already Exist'));
+						} else {
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Form Created'));
+								
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $e_id, $table, 'field_name');
+								$action = $by.' created Form Field ('.$code.')';
+								$this->Crud->activity('form', $ins_rec, $action);
+
+								echo '<script>
+								load("","");
+								$("#modal").modal("hide");
+							</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+							}	
+						}
+					}
+					die;	
+				}
+			}
+		}
+
+		// manage record
+		if($param1 == 'extension') {
+			$table = 'form_extension';
+			// prepare for delete
+			if($param3 == 'delete') {
+				if($param4) {
+					$edit = $this->Crud->read_single('id', $param4, $table);
+					//echo var_dump($edit);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($this->request->getMethod() == 'post'){
+						$del_id =  $this->request->getVar('d_id');
+						$form_id =  $this->request->getVar('form_id');
+						
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'form', 'name');
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							///// store activities
+							$action = $by.' deleted Form ('.$code.')';
+							$this->Crud->activity('form', $del_id, $action);
+
+							echo $this->Crud->msg('success', 'Form Deleted');
+							echo '<script>
+								load_extension("","",'.$form_id.');
+								$("#modal").modal("hide");
+							</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						die;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param3 == 'edit') {
+					if($param4) {
+						$edit = $this->Crud->read_single('id', $param4, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fields'] = json_decode($e->fields);
+								
+							}
+						}
+					}
+				}
+
+				// prepare for view
+				if($param3 == 'view') {
+					if($param4) {
+						$edit = $this->Crud->read_single('id', $param4, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_fields'] = json_decode($e->fields);
+								$data['e_reg_date'] = $e->reg_date;
+							}
+						}
+					}
+				}
+				
+				if($this->request->getMethod() == 'post'){
+					$e_id =  $this->request->getVar('e_id');
+					$form_id =  $this->request->getVar('form_id');
+					$label =  $this->request->getVar('label');
+					$type =  $this->request->getVar('type');
+					$options =  $this->request->getVar('options');
+					
+					$fields = [];
+					if (!empty($label)) {
+						for ($i = 0; $i < count($label); $i++) {
+							$field = [
+								'label' => $label[$i],
+								'type' => $type[$i],
+							];
+							if (in_array($type[$i], ['single_choice', 'multiple_choice'])) {
+								$option = $options[$i + 1] ?? []; 
+								$field['options'] = $option;
+							}
+							$fields[] = $field;
+						}
+					}
+					
+					if(empty($fields)){
+						echo $this->Crud->msg('warning', 'Enter the Field of the Form you want to Create');
+						die;
+					}
+					
+					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+
+					$ins_data['form_id'] = $form_id;
+					$ins_data['user_id'] = $log_id;
+					$ins_data['fields'] = json_encode($fields);
+					$ins_data['church_id'] = $church_id;
+					
+					// do create or update
+					if($e_id) {
+						$upd_rec = $this->Crud->updates('id', $e_id, 'form_extension', $ins_data);
+						if($upd_rec > 0) {
+							
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $e_id, 'form', 'name');
+							$action = $by.' updated Form Extension for Form ('.$code.')';
+							$this->Crud->activity('form', $e_id, $action);
+
+							echo $this->Crud->msg('success', 'Form Updated');
+							echo '<script>
+									load_extension("","",'.$form_id.');
+									$("#modal").modal("hide");
+								</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');	
+						}
+						
+					} else{
+						
+						$ins_data['reg_date'] = date(fdate);
+						
+						if($this->Crud->check2('church_id', $church_id, 'form_id', $form_id, 'form_extension') > 0) {
+							echo $this->Crud->msg('warning', ('A Form Extension has been created for this Form Already'));
+						} else {
+							$ins_rec = $this->Crud->create('form_extension', $ins_data);
+							if($ins_rec > 0) {
+								echo $this->Crud->msg('success', translate_phrase('Form Extension Created'));
+								
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'form', 'name');
+								$action = $by.' created a Form Extension for Form ('.$code.')';
+								$this->Crud->activity('form', $ins_rec, $action);
+
+								echo '<script>
+									load_extension("","",'.$form_id.');
+									$("#modal").modal("hide");
+								</script>';
+							} else {
+								echo $this->Crud->msg('danger', translate_phrase('Please try later'));	
+							}	
+						}
+					}
+					die;	
+				}
+			}
+		}
+
+		if($param1 == 'get_church'){
+			$ministry_id = $this->request->getPost('ministry_id');
+			$level = $this->request->getPost('level');
+			
+			if($ministry_id && $level){
+				$churchz = $this->Crud->read2_order('ministry_id', $ministry_id, 'type', $level, 'church', 'name', 'asc');
+				if(!empty($churchz)){
+					$church = '<option value="all">All '.ucwords($level).' Church</option>';
+					foreach($churchz as $ch){
+						$church .= '<option value="'.$ch->id.'">'.ucwords($ch->name).'</option>';
+					}
+				} else {
+					$church = '<option value="">No Record Found</option>';
+				}
+			} else{
+				$church = '<option value="">No Record Found</option>';
+			}
+
+			$item['churches'] = $church;
+
+			echo json_encode($item);
+			die;
+		}
+
+
+
+		// record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+
+			if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$church_id = $this->request->getPost('church_id');
+			$this->session->set('form_church_id', $church_id);
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">Session Timeout! - Please login again</div>';
+			} else {
+				$query = $this->Crud->read_single_order('church_id', $church_id, 'formfields', 'display_order', 'asc');
+
+				if(!empty($query)) {
+					foreach($query as $q) {
+						$id = $q->id;
+						$reg_date =  date('M d, Y h:i A', strtotime($q->created_at));
+						$field_name = $q->field_name;
+						$field_type = $q->field_type;
+						$field_options = $q->field_options;
+						$church_id = $q->church_id;
+						$is_required = $q->is_required;
+						$display_order = $q->display_order;
+						$ministry_id = $q->ministry_id;
+						
+						// add manage buttons
+						if($role_u != 1) {
+							$all_btn = '';
+						} else {
+							if(!empty($switch_id)){
+								$all_btn = '
+									
+								';
+							} else {
+								$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $field_name . '" pageSize="modal-md" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $field_name . '" pageSize="modal-md" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
+							';
+
+							}
+							
+						}
+
+						$required = '<span class="text-success">Required</span>';
+						if($is_required == 0){
+							$required = '<span class="text-danger">Not Required</span>';
+
+						}
+
+						$opt = 'No Options';
+						if(!empty($field_options)){
+							$opt = $field_options;
+						}
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+						
+						$item .= '
+							<tr>
+								<td>          
+									<span class="tb-lead">' . ucwords($field_name) . '</span> 
+								</td>
+								<td>
+									<span class="tb-lead text-dark">'.ucwords($field_type).' </span>
+								</td>
+								<td>'.($opt).'</td>
+								<td>'.($required).'</td>
+								<td>
+									<div class="drodown">
+										<a href="javascript:;" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+						';
+
+						
+					}
+				}
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = '
+					<Tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/>
+						<i class="ni ni-cc-alt2" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Form Returned').'
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+
+
+			echo json_encode($resp);
+			die;
+		}
+	
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		}  else { // view for main page
+			
+			$data['title'] = 'First Timer Form - '.app_name;
+			$data['page_active'] = $mod;
+
+			return view($mod, $data);
+		}
+	}
+	
 	public function switch_church()
 	{
 		$log_id = $this->session->get('td_id');

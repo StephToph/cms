@@ -1981,12 +1981,15 @@ class Crud extends Model {
 			} else {
 				if($church_type == 'region'){
 					$builder->where('regional_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
 				}
 				if($church_type == 'zone'){
 					$builder->where('zonal_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
 				}
 				if($church_type == 'group'){
 					$builder->where('group_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
 				}
 				if($church_type == 'church'){
 					$builder->where('church_id', $church_id);

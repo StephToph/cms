@@ -61,7 +61,7 @@
                                     <input type="text" class="form-control border-transparent form-focus-none" placeholder="Search by Country Name" oninput="load('', '')" id="search">
                                 </div>
                             </div>
-                        </div>
+                    </div>
                     <div class="card card-bordered card-stretch">
                         
                         <div class="card-inner-group">
