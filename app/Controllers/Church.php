@@ -1733,6 +1733,7 @@ class Church extends BaseController{
 						} else {
 							$ins_data['ministry_id'] = $ministry_id;
 							$ins_data['church_id'] = $church_id;
+							$ins_data['church_type'] = $church_type;
 							$ins_data['is_admin'] = 1;
 							$ins_data['reg_date'] = date(fdate);
 
@@ -2175,6 +2176,7 @@ class Church extends BaseController{
 							$ins_data['ministry_id'] = $ministry_id;
 							$ins_data['church_id'] = $church_id;
 							$ins_data['is_pastor'] = 1;
+							$ins_data['church_type'] = $church_type;
 							$ins_data['reg_date'] = date(fdate);
 
 							$ins_rec = $this->Crud->create($table, $ins_data);

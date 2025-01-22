@@ -7071,6 +7071,11 @@ class Accounts extends BaseController {
 						
 						if(!empty($getImg->path)) $img_id = $getImg->path;
 					}
+					$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+					$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+					$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+					$group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+					
 					// echo $baptism;
 					// die;
 					$ins_data['title'] = $title;
@@ -7101,6 +7106,10 @@ class Accounts extends BaseController {
 					$ins_data['dept_role'] = $dept_role_id;
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_id'] = $church_id;
+					$ins_data['church_type'] = $church_type;
+					$ins_data['regional_id'] = $regional_id;
+					$ins_data['zonal_id'] = $zonal_id;
+					$ins_data['group_id'] = $group_id;
 					$ins_data['cell_id'] = $cell_id;
 					$ins_data['cell_role'] = $cell_role_id;
 					$ins_data['is_member'] = 1;
