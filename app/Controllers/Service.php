@@ -1199,6 +1199,7 @@ class Service extends BaseController {
 								$timers = "[]";
 							}
 							$id = $e->id;
+							$this->session->set('service_church_id', $e->church_id);
 						}
 						
 					}
@@ -1212,48 +1213,19 @@ class Service extends BaseController {
 				//When Adding Save in Session
 				if($this->request->getMethod() == 'post'){
 					$new_convert_id = $this->request->getPost('new_convert_id');
-					$first_name = $this->request->getPost('first_name');
-					$surname = $this->request->getPost('surname');
-					$email = $this->request->getPost('email');
-					$phone = $this->request->getPost('phone');
-					$dob = $this->request->getPost('dob');
-					$gender = $this->request->getPost('gender');
-					$family_position = $this->request->getPost('family_position');
-					$invited_by = $this->request->getPost('invited_by');
-					$channel = $this->request->getPost('channel');
-					$member_id = $this->request->getPost('member_id');
+					$first_count = $this->request->getPost('first_count');
+					$formData = $this->request->getPost();
 					
-					$converts = [];
-					$timers = [];
-					$male = 0;$female = 0;$children = 0;
-					if(!empty($first_name) || !empty($surname)){
-						for($i=0;$i<count($first_name);$i++){
-							$invites = $member_id[$i];
-							if($invited_by[$i] != 'Member'){
-								$invites = $channel[$i];
-							}
-
-							if($gender[$i] == 'Male')$male++;
-							if($gender[$i] == 'Female')$female++;
-							if($family_position[$i] == 'Child')$children++;
-							
-							$converts['fullname'] = $first_name[$i].' '.$surname[$i];
-							$converts['email'] = $email[$i];
-							$converts['phone'] = $phone[$i];
-							$converts['gender'] = $gender[$i];
-							$converts['family_position'] = $family_position[$i];
-							$converts['dob'] = $dob[$i];
-							$converts['invited_by'] = $invited_by[$i];
-							$converts['channel'] = $invites;
-							
-							$convert[] = $converts;
-						}
-					}
+					// Remove 'new_convert_id' from the form data array
+					unset($formData['new_convert_id']);
 					
-					$timers['timers'] = json_encode($convert);
-					$timers['first_timer'] = count($convert);
+					// Now encode the remaining form data into JSON
+					$formDataJson = json_encode($formData);
 					
-					if(empty($convert)){
+					$timers['timers'] = json_encode($formData);
+					$timers['first_timer'] = $first_count;
+					
+					if(empty($formData)){
 						echo $this->Crud->msg('danger', 'Enter the First Timer Details');
 						
 					} else{
@@ -1264,44 +1236,44 @@ class Service extends BaseController {
 							$dates = $this->Crud->read_field('id', $new_convert_id, 'service_report', 'date');
 							
 							
-							//Create Follow up
-							$first = ($convert);
+							// //Create Follow up
+							// $first = ($convert);
 							
-							$ins['source_type'] = 'service';
-							$ins['source_id'] = $new_convert_id;
-							$ins['ministry_id'] = $ministry_id;
-							$ins['church_id'] = $church_id;
-							$ins['visit_date'] = $dates;
+							// $ins['source_type'] = 'service';
+							// $ins['source_id'] = $new_convert_id;
+							// $ins['ministry_id'] = $ministry_id;
+							// $ins['church_id'] = $church_id;
+							// $ins['visit_date'] = $dates;
 
-							if (!empty($first)) {
-								$ins['category'] = 'first_timer';
+							// if (!empty($first)) {
+							// 	$ins['category'] = 'first_timer';
 							
-								foreach ($first as $f => $f_value) {
-									// Preparing data for insertion
-									$ins['fullname'] = $f_value['fullname'];
-									$ins['email'] = $f_value['email'];
-									$ins['phone'] = $f_value['phone'];
-									$ins['dob'] = $f_value['dob'];
-									$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
-									$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
-									$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
+							// 	foreach ($first as $f => $f_value) {
+							// 		// Preparing data for insertion
+							// 		$ins['fullname'] = $f_value['fullname'];
+							// 		$ins['email'] = $f_value['email'];
+							// 		$ins['phone'] = $f_value['phone'];
+							// 		$ins['dob'] = $f_value['dob'];
+							// 		$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
+							// 		$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
+							// 		$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
 							
-									// Inserting the record into 'visitors' table
-									if(!empty($first[$f]['id'])){
-										$this->Crud->updates('id', $first[$f]['id'], 'visitors', $ins);
-										$ins_recs = $first[$f]['id'];
-									} else{
-										$ins_recs = $this->Crud->create('visitors', $ins);
-									}
+							// 		// Inserting the record into 'visitors' table
+							// 		if(!empty($first[$f]['id'])){
+							// 			$this->Crud->updates('id', $first[$f]['id'], 'visitors', $ins);
+							// 			$ins_recs = $first[$f]['id'];
+							// 		} else{
+							// 			$ins_recs = $this->Crud->create('visitors', $ins);
+							// 		}
 									
-									// Assuming $ins_rec contains the newly inserted record ID
-									if ($ins_recs) {
-										// Add the new ID to the array
-										$first[$f]['id'] = $ins_recs;
-										$this->Crud->updates('id', $new_convert_id, 'service_report', array('timers'=>json_encode($first)));
-									}
-								}
-							}
+							// 		// Assuming $ins_rec contains the newly inserted record ID
+							// 		if ($ins_recs) {
+							// 			// Add the new ID to the array
+							// 			$first[$f]['id'] = $ins_recs;
+							// 			$this->Crud->updates('id', $new_convert_id, 'service_report', array('timers'=>json_encode($first)));
+							// 		}
+							// 	}
+							// }
 							
 
 							///// store activities
@@ -1327,14 +1299,7 @@ class Service extends BaseController {
 							echo $this->Crud->msg('info', 'No Changes');
 
 						}
-						// echo json_encode($convert);
-						echo '<script> setTimeout(function() {
-							var jsonData = ' . json_encode($convert) . ';
-							var jsonString = JSON.stringify(jsonData);
-							$("#timers").val(jsonString);
-							$("#first_timer").val('.count($first_name).');
-							$("#modal").modal("hide");
-						}, 2000); </script>';
+						
 					}
 					die;
 				}
@@ -1596,6 +1561,7 @@ class Service extends BaseController {
 			if($church_id){
 				$this->session->set('service_church_id', $church_id);
 			}
+			die;
 		}
 
 		if($param1 == 'records'){
