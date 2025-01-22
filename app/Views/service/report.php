@@ -5,6 +5,7 @@ $this->Crud = new Crud();
 $this->session = \Config\Services::session();
     
 $switch_id = $this->session->get('switch_church_id');
+$service_church_id = $this->session->get('service_church_id');
 ?>
 
 <?= $this->extend('designs/backend'); ?>
@@ -539,11 +540,85 @@ $switch_id = $this->session->get('switch_church_id');
                             <div class="card-inner" id="first_timer_view" style="display:none;">
                                 <form id="first_timer_Form">
                                     <input type="hidden" name="new_convert_id" id="first_timer_id">
-                                    <input type="hidden" name="first_church_id" id="first_church_id">
+                                    <input type="hidden" name="first_count" id="first_count" value="1" >
 
-                                    <div id="containers">
-                                        <!-- Rows will be dynamically added here -->
+                                    <?php 
+                                       $formFields = $this->Crud->check('church_id', $service_church_id, 'formfields');
+                                       $formFieldz = $this->Crud->read_single('church_id', $service_church_id, 'formfields');
+                                       $fz = array();
+                                       if(!empty($formFieldz)){
+                                            foreach($formFieldz as $fm){
+                                                $fmz['label'] = ucwords($fm->field_name);
+                                                $fmz['type'] = ($fm->field_type);
+                                                $fmz['options'] = explode(',', $fm->field_options);
+                                                
+                                                $fz[$fm->field_name] = $fmz;
+
+                                            }
+                                       } 
+
+
+                                       // Default form fields if none are found in the database
+                                        $defaultFields = [
+                                            'firstname' => ['label' => 'Firstname', 'type' => 'text', 'options' => []],
+                                            'surname' => ['label' => 'Surname', 'type' => 'text', 'options' => []],
+                                            'email' => ['label' => 'Email', 'type' => 'email', 'options' => []],
+                                            'phone' => ['label' => 'Phone', 'type' => 'text', 'options' => []],
+                                            'gender' => ['label' => 'Gender', 'type' => 'select', 'options' => ['Male', 'Female']],
+                                            'family_position' => ['label' => 'Family Position', 'type' => 'select', 'options' => ['Child', 'Parent', 'Other']],
+                                            'dob' => ['label' => 'Date of Birth', 'type' => 'date', 'options' => []],
+                                            'invited_by' => ['label' => 'Invited By', 'type' => 'select', 'options' => ['Member', 'Online', 'Other']],
+                                        ];
+                                       
+                                       // If fields exist in the database, use them, otherwise use defaults
+                                       $formFields = ($formFields > 0) ? $fz : $defaultFields;
+                                    ?>
+                                    <div id="container" class="row" >
+                                        <?php 
+                                        
+                                            foreach ($formFields as $field => $details): ?>
+                                            <div class="col-sm-4 mb-3">
+                                                <div class="form-group" id="form-group-<?= $field ?>">
+                                                    <label for="<?= $field ?>"><?= $details['label'] ?></label>
+                                                    
+                                                    <!-- Handle different field types -->
+                                                    <?php if ($details['type'] == 'text'): ?>
+                                                        <input type="text" class="form-control" id="<?= $field ?>" name="<?= $field ?>[]" value="">
+                                                    
+                                                    <?php elseif ($details['type'] == 'email'): ?>
+                                                        <input type="email" class="form-control" id="<?= $field ?>" name="<?= $field ?>[]" value="">
+                                                    
+                                                    <?php elseif ($details['type'] == 'date'): ?>
+                                                        <input type="date" class="form-control" id="<?= $field ?>" name="<?= $field ?>[]" value="">
+                                                    
+                                                    <?php elseif ($details['type'] == 'select'): ?>
+                                                        <select class="form-select" data-search="on" id="<?= $field ?>" name="<?= $field ?>[]">
+                                                            <?php foreach ($details['options'] as $option): ?>
+                                                                <option value="<?= $option ?>"><?= $option ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    
+                                                    <?php elseif ($details['type'] == 'radio'): ?>
+                                                        <?php foreach ($details['options'] as $option): ?>
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="radio" name="<?= $field ?>[]" id="<?= $field ?>_<?= $option ?>" value="<?= $option ?>">
+                                                                <label class="form-check-label" for="<?= $field ?>_<?= $option ?>[]">
+                                                                    <?= $option ?>
+                                                                </label>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    
+                                                    <?php elseif ($details['type'] == 'textarea'): ?>
+                                                        <textarea class="form-control" id="<?= $field ?>" name="<?= $field ?>[]"></textarea>
+                                                    
+                                                    <?php endif; ?>
+
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+
                                     </div>
+                                    <div id="containerz" ></div>
                                     <div class="col-sm-12 my-4 text-center">
                                         <button id="add_first_timer" class="btn btn-block btn-ico btn-outline-info"
                                             type="button"><i class="icon ni ni-plus-c"></i>
@@ -733,11 +808,47 @@ $switch_id = $this->session->get('switch_church_id');
     </div>
 </div>
 
+
 <script>var site_url = '<?php echo site_url(); ?>';</script>
 <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 
-   
+<script>
+    $(document).ready(function() {
+        $('#add_first_timer').click(function() {
+            // Clone the original form fields (the first set)
+            var originalFields = $('#container').clone();
+
+            // Reset the input field values in the cloned div to blank or null
+            originalFields.find('input, select, textarea').val('');
+            originalFields.find('input[type="radio"]').prop('checked', false); // Uncheck radio buttons
+
+            // Wrap the cloned div in a new container
+            var newContainer = $('<div class="row mb-3 new-form-group card-bordered p-2"></div>');
+            newContainer.append(originalFields); // Append the cloned form fields to the new container
+            
+            // Add a delete button to the newly added container
+            newContainer.append('<button class="btn btn-danger btn-sm remove-field" type="button">Remove</button>');
+            
+            // Append the new container to the main container
+            $('#containerz').append(newContainer);
+
+            // Increment the first_count value
+            var currentCount = parseInt($('#first_count').val());
+            $('#first_count').val(currentCount + 1);  // Increment the value of first_count
+        });
+
+        // Delete functionality for removing a cloned form group
+        $(document).on('click', '.remove-field', function() {
+            $(this).closest('.new-form-group').remove(); // Remove the entire div containing the form fields and delete button
+            // Decrease the first_count value when deleting a form group
+            var currentCount = parseInt($('#first_count').val());
+            if (currentCount > 1) {  // Ensure it doesn't go below 1
+                $('#first_count').val(currentCount - 1);  // Decrement the value of first_count
+            }
+        });
+});
+</script>
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script src="<?php echo site_url(); ?>assets/js/service_report.js?v=<?= time(); ?>"></script>
 <?= $this->endSection(); ?>
