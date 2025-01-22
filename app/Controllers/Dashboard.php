@@ -640,6 +640,7 @@ class Dashboard extends BaseController {
                     $paids = 0;
                 }
                 // Select a random key
+                $col = array('success', 'primary', 'danger', 'info', 'warning', 'azure', 'gray','blue', 'indigo', 'orange', 'teal', 'purple');
                 $random_key = array_rand($col);
 
                 // Get the value at the random key
