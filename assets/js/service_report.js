@@ -518,21 +518,97 @@
             type: 'get',
             success: function (data) {
                 var dt = JSON.parse(data);
-                $('#first_timer_id').val(dt.id)
-
+                $('#first_timer_id').val(dt.id);
                 // Parse the convert_list JSON string
                 var existingRecords = JSON.parse(dt.timer_list);
                 console.log(existingRecords);
                 
-                // if(existingRecords.length > 0){
-                //     timerRecords(existingRecords);
-                // }
+                fetchFormFields(dt.church_id, existingRecords);
                 
                 $('#first_timer_msg').html('');
             }
         });
        
     }
+
+    function fetchFormFields(church_id, existingRecords = null) {
+        $.ajax({
+            url: site_url+'/service/report/getFormFields',  // The route to fetch form fields
+            type: 'POST',
+            data: { church_id: church_id },  // Send the church_id to the backend
+            success: function(response) {
+                var formFields = response;
+                var formHtml = '';
+            
+                // Loop through each form field and generate the HTML
+                $.each(formFields, function(field, details) {
+                    formHtml += '<div class="col-sm-4 mb-3">';
+                    formHtml += '<div class="form-group" id="form-group-' + field + '">';
+                    formHtml += '<label for="' + field + '">' + details['label'] + '</label>';
+            
+                    // Handle different field types
+                    if (details['type'] == 'text' || details['type'] == 'email' || details['type'] == 'date') {
+                        formHtml += '<input type="' + details['type'] + '" class="form-control" id="' + field + '" name="' + field + '[]" value="">';
+                    } else if (details['type'] == 'select') {
+                        formHtml += '<select class="form-select" id="' + field + '" name="' + field + '[]">';
+                        $.each(details['options'], function(index, option) {
+                            formHtml += '<option value="' + option + '">' + option + '</option>';
+                        });
+                        formHtml += '</select>';
+                    } else if (details['type'] == 'radio') {
+                        $.each(details['options'], function(index, option) {
+                            formHtml += '<div class="form-check">';
+                            formHtml += '<input class="form-check-input" type="radio" name="' + field + '[]" id="' + field + '_' + option + '" value="' + option + '">';
+                            formHtml += '<label class="form-check-label" for="' + field + '_' + option + '">' + option + '</label>';
+                            formHtml += '</div>';
+                        });
+                    } else if (details['type'] == 'textarea') {
+                        formHtml += '<textarea class="form-control" id="' + field + '" name="' + field + '[]"></textarea>';
+                    }
+            
+                    formHtml += '</div>';
+                    formHtml += '</div>';
+                });
+            
+                // Append the generated HTML to the container
+                $('#container').html(formHtml);  // This will update the form fields dynamically
+            
+                // Pre-fill the form with existing record values if it's an edit
+                if (existingRecords) {
+                    // Loop through each record in the existing records
+                    $.each(existingRecords, function(recordIndex, record) {
+                        // Loop through each field in the record
+                        $.each(record, function(field, values) {
+                            // Ensure that values is an array (in case it's a single value, turn it into an array)
+                            if (!Array.isArray(values)) {
+                                values = [values];
+                            }
+            
+                            // Loop through each value for this field and create an input field for each
+                            $.each(values, function(index, value) {
+                                var inputElement = $('#form-group-' + field + ' input, #form-group-' + field + ' select, #form-group-' + field + ' textarea');
+            
+                                if (inputElement.length) {
+                                    if ($(this).is('input[type="radio"]')) {
+                                        // For radio buttons, check the corresponding radio button
+                                        inputElement.filter('[value="' + value.trim() + '"]').prop('checked', true);
+                                    } else {
+                                        // Set the value for text, select, and textarea fields
+                                        inputElement.val(value.trim());
+                                    }
+                                }
+                            });
+                        });
+                    });
+                }
+            }
+            ,
+            error: function(xhr, status, error) {
+                console.error("Error fetching form fields:", status, error);
+            }
+        });
+    }
+
 
     function partnership_report(id){
         $('#partnership_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
