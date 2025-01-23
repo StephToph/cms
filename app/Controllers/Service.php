@@ -1199,13 +1199,13 @@ class Service extends BaseController {
 								$timers = "[]";
 							}
 							$id = $e->id;
-							$this->session->set('service_church_id', $e->church_id);
 						}
 						
 					}
 
 					$resp['timer_list'] =  $timers;
 					$resp['id'] = $id;
+					$resp['church_id'] = $e->church_id;
 
 					echo json_encode($resp);
 					die;
@@ -1218,11 +1218,12 @@ class Service extends BaseController {
 					
 					// Remove 'new_convert_id' from the form data array
 					unset($formData['new_convert_id']);
+					unset($formData['first_count']);
 					
 					// Now encode the remaining form data into JSON
 					$formDataJson = json_encode($formData);
 					
-					$timers['timers'] = json_encode($formData);
+					$timers['timers'] = ($formDataJson);
 					$timers['first_timer'] = $first_count;
 					
 					if(empty($formData)){
@@ -2238,6 +2239,44 @@ class Service extends BaseController {
 
 			$resp['churches'] = $church_list;
 			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'getFormFields'){
+			$church_id = $this->request->getPost('church_id'); // Get the dynamic parameter
+	
+			// Fetch the form fields based on the church_id
+			$formFields = $this->Crud->check('church_id', $church_id, 'formfields');
+			$formFieldz = $this->Crud->read_single('church_id', $church_id, 'formfields');
+			
+			$fz = array();
+			if(!empty($formFieldz)){
+				foreach($formFieldz as $fm){
+					$fmz['label'] = ucwords($fm->field_name);
+					$fmz['type'] = $fm->field_type;
+					$fmz['options'] = explode(',', $fm->field_options);
+					$name = strtolower($fm->field_name);
+					$fz[$name] = $fmz;
+				}
+			}
+	
+			// Default form fields if none are found in the database
+			$defaultFields = [
+				'firstname' => ['label' => 'Firstname', 'type' => 'text', 'options' => []],
+				'surname' => ['label' => 'Surname', 'type' => 'text', 'options' => []],
+				'email' => ['label' => 'Email', 'type' => 'email', 'options' => []],
+				'phone' => ['label' => 'Phone', 'type' => 'text', 'options' => []],
+				'gender' => ['label' => 'Gender', 'type' => 'select', 'options' => ['Male', 'Female']],
+				'family_position' => ['label' => 'Family Position', 'type' => 'select', 'options' => ['Child', 'Parent', 'Other']],
+				'dob' => ['label' => 'Date of Birth', 'type' => 'date', 'options' => []],
+				'invited_by' => ['label' => 'Invited By', 'type' => 'select', 'options' => ['Member', 'Online', 'Other']],
+			];
+			
+			// If fields exist in the database, use them, otherwise use defaults
+			$formFields = ($formFields > 0) ? $fz : $defaultFields;
+	
+			// Return the form fields as a JSON response
+			return $this->response->setJSON($formFields);
 			die;
 		}
 		

@@ -542,80 +542,9 @@ $service_church_id = $this->session->get('service_church_id');
                                     <input type="hidden" name="new_convert_id" id="first_timer_id">
                                     <input type="hidden" name="first_count" id="first_count" value="1" >
 
-                                    <?php 
-                                       $formFields = $this->Crud->check('church_id', $service_church_id, 'formfields');
-                                       $formFieldz = $this->Crud->read_single('church_id', $service_church_id, 'formfields');
-                                       $fz = array();
-                                       if(!empty($formFieldz)){
-                                            foreach($formFieldz as $fm){
-                                                $fmz['label'] = ucwords($fm->field_name);
-                                                $fmz['type'] = ($fm->field_type);
-                                                $fmz['options'] = explode(',', $fm->field_options);
-                                                
-                                                $fz[$fm->field_name] = $fmz;
-
-                                            }
-                                       } 
-
-
-                                       // Default form fields if none are found in the database
-                                        $defaultFields = [
-                                            'firstname' => ['label' => 'Firstname', 'type' => 'text', 'options' => []],
-                                            'surname' => ['label' => 'Surname', 'type' => 'text', 'options' => []],
-                                            'email' => ['label' => 'Email', 'type' => 'email', 'options' => []],
-                                            'phone' => ['label' => 'Phone', 'type' => 'text', 'options' => []],
-                                            'gender' => ['label' => 'Gender', 'type' => 'select', 'options' => ['Male', 'Female']],
-                                            'family_position' => ['label' => 'Family Position', 'type' => 'select', 'options' => ['Child', 'Parent', 'Other']],
-                                            'dob' => ['label' => 'Date of Birth', 'type' => 'date', 'options' => []],
-                                            'invited_by' => ['label' => 'Invited By', 'type' => 'select', 'options' => ['Member', 'Online', 'Other']],
-                                        ];
-                                       
-                                       // If fields exist in the database, use them, otherwise use defaults
-                                       $formFields = ($formFields > 0) ? $fz : $defaultFields;
-                                    ?>
+                                    
                                     <div id="container" class="row" >
-                                        <?php 
-                                        
-                                            foreach ($formFields as $field => $details): ?>
-                                            <div class="col-sm-4 mb-3">
-                                                <div class="form-group" id="form-group-<?= $field ?>">
-                                                    <label for="<?= $field ?>"><?= $details['label'] ?></label>
-                                                    
-                                                    <!-- Handle different field types -->
-                                                    <?php if ($details['type'] == 'text'): ?>
-                                                        <input type="text" class="form-control" id="<?= $field ?>" name="<?= $field ?>[]" value="">
-                                                    
-                                                    <?php elseif ($details['type'] == 'email'): ?>
-                                                        <input type="email" class="form-control" id="<?= $field ?>" name="<?= $field ?>[]" value="">
-                                                    
-                                                    <?php elseif ($details['type'] == 'date'): ?>
-                                                        <input type="date" class="form-control" id="<?= $field ?>" name="<?= $field ?>[]" value="">
-                                                    
-                                                    <?php elseif ($details['type'] == 'select'): ?>
-                                                        <select class="form-select" data-search="on" id="<?= $field ?>" name="<?= $field ?>[]">
-                                                            <?php foreach ($details['options'] as $option): ?>
-                                                                <option value="<?= $option ?>"><?= $option ?></option>
-                                                            <?php endforeach; ?>
-                                                        </select>
-                                                    
-                                                    <?php elseif ($details['type'] == 'radio'): ?>
-                                                        <?php foreach ($details['options'] as $option): ?>
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="<?= $field ?>[]" id="<?= $field ?>_<?= $option ?>" value="<?= $option ?>">
-                                                                <label class="form-check-label" for="<?= $field ?>_<?= $option ?>[]">
-                                                                    <?= $option ?>
-                                                                </label>
-                                                            </div>
-                                                        <?php endforeach; ?>
-                                                    
-                                                    <?php elseif ($details['type'] == 'textarea'): ?>
-                                                        <textarea class="form-control" id="<?= $field ?>" name="<?= $field ?>[]"></textarea>
-                                                    
-                                                    <?php endif; ?>
-
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
+                                       
 
                                     </div>
                                     <div id="containerz" ></div>
