@@ -2699,6 +2699,8 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Add Offering Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-success"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Thanksgiving Offering Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Special Seed Details').'</span></a></li>
 								
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
