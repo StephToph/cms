@@ -1177,6 +1177,114 @@ class Service extends BaseController {
 					die;
 				}
 
+			} elseif($param2 == 'seed'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$this->session->set('service_church_id', $church_id);
+							
+					if(!empty($edit)) {
+						$total_seed = 0;
+						$member_seed = 0;
+						$guest_seed = 0;
+						$seed_list = 0;
+						
+						foreach($edit as $e) {
+							$tithers = json_decode($e->seed_record);
+							if(!empty($tithers)){
+								foreach($tithers as $ti => $tv){
+									if($ti == 'total'){
+										$total_seed = $tv;
+									}
+									if($ti == 'member'){
+										$member_seed = $tv;
+									}
+									if($ti == 'guest'){
+										$guest_seed = $tv;
+									}
+									if($ti == 'list'){
+										$seed_list = $tv;
+									}
+								}
+							}
+						}
+
+						$resp['seed_id'] = $param3;
+						$resp['seed_list'] = $seed_list;
+						$resp['total_seed'] = $total_seed;
+						$resp['member_seed'] = $member_seed;
+						$resp['guest_seed'] = $guest_seed;
+						
+						echo json_encode($resp);
+						die;
+					}
+					
+				}
+				
+				//When Adding Save in Session
+				if($this->request->getMethod() == 'post'){
+					$seed_id = $this->request->getPost('seed_id');
+					$guest_seed = $this->request->getPost('guest_seed');
+					$total_seed = $this->request->getPost('total_seed');
+					$member_seed = $this->request->getPost('member_seed');
+
+					$member = $this->request->getPost('members');
+					$seed = $this->request->getPost('seed');
+					
+					$record = [];
+					if (!empty($member) && !empty($seed)) {
+						$count = count($seed); 
+						for ($i = 0; $i < $count; $i++) {
+							if ($seed[$i] <= 0) {
+								continue; 
+							}
+							
+							if (!isset($record[$member[$i]])) {
+								$record[$member[$i]] = $seed[$i];
+							}
+							
+						}
+					}
+
+					$tithe_list['total'] = $total_seed;
+					$tithe_list['member'] = $member_seed;
+					$tithe_list['guest'] = $guest_seed;
+					$tithe_list['list'] = $record;
+					 
+					// echo json_encode($tithe_list);
+					// die;
+					
+					$tithers =  json_encode($tithe_list);
+					$ins['seed_record'] = $tithers;
+					$ins['seed'] = $total_seed;
+
+					if($this->Crud->updates('id', $seed_id, 'service_report', $ins) > 0){
+						echo $this->Crud->msg('success', 'Service Special Seed Offering Report Submitted');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $seed_id, 'service_report', 'date');
+						$action = $by.' updated Service Special Seed Offering Report for '.$service_date;
+						$this->Crud->activity('service', $seed_id, $action);
+
+						// echo json_encode($data);
+						echo '<script> setTimeout(function() {
+								$("#show").show(500);
+								$("#form").hide(500);
+								$("#seed_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								
+								$("#prev").hide(500);
+								load();
+								$("#seed_msg").html("");
+						}, 2000); </script>';
+					} else {
+						echo $this->Crud->msg('info', 'No Changes');
+					
+					}
+					die;
+				}
+
 			} elseif($param2 == 'new_convert'){
 				if($param3){
 					$resp = [];
@@ -2126,6 +2234,78 @@ class Service extends BaseController {
 
 								<td>
 									<input type="text" class="form-control tithes" name="thanksgiving[]" 
+										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($tithe) . '">
+								</td>
+							</tr>';
+
+						}
+					}
+								
+					$data['members'] = ($church_memberss);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
+			if($param2 == 'get_members_seed'){
+				if($param3){
+					$data = [];
+					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'seed_record'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_memberss = [];
+					$count = 0;
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
+						}
+					}
+					
+
+					
+					$table = '';
+					$tithers = [];
+					if(!empty($tithersa) && isset($tithersa->list)){
+						$tithers = (array)$tithersa->list;
+					}
+					
+
+					
+					// print_r($tithers);
+					if(!empty($tithers)){
+						$tither_ids = array_keys($tithers);
+
+						// Filter out church members who are also tithers
+						$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
+							return !in_array($member['id'], $tither_ids);
+						});
+
+					$church_memberss = array_values($church_memberss);
+
+						foreach($tithers as $tither => $tithe){
+							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
+							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
+	
+							$table .= '<tr>
+								<td>
+									<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($tither) . '">
+									<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
+								</td>
+
+								<td>
+									<input type="text" class="form-control tithes" name="seed[]" 
 										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
 										value="' . htmlspecialchars($tithe) . '">
 								</td>

@@ -2,6 +2,7 @@
 <?php
 use App\Models\Crud;
 $this->Crud = new Crud();
+$this->session = \Config\Services::session();
 ?>
 <?php echo form_open_multipart($form_link, array('id'=>'bb_ajax_form', 'class'=>'')); ?>
     <!-- delete view -->
@@ -45,33 +46,18 @@ $this->Crud = new Crud();
                         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
                         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
                         
-                        if(!empty($start_date) && !empty($end_date)){
-                            if(!empty($ministry_id)){
-                                if($church_id > 0){
-                                    $pays = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'church_id', $church_id, 'partners_history');
-                                } else {
-                                    $pays = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'ministry_id', $ministry_id, 'partners_history');
-                                }
-                            } else{
-                                $pays = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'partners_history');
-                            }
-                           
+                        if($role != 'developer' && $role != 'administrator'){
+                            if($role == 'ministry administrator'){
+                                $pays = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'ministry_id', $ministry_id, 'partners_history');
 
-                        } else{
-                            if(!empty($ministry_id)){
-                                if($church_id > 0){
-                                    $pays = $this->Crud->read2('partnership_id', $param3, 'church_id', $church_id, 'partners_history');
-
-                                }  else{
-                                    $pays = $this->Crud->read2('partnership_id', $param3,  'ministry_id', $ministry_id,'partners_history');
-
-                                }
-                            } else{
-                                $pays = $this->Crud->read_single('partnership_id', $param3, 'partners_history');
+                            } else {
+                                $pays = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'church_id', $church_id, 'partners_history');
 
                             }
                            
-                           
+                        } else {
+                            $pays = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $param3, 'partners_history');
+
                         }
                     
                         $total = 0;
@@ -88,7 +74,7 @@ $this->Crud = new Crud();
                                     <tr>
                                         <td><?=date('d M Y', strtotime($time)); ?></td>
                                         <td><?=ucwords($this->Crud->read_field('id', $member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $member_id, 'user', 'surname')); ?></td>
-                                        <td><?='$'.number_format($amount_paid,2); ?></td>
+                                        <td><?=$this->session->get('currency') .number_format($amount_paid,2); ?></td>
                                         <td><?=''.($st); ?></td>
                                     </tr>
                         <?php

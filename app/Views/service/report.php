@@ -585,6 +585,62 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                 </form>
                             </div>
+                            <div class="card-inner" id="seed_view" style="display:none;">
+                                <form id="seedForm">
+                                    <div class="row">
+                                        <span class="text-danger mb-2">Enter Member's Special Seed Offering in the Table Below</span>
+                                        <input type="hidden" name="seed_id" id="seed_id">
+
+                                        <div class="col-sm-4 mb-3 ">
+                                            <label>Total</label>
+                                            <input class="form-control" id="total_seed" type="text" name="total_seed"
+                                                readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Member</label>
+                                            <input class="form-control" id="member_seed" type="text"
+                                                name="member_seed" readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Guest</label>
+                                            <input class="form-control" id="guest_seed" type="text" name="guest_seed"
+                                                oninput="get_seed();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
+                                                value="0">
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="table-responsive">
+
+                                        <table id="seed_table" class="table table-striped table-hover mt-5">
+                                            <thead>
+                                                <tr>
+                                                    <th>Member</th>
+                                                    <th width="200px">Special Seed Offering</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="seed_table_resp">
+                                            </tbody>
+                                        </table>
+
+                                        <div class="col-12 my-3 text-center">
+                                            <button type="button" class="btn btn-info" id="seed_btn">Add More</button>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row mt-5">
+                                        <div class="col-sm-12 text-center mt-5">
+                                            <button class="btn btn-primary bb_fo_btn" type="submit">
+                                                <i class="icon ni ni-save"></i> <?= translate_phrase('Save Record'); ?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="seed_msg"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
                             <div class="card-inner" id="new_convert_view" style="display:none;">
                                 <form id="new_convert_Form">
                                     <input type="hidden" name="new_convert_id" id="new_convert_id">
