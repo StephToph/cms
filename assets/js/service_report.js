@@ -812,34 +812,37 @@
 
     $('#absent_add_btn').click(function() {
         absentRowIndex++;
+    
         // Create a new row
         const absent_newRow = $('<tr></tr>');
-
+    
         // Create a select element for church members
-        const absent_memberSelect = $(`<select  class="js-select2" name="absent_members[]" id="members_${absentRowIndex}" required></select>`);
-        
+        const absent_memberSelect = $(`<select class="js-select2" name="absent_members[]" id="members_${absentRowIndex}" required></select>`);
+    
+        // Add an empty default option
+        absent_memberSelect.append('<option value="" selected disabled>Select a Member</option>');
+    
         if (churchMembers && churchMembers.length > 0) {
             churchMembers.forEach(function(member) {
                 absent_memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
             });
-        } 
-        // Initialize Select2 for this individual element
-      
+        }
+    
+        // Append elements to the row
         absent_newRow.append($('<td width="250px;"></td>').append(absent_memberSelect));
-
         absent_newRow.append(`
             <td>
                 <input type="text" class="form-control" name="reasons[]">
-                
             </td>
         `);
-        
+    
         // Append the new row to the table body
         $('#absent_attendance_list').append(absent_newRow);
+    
+        // Initialize Select2 for this individual element
         absent_memberSelect.select2();
-
-        
     });
+    
 
     $('#mem_btn').click(function() {
         // Create a new row
@@ -847,7 +850,8 @@
     
         // Create a select element for church members
         const memberSelect = $('<select class="js-selects2 members" name="members[]" required></select>');
-        
+        memberSelect.append('<option value="" selected disabled>Select a Member</option>');
+    
         // Check if church members are available and append them to the select
         if (churchMembers && churchMembers.length > 0) {
             churchMembers.forEach(function(member) {
@@ -886,7 +890,8 @@
     
         const titheNewRow = $('<tr></tr>');
         const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${titheRowIndex}" required></select>`);
-        
+        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
+    
         if (churchMembers && churchMembers.length > 0) {
             churchMembers.forEach(function(member) {
                 titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
@@ -922,7 +927,8 @@
     
         const titheNewRow = $('<tr></tr>');
         const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${offeringRowIndex}" required></select>`);
-        
+        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
+    
         if (churchMembers && churchMembers.length > 0) {
             churchMembers.forEach(function(member) {
                 titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
