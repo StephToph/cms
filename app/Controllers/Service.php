@@ -2893,7 +2893,7 @@ class Service extends BaseController {
 								<td>' . ucwords($first_timer) . '</td>
 								<td>' . ucwords($new_convert) . '</td>
 								<td class="text-center">
-									<div class="dropdown">
+									<div class="dropdow">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown">
 											<em class="icon ni ni-more-h"></em>
 										</a>
