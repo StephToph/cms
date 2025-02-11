@@ -6298,7 +6298,8 @@ class Accounts extends BaseController {
 					die;	
 				}
 			}
-		}$data['p_start_date'] = $this->session->get('p_start_date');
+		}
+		$data['p_start_date'] = $this->session->get('p_start_date');
 		$data['p_end_date'] = $this->session->get('p_end_date');
 		
 
@@ -6349,97 +6350,106 @@ class Accounts extends BaseController {
 				$query = $this->Crud->read_order('partnership', 'name', 'asc');
 				$data['count'] = $counts;
 				
+				$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+				$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+				
 				$roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-				if(!empty($query)) {
+				if (!empty($query)) {
 					foreach ($query as $q) {
 						$id = $q->id;
 						$name = $q->name;
-						$goal = 0;
 						
+						$given = 0;
 						$balance = 0;
 						$p_participant = 0;
 						$g_participant = 0;
-
-						$user = $this->Crud->read_single('role_id', $roles_id, 'user');
-						if(!empty($user)){
-							foreach($user as $u){$given = 0;
-								$member_id = $u->id;
-								$parts = $u->partnership;
-								if(!empty($parts)){
-									$partss = json_decode($parts);
-									foreach($partss as $pa => $val){
-										if($id == $pa){
-											$goal += (float)$val;
-											if($val > 0)$p_participant++;
-
-											$g_participant = $this->Crud->date_check2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $pa, 'partners_history');
-											$paids = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid','partnership_id', $pa, 'status', 1,  'partners_history');
-											if(!empty($paids)){
-												foreach($paids as $p){
-													$given += (float)$p->amount_paid;
-												}
-											}
-										}
-									}
-								}
-								$balance = (float)$goal - (float)$given;
-								if($balance < 0)$balance = 0;
+				
+						$user = $this->Crud->filter_membership('', '', $log_id, '', '', 'false');
+						if (!empty($user)) {
+							$goal = 0;
+							foreach ($user as $u) {
+								$parts = !empty($u->partnership) ? json_decode($u->partnership, true) : [];
 								
+								if (!empty($parts) && isset($parts[$id])) {
+									$goal += (float)$parts[$id];
+									if ($parts[$id] > 0) {
+										$p_participant++;
+									}
+				
+								}
 							}
 						}
-						
-						// add manage buttons
-						if ($role_u != 1) {
-							$all_btn = '';
-						} else {
-							$all_btn = '
-								<li><a href="javascript:;" class="text-primary pop" pageTitle="View ' . $name . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								
-								
-							';
-						}
 
+						if($role != 'administrator' && $role != 'developer'){
+							if($role == 'ministry administrator'){
+								// Get the count of participants within the date range
+								$g_participant = $this->Crud->date_check3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $id, 'ministry_id', $ministry_id, 'partners_history');
+			
+								// Get the total amount paid within the date range
+								$paids = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $id, 'ministry_id', $ministry_id, 'status', 1,  'partners_history');
+								
+								if (!empty($paids)) {
+									foreach ($paids as $p) {
+										$given += (float)$p->amount_paid;
+									}
+								}
+							} else {
+								// Get the count of participants within the date range
+								$g_participant = $this->Crud->date_check3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $id, 'church_id', $church_id, 'partners_history');
+			
+								// Get the total amount paid within the date range
+								$paids = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $id, 'church_id', $church_id, 'status', 1,  'partners_history');
+								
+								if (!empty($paids)) {
+									foreach ($paids as $p) {
+										$given += (float)$p->amount_paid;
+									}
+								}
+							}
+
+
+						} else {
+
+							// Get the count of participants within the date range
+							$g_participant = $this->Crud->date_check2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $id, 'partners_history');
+		
+							// Get the total amount paid within the date range
+							$paids = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'partnership_id', $id, 'status', 1, 'partners_history');
+							// print_r($paids);
+							if (!empty($paids)) {
+								foreach ($paids as $p) {
+									$given += (float)$p->amount_paid;
+								}
+							}
+
+						}
+						
+						
+				
+						// Calculate balance
+						$balance = max(0, $goal - $given);
+				
+						// Add manage buttons
+						$all_btn = ($role_u == 1) ? '
+							<li><a href="javascript:;" class="text-primary pop" pageTitle="View ' . $name . '" pageName="' . site_url($mod . '/manage/view/' . $id) . '">
+								<em class="icon ni ni-eye"></em><span>' . translate_phrase('View') . '</span>
+							</a></li>' : '';
+				
+						// Generate table row
 						$item .= '
 							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead text-primary">' . ucwords($name) . '</span>
-									</div>
-								</div>
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">$' . number_format($goal,2) . ' </span>
-									</div>
-								</div>
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">' . number_format($p_participant) . ' </span>
-									</div>
-								</div>
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">$' . number_format($given,2) . '</span>
-									</div>
-								</div>
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">$' .number_format($balance,2) . '</span>
-									</div>
-								</div>
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">' . number_format($g_participant) . ' </span>
-									</div>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									' . $all_btn . '
-													
-								</div>
+								<div class="nk-tb-col"><span class="tb-lead text-primary">' . ucwords($name) . '</span></div>
+								<div class="nk-tb-col"><span class="tb-lead">' . $this->session->get('currency') . number_format($goal, 2) . '</span></div>
+								<div class="nk-tb-col"><span class="tb-lead">' . number_format($p_participant) . '</span></div>
+								<div class="nk-tb-col"><span class="tb-lead">' . $this->session->get('currency') . number_format($given, 2) . '</span></div>
+								<div class="nk-tb-col"><span class="tb-lead">' . $this->session->get('currency') . number_format($balance, 2) . '</span></div>
+								<div class="nk-tb-col"><span class="tb-lead">' . number_format($g_participant) . '</span></div>
+								<div class="nk-tb-col nk-tb-col-tools">' . $all_btn . '</div>
 							</div><!-- .nk-tb-item -->
 						';
-						$a++;
 					}
 				}
+				
 				
 			}
 			
@@ -6479,7 +6489,7 @@ class Accounts extends BaseController {
 			return view($mod.'_form', $data);
 		} else { // view for main page
 			
-			$data['title'] = translate_phrase('Parnership Analytics').' - '.app_name;
+			$data['title'] = translate_phrase('Partnership Analytics').' - '.app_name;
 			$data['page_active'] = $mod;
 			return view($mod, $data);
 		}
@@ -7462,7 +7472,7 @@ class Accounts extends BaseController {
 											<img alt="" src="' . site_url($img) . '" height="40px" width="50px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
+											<span class="tb-lead">' . (($names)) . '<br><span class="small text-info">'.ucwords($church).'</span> </span>
 										</div>
 									</div>
 								</td>

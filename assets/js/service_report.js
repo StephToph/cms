@@ -363,7 +363,7 @@
                 $("#member_seed").val(dt.member_seed);
                 $("#guest_seed").val(dt.guest_seed);
                 $("#seed_list").val(dt.seed_list);
-                seedOffering(id)
+                populateSeed(id)
                
                   $('#seed_pagination').show(500);
                 $('#seed_msg').html('');
@@ -826,6 +826,31 @@
         });
     }
 
+
+              
+    function populateSeed(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_seed/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#seed_table_resp').empty();
+                // console.log(mems.members_part);
+                $('#seed_table_resp').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                
+                $('.js-select2 ').select2();
+            }
+        });
+    }
+
               
     function populateOffering(id) {
         $.ajax({
@@ -1063,6 +1088,43 @@
     
         // Append the new row to the table body
         $('#thanksgiving_table_resp').append(titheNewRow);
+    
+        // Initialize Select2 for the new select element
+        titheMemberSelect.select2();
+    });
+    
+
+      
+    let seedRowIndex = 0;
+
+    $('#seed_btn').click(function() {
+        seedRowIndex++; // Increment the row index for each new row
+    
+        const titheNewRow = $('<tr></tr>');
+        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${seedRowIndex}" required></select>`);
+        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
+    
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } else {
+            console.warn("No church members available.");
+        }
+    
+        // Append the select element to the row
+        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
+    
+        // Add the input field
+        titheNewRow.append(`
+            <td>
+                <input type="text" class="form-control seed" name="seed[]" value="0" oninput="calculateTotalz_seed(); this.value = this.value.replace(/[^0-9]/g, '');">
+
+            </td>
+        `);
+    
+        // Append the new row to the table body
+        $('#seed_table_resp').append(titheNewRow);
     
         // Initialize Select2 for the new select element
         titheMemberSelect.select2();
@@ -1351,6 +1413,15 @@
         $('#total_thanksgiving').val(total);
     }
 
+    function get_seed(){
+        var member = $('#member_seed').val();
+        var guest = $('#guest_seed').val();
+        
+        var total = parseFloat(member) + parseFloat(guest);
+        total = total.toFixed(2);
+        $('#total_seed').val(total);
+    }
+
     function updateTotals() {
         // Get values from the input fields
         var memberValue = parseInt($('#member_attendance').val()) || 0;
@@ -1485,6 +1556,23 @@
                 success: function(response) {
                     // Handle a successful response
                     $('#thanksgiving_msg').html(response);
+                }
+            });
+        });
+        $('#seedForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#seed_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/seed', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#seed_msg').html(response);
                 }
             });
         });
@@ -1635,6 +1723,31 @@
         total += parseFloat(guest);
         total = total.toFixed(2);
         $('#total_thanksgiving').val(total);
+
+        // Set value to 0 if the textbox is empty
+        tithesInputs.forEach(function(input) {
+            if (input.value === '') {
+                input.value = '';
+            }
+        });
+    }
+
+    
+    function calculateTotalz_seed() {
+        
+        var tithesInputs = document.querySelectorAll('.seed');
+        var total = 0;
+        tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            total += isNaN(value) ? 0 : value;
+        });
+        console.log(total);
+        var guest = $('#guest_seed').val();
+        
+        $('#member_seed').val(total.toFixed(2));
+        total += parseFloat(guest);
+        total = total.toFixed(2);
+        $('#total_seed').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {

@@ -16144,11 +16144,11 @@ h6 {
 }
 
 .ff-base {
-    font-family:'GT Walsheim Pro', "sans-serif"; !important
+    font-family:'GT Walsheim Pro', "sans-serif" !important;
 }
 
 .ff-alt {
-    font-family:'GT Walsheim Pro', "sans-serif"; !important
+    font-family:'GT Walsheim Pro', "sans-serif" !important;
 }
 
 .fw-medium {
@@ -35247,7 +35247,7 @@ body.nav-shown {
     padding: .625rem 40px .625rem 24px;
     color: #6e82a5;
     font-family:'GT Walsheim Pro', "sans-serif";;
-    font-weight: 600;
+    font-weight: normal;
     font-size: 17px;
     letter-spacing: .01em;
     text-transform: none;
@@ -37524,7 +37524,7 @@ textarea:-webkit-autofill:hover {
 .page-title {
     font-family:'GT Walsheim Pro', "sans-serif";;
     font-size: 1.5rem;
-    font-weight: 700
+    font-weight: 500
 }
 
 @media (min-width:992px) {
