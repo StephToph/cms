@@ -693,108 +693,107 @@ class Service extends BaseController {
 					die;
 				}
 				//When Adding Save in Session
-				if($this->request->getMethod() == 'post'){
-					
+				if ($this->request->getMethod() == 'post') {
 					$partnership_id = $this->request->getPost('partnership_id');
 					$total_part = $this->request->getPost('total_part');
 					$member_part = $this->request->getPost('member_part');
 					$guest_part = $this->request->getPost('guest_part');
 					$first_timer = $this->request->getPost('first_timer');
 					$members = $this->request->getPost('members');
-					
+				
 					$partner = [];
 					$partss = $this->Crud->read_order('partnership', 'name', 'asc');
-
-					if(!empty($first_timer)){
-						for($i=0;$i<count($first_timer);$i++){
-							$name = $first_timer[$i];
-							
-							if(!empty($partss)){
-								foreach($partss as $index => $pp){
-									
-									$amount = $this->request->getPost($pp->id.'_first'); //Guest Partners
-									if($amount[$i] <= 0)continue;
-									$parts[$pp->id] = $amount[$i];
-									
-									
+				
+					// Process Guest Contributions
+					if (!empty($first_timer)) {
+						foreach ($first_timer as $index => $name) {
+							$parts = [];
+				
+							foreach ($partss as $pp) {
+								$amounts = $this->request->getPost($pp->id . '_first'); // Get guest partnership amounts
+				
+								if (!empty($amounts[$index]) && is_numeric($amounts[$index]) && $amounts[$index] > 0) {
+									$parts[$pp->id] = $amounts[$index];
 								}
 							}
-							
-							$partner[$name] = $parts;
+				
+							if (!empty($parts)) {
+								$partner[$name] = $parts;
+							}
 						}
 					}
-
+				
 					$partnerships['guest'] = $partner;
-					
-					$pmember = [];$par = [];
-					if(count($members) == 0){
-						echo $this->Crud->msg('danger', 'Select a Member and Enter the Partnership Amount');
-						die;
-					} else {
-						for($i=0;$i<count($members);$i++){
-							$name = $members[$i];
-							
-							if(!empty($partss)){
-								foreach($partss as $index => $pp){
-									
-									$member_amount = $this->request->getPost($index.'_member'); //Guest Partners
-									// echo ($member_amount[$index].' ');
-									
-									if(!empty($member_amount[$i])){
-										if($member_amount[$i] <= 0)continue;
-										$par[$pp->id] = $member_amount[$i];
+				
+					// Process Member Contributions
+					$pmember = [];
+				
+					if (!empty($members)) {
+						foreach ($members as $member_index => $member_id) {
+							$par = [];
+				
+							foreach ($this->request->getPost() as $key => $value) {
+								$key_parts = explode('_', $key, 2); // Split key at the first "_"
+				
+								if (count($key_parts) == 2 && $key_parts[1] === 'member') {
+									$partnership_key = $key_parts[0]; // Extract the partnership key
+				
+									// Use the index of the member to get their corresponding value
+									if (!empty($value[$member_index]) && is_numeric($value[$member_index]) && $value[$member_index] > 0) {
+										$par[$partnership_key] = $value[$member_index];
 									}
-									
 								}
 							}
-							// 
-							$pmember[$name] = $par;
+							
+							// print_r($par);
+							if (!empty($par)) {
+								$pmember[$member_id] = $par;
+							}
 						}
 					}
+					
 					$partnerships['member'] = $pmember;
-					// print_r($partnerships);
-					
-					$partnership = json_encode($partnerships);
-					$guest_part = $this->request->getPost('guest_part');
-					$total_part = $this->request->getPost('total_part');
-					$member_part = $this->request->getPost('member_part');
-
-					$partners['partnership'] = $partnerships;
-					$partners['guest_part'] = $guest_part;
-					$partners['total_part'] = $total_part;
-					$partners['member_part'] = $member_part;
-					
-					
-					$ins['partners'] = json_encode($partners);
-					$ins['partnership'] = $total_part;
-
-					if($this->Crud->updates('id',  $partnership_id, 'service_report', $ins) > 0){
-
+				
+					// Store Final Data in JSON Format
+					$partners = [
+						'partnership' => $partnerships,
+						'guest_part' => $guest_part,
+						'total_part' => $total_part,
+						'member_part' => $member_part
+					];
+				
+					$ins = [
+						'partners' => json_encode($partners),
+						'partnership' => $total_part
+					];
+				
+					// Update Database
+					if ($this->Crud->updates('id', $partnership_id, 'service_report', $ins) > 0) {
 						echo $this->Crud->msg('success', 'Partnership Report Submitted');
-						///// store activities
+				
+						// Store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 						$service_date = $this->Crud->read_field('id', $partnership_id, 'service_report', 'date');
-						$action = $by.' updated Service Partnership Report for '.$service_date;
+						$action = $by . ' updated Service Partnership Report for ' . $service_date;
 						$this->Crud->activity('service', $partnership_id, $action);
-
-						// echo json_encode($data);
+				
 						echo '<script> setTimeout(function() {
 							$("#show").show(500);
-								$("#form").hide(500);
-								$("#partnership_view").hide(500);
-								$("#attendance_prev").hide(500);
-								$("#add_btn").show(500);
-								
-								$("#prev").hide(500);
-								load();
-								$("#tithe_msg").html("");
+							$("#form").hide(500);
+							$("#partnership_view").hide(500);
+							$("#attendance_prev").hide(500);
+							$("#add_btn").show(500);
+							$("#prev").hide(500);
+							load();
+							$("#tithe_msg").html("");
 						}, 2000); </script>';
-					} else{
+					} else {
 						echo $this->Crud->msg('info', 'No Changes');
-						
 					}
+				
 					die;
 				}
+				
 
 			} elseif($param2 == 'media'){
 				if($param3) {
