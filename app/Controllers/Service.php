@@ -1069,6 +1069,114 @@ class Service extends BaseController {
 					die;
 				}
 
+			} elseif($param2 == 'thanksgiving'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$this->session->set('service_church_id', $church_id);
+							
+					if(!empty($edit)) {
+						$total_thanksgiving = 0;
+						$member_thanksgiving = 0;
+						$guest_thanksgiving = 0;
+						$thanksgiving_list = 0;
+						
+						foreach($edit as $e) {
+							$tithers = json_decode($e->thanksgiving_record);
+							if(!empty($tithers)){
+								foreach($tithers as $ti => $tv){
+									if($ti == 'total'){
+										$total_thanksgiving = $tv;
+									}
+									if($ti == 'member'){
+										$member_thanksgiving = $tv;
+									}
+									if($ti == 'guest'){
+										$guest_thanksgiving = $tv;
+									}
+									if($ti == 'list'){
+										$thanksgiving_list = $tv;
+									}
+								}
+							}
+						}
+
+						$resp['thanksgiving_id'] = $param3;
+						$resp['thanksgiving_list'] = $thanksgiving_list;
+						$resp['total_thanksgiving'] = $total_thanksgiving;
+						$resp['member_thanksgiving'] = $member_thanksgiving;
+						$resp['guest_thanksgiving'] = $guest_thanksgiving;
+						
+						echo json_encode($resp);
+						die;
+					}
+					
+				}
+				
+				//When Adding Save in Session
+				if($this->request->getMethod() == 'post'){
+					$thanksgiving_id = $this->request->getPost('thanksgiving_id');
+					$guest_thanksgiving = $this->request->getPost('guest_thanksgiving');
+					$total_thanksgiving = $this->request->getPost('total_thanksgiving');
+					$member_thanksgiving = $this->request->getPost('member_thanksgiving');
+
+					$member = $this->request->getPost('members');
+					$thanksgiving = $this->request->getPost('thanksgiving');
+					
+					$record = [];
+					if (!empty($member) && !empty($thanksgiving)) {
+						$count = count($thanksgiving); 
+						for ($i = 0; $i < $count; $i++) {
+							if ($thanksgiving[$i] <= 0) {
+								continue; 
+							}
+							
+							if (!isset($record[$member[$i]])) {
+								$record[$member[$i]] = $thanksgiving[$i];
+							}
+							
+						}
+					}
+
+					$tithe_list['total'] = $total_thanksgiving;
+					$tithe_list['member'] = $member_thanksgiving;
+					$tithe_list['guest'] = $guest_thanksgiving;
+					$tithe_list['list'] = $record;
+					 
+					// echo json_encode($tithe_list);
+					// die;
+					
+					$tithers =  json_encode($tithe_list);
+					$ins['thanksgiving_record'] = $tithers;
+					$ins['thanksgiving'] = $total_thanksgiving;
+
+					if($this->Crud->updates('id', $thanksgiving_id, 'service_report', $ins) > 0){
+						echo $this->Crud->msg('success', 'Service Thanksgiving Offering Report Submitted');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $thanksgiving_id, 'service_report', 'date');
+						$action = $by.' updated Service Thanksgiving Offering Report for '.$service_date;
+						$this->Crud->activity('service', $thanksgiving_id, $action);
+
+						// echo json_encode($data);
+						echo '<script> setTimeout(function() {
+								$("#show").show(500);
+								$("#form").hide(500);
+								$("#thanksgiving_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								
+								$("#prev").hide(500);
+								load();
+								$("#thanksgiving_msg").html("");
+						}, 2000); </script>';
+					} else {
+						echo $this->Crud->msg('info', 'No Changes');
+					
+					}
+					die;
+				}
+
 			} elseif($param2 == 'new_convert'){
 				if($param3){
 					$resp = [];
@@ -1966,6 +2074,78 @@ class Service extends BaseController {
 				
 			}
 
+			if($param2 == 'get_members_thanksgiving'){
+				if($param3){
+					$data = [];
+					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'thanksgiving_record'));
+					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
+
+					$church_memberss = [];
+					$count = 0;
+					if(!empty($church)){
+						foreach($church as $c){
+							$church_members['id'] = $c->id;
+							$church_members['phone'] = $c->phone;
+							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
+
+							$church_memberss[] = $church_members;
+						}
+					}
+					
+
+					
+					$table = '';
+					$tithers = [];
+					if(!empty($tithersa) && isset($tithersa->list)){
+						$tithers = (array)$tithersa->list;
+					}
+					
+
+					
+					// print_r($tithers);
+					if(!empty($tithers)){
+						$tither_ids = array_keys($tithers);
+
+						// Filter out church members who are also tithers
+						$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
+							return !in_array($member['id'], $tither_ids);
+						});
+
+					$church_memberss = array_values($church_memberss);
+
+						foreach($tithers as $tither => $tithe){
+							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
+							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
+	
+							$table .= '<tr>
+								<td>
+									<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($tither) . '">
+									<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
+								</td>
+
+								<td>
+									<input type="text" class="form-control tithes" name="thanksgiving[]" 
+										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($tithe) . '">
+								</td>
+							</tr>';
+
+						}
+					}
+								
+					$data['members'] = ($church_memberss);
+					$data['members_part'] = $table;
+
+
+
+					echo json_encode($data);
+					die;
+				}
+					
+				
+			}
+
 			
 			if($param2 == 'get_members_attendance'){
 				if($param3){
@@ -2629,22 +2809,6 @@ class Service extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Date').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Service').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Offering').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Tithe').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Partnership').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.translate_phrase('Attendance').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('FT').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('NC').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
-		
 				
 			';
 			$a = 1;
@@ -2668,6 +2832,8 @@ class Service extends BaseController {
 						$id = $q->id;
 						$type = $q->type;
 						$tithe = $q->tithe;
+						$seed = $q->seed;
+						$thanksgiving = $q->thanksgiving;
 						$partnership = $q->partnership;
 						$attendance = $q->attendance;
 						$offering = $q->offering;
@@ -2699,8 +2865,8 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Add Offering Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-success"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Thanksgiving Offering Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Special Seed Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-success"  onclick="thanksgiving_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Thanksgiving Offering Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-danger"  onclick="seed_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Special Seed Details').'</span></a></li>
 								
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
@@ -2715,50 +2881,31 @@ class Service extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">' . ucwords($date) . ' </span>
-										
+							<tr>
+								<td>' . ucwords($date) . '</td>
+								<td>' . ucwords($types) . '</td>
+								<td>' . $this->session->get('currency') . number_format((float)$offering, 2) . '</td>
+								<td>' . $this->session->get('currency') . number_format((float)$tithe, 2) . '</td>
+								<td>' . $this->session->get('currency') . number_format((float)$partnership, 2) . '</td>
+								<td>' . $this->session->get('currency') . number_format((float)$thanksgiving, 2) . '</td>
+								<td>' . $this->session->get('currency') . number_format((float)$seed, 2) . '</td>
+								<td>' . ucwords($attendance) . '</td>
+								<td>' . ucwords($first_timer) . '</td>
+								<td>' . ucwords($new_convert) . '</td>
+								<td class="text-center">
+									<div class="dropdown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown">
+											<em class="icon ni ni-more-h"></em>
+										</a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
 									</div>
-								</div>
-								<div class="nk-tb-col">
-									<span class="text-dark">' . ucwords($types) . '</span>
-								</div>
-								<div class="nk-tb-col">
-									<span class="text-dark">' .$this->session->get('currency'). number_format((float)$offering,2) . '</span>
-								</div>
-								<div class="nk-tb-col">
-									<span class="text-dark">' .$this->session->get('currency'). number_format((float)$tithe,2) . '</span>
-								</div>
-								<div class="nk-tb-col">
-									<span class="text-dark">' .$this->session->get('currency'). number_format((float)$partnership,2) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><span>' . ucwords($attendance) . '</b></span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><span>' . ucwords($first_timer) . '</b></span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><span>' . ucwords($new_convert) . '</b></span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
-						';
+								</td>
+							</tr>';
+
 						$a++;
 					}
 				}
@@ -2766,11 +2913,11 @@ class Service extends BaseController {
 			}
 			
 			if(empty($item)) {
-				$resp['item'] = $items.'
+				$resp['item'] = $items.'<tr><td colspan="8">
 					<div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<i class="ni ni-linux-server" style="font-size:100px;"></i><br/><br/>'.translate_phrase('No Report Returned').'
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;

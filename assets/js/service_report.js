@@ -319,6 +319,58 @@
         });
        
     }
+
+    function thanksgiving_report(id){
+        $('#thanksgiving_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#thanksgiving_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/thanksgiving/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#thanksgiving_id').val(dt.thanksgiving_id)
+                $('#total_thanksgiving').val(dt.total_thanksgiving);
+                $("#member_thanksgiving").val(dt.member_thanksgiving);
+                $("#guest_thanksgiving").val(dt.guest_thanksgiving);
+                $("#thanksgiving_list").val(dt.thanksgiving_list);
+                populateThanksgiving(id)
+               
+                  $('#thanksgiving_pagination').show(500);
+                $('#thanksgiving_msg').html('');
+            }
+        });
+       
+    }
+
+    function seed_report(id){
+        $('#seed_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $('#show').hide(500);
+        $('#add_btn').hide(500);
+        $('#seed_view').show(500);
+        $('#attendance_prev').show(500);
+        
+        $.ajax({
+            url: site_url + 'service/report/manage/seed/' + id,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#seed_id').val(dt.seed_id)
+                $('#total_seed').val(dt.total_seed);
+                $("#member_seed").val(dt.member_seed);
+                $("#guest_seed").val(dt.guest_seed);
+                $("#seed_list").val(dt.seed_list);
+                seedOffering(id)
+               
+                  $('#seed_pagination').show(500);
+                $('#seed_msg').html('');
+            }
+        });
+       
+    }
     
         Dropzone.autoDiscover = false; // Prevent auto-discovery
 
@@ -749,6 +801,31 @@
         });
     }
 
+    
+              
+    function populateThanksgiving(id) {
+        $.ajax({
+            url: site_url + 'service/report/records/get_members_thanksgiving/'+id, // Adjust the URL according to your API
+            type: 'get',
+            success: function (data) {
+                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+    
+                // Clear existing entries
+                $('#thanksgiving_table_resp').empty();
+                // console.log(mems.members_part);
+                $('#thanksgiving_table_resp').html(mems.members_part).fadeIn(500);
+                if (Array.isArray(mems.members)) {
+                    churchMembers = mems.members;
+                } else {
+                    console.error('mems.members is not an array');
+                    churchMembers = []; // or some default value
+                }
+                
+                $('.js-select2 ').select2();
+            }
+        });
+    }
+
               
     function populateOffering(id) {
         $.ajax({
@@ -950,6 +1027,42 @@
     
         // Append the new row to the table body
         $('#offering_table_resp').append(titheNewRow);
+    
+        // Initialize Select2 for the new select element
+        titheMemberSelect.select2();
+    });
+    
+    
+    let thanksgivingRowIndex = 0;
+
+    $('#thanksgiving_btn').click(function() {
+        thanksgivingRowIndex++; // Increment the row index for each new row
+    
+        const titheNewRow = $('<tr></tr>');
+        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${thanksgivingRowIndex}" required></select>`);
+        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
+    
+        if (churchMembers && churchMembers.length > 0) {
+            churchMembers.forEach(function(member) {
+                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
+            });
+        } else {
+            console.warn("No church members available.");
+        }
+    
+        // Append the select element to the row
+        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
+    
+        // Add the input field
+        titheNewRow.append(`
+            <td>
+                <input type="text" class="form-control thanksgiving" name="thanksgiving[]" value="0" oninput="calculateTotalz_thanksgiving(); this.value = this.value.replace(/[^0-9]/g, '');">
+
+            </td>
+        `);
+    
+        // Append the new row to the table body
+        $('#thanksgiving_table_resp').append(titheNewRow);
     
         // Initialize Select2 for the new select element
         titheMemberSelect.select2();
@@ -1229,6 +1342,15 @@
         $('#total_offering').val(total);
     }
 
+    function get_thanksgiving(){
+        var member = $('#member_thanksgiving').val();
+        var guest = $('#guest_thanksgiving').val();
+        
+        var total = parseFloat(member) + parseFloat(guest);
+        total = total.toFixed(2);
+        $('#total_thanksgiving').val(total);
+    }
+
     function updateTotals() {
         // Get values from the input fields
         var memberValue = parseInt($('#member_attendance').val()) || 0;
@@ -1257,9 +1379,9 @@
         }
 
         if (more == 'no') {
-            $('#load_data').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#load_data').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         } else {
-            $('#loadmore').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
 
        
@@ -1279,7 +1401,7 @@
                 }
                 $('#counta').html(dt.count);
                 if (dt.offset > 0) {
-                    $('#loadmore').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
+                    $('#loadmore').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
                 } else {
                     $('#loadmore').html('');
                 }
@@ -1345,6 +1467,24 @@
                 success: function(response) {
                     // Handle a successful response
                     $('#offering_msg').html(response);
+                }
+            });
+        });
+
+        $('#thanksgivingForm').submit(function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Gather form data
+            var formData = $(this).serialize(); // Serialize form data
+            $('#thanksgiving_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            // Send an AJAX POST request
+            $.ajax({
+                url: site_url + 'service/report/manage/thanksgiving', // Replace with your server URL
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // Handle a successful response
+                    $('#thanksgiving_msg').html(response);
                 }
             });
         });
@@ -1471,6 +1611,30 @@
         total += parseFloat(guest);
         total = total.toFixed(2);
         $('#total_offering').val(total);
+
+        // Set value to 0 if the textbox is empty
+        tithesInputs.forEach(function(input) {
+            if (input.value === '') {
+                input.value = '';
+            }
+        });
+    }
+
+    function calculateTotalz_thanksgiving() {
+        
+        var tithesInputs = document.querySelectorAll('.thanksgiving');
+        var total = 0;
+        tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            total += isNaN(value) ? 0 : value;
+        });
+        console.log(total);
+        var guest = $('#guest_thanksgiving').val();
+        
+        $('#member_thanksgiving').val(total.toFixed(2));
+        total += parseFloat(guest);
+        total = total.toFixed(2);
+        $('#total_thanksgiving').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {

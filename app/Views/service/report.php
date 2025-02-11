@@ -90,10 +90,30 @@ $service_church_id = $this->session->get('service_church_id');
 
                             </div><!-- .card-inner -->
                             <div class="card-inner" id="show">
-                                <div class="nk-tb-list nk-tb-ulist" id="load_data">
+
+                                <div class="table-responsive" >
+                                    <table class="table table-hovered ">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th><?=translate_phrase('Date'); ?></th>
+                                                <th><?=translate_phrase('Service'); ?></th>
+                                                <th><?=translate_phrase('Offering'); ?></th>
+                                                <th><?=translate_phrase('Tithe'); ?></th>
+                                                <th><?=translate_phrase('Partnership'); ?></th>
+                                                <th><?=translate_phrase('Thanksgiving'); ?></th>
+                                                <th><?=translate_phrase('Seed'); ?></th>
+                                                <th><?=translate_phrase('Attendance'); ?></th>
+                                                <th><?=translate_phrase('FT'); ?></th>
+                                                <th><?=translate_phrase('NC'); ?></th>
+                                                <th class="text-center"><?=translate_phrase('Actions'); ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="load_data">
+                                        </tbody>
+                                        <tfoot id="loadmore"></tfoot>
+                                    </table>
                                 </div><!-- .nk-tb-list -->
 
-                                <div class="nk-block-between-md g-3" id="loadmore">
                                 </div><!-- .nk-block-between -->
                             </div>
                             <div class="card-inner" id="form" style="display:none;">
@@ -504,6 +524,63 @@ $service_church_id = $this->session->get('service_church_id');
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <div id="offering_msg"></div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <div class="card-inner" id="thanksgiving_view" style="display:none;">
+                                <form id="thanksgivingForm">
+                                    <div class="row">
+                                        <span class="text-danger mb-2">Enter Member's Thanksgiving Offering in the Table Below</span>
+                                        <input type="hidden" name="thanksgiving_id" id="thanksgiving_id">
+
+                                        <div class="col-sm-4 mb-3 ">
+                                            <label>Total</label>
+                                            <input class="form-control" id="total_thanksgiving" type="text" name="total_thanksgiving"
+                                                readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Member</label>
+                                            <input class="form-control" id="member_thanksgiving" type="text"
+                                                name="member_thanksgiving" readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Guest</label>
+                                            <input class="form-control" id="guest_thanksgiving" type="text" name="guest_thanksgiving"
+                                                oninput="get_offering();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
+                                                value="0">
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="table-responsive">
+
+                                        <table id="thanksgiving_table" class="table table-striped table-hover mt-5">
+                                            <thead>
+                                                <tr>
+                                                    <th>Member</th>
+                                                    <th width="200px">Thanksgiving Offering</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="thanksgiving_table_resp">
+                                            </tbody>
+                                        </table>
+
+                                        <div class="col-12 my-3 text-center">
+                                            <button type="button" class="btn btn-info" id="thanksgiving_btn">Add More</button>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row mt-5">
+                                        <div class="col-sm-12 text-center mt-5">
+                                            <button class="btn btn-primary bb_fo_btn" type="submit">
+                                                <i class="icon ni ni-save"></i> <?= translate_phrase('Save Record'); ?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div id="thanksgiving_msg"></div>
                                         </div>
                                     </div>
                                 </form>
