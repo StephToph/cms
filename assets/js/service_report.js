@@ -311,9 +311,17 @@
                 $("#member_offering").val(dt.member_offering);
                 $("#guest_offering").val(dt.guest_offering);
                 $("#offering_list").val(dt.offering_list);
+                $('#total_thanksgiving').val(dt.total_thanksgiving);
+                $("#member_thanksgiving").val(dt.member_thanksgiving);
+                $("#guest_thanksgiving").val(dt.guest_thanksgiving);
+                $("#thanksgiving_list").val(dt.thanksgiving_list);
+                $('#total_seed').val(dt.total_seed);
+                $("#member_seed").val(dt.member_seed);
+                $("#guest_seed").val(dt.guest_seed);
+                $("#seed_list").val(dt.seed_list);
                 populateOffering(id)
                
-                  $('#offering_pagination').show(500);
+                $('#offering_pagination').show(500);
                 $('#offering_msg').html('');
             }
         });
@@ -1024,9 +1032,10 @@
     
     let offeringRowIndex = 0;
 
+
     $('#offering_btn').click(function() {
         offeringRowIndex++; // Increment the row index for each new row
-    
+        
         const titheNewRow = $('<tr></tr>');
         const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${offeringRowIndex}" required></select>`);
         titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
@@ -1048,75 +1057,10 @@
                 <input type="text" class="form-control offering" name="offering[]" value="0" oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9]/g, '');">
 
             </td>
-        `);
-    
-        // Append the new row to the table body
-        $('#offering_table_resp').append(titheNewRow);
-    
-        // Initialize Select2 for the new select element
-        titheMemberSelect.select2();
-    });
-    
-    
-    let thanksgivingRowIndex = 0;
-
-    $('#thanksgiving_btn').click(function() {
-        thanksgivingRowIndex++; // Increment the row index for each new row
-    
-        const titheNewRow = $('<tr></tr>');
-        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${thanksgivingRowIndex}" required></select>`);
-        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
-    
-        if (churchMembers && churchMembers.length > 0) {
-            churchMembers.forEach(function(member) {
-                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
-            });
-        } else {
-            console.warn("No church members available.");
-        }
-    
-        // Append the select element to the row
-        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
-    
-        // Add the input field
-        titheNewRow.append(`
             <td>
                 <input type="text" class="form-control thanksgiving" name="thanksgiving[]" value="0" oninput="calculateTotalz_thanksgiving(); this.value = this.value.replace(/[^0-9]/g, '');">
 
             </td>
-        `);
-    
-        // Append the new row to the table body
-        $('#thanksgiving_table_resp').append(titheNewRow);
-    
-        // Initialize Select2 for the new select element
-        titheMemberSelect.select2();
-    });
-    
-
-      
-    let seedRowIndex = 0;
-
-    $('#seed_btn').click(function() {
-        seedRowIndex++; // Increment the row index for each new row
-    
-        const titheNewRow = $('<tr></tr>');
-        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${seedRowIndex}" required></select>`);
-        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
-    
-        if (churchMembers && churchMembers.length > 0) {
-            churchMembers.forEach(function(member) {
-                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
-            });
-        } else {
-            console.warn("No church members available.");
-        }
-    
-        // Append the select element to the row
-        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
-    
-        // Add the input field
-        titheNewRow.append(`
             <td>
                 <input type="text" class="form-control seed" name="seed[]" value="0" oninput="calculateTotalz_seed(); this.value = this.value.replace(/[^0-9]/g, '');">
 
@@ -1124,7 +1068,7 @@
         `);
     
         // Append the new row to the table body
-        $('#seed_table_resp').append(titheNewRow);
+        $('#offering_table_resp').append(titheNewRow);
     
         // Initialize Select2 for the new select element
         titheMemberSelect.select2();
