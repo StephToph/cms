@@ -199,7 +199,7 @@ class Church extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
@@ -289,16 +289,16 @@ class Church extends BaseController{
 										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($name) . '</span> <br>
-											<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>        
+											<span class="">' . ucwords($ministry) . '</span>        
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark ">' . $email . '</span><br>
-									<span class="small text-dark ">' . $phone . '</span>
+									<span class="small ">' . $email . '</span><br>
+									<span class="small ">' . $phone . '</span>
 								</td>
-								<td><span class="small text-dark ">' . $address . '</span><br><span class="text-info small">'.$country.'</span></td>
-								<td><span class="small text-dark ">' . $reg_date . '</span></td>
+								<td><span class="small ">' . $address . '</span><br><span class=" small">'.$country.'</span></td>
+								<td><span class="small ">' . $reg_date . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -609,7 +609,7 @@ class Church extends BaseController{
 						$mins = '';
 
 						if (!empty($regional_id))
-							$mins .= ' ' . $this->Crud->read_field('id', $regional_id, 'church', 'name') . ' Region';
+							$mins .= ' ' . ucwords(strtolower($this->Crud->read_field('id', $regional_id, 'church', 'name'))) . ' Region';
 						if (!empty($logo)) {
 							$img = '<img height="40px" src="' . site_url($logo) . '">';
 						} else {
@@ -649,17 +649,17 @@ class Church extends BaseController{
 									</div>        
 									<div class="user-name">            
 										<span class="tb-lead">' . ucwords($name) . '</span>   <br>
-										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>              
+										<span class="tb-lead">' . ucwords($ministry) . '</span>              
 									</div>    
 								</div>  
 							</td>
 							<td>
-								<span class="small text-dark">' . $email . '</span><br>
-								<span class="small text-dark">' . $phone . '</span>
+								<span class="small">' . $email . '</span><br>
+								<span class="small">' . $phone . '</span>
 							</td>
-							<td><span class="small text-dark">' . $address . '</span><br>
-								<span class="small text-info">' . $country . '</span></td>
-							<td><span class="small text-dark">' . $mins . '</span></td>
+							<td><span class="small">' . $address . '</span><br>
+								<span class="small">' . $country . '</span></td>
+							<td><span class="small">' . $mins . '</span></td>
 							<td>
 								<div class="drodown">
 									<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -931,7 +931,7 @@ class Church extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
@@ -985,9 +985,9 @@ class Church extends BaseController{
 						$mins = '';
 
 						if (!empty($regional_id))
-							$mins .= ' ' . $this->Crud->read_field('id', $regional_id, 'church', 'name') . ' Region';
+							$mins .= ' ' . ucwords(strtolower($this->Crud->read_field('id', $regional_id, 'church', 'name'))) . ' Region';
 						if (!empty($zonal_id))
-							$mins .= '&#8594; ' . $this->Crud->read_field('id', $zonal_id, 'church', 'name') . ' Zone';
+							$mins .= '<br>&#8594; ' . ucwords(strtolower($this->Crud->read_field('id', $zonal_id, 'church', 'name'))) . ' Zone';
 
 						if (!empty($logo)) {
 							$img = '<img height="40px" src="' . site_url($logo) . '">';
@@ -1030,17 +1030,17 @@ class Church extends BaseController{
 										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($name) . '</span> <br>
-										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                   
+										<span class="tb-lead">' . ucwords($ministry) . '</span>                   
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark">' . $email . '</span><br>
-									<span class="small text-dark">' . $phone . '</span>
+									<span class="small">' . $email . '</span><br>
+									<span class="small">' . $phone . '</span>
 								</td>
-								<td><span class="small text-dark">' . $address . '</span><br>
-								<span class="small text-info">' . $country . '</span></td>
-								<td><span class="small text-dark">' . $mins . '</span></td>
+								<td><span class="small">' . $address . '</span><br>
+								<span class="small">' . $country . '</span></td>
+								<td><span class="small">' . $mins . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -1320,7 +1320,7 @@ class Church extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
@@ -1372,11 +1372,11 @@ class Church extends BaseController{
 						$mins = '';
 
 						if (!empty($regional_id))
-							$mins .= ' ' . $this->Crud->read_field('id', $regional_id, 'church', 'name') . ' Region';
+							$mins .= ' ' . ucwords(strtolower($this->Crud->read_field('id', $regional_id, 'church', 'name'))) . ' Region';
 						if (!empty($zonal_id))
-							$mins .= '<br>&#8594; ' . $this->Crud->read_field('id', $zonal_id, 'church', 'name') . ' Zone';
+							$mins .= '<br>&#8594; ' . ucwords(strtolower($this->Crud->read_field('id', $zonal_id, 'church', 'name'))) . ' Zone';
 						if (!empty($group_id))
-							$mins .= '<br>&#8594; ' . $this->Crud->read_field('id', $group_id, 'church', 'name') . ' Group';
+							$mins .= '<br>&#8594; ' . ucwords(strtolower($this->Crud->read_field('id', $group_id, 'church', 'name') )). ' Group';
 
 						if (!empty($logo)) {
 							$img = '<img height="40px" src="' . site_url($logo) . '">';
@@ -1417,17 +1417,17 @@ class Church extends BaseController{
 										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($name) . '</span>    <br>
-										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                        
+										<span class="tb-lead">' . ucwords($ministry) . '</span>                        
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark">' . $email . '</span><br>
-									<span class="small text-dark">' . $phone . '</span>
+									<span class="small">' . $email . '</span><br>
+									<span class="small">' . $phone . '</span>
 								</td>
-								<td><span class="small text-dark">' . $address . '</span><br>
-								<span class="small text-info">' . $country . '</span></td>
-								<td><span class="small text-dark">' . $mins . '</span></td>
+								<td><span class="small">' . $address . '</span><br>
+								<span class="small">' . $country . '</span></td>
+								<td><span class="small">' . $mins . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -1768,7 +1768,7 @@ class Church extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
@@ -1865,17 +1865,17 @@ class Church extends BaseController{
 											<img alt="" src="' . site_url($img) . '" height="40px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead small">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<span class="tb-lead"><b>' . ucwords($fullname) . ' </b><span class="dot dot-' . $a_color . ' ms-1"></span></span>
 											<br>
 											
 										</div>
 									</div>
 								</td>
-								<td><span class=" small">' . $email . '</span></td>
-								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
-								<td><span class=" small">' . $u_role . '</span></td>
-								<td><span class=" small">' . ucwords($address) . '</span></td>
-								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
+								<td><span class=" ">' . $email . '</span></td>
+								<td><span class=" ">' . $phone . '</span></td>
+								<td><span class=" ">' . $u_role . '</span></td>
+								<td><span class=" ">' . ucwords($address) . '</span></td>
+								<td><span class="tb-amount ">' . $reg_date . ' </span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -1932,8 +1932,6 @@ class Church extends BaseController{
 		}
 
 	}
-
-
 
 	public function pastor($param1 = '', $param2 = '', $param3 = '')
 	{
@@ -2211,7 +2209,7 @@ class Church extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
@@ -2307,17 +2305,15 @@ class Church extends BaseController{
 											<img alt="" src="' . site_url($img) . '" height="40px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead small">' . ucwords($fullname) . ' <span class="dot dot-' . $a_color . ' ms-1"></span></span>
-											<br>
-											
+											<span class="tb-lead"><b>' . ucwords($fullname) . '</b> <span class="dot dot-' . $a_color . ' ms-1"></span></span>
 										</div>
 									</div>
 								</td>
-								<td><span class=" small">' . $email . '</span></td>
-								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
-								<td><span class=" small">' . $u_role . '</span></td>
-								<td><span class=" small">' . ucwords($address) . '</span></td>
-								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
+								<td><span class=" ">' . $email . '</span></td>
+								<td><span class=" ">' . $phone . '</span></td>
+								<td><span class=" ">' . $u_role . '</span></td>
+								<td><span class=" ">' . ucwords($address) . '</span></td>
+								<td><span class="tb-amount ">' . $reg_date . ' </span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>

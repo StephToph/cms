@@ -93,7 +93,7 @@ $service_church_id = $this->session->get('service_church_id');
 
                                 <div class="table-responsive" >
                                     <table class="table table-hovered ">
-                                        <thead class="thead-dark">
+                                        <thead>
                                             <tr>
                                                 <th><?=translate_phrase('Date'); ?></th>
                                                 <th><?=translate_phrase('Service'); ?></th>

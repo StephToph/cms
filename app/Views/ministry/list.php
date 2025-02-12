@@ -62,6 +62,15 @@ $this->Crud = new Crud();
                             </div><!-- .card-inner -->
                             <div class="card-inner table-responsive p-0">
                                 <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><?=translate_phrase('Name'); ?></th>
+                                            <th><?=translate_phrase('Contact'); ?></th>
+                                            <th><?=translate_phrase('Address'); ?></th>
+                                            <th><?=translate_phrase('Date'); ?></th>
+                                            <th>Actions</th>
+                                        </tr><!-- .nk-tb-item -->
+                                    </thead>
                                     <tbody id="load_data"></tbody>
                                     <tfoot id="loadmore"></tfoot>
                                 </table>

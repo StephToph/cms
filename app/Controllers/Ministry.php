@@ -328,7 +328,7 @@ class Ministry extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}
@@ -336,14 +336,7 @@ class Ministry extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<tr>
-					<td><span class="sub-text">'.translate_phrase('Name').'</span></td>
-					<td><span class="sub-text">'.translate_phrase('Contact').'</span></td>
-					<td><span class="sub-text">'.translate_phrase('Address').'</span></td>
-					<td><span class="sub-text">'.translate_phrase('Date').'</span></td>
-					<td><span class="sub-text">Actions</span>
-					</td>
-				</tr><!-- .nk-tb-item -->
+				
 		
 				
 			';
@@ -404,14 +397,14 @@ class Ministry extends BaseController {
 									</div>  
 								</td>
 								<td>
-									<span class="text-dark">'.$email.'</span><br>
-									<span class="text-dark">'.$phone.'</span>
+									<span class="">'.$email.'</span><br>
+									<span class="">'.$phone.'</span>
 								</td>
 								<td>
-									<span class="text-dark">'.$address.'</span>
+									<span class="">'.$address.'</span>
 								</td>
 								<td>
-									<span class="text-dark">'.$reg_date.'</span>
+									<span class="">'.$reg_date.'</span>
 								</td>
 								<td>
 									<div class="drodown">
