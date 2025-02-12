@@ -1063,6 +1063,16 @@ class Service extends BaseController {
 					$total_offering = $this->request->getPost('total_offering');
 					$member_offering = $this->request->getPost('member_offering');
 
+					$guest_thanksgiving = $this->request->getPost('guest_thanksgiving');
+					$total_thanksgiving = $this->request->getPost('total_thanksgiving');
+					$member_thanksgiving = $this->request->getPost('member_thanksgiving');
+					$thanksgiving = $this->request->getPost('thanksgiving');
+
+					$guest_seed = $this->request->getPost('guest_seed');
+					$total_seed = $this->request->getPost('total_seed');
+					$member_seed = $this->request->getPost('member_seed');
+					$seed = $this->request->getPost('seed');
+
 					$member = $this->request->getPost('members');
 					$offering = $this->request->getPost('offering');
 					
@@ -1093,8 +1103,64 @@ class Service extends BaseController {
 					$ins['offering_givers'] = $tithers;
 					$ins['offering'] = $total_offering;
 
+					
+					$record = [];
+					if (!empty($member) && !empty($thanksgiving)) {
+						$count = count($thanksgiving); 
+						for ($i = 0; $i < $count; $i++) {
+							if ($thanksgiving[$i] <= 0) {
+								continue; 
+							}
+							
+							if (!isset($record[$member[$i]])) {
+								$record[$member[$i]] = $thanksgiving[$i];
+							}
+							
+						}
+					}
+
+					$thanks_list['total'] = $total_thanksgiving;
+					$thanks_list['member'] = $member_thanksgiving;
+					$thanks_list['guest'] = $guest_thanksgiving;
+					$thanks_list['list'] = $record;
+					 
+					// echo json_encode($tithe_list);
+					// die;
+					
+					$thanks_record =  json_encode($thanks_list);
+					$ins['thanksgiving_record'] = $thanks_record;
+					$ins['thanksgiving'] = $total_thanksgiving;
+
+					$record = [];
+					if (!empty($member) && !empty($seed)) {
+						$count = count($seed); 
+						for ($i = 0; $i < $count; $i++) {
+							if ($seed[$i] <= 0) {
+								continue; 
+							}
+							
+							if (!isset($record[$member[$i]])) {
+								$record[$member[$i]] = $seed[$i];
+							}
+							
+						}
+					}
+
+					$seed_list['total'] = $total_seed;
+					$seed_list['member'] = $member_seed;
+					$seed_list['guest'] = $guest_seed;
+					$seed_list['list'] = $record;
+					 
+					// echo json_encode($tithe_list);
+					// die;
+					
+					$seed_record =  json_encode($seed_list);
+					$ins['seed_record'] = $seed_record;
+					$ins['seed'] = $total_seed;
+
+
 					if($this->Crud->updates('id', $offering_id, 'service_report', $ins) > 0){
-						echo $this->Crud->msg('success', 'Service Offering Report Submitted');
+						echo $this->Crud->msg('success', 'Service Report for Offering, Thanksgiving and Special Seed Updated');
 						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 						$service_date = $this->Crud->read_field('id', $offering_id, 'service_report', 'date');
@@ -2217,18 +2283,18 @@ class Service extends BaseController {
 								</td>
 				
 								<td>
-									<input type="text" class="form-control tithes" name="offering[]" 
-										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+									<input type="text" class="form-control offering" name="offering[]" 
+										oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
 										value="' . htmlspecialchars($tithe_amount) . '">
 								</td>
 								<td>
-									<input type="text" class="form-control tithes" name="thanksgiving[]" 
-										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+									<input type="text" class="form-control thanksgiving" name="thanksgiving[]" 
+										oninput="calculateTotalz_thanksgiving(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
 										value="' . htmlspecialchars($thanksgiving_amount) . '">
 								</td>
 								<td>
-									<input type="text" class="form-control tithes" name="seed[]" 
-										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+									<input type="text" class="form-control seed" name="seed[]" 
+										oninput="calculateTotalz_seed(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
 										value="' . htmlspecialchars($seed_amount) . '">
 								</td>
 							</tr>';
