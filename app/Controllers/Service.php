@@ -972,6 +972,14 @@ class Service extends BaseController {
 						$member_offering = 0;
 						$guest_offering = 0;
 						$offering_list = 0;
+						$total_seed = 0;
+						$member_seed = 0;
+						$guest_seed = 0;
+						$seed_list = 0;
+						$total_thanksgiving = 0;
+						$member_thanksgiving = 0;
+						$guest_thanksgiving = 0;
+						$thanksgiving_list = 0;
 						
 						foreach($edit as $e) {
 							$tithers = json_decode($e->offering_givers);
@@ -991,6 +999,40 @@ class Service extends BaseController {
 									}
 								}
 							}
+							$thanksgiving_record = json_decode($e->thanksgiving_record);
+							if(!empty($thanksgiving_record)){
+								foreach($thanksgiving_record as $ti => $tv){
+									if($ti == 'total'){
+										$total_thanksgiving = $tv;
+									}
+									if($ti == 'member'){
+										$member_thanksgiving = $tv;
+									}
+									if($ti == 'guest'){
+										$guest_thanksgiving = $tv;
+									}
+									if($ti == 'list'){
+										$thanksgiving_list = $tv;
+									}
+								}
+							}
+							$seed_record = json_decode($e->seed_record);
+							if(!empty($seed_record)){
+								foreach($seed_record as $ti => $tv){
+									if($ti == 'total'){
+										$total_seed = $tv;
+									}
+									if($ti == 'member'){
+										$member_seed = $tv;
+									}
+									if($ti == 'guest'){
+										$guest_seed = $tv;
+									}
+									if($ti == 'list'){
+										$seed_list = $tv;
+									}
+								}
+							}
 						}
 
 						$resp['offering_id'] = $param3;
@@ -998,7 +1040,16 @@ class Service extends BaseController {
 						$resp['total_offering'] = $total_offering;
 						$resp['member_offering'] = $member_offering;
 						$resp['guest_offering'] = $guest_offering;
-						
+						$resp['thanksgiving_id'] = $param3;
+						$resp['thanksgiving_list'] = $thanksgiving_list;
+						$resp['total_thanksgiving'] = $total_thanksgiving;
+						$resp['member_thanksgiving'] = $member_thanksgiving;
+						$resp['guest_thanksgiving'] = $guest_thanksgiving;
+						$resp['seed_id'] = $param3;
+						$resp['seed_list'] = $seed_list;
+						$resp['total_seed'] = $total_seed;
+						$resp['member_seed'] = $member_seed;
+						$resp['guest_seed'] = $guest_seed;
 						echo json_encode($resp);
 						die;
 					}
@@ -1011,6 +1062,16 @@ class Service extends BaseController {
 					$guest_offering = $this->request->getPost('guest_offering');
 					$total_offering = $this->request->getPost('total_offering');
 					$member_offering = $this->request->getPost('member_offering');
+
+					$guest_thanksgiving = $this->request->getPost('guest_thanksgiving');
+					$total_thanksgiving = $this->request->getPost('total_thanksgiving');
+					$member_thanksgiving = $this->request->getPost('member_thanksgiving');
+					$thanksgiving = $this->request->getPost('thanksgiving');
+
+					$guest_seed = $this->request->getPost('guest_seed');
+					$total_seed = $this->request->getPost('total_seed');
+					$member_seed = $this->request->getPost('member_seed');
+					$seed = $this->request->getPost('seed');
 
 					$member = $this->request->getPost('members');
 					$offering = $this->request->getPost('offering');
@@ -1042,8 +1103,64 @@ class Service extends BaseController {
 					$ins['offering_givers'] = $tithers;
 					$ins['offering'] = $total_offering;
 
+					
+					$record = [];
+					if (!empty($member) && !empty($thanksgiving)) {
+						$count = count($thanksgiving); 
+						for ($i = 0; $i < $count; $i++) {
+							if ($thanksgiving[$i] <= 0) {
+								continue; 
+							}
+							
+							if (!isset($record[$member[$i]])) {
+								$record[$member[$i]] = $thanksgiving[$i];
+							}
+							
+						}
+					}
+
+					$thanks_list['total'] = $total_thanksgiving;
+					$thanks_list['member'] = $member_thanksgiving;
+					$thanks_list['guest'] = $guest_thanksgiving;
+					$thanks_list['list'] = $record;
+					 
+					// echo json_encode($tithe_list);
+					// die;
+					
+					$thanks_record =  json_encode($thanks_list);
+					$ins['thanksgiving_record'] = $thanks_record;
+					$ins['thanksgiving'] = $total_thanksgiving;
+
+					$record = [];
+					if (!empty($member) && !empty($seed)) {
+						$count = count($seed); 
+						for ($i = 0; $i < $count; $i++) {
+							if ($seed[$i] <= 0) {
+								continue; 
+							}
+							
+							if (!isset($record[$member[$i]])) {
+								$record[$member[$i]] = $seed[$i];
+							}
+							
+						}
+					}
+
+					$seed_list['total'] = $total_seed;
+					$seed_list['member'] = $member_seed;
+					$seed_list['guest'] = $guest_seed;
+					$seed_list['list'] = $record;
+					 
+					// echo json_encode($tithe_list);
+					// die;
+					
+					$seed_record =  json_encode($seed_list);
+					$ins['seed_record'] = $seed_record;
+					$ins['seed'] = $total_seed;
+
+
 					if($this->Crud->updates('id', $offering_id, 'service_report', $ins) > 0){
-						echo $this->Crud->msg('success', 'Service Offering Report Submitted');
+						echo $this->Crud->msg('success', 'Service Report for Offering, Thanksgiving and Special Seed Updated');
 						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 						$service_date = $this->Crud->read_field('id', $offering_id, 'service_report', 'date');
@@ -2111,73 +2228,86 @@ class Service extends BaseController {
 			}
 
 			if($param2 == 'get_members_offering'){
-				if($param3){
+				if ($param3) {
 					$data = [];
-					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'offering_givers'));
-					$church_id = ($this->Crud->read_field('id', $param3, 'service_report', 'church_id'));
+				
+					// Fetch records
+					$tithersa = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'offering_givers'), true);
+					$thanksgiving_record = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'thanksgiving_record'), true);
+					$seed_record = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'seed_record'), true);
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+				
+					// Fetch church members
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
-
 					$church_memberss = [];
-					$count = 0;
-					if(!empty($church)){
-						foreach($church as $c){
-							$church_members['id'] = $c->id;
-							$church_members['phone'] = $c->phone;
-							$church_members['fullname'] = strtoupper($c->firstname.' '.$c->surname);
-
-							$church_memberss[] = $church_members;
+				
+					if (!empty($church)) {
+						foreach ($church as $c) {
+							$church_memberss[] = [
+								'id' => $c->id,
+								'phone' => $c->phone,
+								'fullname' => strtoupper($c->firstname . ' ' . $c->surname)
+							];
 						}
 					}
-					
-
-					
+				
 					$table = '';
-					$tithers = [];
-					if(!empty($tithersa) && isset($tithersa->list)){
-						$tithers = (array)$tithersa->list;
-					}
-					
-
-					
-					// print_r($tithers);
-					if(!empty($tithers)){
-						$tither_ids = array_keys($tithers);
-
-						// Filter out church members who are also tithers
-						$church_memberss = array_filter($church_memberss, function($member) use ($tither_ids) {
-							return !in_array($member['id'], $tither_ids);
-						});
-
-					$church_memberss = array_values($church_memberss);
-
-						foreach($tithers as $tither => $tithe){
-							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
-							$phone = $this->Crud->read_field('id', $tither, 'user', 'phone');
-	
+				
+					// Convert JSON lists to arrays
+					$tithers = isset($tithersa['list']) ? (array)$tithersa['list'] : [];
+					$thanksgiving = isset($thanksgiving_record['list']) ? (array)$thanksgiving_record['list'] : [];
+					$seeds = isset($seed_record['list']) ? (array)$seed_record['list'] : [];
+				
+					// Merge all unique member IDs
+					$all_member_ids = array_unique(array_merge(array_keys($tithers), array_keys($thanksgiving), array_keys($seeds)));
+				
+					if (!empty($all_member_ids)) {
+						// Filter out church members who are in any of the records
+						$church_memberss = array_values(array_filter($church_memberss, function ($member) use ($all_member_ids) {
+							return !in_array($member['id'], $all_member_ids);
+						}));
+				
+						foreach ($all_member_ids as $member_id) {
+							$fullname = $this->Crud->read_field('id', $member_id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $member_id, 'user', 'surname');
+							$phone = $this->Crud->read_field('id', $member_id, 'user', 'phone');
+				
+							// Get values from each record, default to '0' if not present
+							$tithe_amount = isset($tithers[$member_id]) ? $tithers[$member_id] : '0';
+							$thanksgiving_amount = isset($thanksgiving[$member_id]) ? $thanksgiving[$member_id] : '0';
+							$seed_amount = isset($seeds[$member_id]) ? $seeds[$member_id] : '0';
+				
 							$table .= '<tr>
 								<td>
-									<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($tither) . '">
+									<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($member_id) . '">
 									<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
 								</td>
-
+				
 								<td>
-									<input type="text" class="form-control tithes" name="offering[]" 
-										oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
-										value="' . htmlspecialchars($tithe) . '">
+									<input type="text" class="form-control offering" name="offering[]" 
+										oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($tithe_amount) . '">
+								</td>
+								<td>
+									<input type="text" class="form-control thanksgiving" name="thanksgiving[]" 
+										oninput="calculateTotalz_thanksgiving(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($thanksgiving_amount) . '">
+								</td>
+								<td>
+									<input type="text" class="form-control seed" name="seed[]" 
+										oninput="calculateTotalz_seed(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+										value="' . htmlspecialchars($seed_amount) . '">
 								</td>
 							</tr>';
-
 						}
 					}
-								
-					$data['members'] = ($church_memberss);
+				
+					$data['members'] = $church_memberss;
 					$data['members_part'] = $table;
-
-
-
+				
 					echo json_encode($data);
 					die;
 				}
+				
 					
 				
 			}
@@ -2220,7 +2350,7 @@ class Service extends BaseController {
 							return !in_array($member['id'], $tither_ids);
 						});
 
-					$church_memberss = array_values($church_memberss);
+						$church_memberss = array_values($church_memberss);
 
 						foreach($tithers as $tither => $tithe){
 							$fullname = $this->Crud->read_field('id', $tither, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $tither, 'user', 'surname');
@@ -3045,8 +3175,6 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="tithe_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Add Tithe Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="offering_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Add Offering Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-success"  onclick="thanksgiving_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Thanksgiving Offering Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger"  onclick="seed_report('.$id.')"><em class="icon ni ni-coin"></em><span>'.translate_phrase('Special Seed Details').'</span></a></li>
 								
 								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
