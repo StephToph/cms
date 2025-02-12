@@ -80,6 +80,19 @@
                             </div>
                             <div class="card-inner table-responsive p-0">
                                 <table class="table table-hover">
+                                    <thead class="thead-dar">
+                                        <tr>
+                                            <th><?=translate_phrase('Title'); ?></th>
+                                            <th><?=translate_phrase('Name'); ?></th>
+                                            <th><?=translate_phrase('Member ID'); ?></th>
+                                            <th ><?=translate_phrase('Phone'); ?></th>
+                                            <th><?=translate_phrase('Email'); ?></th>
+                                            <th><?=translate_phrase('Kingschat Handle'); ?></th>
+                                            <th><?=translate_phrase('Cell'); ?></th>
+                                            <th><?=translate_phrase('DOB'); ?></th>
+                                            <th > </th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="load_data"></tbody>
                                     <tfoot id="loadmore"></tfoot>
                                 </table>

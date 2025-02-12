@@ -703,7 +703,11 @@ class Service extends BaseController {
 				
 					$partner = [];
 					$partss = $this->Crud->read_order('partnership', 'name', 'asc');
-				
+					
+					$church_id = $this->Crud->read_field('id', $partnership_id, 'service_report', 'church_id');
+					$ministry_id = $this->Crud->read_field('id', $partnership_id, 'service_report', 'ministry_id');
+					$service_date = $this->Crud->read_field('id', $partnership_id, 'service_report', 'date');
+
 					// Process Guest Contributions
 					if (!empty($first_timer)) {
 						foreach ($first_timer as $index => $name) {
@@ -711,9 +715,31 @@ class Service extends BaseController {
 				
 							foreach ($partss as $pp) {
 								$amounts = $this->request->getPost($pp->id . '_first'); // Get guest partnership amounts
+								// $partnership_id = $pp->id;
 				
 								if (!empty($amounts[$index]) && is_numeric($amounts[$index]) && $amounts[$index] > 0) {
 									$parts[$pp->id] = $amounts[$index];
+
+									$part_ins['guest'] = $name;
+									$part_ins['partnership_id'] = $pp->id;
+									$part_ins['amount_paid'] = $amounts[$index];
+									$part_ins['status'] = 1;
+									$part_ins['date_paid'] = $service_date;
+									$part_ins['ministry_id'] = $ministry_id;
+									$part_ins['church_id'] = $church_id;
+									$part_ins['service_id'] = $partnership_id;
+									
+									$up_id = $this->Crud->read_field3('guest', $name, 'partnership_id', $pp->id, 'service_id', $partnership_id, 'partners_history', 'id');
+									if($this->Crud->check3('guest', $name, 'partnership_id', $pp->id, 'service_id', $partnership_id, 'partners_history') > 0){
+										 
+										$this->Crud->updates('id', $up_id, 'partners_history', $part_ins);
+									} else {
+										
+										$part_ins['reg_date'] = date(fdate);
+										$this->Crud->create('partners_history', $part_ins);
+
+									}
+									
 								}
 							}
 				
@@ -741,6 +767,26 @@ class Service extends BaseController {
 									// Use the index of the member to get their corresponding value
 									if (!empty($value[$member_index]) && is_numeric($value[$member_index]) && $value[$member_index] > 0) {
 										$par[$partnership_key] = $value[$member_index];
+
+										$part_ins['member_id'] = $member_id;
+										$part_ins['partnership_id'] = $partnership_key;
+										$part_ins['amount_paid'] = $value[$member_index];
+										$part_ins['status'] = 1;
+										$part_ins['date_paid'] = $service_date;
+										$part_ins['ministry_id'] = $ministry_id;
+										$part_ins['church_id'] = $church_id;
+										$part_ins['service_id'] = $partnership_id;
+										
+										$up_id = $this->Crud->read_field3('member_id', $member_id, 'partnership_id', $partnership_key, 'service_id', $partnership_id, 'partners_history', 'id');
+										if($this->Crud->check3('member_id', $member_id, 'partnership_id', $partnership_key, 'service_id', $partnership_id, 'partners_history') > 0){
+											
+											$this->Crud->updates('id', $up_id, 'partners_history', $part_ins);
+										} else {
+											
+											$part_ins['reg_date'] = date(fdate);
+											$this->Crud->create('partners_history', $part_ins);
+
+										}
 									}
 								}
 							}
