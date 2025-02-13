@@ -42,7 +42,24 @@
                 <div class="nk-block">
                     <div class="card card-bordered card-stretch">
                         <div class="card-inner-group">
-                            
+                            <div class="card-inner table-responsive p-0">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><b><?php echo translate_phrase('Partnership'); ?></b></th>
+                                            <th><b><?php echo translate_phrase('Pledge'); ?></b></th>
+                                            <th><b><?php echo translate_phrase('Participant'); ?></b></th>
+                                            <th><b><?php echo translate_phrase('Given'); ?></b></th>
+                                            <th><b><?php echo translate_phrase('Balance'); ?></b></th>
+                                            <th><b><?php echo translate_phrase('Participant'); ?></b></th>
+                                            <th class="text-center"><b><?php echo translate_phrase('Actions'); ?></b></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="load_data"></tbody>
+                                    <tfoot id="loadmore"></tfoot>
+                                </table>
+                            </div>
                             <div class="card-inner p-0">
                                 <div class="nk-tb-list nk-tb-ulist" id="load_data">
                                 </div><!-- .nk-tb-list -->
