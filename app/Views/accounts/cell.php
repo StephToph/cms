@@ -65,6 +65,16 @@
                             </div><!-- .card-inner -->
                             <div class="card-inner table-responsive p-0">
                                 <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><span class=""><?=translate_phrase('Name'); ?></span></th>
+                                            <th><span class=""><?=translate_phrase('Location'); ?></span></th>
+                                            <th><span class=""><?=translate_phrase('Phone'); ?></span></th>
+                                            <th><span class=""><?=translate_phrase('Members'); ?></span></th>
+                                            <th><span class="">(Day/Time)</span></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="load_data"></tbody>
                                     <tfoot id="loadmore"></tfoot>
                                 </table>

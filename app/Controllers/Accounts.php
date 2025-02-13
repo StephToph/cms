@@ -1020,7 +1020,7 @@ class Accounts extends BaseController {
 									<div class="user-card">
 										<div class="user-info">
 											<span class="tb-lead">' . ucwords($fullname) . ' </span><br>
-											<span class="small text-info">' . ucwords($church) . ' <b>'.$cell.'</b> </span>
+											<span class="small ">' . ucwords(strtolower($church)) . ' <b>'.$cell.'</b> </span>
 										</div>
 									</div>
 								</td>
@@ -1463,7 +1463,7 @@ class Accounts extends BaseController {
 									<div class="user-card">
 										<div class="user-info">
 											<span class="tb-lead">' . ucwords($fullname) . ' </span><br>
-											<span class="small text-info">' . ucwords($church) . ' <b>'.$cell.'</b> </span>
+											<span class="small ">' . ucwords($church) . ' <b>'.$cell.'</b> </span>
 										</div>
 									</div>
 								</td>
@@ -1900,7 +1900,7 @@ class Accounts extends BaseController {
 									<div class="user-card">
 										<div class="user-info">
 											<span class="tb-lead">' . ucwords($fullname) . ' </span><br>
-											<span class="small text-info">' . ucwords($church) . ' <b>'.$cell.'</b> </span>
+											<span class="small">' . ucwords(strtolower($church)) . ' <b>'.$cell.'</b> </span>
 										</div>
 									</div>
 								</td>
@@ -2336,7 +2336,7 @@ class Accounts extends BaseController {
 									<div class="user-card">
 										<div class="user-info">
 											<span class="tb-lead">' . ucwords($fullname) . ' </span><br>
-											<span class="small text-info">' . ucwords($church) . ' <b>'.$cell.'</b> </span>
+											<span class="small text">' . ucwords(strtolower($church)) . ' <b>'.$cell.'</b> </span>
 										</div>
 									</div>
 								</td>
@@ -4356,7 +4356,7 @@ class Accounts extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}
@@ -4364,16 +4364,7 @@ class Accounts extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<tr>
-					<td><span class="sub-text text-dark">'.translate_phrase('Name').'</span></td>
-					<td><span class="sub-text text-dark">'.translate_phrase('Location').'</span></td>
-					<td><span class="sub-text text-dark">'.translate_phrase('Phone').'</span></td>
-					<td><span class="sub-text text-dark">'.translate_phrase('Members').'</span></td>
-					<td><span class="sub-text text-dark">'.('Day/Time').'</span></td>
-					<td>
-						
-					</td>
-				</tr><!-- .nk-tb-item -->
+				<!-- .nk-tb-item -->
 		
 				
 			';
@@ -4438,20 +4429,20 @@ class Accounts extends BaseController {
 								<td>
 									<div class="user-info">
 										<span class="tb-lead small">' . ucwords($name) . ' </span><br>
-										<span class="tb-dark small text-dark">&rarr; ' . ucwords($church) . ' </span>
+										<span class="tb- small text-">&rarr; ' . ucwords(strtolower($church)) . ' </span>
 									</div>
 								</td>
 								<td>
-									<span class="small text-dark">' . ucwords($location) . '</span>
+									<span class="small text-">' . ucwords($location) . '</span>
 								</td>
 								<td>
-									<span class="small text-dark"><b>' . ucwords($phone) . '</b></span>
+									<span class="small text-">' . ucwords($phone) . '</span>
 								</td>
 								<td>
-									<span class="small text-dark"><b>' . ucwords($members) . '</b></span>
+									<span class="small text-">' . ucwords($members) . '</span>
 								</td>
 								<td>
-									<span class="small text-dark">' . ($times) . '</span>
+									<span class="small text-">' . ($times) . '</span>
 								</td>
 								<td>
 									<div class="drodown">
@@ -4509,7 +4500,7 @@ class Accounts extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}
@@ -4591,7 +4582,7 @@ class Accounts extends BaseController {
 									</div>
 								</td>
 								<td><span class=" small">' . $email . '</span></td>
-								<td><span class="text-dark small"><b>' . $phone . '</b></span></td>
+								<td><span class=" small">' . $phone . '</span></td>
 								<td><span class=" small">' . $u_role . '</span></td>
 								<td><span class=" small">' . ucwords($address) . '</span></td>
 								<td><span class="tb-amount small">' . $reg_date . ' </span></td>
@@ -5607,19 +5598,7 @@ class Accounts extends BaseController {
 
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Date').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Meeting').'</span></div>
-					<div class="nk-tb-col"><span class="sub-text text-dark">'.translate_phrase('Offering').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.translate_phrase('Attendance').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('FT').'</span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text text-dark">'.('NC').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
+				<!-- .nk-tb-item -->
 		
 				
 			';
@@ -5659,7 +5638,7 @@ class Accounts extends BaseController {
 						if($type == 'wk4')$types = 'Wk4 - Fellowship / Outreach';
 						if($type == 'wk5')$types = 'Wk5 - Fellowship';
 						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
-						$cell = '<span class="text-info"><em class="icon ni ni-curve-down-right"></em> <span>'.strtoupper($this->Crud->read_field('id', $cell_id, 'cells', 'name').' - '.$church).'</span></span>';
+						$cell = '<br><span class="small text-"><em class="icon ni ni-curve-down-right"></em> <span>'.strtoupper($this->Crud->read_field('id', $cell_id, 'cells', 'name').' - '.$church).'</span></span>';
 						
 						// add manage buttons
 						if ($role_u != 1) {
@@ -5685,44 +5664,40 @@ class Accounts extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">' . ucwords($date) . ' </span>
-										'.$cell.'
+							<tr>
+								<td>
+									<span class="tb-lead small">' . ucwords($date) . '</span>
+									' . $cell . '
+								</td>
+								<td>
+									<span class="text- small">' . ucwords($types) . '</span>
+								</td>
+								<td>
+									<span class="text- small">$' . number_format($offering, 2) . '</span>
+								</td>
+								<td>
+									<span class="text- small">' . ucwords($attendance) . '</span>
+								</td>
+								<td>
+									<span class="text- small">' . ucwords($first_timer) . '</span>
+								</td>
+								<td>
+									<span class="text- small">' . ucwords($new_convert) . '</span>
+								</td>
+								<td class="text-center">
+									<div class="dropdon">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown">
+											<em class="icon ni ni-more-h"></em>
+										</a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
 									</div>
-								</div>
-								<div class="nk-tb-col">
-									<span class="text-dark">' . ucwords($types) . '</span>
-								</div>
-								<div class="nk-tb-col">
-									<span class="text-dark">$' . number_format($offering,2) . '</span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><span>' . ucwords($attendance) . '</b></span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><span>' . ucwords($first_timer) . '</b></span>
-								</div>
-								<div class="nk-tb-col tb-col">
-									<span class="text-dark"><span>' . ucwords($new_convert) . '</b></span>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
-						';
+								</td>
+							</tr>';
+
 						$a++;
 					}
 				}
@@ -5978,15 +5953,8 @@ class Accounts extends BaseController {
 			if(!empty($this->request->getPost('partnership'))) { $partnership_id = $this->request->getPost('partnership'); } else { $partnership_id = ''; }
 			
 			$items = '
-				<tr>
-					<td><span class="sub-text text-dark"><b>'.('Date').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Member').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Partnership').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Amount').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Status').'</b></span></td>
-					<td>
-					</td>
-				</tr><!-- .nk-tb-item -->
+				
+				<!-- .nk-tb-item -->
 		
 				
 			';
@@ -6056,17 +6024,17 @@ class Accounts extends BaseController {
 									</div>
 								</td>
 								<td>
-									<span class="text-dark">' . ucwords($member) . '</span><br>
-									<span class="text-info"><em class="icon ni ni-curve-down-right"></em>'.ucwords($church).'</span>
+									<span class="text">' . ucwords($member) . '</span><br>
+									<span class="text-"><em class="icon ni ni-curve-down-right"></em>'.ucwords($church).'</span>
 								</td>
 								<td>
-									<span class="text-dark">' . ucwords($partnership) . '</span>
+									<span class="text">' . ucwords($partnership) . '</span>
 								</td>
 								<td>
-									<span class="text-dark">'.$this->session->get('currency') . number_format($this->Crud->cur_exchange($amount_paid),2) . '</span>
+									<span class="text">'.$this->session->get('currency') . number_format($this->Crud->cur_exchange($amount_paid),2) . '</span>
 								</td>
 								<td>
-									<span class="text-dark">' . ($st) . '</span>
+									<span class="text">' . ($st) . '</span>
 								</td>
 								<td>
 									<div class="drodown">
@@ -8001,20 +7969,6 @@ class Accounts extends BaseController {
 			$include = $this->request->getPost('include');
 			
 			$items = '
-				<tr>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Title').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Name').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Member ID').'</b></span></td>
-					<td ><span class="sub-text text-dark"><b>'.('Phone').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Email').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Kingschat Handle').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('Cell').'</b></span></td>
-					<td><span class="sub-text text-dark"><b>'.translate_phrase('DOB').'</b></span></td>
-					<td >
-						
-					</td>
-				</div><!-- .nk-tb-item -->
-		
 				
 			';
 			$a = 1;
@@ -8103,27 +8057,27 @@ class Accounts extends BaseController {
 											<img alt="" src="' . site_url($img) . '" height="40px" width="50px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small text-info">'.ucwords($church).'</span> </span>
+											<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small ">'.ucwords(strtolower($church)).'</span> </span>
 										</div>
 									</div>
 								</td>
 								<td>
-									<span class="text-dark">' . ($user_no) . '</span>
+									<span class="small">' . ($user_no) . '</span>
 								</td>
 								<td>
-									<span class="text-dark">' . ($phone) . '</span>
+									<span class="small">' . ($phone) . '</span>
 								</td>
 								<td>
-									<span class="text-dark">' . ($email) .'</span>
+									<span class="small">' . ($email) .'</span>
 								</td>
 								<td>
-									<span class="text-dark">' . strtolower($chat_handle) . '</span>
+									<span class="small">' . strtolower($chat_handle) . '</span>
 								</div>
 								<td>
-									<span class="text-dark">' . ($cell) . '</span>
+									<span class="small">' . ($cell) . '</span>
 								</td>
 								<td>
-									<span class="text-dark">' . ($dob) . '</span>
+									<span class="small">' . ($dob) . '</span>
 								</td>
 								<td>
 									<div class="drodown">

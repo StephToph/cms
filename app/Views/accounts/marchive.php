@@ -56,6 +56,19 @@
                             </div>
                             <div class="card-inner table-responsive p-0">
                                 <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th><span class="sub-text"><?=translate_phrase('Title'); ?></th>
+                                            <th><span class="sub-text"><?=translate_phrase('Name'); ?></th>
+                                            <th><span class="sub-text"><?=translate_phrase('Member ID'); ?></th>
+                                            <th ><span class="sub-text">Phone</th>
+                                            <th><span class="sub-text"><?=translate_phrase('Email'); ?></th>
+                                            <th><span class="sub-text"><?=translate_phrase('Kingschat Handle'); ?></th>
+                                            <th><span class="sub-text"><?=translate_phrase('Cell'); ?></th>
+                                            <th><span class="sub-text"><?=translate_phrase('DOB'); ?></th>
+                                            <th ></th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="load_data"></tbody>
                                     <tfoot id="loadmore"></tfoot>
                                 </table>

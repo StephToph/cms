@@ -1189,7 +1189,7 @@ class Ministry extends BaseController {
 						if ($role == 'developer' || $role == 'administrator') {
 							$item .= '
 								<tr>
-									<td><span class="text-muted small">' . $reg_date . '</span></td>
+									<td><span class="text- small">' . $reg_date . '</span></td>
 									<td><span class="tb-lead small">' . ucwords($title) . '</span> </td>
 									<td><span class="tb-lead small">' . ucwords($user) . '</span></td>
 									<td><span class="tb-lead small">' . ucwords($type) . ' Announcement<br>'.$depts.'</span></td>
@@ -3181,7 +3181,7 @@ class Ministry extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 
 			if(empty($limit)) {$limit = $rec_limit;}
@@ -3263,16 +3263,16 @@ class Ministry extends BaseController {
 										</div>        
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($title) . '</span> <br>
-										<span class="tb-lead text-primary">' . ucwords($ministry) . '</span>                   
+										<span class="tb- text-">' . ucwords($ministry) . '</span>                   
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark">'.ucwords($church_type).' Churches</span>
+									<span class="small text">'.ucwords($church_type).' Churches</span>
 								</td>
-								<td><span class="small text-dark">'.$start.' <b>&#8594;</b> '.$end.'</span></td>
-								<td><span class="small text-dark">'.ucwords($event_type).'</span></td>
-								<td><span class="small text-dark">'.ucwords($q->location).'</span></td>
+								<td><span class="small text">'.$start.' <b>&#8594;</b> '.$end.'</span></td>
+								<td><span class="small text">'.ucwords($event_type).'</span></td>
+								<td><span class="small text">'.ucwords($q->location).'</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -3878,7 +3878,7 @@ class Ministry extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 
 			if(empty($limit)) {$limit = $rec_limit;}
@@ -3976,15 +3976,15 @@ class Ministry extends BaseController {
 									<div class="user-card">
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($title) . '</span> <br>
-											<span class="tb-lead text-primary small">' . ucwords($ministry) . '</span> 
+											<span class="tb-lead text- small">' . ucwords($ministry) . '</span> 
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark">'.ucwords($church_type).' Churches</span>
+									<span class="small text-">'.ucwords($church_type).' Churches</span>
 								</td>
-								<td>'.ucwords($events).'</td>
-								<td>'.number_format($link).'</td>
+								<td><span class="small text-">'.ucwords($events).'</span></td>
+								<td><span class="small text-">'.number_format($link).'</span></td>
 								<td>
 									<div class="drodown">
 										<a href="javascript:;" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -4101,9 +4101,9 @@ class Ministry extends BaseController {
 									<span class="tb-lead small">' . ucwords($title) . '</span>  
 								</td>
 								<td>
-									<span class="small text-dark">'.ucwords($church).' </span>
+									<span class="small text">'.ucwords($church).' </span>
 								</td>
-								<td><span class="small text-dark">'.ucwords($reg_date).'</span></td>
+								<td><span class="small text">'.ucwords($reg_date).'</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -4229,15 +4229,15 @@ class Ministry extends BaseController {
 									<span class="tb-lead small">' . ucwords($member) . '</span>  
 								</td>
 								<td>
-									<span class="small text-dark">'.ucwords($church).' </span>
+									<span class="small text-">'.ucwords($church).' </span>
 								</td>
 								<td>
-									<span class="small text-dark">'.ucwords($unique_link).' </span>
+									<span class="small text-">'.ucwords($unique_link).' </span>
 								</td>
 								<td>
-									<span class="small text-dark">'.ucwords($response).' </span>
+									<span class="small text-">'.ucwords($response).' </span>
 								</td>
-								<td><span class="small text-dark">'.ucwords($reg_date).'</span></td>
+								<td><span class="small text-">'.ucwords($reg_date).'</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>

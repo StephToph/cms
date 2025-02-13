@@ -3454,15 +3454,15 @@ class Church extends BaseController{
 									<div class="user-card">
 										<div class="user-name">            
 											<span class="tb-lead">' . ucwords($name) . '</span> <br>
-											<span class="tb-lead text-primary"><em class="icon ni ni-curve-down-right"></em>' . ucwords($church) . '</span>                   
+											<span class="tb- text"><em class="icon ni ni-curve-down-right"></em>' . ucwords($church) . '</span>                   
 										</div>    
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark">' . ucwords($type) . '</span>
+									<span class="small text">' . ucwords($type) . '</span>
 								</td>
-								<td><span class="small text-dark">' . ucwords($description) . '</span></td>
-								<td><span class="small text-dark">' . $update_date . '</span></td>
+								<td><span class="small text">' . ucwords($description) . '</span></td>
+								<td><span class="small text">' . $update_date . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -4104,10 +4104,10 @@ class Church extends BaseController{
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark">' . ucwords($template) . '</span>
+									<span class="small ">' . ucwords($template) . '</span>
 								</td>
-								<td><span class="small text-dark">' . ucwords($start_time) . '</span></td>
-								<td><span class="small text-dark">' . ucwords($church) . '</span></td>
+								<td><span class="small ">' . ucwords($start_time) . '</span></td>
+								<td><span class="small ">' . ucwords($church) . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
