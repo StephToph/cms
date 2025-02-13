@@ -6289,20 +6289,7 @@ class Accounts extends BaseController {
 			
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text "><b>'.translate_phrase('Partnership').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text "><b>'.translate_phrase('Pledge').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text "><b>'.translate_phrase('Participant').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text "><b>'.translate_phrase('Given').'</b></span></div>
-					<div class="nk-tb-col"><span class="sub-text "><b>'.translate_phrase('Balance').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-md"><span class="sub-text "><b>'.translate_phrase('Participant').'</b></span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						<ul class="nk-tb-actions gx-1 my-n1">
-							
-						</ul>
-					</div>
-				</div><!-- .nk-tb-item -->
-			
+				
 			';
 			$a = 1;
 
@@ -6405,16 +6392,16 @@ class Accounts extends BaseController {
 				
 						// Generate table row
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col"><span class="tb-lead text-primary">' . ucwords($name) . '</span></div>
-								<div class="nk-tb-col"><span class="tb-lead">' . $this->session->get('currency') . number_format($goal, 2) . '</span></div>
-								<div class="nk-tb-col"><span class="tb-lead">' . number_format($p_participant) . '</span></div>
-								<div class="nk-tb-col"><span class="tb-lead">' . $this->session->get('currency') . number_format($given, 2) . '</span></div>
-								<div class="nk-tb-col"><span class="tb-lead">' . $this->session->get('currency') . number_format($balance, 2) . '</span></div>
-								<div class="nk-tb-col"><span class="tb-lead">' . number_format($g_participant) . '</span></div>
-								<div class="nk-tb-col nk-tb-col-tools">' . $all_btn . '</div>
-							</div><!-- .nk-tb-item -->
-						';
+							<tr>
+								<td><span class="small tb-lead text-">' . ucwords($name) . '</span></td>
+								<td><span class="small tb-lead">' . $this->session->get('currency') . number_format($goal, 2) . '</span></td>
+								<td><span class="small tb-lead">' . number_format($p_participant) . '</span></td>
+								<td><span class="small tb-lead">' . $this->session->get('currency') . number_format($given, 2) . '</span></td>
+								<td><span class="small tb-lead">' . $this->session->get('currency') . number_format($balance, 2) . '</span></td>
+								<td><span class="small tb-lead">' . number_format($g_participant) . '</span></td>
+								<td class="text-center">' . $all_btn . '</td>
+							</tr>';
+
 					}
 				}
 				

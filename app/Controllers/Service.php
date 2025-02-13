@@ -3236,16 +3236,16 @@ class Service extends BaseController {
 
 						$item .= '
 							<tr>
-								<td>' . ucwords($date) . '</td>
-								<td>' . ucwords($types) . '</td>
-								<td>' . $this->session->get('currency') . number_format((float)$offering, 2) . '</td>
-								<td>' . $this->session->get('currency') . number_format((float)$tithe, 2) . '</td>
-								<td>' . $this->session->get('currency') . number_format((float)$partnership, 2) . '</td>
-								<td>' . $this->session->get('currency') . number_format((float)$thanksgiving, 2) . '</td>
-								<td>' . $this->session->get('currency') . number_format((float)$seed, 2) . '</td>
-								<td>' . ucwords($attendance) . '</td>
-								<td>' . ucwords($first_timer) . '</td>
-								<td>' . ucwords($new_convert) . '</td>
+								<td class="small">' . ucwords($date) . '</td>
+								<td class="small">' . ucwords($types) . '</td>
+								<td class="small">' . $this->session->get('currency') . number_format((float)$offering, 2) . '</td>
+								<td class="small">' . $this->session->get('currency') . number_format((float)$tithe, 2) . '</td>
+								<td class="small">' . $this->session->get('currency') . number_format((float)$partnership, 2) . '</td>
+								<td class="small">' . $this->session->get('currency') . number_format((float)$thanksgiving, 2) . '</td>
+								<td class="small">' . $this->session->get('currency') . number_format((float)$seed, 2) . '</td>
+								<td class="small">' . ucwords($attendance) . '</td>
+								<td class="small">' . ucwords($first_timer) . '</td>
+								<td class="small">' . ucwords($new_convert) . '</td>
 								<td class="text-center">
 									<div class="dropdow">
 										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown">
