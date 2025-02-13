@@ -325,7 +325,7 @@ class Dedication extends BaseController{
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
 			if (empty($limit)) {
 				$limit = $rec_limit;
@@ -409,13 +409,13 @@ class Dedication extends BaseController{
 									</div>  
 								</td>
 								<td>
-									<span class="small text-dark ">' . $church . '</span>
+									<span class="small text ">' . $church . '</span>
 								</td>
-								<td><span class="small text-dark "><b>' . ucwords($surname.' '.$firstname.' '.$othername) . '</b></span></td>
-								<td><span class="small text-dark ">' . $dob . '</span></td>
-								<td><span class="small text-dark ">' . ucwords($gender) . '</span></td>
-								<td><span class="small text-dark ">' . $father . '</span></td>
-								<td><span class="small text-dark ">' . $mother . '</span></td>
+								<td><span class="small text "><b>' . ucwords($surname.' '.$firstname.' '.$othername) . '</b></span></td>
+								<td><span class="small text ">' . $dob . '</span></td>
+								<td><span class="small text ">' . ucwords($gender) . '</span></td>
+								<td><span class="small text ">' . $father . '</span></td>
+								<td><span class="small text ">' . $mother . '</span></td>
 								<td>
 									<div class="drodown">
 										<a href="javascript:;" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
@@ -873,20 +873,16 @@ class Dedication extends BaseController{
 						$item .= '
 							<tr>
 								<td>
-									<div class="user-card">
-								      	<div class="user-name">            
-											<span class="">' . ($date) .'</span>    
-										</div>    
-									</div>  
+									<span class="small text ">' . ($date) .'</span>
 								</td>
 								<td>
-									<span class="small text-dark ">' . $church . '</span>
+									<span class="small text ">' . $church . '</span>
 								</td>
-								<td><span class="small text-dark "><b>' . ucwords($surname.' '.$firstname.' '.$othername) . '</b></span></td>
-								<td><span class="small text-dark ">' . $dob . '</span></td>
-								<td><span class="small text-dark ">' . ucwords($gender) . '</span></td>
-								<td><span class="small text-dark ">' . $father . '</span></td>
-								<td><span class="small text-dark ">' . $mother . '</span></td>
+								<td><span class="small text "><b>' . ucwords($surname.' '.$firstname.' '.$othername) . '</b></span></td>
+								<td><span class="small text ">' . $dob . '</span></td>
+								<td><span class="small text ">' . ucwords($gender) . '</span></td>
+								<td><span class="small text ">' . $father . '</span></td>
+								<td><span class="small text ">' . $mother . '</span></td>
 							</tr>
 							
 						';

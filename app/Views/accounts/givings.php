@@ -90,7 +90,16 @@
                             </div><!-- .card-inner -->
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover">
-                                   
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Member</th>
+                                            <th>Partnership</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th> </th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="load_data"> </tbody>
                                     <tfoot id="loadmore"></tfoot>
                                 </table>

@@ -277,14 +277,14 @@ class Foundation extends BaseController{
 						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
 
 						$joint = '
-							<span class="text-info">Personal Church</span>
+							<span class="text-">Personal Church</span>
 						';
 						$actives = '
 								<span class="text-danger">Disabled</span>
 							';
 						if($is_joint > 0){
 							$joint = '
-								<span class="text-success">Joint School</span>
+								<span class="text-">Joint School</span>
 							';
 						}
 						if($active > 0){
@@ -321,7 +321,7 @@ class Foundation extends BaseController{
 									<div class="user-card">
 								      	<div class="user-name">            
 											<span class="tb-lead">' . ucwords($quarter) . '- '.$year.'</span> <br>
-											<span class="tb-lead text-primary">' . ucwords($principals) . '</span>        
+											<span class="tb-lead text-">' . ucwords($principals) . '</span>        
 										</div>    
 									</div>  
 								</td>
@@ -1234,9 +1234,9 @@ class Foundation extends BaseController{
 
 						$item .= '
 							<tr>
-								<td><span class="text-primary small">' . ucwords($user) . '</span></td>
+								<td><span class="text small">' . ucwords($user) . '</span></td>
 								<td><span class="small">'.ucwords($user_type).'</span></td>
-								<td><span class="text-dark small"><b>' . $church . '</b></span></td>
+								<td><span class="text small">' . ucwords(strtolower($church)) . '</span></td>
 								<td><span class=" small">' . $stat . '</span></td>
 								<td><span class="tb-amount small">' . $update_at . ' </span></td>
 								<td>
@@ -1766,7 +1766,7 @@ class Foundation extends BaseController{
 						$item .= '
 							<tr>
 								<td>' . ucwords($name) . '</td>
-								<td><span class="text-dark small">' . ucwords($source) . '</span></td>
+								<td><span class="text- ">' . ucwords($source) . '</span></td>
 								<td>' . ucwords($church) . '</td>
 								<td>
 									<a href="javascript:;" class="btn btn-primary pop" pageSize="modal-md" pageTitle="Enroll" pageName="'.site_url($mod.'/enroll/'. $source.'/'.$id).'"><em class="icon ni ni-user-add"></em><span>Enroll</span></a>
@@ -2105,7 +2105,7 @@ class Foundation extends BaseController{
 						$item .= '
 							<tr>
 								<td>' . ucwords($name) . '</td>
-								<td><span class="text-dark small">' . ucwords($source) . '</span></td>
+								<td><span class="text">' . ucwords($source) . '</span></td>
 								<td>' . ucwords($church) . '</td>
 								<td>
 									

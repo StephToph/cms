@@ -32,9 +32,11 @@
                                     <div class="card-tools me-n1">
                                         <ul class="btn-toolbar gx-1">
                                             <li>
-                                                <a href="javascript:;"  id="add_btn" class="btn btn-icon btn-outline-primary"><em class="icon ni ni-plus-c"></em></a>
+                                                <a href="javascript:;"  id="add_btn" class="btn btn-icon btn-outline-primary mx-1"><em class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
-                                           
+                                           <li>
+                                               <a href="javascript:;" id="filter_btn" onclick="filter_resp();" class="text-right btn mx-1 btn-icon btn-block btn-outline-danger"><em class="icon ni ni-filter"></em></a>
+                                           </li>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
@@ -159,15 +161,26 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-sm-1 mb-3 " >
-                                        <a href="javascript:;" id="filter_btn" onclick="filter_resp();" class="text-right btn btn-icon btn-block btn-outline-danger"><em class="icon ni ni-filter"></em></a>
-                                    </div>
                                 </div>
-                                <div class="nk-tb-list nk-tb-ulist" id="load_data">
-                                </div><!-- .nk-tb-list -->
-                            
-                                <div class="nk-block-between-md g-3" id="loadmore">
-                                </div><!-- .nk-block-between -->
+
+                                <div class="card-inner table-responsive p-0">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="text"><?php echo translate_phrase('Date'); ?></th>
+                                                <th class="text"><?php echo translate_phrase('Meeting'); ?></th>
+                                                <th class="text"><?php echo translate_phrase('Offering'); ?></th>
+                                                <th class="text"><?php echo translate_phrase('Attendance'); ?></th>
+                                                <th class="text"><?php echo 'FT'; ?></th>
+                                                <th class="text"><?php echo 'NC'; ?></th>
+                                                <th class="text text-center"><?php echo translate_phrase('Actions'); ?></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="load_data"></tbody>
+                                        <tfoot id="loadmore"></tfoot>
+                                    </table>
+                                </div>
                             </div>
                             <div class="card-inner" id="form" style="display:none;">
                                 <div class="row">
@@ -523,9 +536,9 @@
         }
 
         if (more == 'no') {
-            $('#load_data').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#load_data').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         } else {
-            $('#loadmore').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
 
        
@@ -554,7 +567,7 @@
                 }
                 
                 if (dt.offset > 0) {
-                    $('#loadmore').html('<a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a>');
+                    $('#loadmore').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
                 } else {
                     $('#loadmore').html('');
                 }
