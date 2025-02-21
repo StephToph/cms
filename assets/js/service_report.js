@@ -897,6 +897,10 @@
         });
     }
 
+    function deleteRowz(button) {
+        $(button).closest('tr').remove(); // Remove the closest <tr> (table row)
+    }
+    
 
               
     function populateSeed(id) {
@@ -1065,7 +1069,14 @@
                 </td>
             `);
         });
-    
+        
+        newRow.append(`
+            <td>
+                <button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
+                    <i class="icon ni ni-trash"></i>
+                </button>
+            </td>
+            `);
         // Append the new row to the table body
         $('#member_partner_list').append(newRow);
     
