@@ -725,26 +725,61 @@
                   
                     row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer['+index+']" value="' + fullname + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
                     
-                    if(fullname){
+                    if (fullname) {
                         $.ajax({
-                            url: site_url + 'service/report/records/get_service_partnership/'+id,
-                            method: 'post',
+                            url: site_url + 'service/report/records/get_service_partnership/' + id,
+                            method: 'POST',
                             data: { name: fullname },
-                            success: function(data) {
-                                var partners = JSON.parse(data); // Assuming the response is JSON formatted
-                               
-                                if (partners) {
-                                    partners.forEach(function(partner) {
-                                        row += '<td><input type="text" style="width:100px;"  class="form-control firsts_amount" name="' + partner.id + '_first['+index+']" oninput="bindInputEvents();" value="' + partner.amount + '"> </td>'; // Contribution amount
+                            success: function (data) {
+                                try {
+                                    var partners = JSON.parse(data); // Parse JSON Response
+                    
+                                    // Create a new row dynamically
+                                    var row = '<tr>';
+                                    row += '<td><input type="hidden" class="form-control guests" name="guests[]" value="' + fullname + '">';
+                                    row += '<span class="small">' + fullname + '</span></td>';
+                    
+                                    // Financial Contributions Inputs (Offering, Tithe, Thanksgiving, Seed)
+                                    var contributions = {
+                                        "offering": "calculateTotalz()",
+                                        "tithe": "calculateTotal()",
+                                        "thanksgiving": "calculateTotalz_thanksgiving()",
+                                        "seed": "calculateTotalz_seed()"
+                                    };
+                    
+                                    Object.keys(contributions).forEach(function (type) {
+                                        row += '<td><input type="text" style="width:100px;" class="form-control ' + type + '" name="' + type + '[]" ';
+                                        row += 'oninput="' + contributions[type] + '; this.value = this.value.replace(/[^0-9]/g, \'\');" ';
+                                        row += 'placeholder="0" ' + (partner.amount ? partner.amount : '0') + '></td>';
                                     });
+                    
+                                    // Append partnership contributions if available
+                                    if (partners && Array.isArray(partners)) {
+                                        partners.forEach(function (partner, index) {
+                                            row += '<td>';
+                                            row += '<input type="text" style="width:100px;" class="form-control firsts_amount" ';
+                                            row += 'name="' + partner.id + '_first[' + index + ']" ';
+                                            row += 'oninput="bindInputEvents();" ';
+                                            row += 'value="' + (partner.amount ? partner.amount : '0') + '">';
+                                            row += '</td>';
+                                        });
+                                    }
+                    
+                                    row += '</tr>';
+                    
+                                    // Append the row to the table after the AJAX call is successful
+                                    $('#guest_partner_list').append(row);
+                                } catch (error) {
+                                    console.error("Error parsing JSON response:", error);
                                 }
-                                
-                                row += '</tr>';
-                                 // Now append the row to the table after the AJAX call is successful
-                                $('#guest_partner_list').append(row);
+                            },
+                            error: function (xhr, status, error) {
+                                console.error("AJAX Error:", status, error);
+                                alert("Failed to fetch partnership data. Please try again.");
                             }
                         });
-                    } else{
+                    }
+                    else{
                         row += '</tr>';
                          // Now append the row to the table after the AJAX call is successful
                         $('#guest_partner_list').append(row);
