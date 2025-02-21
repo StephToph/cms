@@ -415,69 +415,83 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                 </form>
                             </div>
-                            <div class="card-inner" id="tithe_view" style="display:none;">
-                                <form id="titheForm">
+                            
+                            <div class="card-inner" id="new_convert_view" style="display:none;">
+                                <form id="new_convert_Form">
+                                    <input type="hidden" name="new_convert_id" id="new_convert_id">
+
+                                    <div id="rowsContainer">
+                                        <!-- Rows will be dynamically added here -->
+                                    </div>
+                                    <div class="col-sm-12 my-4 text-center">
+                                        <button id="addMores" class="btn btn-block btn-ico btn-outline-info"
+                                            type="button"><i class="icon ni ni-plus-c"></i>
+                                            <span><?= translate_phrase('Add More'); ?></span></button>
+                                    </div>
+
+
                                     <div class="row">
-                                        <span class="text-danger mb-2">Enter Member's Tithe in the Table Below</span>
-                                        <input type="hidden" name="tithe_id" id="tithe_id">
-
-                                        <div class="col-sm-4 mb-3 ">
-                                            <label>Total</label>
-                                            <input class="form-control" id="total_tithe" type="text" name="total_tithe"
-                                                readonly value="0">
-                                        </div>
-                                        <div class="col-sm-4 mb-3">
-                                            <label>Member</label>
-                                            <input class="form-control" id="member_tithe" type="text"
-                                                name="member_tithe" readonly value="0">
-                                        </div>
-                                        <div class="col-sm-4 mb-3">
-                                            <label>Guest</label>
-                                            <input class="form-control" id="guest_tithe" type="text" name="guest_tithe"
-                                                oninput="get_tithe();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                value="0">
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="table-responsive">
-
-                                        <table id="tithe_table" class="table table-striped table-hover mt-5">
-                                            <thead>
-                                                <tr>
-                                                    <th>Member</th>
-                                                    <th width="200px">Tithe</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="tithe_table_resp">
-                                            </tbody>
-                                        </table>
-
-                                        <div class="col-12 my-3 text-center">
-                                            <button type="button" class="btn btn-info" id="tithe_btn">Add More</button>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="row mt-5">
-                                        <div class="col-sm-12 text-center mt-5">
+                                        <div class="col-sm-12 text-center my-5">
                                             <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i> <?= translate_phrase('Save Record'); ?>
+                                                <i class="icon ni ni-save"></i>
+                                                <span><?= translate_phrase('Save Record'); ?></span>
                                             </button>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <div id="tithe_msg"></div>
+                                            <div id="new_convert_msg"></div>
                                         </div>
                                     </div>
                                 </form>
                             </div>
-                            
-                            <div class="card-inner" id="offering_view" style="display:none;">
-                                <form id="offeringForm">
-                                    <div class="row">
-                                        <span class="text-danger mb-2">Enter Member's Offering in the Table Below</span>
-                                        <input type="hidden" name="offering_id" id="offering_id">
+                            <div class="card-inner" id="first_timer_view" style="display:none;">
+                                <form id="firstTimerForm">
+                                    <input type="hidden" id="first_timer_id" name="first_timer_id">
+                                    <div id="formContainer">
+                                        <!-- Existing or new records will load here -->
+                                    </div>
 
+                                    <!-- Add More Button -->
+                                    <button type="button" id="addMore" class="btn btn-outline-primary d-block mx-auto">
+                                        + Add More
+                                    </button>
+
+                                    <!-- Submit Button -->
+                                    <button type="submit" class="btn btn-primary mt-3 d-block mx-auto">Save Record</button>
+                                </form>
+                                
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div id="first_timer_msg"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-inner" id="finance_view" style="display:none;">
+                                <form id="partnershipForm">
+                                    <input type="hidden" name="finance_id" id="finance_id">
+                                    <input type="hidden" name="first_church_id" id="first_church_id">
+
+                                    <div class="row">
+                                        <span class="text-danger mb-2">Enter Finance Record in the Table
+                                            Below</span>
+                                        <div class="col-sm-4 mb-3 ">
+                                            <label>Total Partnership</label>
+                                            <input class="form-control" id="total_part" type="text" name="total_part"
+                                                readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Member Partnership</label>
+                                            <input class="form-control" id="member_part" type="text" name="member_part"
+                                                readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Guest Partnership</label>
+                                            <input class="form-control" id="guest_part" type="text" name="guest_part"
+                                                oninput="get_part();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
+                                                readonly value="0">
+                                        </div>
+                                        
                                         <div class="col-sm-4 mb-3 ">
                                             <label>Total Offering</label>
                                             <input class="form-control" id="total_offering" type="text" name="total_offering"
@@ -526,131 +540,24 @@ $service_church_id = $this->session->get('service_church_id');
                                                 oninput="get_seed();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
                                                 value="0">
                                         </div>
-                                    </div>
-                                    <hr>
-                                    <div class="table-responsive">
-
-                                        <table id="offering_table" class="table table-striped table-hover mt-5">
-                                            <thead>
-                                                <tr>
-                                                    <th>Member</th>
-                                                    <th>Offering</th>
-                                                    <th>Thanksgiving Offering</th>
-                                                    <th >Special Seed Offering</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="offering_table_resp">
-                                            </tbody>
-                                        </table>
-
-                                        <div class="col-12 my-3 text-center">
-                                            <button type="button" class="btn btn-info" id="offering_btn">Add More</button>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="row mt-5">
-                                        <div class="col-sm-12 text-center mt-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i> <?= translate_phrase('Save Record'); ?>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div id="offering_msg"></div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            
-                            <div class="card-inner" id="new_convert_view" style="display:none;">
-                                <form id="new_convert_Form">
-                                    <input type="hidden" name="new_convert_id" id="new_convert_id">
-
-                                    <div id="rowsContainer">
-                                        <!-- Rows will be dynamically added here -->
-                                    </div>
-                                    <div class="col-sm-12 my-4 text-center">
-                                        <button id="addMores" class="btn btn-block btn-ico btn-outline-info"
-                                            type="button"><i class="icon ni ni-plus-c"></i>
-                                            <span><?= translate_phrase('Add More'); ?></span></button>
-                                    </div>
-
-
-                                    <div class="row">
-                                        <div class="col-sm-12 text-center my-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i>
-                                                <span><?= translate_phrase('Save Record'); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div id="new_convert_msg"></div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="card-inner" id="first_timer_view" style="display:none;">
-                                <form id="first_timer_Form">
-                                    <input type="hidden" name="new_convert_id" id="first_timer_id">
-                                    <input type="hidden" name="first_count" id="first_count" value="1" >
-
-                                    
-                                    <div id="container" class="row" >
-                                       
-
-                                    </div>
-                                    <div id="containerz" ></div>
-                                    <div class="col-sm-12 my-4 text-center">
-                                        <button id="add_first_timer" class="btn btn-block btn-ico btn-outline-info"
-                                            type="button"><i class="icon ni ni-plus-c"></i>
-                                            <span><?= translate_phrase('Add More'); ?></span></button>
-                                    </div>
-
-
-                                    <div class="row">
-                                        <div class="col-sm-12 text-center my-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i>
-                                                <span><?= translate_phrase('Save Record'); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div id="first_timer_msg"></div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="card-inner" id="partnership_view" style="display:none;">
-                                <form id="partnershipForm">
-                                    <input type="hidden" name="partnership_id" id="partnership_id">
-                                    <input type="hidden" name="first_church_id" id="first_church_id">
-
-                                    <div class="row">
-                                        <span class="text-danger mb-2">Enter Member's Partnership in the Table
-                                            Below</span>
+                                        
                                         <div class="col-sm-4 mb-3 ">
-                                            <label>Total</label>
-                                            <input class="form-control" id="total_part" type="text" name="total_part"
+                                            <label>Total Tithe</label>
+                                            <input class="form-control" id="total_tithe" type="text" name="total_tithe"
                                                 readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
-                                            <label>Member</label>
-                                            <input class="form-control" id="member_part" type="text" name="member_part"
-                                                readonly value="0">
+                                            <label>Member Tithe</label>
+                                            <input class="form-control" id="member_tithe" type="text"
+                                                name="member_tithe" readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
-                                            <label>First Timer</label>
-                                            <input class="form-control" id="guest_part" type="text" name="guest_part"
-                                                oninput="get_part();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                readonly value="0">
+                                            <label>Guest Tithe</label>
+                                            <input class="form-control" id="guest_tithe" type="text" name="guest_tithe"
+                                                oninput="get_tithe();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
+                                                value="0">
                                         </div>
                                     </div>
-
                                     <hr>
 
                                     <div id="guest_part_view" class="table-responsive" style="display:none;">
@@ -658,6 +565,10 @@ $service_church_id = $this->session->get('service_church_id');
                                             <thead>
                                                 <tr>
                                                     <th>First Timer</th>
+                                                    <th>Offering</th>
+                                                    <th>Tithe</th>
+                                                    <th>Thanksgiving</th>
+                                                    <th>Special Seed</th>
                                                     <?php
                                                     $parts = $this->Crud->read_order('partnership', 'name', 'asc');
                                                     if (!empty($parts)) {
@@ -693,6 +604,11 @@ $service_church_id = $this->session->get('service_church_id');
                                             <thead>
                                                 <tr>
                                                     <th width="250px;">Member</th>
+                                                    
+                                                    <th>Offering</th>
+                                                    <th>Tithe</th>
+                                                    <th>Thanksgiving</th>
+                                                    <th>Special Seed</th>
                                                     <?php
                                                     $parts = $this->Crud->read_order('partnership', 'name', 'asc');
                                                     if (!empty($parts)) {
@@ -740,7 +656,7 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <div id="partnership_msg"></div>
+                                            <div id="finance_msg"></div>
                                         </div>
                                     </div>
                                 </form>

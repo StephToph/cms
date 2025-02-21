@@ -164,7 +164,8 @@
          $('#guest_part_view').hide(500);
          $('#guest_partner_list').empty();
         $('#tithe_table_resp').empty();
-        $('#partnership_view').hide(500);$('#absent_attendance_list').empty();
+        $('#finance_view').hide(500);
+        $('#absent_attendance_list').empty();
         $('#rowsContainer').empty(); $('#containers').empty();
         $('#prev').hide(500);
         $('#media_view').hide(500);
@@ -283,7 +284,7 @@
                 $("#member_tithe").val(dt.member_tithe);
                 $("#guest_tithe").val(dt.guest_tithe);
                 $("#tithe_list").val(dt.tithe_list);
-                populateTithe(id)
+                // populateTithe(id)
                
                   $('#tithe_pagination').show(500);
                 $('#tithe_msg').html('');
@@ -319,7 +320,7 @@
                 $("#member_seed").val(dt.member_seed);
                 $("#guest_seed").val(dt.guest_seed);
                 $("#seed_list").val(dt.seed_list);
-                populateOffering(id)
+                // populateOffering(id)
                
                 $('#offering_pagination').show(500);
                 $('#offering_msg').html('');
@@ -345,7 +346,7 @@
                 $("#member_thanksgiving").val(dt.member_thanksgiving);
                 $("#guest_thanksgiving").val(dt.guest_thanksgiving);
                 $("#thanksgiving_list").val(dt.thanksgiving_list);
-                populateThanksgiving(id)
+                // populateThanksgiving(id)
                
                   $('#thanksgiving_pagination').show(500);
                 $('#thanksgiving_msg').html('');
@@ -371,7 +372,7 @@
                 $("#member_seed").val(dt.member_seed);
                 $("#guest_seed").val(dt.guest_seed);
                 $("#seed_list").val(dt.seed_list);
-                populateSeed(id)
+                // populateSeed(id)
                
                   $('#seed_pagination').show(500);
                 $('#seed_msg').html('');
@@ -572,7 +573,10 @@
         $('#add_btn').hide(500);
         $('#first_timer_view').show(500);
         $('#attendance_prev').show(500);
-        
+        $('#firstTimerForm')[0].reset(); // Clear existing form
+        $('#formContainer').html(''); // Clear existing records
+
+
         $.ajax({
             url: site_url + 'service/report/manage/first_timer/' + id,
             type: 'get',
@@ -590,91 +594,86 @@
         });
        
     }
-
-    function fetchFormFields(church_id, existingRecords = null) {
-        $.ajax({
-            url: site_url+'/service/report/getFormFields',  // The route to fetch form fields
-            type: 'POST',
-            data: { church_id: church_id },  // Send the church_id to the backend
-            success: function(response) {
-                var formFields = response;
-                var formHtml = '';
-            
-                // Loop through each form field and generate the HTML
-                $.each(formFields, function(field, details) {
-                    formHtml += '<div class="col-sm-4 mb-3">';
-                    formHtml += '<div class="form-group" id="form-group-' + field + '">';
-                    formHtml += '<label for="' + field + '">' + details['label'] + '</label>';
-            
-                    // Handle different field types
-                    if (details['type'] == 'text' || details['type'] == 'email' || details['type'] == 'date') {
-                        formHtml += '<input type="' + details['type'] + '" class="form-control" id="' + field + '" name="' + field + '[]" value="">';
-                    } else if (details['type'] == 'select') {
-                        formHtml += '<select class="form-select" id="' + field + '" name="' + field + '[]">';
-                        $.each(details['options'], function(index, option) {
-                            formHtml += '<option value="' + option + '">' + option + '</option>';
-                        });
-                        formHtml += '</select>';
-                    } else if (details['type'] == 'radio') {
-                        $.each(details['options'], function(index, option) {
-                            formHtml += '<div class="form-check">';
-                            formHtml += '<input class="form-check-input" type="radio" name="' + field + '[]" id="' + field + '_' + option + '" value="' + option + '">';
-                            formHtml += '<label class="form-check-label" for="' + field + '_' + option + '">' + option + '</label>';
-                            formHtml += '</div>';
-                        });
-                    } else if (details['type'] == 'textarea') {
-                        formHtml += '<textarea class="form-control" id="' + field + '" name="' + field + '[]"></textarea>';
-                    }
-            
-                    formHtml += '</div>';
-                    formHtml += '</div>';
-                });
-            
-                // Append the generated HTML to the container
-                $('#container').html(formHtml);  // This will update the form fields dynamically
-            
-                // Pre-fill the form with existing record values if it's an edit
-                if (existingRecords) {
-                    // Loop through each record in the existing records
-                    $.each(existingRecords, function(recordIndex, record) {
-                        // Loop through each field in the record
-                        $.each(record, function(field, values) {
-                            // Ensure that values is an array (in case it's a single value, turn it into an array)
-                            if (!Array.isArray(values)) {
-                                values = [values];
-                            }
-            
-                            // Loop through each value for this field and create an input field for each
-                            $.each(values, function(index, value) {
-                                var inputElement = $('#form-group-' + field + ' input, #form-group-' + field + ' select, #form-group-' + field + ' textarea');
-            
-                                if (inputElement.length) {
-                                    if ($(this).is('input[type="radio"]')) {
-                                        // For radio buttons, check the corresponding radio button
-                                        inputElement.filter('[value="' + value.trim() + '"]').prop('checked', true);
-                                    } else {
-                                        // Set the value for text, select, and textarea fields
-                                        inputElement.val(value.trim());
-                                    }
-                                }
-                            });
-                        });
-                    });
-                }
-            }
-            ,
-            error: function(xhr, status, error) {
-                console.error("Error fetching form fields:", status, error);
-            }
+ // Function to load form fields dynamically
+    function fetchFormFields(churchId, records) {
+        records.forEach(record => {
+            addFormField(record);
         });
     }
 
+    // Function to add form field (for both new and existing records)
+    function addFormField(data = {}) {
+        let newRecord = `<div class="card new_card p-3 mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label class="form-label">Firstname</label>
+                    <input type="text" class="form-control" name="firstname[]" value="${data.firstname || ''}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Surname</label>
+                    <input type="text" class="form-control" name="surname[]" value="${data.surname || ''}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email[]" value="${data.email || ''}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-control" name="phone[]" value="${data.phone || ''}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Gender</label>
+                    <select class="form-select" name="gender[]">
+                        <option value="Male" ${data.gender === 'Male' ? 'selected' : ''}>Male</option>
+                        <option value="Female" ${data.gender === 'Female' ? 'selected' : ''}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Family Position</label>
+                    <select class="form-select" name="family_position[]">
+                        <option value="Child" ${data.family_position === 'Child' ? 'selected' : ''}>Child</option>
+                        <option value="Parent" ${data.family_position === 'Parent' ? 'selected' : ''}>Parent</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" name="dob[]" value="${data.dob || ''}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Invited By</label>
+                    <select class="form-select" name="invited_by[]">
+                        <option value="Online" ${data.invited_by === 'Online' ? 'selected' : ''}>Online</option>
+                        <option value="Member" ${data.invited_by === 'Member' ? 'selected' : ''}>Member</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" class="btn btn-danger mt-3 remove-btn">Remove</button>
+        </div>`;
 
-    function partnership_report(id){
-        $('#partnership_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        $("#formContainer").append(newRecord);
+    }
+
+    // On page load, add an empty form if no data exists
+    if ($('#formContainer').is(':empty')) {
+        addFormField();
+    }
+
+    // Add new blank form when clicking "Add More"
+    $("#addMore").click(function() {
+        addFormField();
+    });
+
+    // Remove form entry
+    $(document).on("click", ".remove-btn", function() {
+        $(this).closest(".card").remove();
+    });
+
+
+    function finance_report(id){
+        $('#finance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         $('#show').hide(500);
         $('#add_btn').hide(500);
-        $('#partnership_view').show(500);
+        $('#finance_view').show(500);
         $('#attendance_prev').show(500);
         
         $.ajax({
@@ -682,14 +681,17 @@
             type: 'get',
             success: function (data) {
                 var dt = JSON.parse(data);
-                $('#partnership_id').val(dt.id)
+                $('#finance_id').val(dt.id)
                 $('#total_part').val(dt.total_part)
                 $('#member_part').val(dt.member_part)
                 $('#guest_part').val(dt.guest_part)
-
+                thanksgiving_report(id);
+                tithe_report(id);
                 fetchAndPopulateFirstTimers(dt.id);
+                seed_report(id);
+                offering_report(id);
                 populateMember(dt.id)
-                $('#partnership_msg').html('');
+                $('#finance_msg').html('');
             }
         });
        
@@ -763,27 +765,53 @@
                
     function populateMember(id) {
         $.ajax({
-            url: site_url + 'service/report/records/get_members_partnership/'+id, // Adjust the URL according to your API
-            type: 'get',
-            success: function (data) {
-                var mems = JSON.parse(data); // Assuming the response is JSON formatted
+            url: site_url + 'service/report/records/get_members_finance/' + id, // API Endpoint
+            type: 'GET',
+            success: function (response) {
+                try {
+                    var mems = JSON.parse(response); // Parse JSON Response
     
-                // Clear existing entries
-                $('#member_partner_list').empty();
-                // console.log(mems.members_part);
-                $('#member_partner_list').html(mems.members_part).fadeIn(500);
-                if (Array.isArray(mems.members)) {
-                    churchMembers = mems.members;
-                } else {
-                    console.error('mems.members is not an array');
-                    churchMembers = []; // or some default value
+                    // Ensure the response contains valid data
+                    if (mems && typeof mems === "object") {
+                        
+                        // Clear existing table rows
+                        $('#member_partner_list').empty();
+    
+                        // Populate table rows if available
+                        if (mems.members_part && mems.members_part.trim() !== "") {
+                            $('#member_partner_list').html(mems.members_part).fadeIn(500);
+                        } else {
+                            $('#member_partner_list').html('<tr><td colspan="100%" class="text-center">No records found.</td></tr>').fadeIn(500);
+                        }
+    
+                        // Store Church Members
+                        if (Array.isArray(mems.members)) {
+                            churchMembers = mems.members;
+                        } else {
+                            console.error('mems.members is not an array');
+                            churchMembers = [];
+                        }
+    
+                        // Store Partnerships
+                        partnerships = mems.partnerships || [];
+    
+                        // Initialize Select2 for any dynamically added dropdowns
+                        $('.js-select2').select2();
+    
+                    } else {
+                        console.error("Invalid data structure returned from API");
+                    }
+                } catch (error) {
+                    console.error("Error parsing JSON response:", error);
                 }
-                partnerships = mems.partnerships;
-
-                $('.js-select2 ').select2();
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+                $('#member_partner_list').html('<tr><td colspan="100%" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
             }
         });
     }
+    
 
               
     function populateTithe(id) {
@@ -959,7 +987,7 @@
         const newRow = $('<tr></tr>');
     
         // Create a select element for church members
-        const memberSelect = $('<select class="js-selects2 members" name="members[]" required></select>');
+        const memberSelect = $('<select class="js-selects2 members form-control" name="members[]" required></select>');
         memberSelect.append('<option value="" selected disabled>Select a Member</option>');
     
         // Check if church members are available and append them to the select
@@ -968,15 +996,37 @@
                 memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
             });
         }
-        
+    
         // Append the select2-enabled memberSelect to the new row
         newRow.append($('<td width="250px;"></td>').append(memberSelect));
     
-        // Add input textboxes for each partnership
-        partnerships.forEach(function(partnership) {
+        // Define different oninput functions for each contribution type
+        const inputFunctions = {
+            'offering': 'calculateTotalz()',
+            'tithe': 'calculateTotal()',
+            'thanksgiving': 'calculateTotalz_thanksgiving()',
+            'seed': 'calculateTotalz_seed()'
+        };
+    
+        // Add input textboxes for general contributions (Offering, Tithe, Thanksgiving, Seed)
+        Object.keys(inputFunctions).forEach(function(type) {
             newRow.append(`
                 <td>
-                    <input type="text" style="width:100px;" class="form-control members_amount" oninput="bindInputEvents();" name="${partnership}_member[]" placeholder="0">
+                    <input type="text" style="width:100px;" class="form-control ${type}" name="${type}[]" 
+                        oninput="${inputFunctions[type]}; this.value = this.value.replace(/[^0-9]/g, '');" 
+                        placeholder="0">
+                </td>
+            `);
+        });
+    
+        // Add input textboxes for each partnership contribution dynamically
+        partnerships.forEach(function(partnership, index) {
+            let dynamicOninputFunction = `bindInputEvents(${index})`;
+            newRow.append(`
+                <td>
+                    <input type="text" style="width:100px;" class="form-control members_amount" 
+                        oninput="${dynamicOninputFunction}; this.value = this.value.replace(/[^0-9]/g, '');" 
+                        name="${partnership}_member[]" placeholder="0">
                 </td>
             `);
         });
@@ -985,11 +1035,12 @@
         $('#member_partner_list').append(newRow);
     
         // Initialize select2 for the new element only
-        memberSelect.select2(); // This applies to the new dynamically added select element
+        memberSelect.select2();
     
         // Reinitialize select2 for any previously existing elements if necessary
-        $('.js-selects2').select2(); // Re-apply select2 to all select elements with this class
+        $('.js-selects2').select2();
     });
+    
     
     
     
@@ -1159,165 +1210,6 @@
      // Container where new form sections will be appended
      const container = $('#containers'); // Adjust this selector to your actual container
  
-     // Function to create a new form section with values
-    // function createNewSection(values) {
-    //      // Increment row count
-    //      first_timer_count++;
- 
-    //      // Determine whether to show the delete button
-    //     const showDeleteButton = first_timer_count > 1;
-    //     var surname = '';
-    //     var firstName = '';
-    //     // Check if user object exists and has a non-empty fullname
-    //     if (values && values.fullname) {
-    //         // Destructure and split the fullname in one line
-    //         [surname, ...firstNameParts] = values.fullname.split(' ');
-    //         firstName = firstNameParts.join(' '); // Join the rest back to a string
-    //     }
-     
-    //      // Create new form section HTML with values
-    //      return `
-    //          <div class="row border mb-3 p-2" id="row-${first_timer_count}">
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="first_name_${first_timer_count}">*First Name</label>
-    //                      <input class="form-control" type="text" id="first_name_${first_timer_count}" name="first_name[]" value="${firstName}" required>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="surname_${first_timer_count}">*Surname</label>
-    //                      <input class="form-control" type="text" id="surname_${first_timer_count}" name="surname[]" value="${surname}" required>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="email_${first_timer_count}">Email</label>
-    //                      <input class="form-control" type="email" id="email_${first_timer_count}" name="email[]" value="${values.email || ''}">
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="phone_${first_timer_count}">*Phone</label>
-    //                      <input class="form-control" type="text" id="phone_${first_timer_count}" name="phone[]" value="${values.phone || ''}" required>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="gender_${first_timer_count}">Gender</label>
-    //                      <div class="form-control-wrap">
-    //                          <select class="form-select js-select2" id="gender_${first_timer_count}" name="gender[]" required>
-    //                              <option value="">Select Gender</option>
-    //                              <option value="Male" ${values.gender === 'Male' ? 'selected' : ''}>Male</option>
-    //                              <option value="Female" ${values.gender === 'Female' ? 'selected' : ''}>Female</option>
-    //                          </select>
-    //                      </div>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="family_position_${first_timer_count}">Family Position</label>
-    //                      <div class="form-control-wrap">
-    //                          <select class="form-select js-select2" id="family_position_${first_timer_count}" name="family_position[]">
-    //                              <option value="">Select</option>
-    //                              <option value="Child" ${values.family_position === 'Child' ? 'selected' : ''}>Child</option>
-    //                              <option value="Parent" ${values.family_position === 'Parent' ? 'selected' : ''}>Parent</option>
-    //                              <option value="Other" ${values.family_position === 'Other' ? 'selected' : ''}>Other</option>
-    //                          </select>
-    //                      </div>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="dob_${first_timer_count}">Date of Birth</label>
-    //                      <input class="form-control" type="date" id="dob_${first_timer_count}" name="dob[]" value="${values.dob || ''}">
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3">
-    //                  <div class="form-group">
-    //                      <label for="invited_by_${first_timer_count}">*Invited By</label>
-    //                      <select class="form-select invited_bys js-select2" id="invited_by_${first_timer_count}" name="invited_by[]" required>
-    //                          <option value="">Select</option>
-    //                          <option value="Member" ${values.invited_by === 'Member' ? 'selected' : ''}>Member</option>
-    //                          <option value="Online" ${values.invited_by === 'Online' ? 'selected' : ''}>Online</option>
-    //                          <option value="Others" ${values.invited_by === 'Others' ? 'selected' : ''}>Others</option>
-    //                      </select>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3 channel-div" id="channel-div-${first_timer_count}" style="${values.invited_by === 'Others' ? '' : 'display: none;'}">
-    //                  <div class="form-group">
-    //                      <label for="channel_${first_timer_count}">Other Channel</label>
-    //                      <input class="form-control" type="text" id="channel_${first_timer_count}" name="channel[]" value="${values.channel || ''}">
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-4 mb-3 member-div" id="member-div-${first_timer_count}" style="${values.invited_by === 'Member' ? '' : 'display: none;'}">
-    //                  <div class="form-group">
-    //                      <label for="member_${first_timer_count}">Member</label>
-    //                      <select class="form-select js-select2 member_id" id="member_${first_timer_count}" name="member_id[]">
-    //                          <option value="">Select Member</option>
-    //                          <!-- Add PHP or dynamic content here if needed -->
-    //                      </select>
-    //                  </div>
-    //              </div>
-    //              <div class="col-sm-12 mb-3 text-center">
-    //                  ${showDeleteButton ? `<button type="button" class="btn btn-danger btn-delete" data-row="${first_timer_count}">Delete</button>` : ''}
-    //              </div>
-    //          </div>
-    //      `;
-    // }
- 
-    // // Click event to add more form sections
-    // $('#add_first_timer').on('click', function() {
-    //      // Create a new empty section
-    //      container.append(createNewSection({}));
-    //     $('.js-select2').select2();
-         
-    //     $('select[name="invited_by[]"]').on('change', handleInvitedByChange);
-    
-    
-    //  });
-
-    //  function handleInvitedByChange(event) {
-        
-    //     const invitedByValue = $(this).val();
-    //     console.log(invitedByValue);
-    //     const parent = $(this).closest('.row'); // Change '.parent-class' to the actual parent class
-    //     const channelDiv = parent.find('.channel-div');
-    //     const memberDiv = parent.find('.member-div');
-    //     const memberSelect = parent.find('.member_id');
-    //     var service_id = $('#first_timer_id').val();
-
-    //     if (invitedByValue === 'Member') {
-    //         memberDiv.show(500);
-    //         channelDiv.hide(500);
-    //          // AJAX call to fetch members
-    //         $.ajax({
-    //             url: site_url + 'service/report/records/get_church/'+service_id, // Update with your API endpoint
-    //             method: 'GET',
-    //             dataType: 'json',
-    //             success: function(data) {
-    //                 // Clear previous options
-    //                 memberSelect.empty().append('<option value="">Select Member</option>');
-
-    //                 // Populate the member dropdown
-    //                 $.each(data, function(index, member) {
-    //                     const selected = member.selected === "selected" ? ' selected' : '';
-    //                     memberSelect.append(`<option value="${member.id}"${selected}>${member.name}</option>`);
-    //                 });
-
-    //                 // Re-initialize the select2 (if using select2)
-    //                 memberSelect.select2();
-    //             }
-    //         });
-    //     } else if (invitedByValue === 'Others' ||  invitedByValue === 'Online') {
-    //         channelDiv.show(500);
-    //         memberDiv.hide(500);
-    //     } else {
-    //         channelDiv.hide(500);
-    //         memberDiv.hide(500);
-    //     }
-    // }
-    
     
     function deleteSection(rowId) {
         $(`#row-${rowId}`).remove(500); // Remove the row from the DOM
@@ -1430,7 +1322,7 @@
     $(document).ready(function() {
         
     
-    // Attach a submit event handler to the form
+        // Attach a submit event handler to the form
         $('#attendanceForm').submit(function(event) {
             event.preventDefault(); // Prevent the default form submission
 
@@ -1541,25 +1433,53 @@
             });
         });
 
-        $('#first_timer_Form').submit(function(event) {
+        $('#firstTimerForm').submit(function(event) {
             event.preventDefault(); // Prevent the default form submission
 
-            // Gather form data
-            var formData = $(this).serialize(); // Serialize form data
             $('#first_timer_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
-            // Send an AJAX POST request
+            let first_timers = []; // Array to hold structured data
+
+            // Loop through each card (first timer entry)
+            $(".new_card").each(function() {
+                let formData = {
+                    firstname: $(this).find("[name='firstname[]']").val(),
+                    surname: $(this).find("[name='surname[]']").val(),
+                    email: $(this).find("[name='email[]']").val(),
+                    phone: $(this).find("[name='phone[]']").val(),
+                    gender: $(this).find("[name='gender[]']").val(),
+                    family_position: $(this).find("[name='family_position[]']").val(),
+                    dob: $(this).find("[name='dob[]']").val(),
+                    invited_by: $(this).find("[name='invited_by[]']").val()
+                };
+                first_timers.push(formData); // Add the structured data
+            });
+    
+            // Final JSON payload with structured data
+            let finalData = {
+                first_timer_id: $("#first_timer_id").val(),
+                first_timers: first_timers
+            };
+    
+            console.log(finalData); // Debugging: Check structured output before sending
+    
             $.ajax({
-                url: site_url + 'service/report/manage/first_timer', // Replace with your server URL
-                type: 'POST',
-                data: formData,
+                url: site_url + 'service/report/manage/first_timer',
+                type: "POST",
+                data: JSON.stringify(finalData),
+                contentType: "application/json",
                 success: function(response) {
-                    // Handle a successful response
                     $('#first_timer_msg').html(response);
                     first_timer_count = 0;
 
                     $('#containers').empty();
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                    alert("Error submitting form!");
                 }
             });
+           
+            
         });
 
         $('#partnershipForm').submit(function(event) {
@@ -1567,7 +1487,7 @@
 
             // Gather form data
             var formData = $(this).serialize(); // Serialize form data
-            $('#partnership_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+            $('#finance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
             // Send an AJAX POST request
             $.ajax({
                 url: site_url + 'service/report/manage/partnership', // Replace with your server URL
@@ -1575,7 +1495,7 @@
                 data: formData,
                 success: function(response) {
                     // Handle a successful response
-                    $('#partnership_msg').html(response);
+                    $('#finance_msg').html(response);
                 }
             });
         });
@@ -1604,7 +1524,7 @@
 
     function calculateTotal() {
         
-        var tithesInputs = document.querySelectorAll('.tithes');
+        var tithesInputs = document.querySelectorAll('.tithe');
         var total = 0;
         tithesInputs.forEach(function(input) {
             var value = parseFloat(input.value);
