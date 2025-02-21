@@ -1612,7 +1612,49 @@ class Service extends BaseController {
 						'timers' => json_encode($postData['first_timers']),
 						'first_timer' => count($postData['first_timers'])
 					];
-				
+
+					$converts = $postData['first_timers'];
+
+					if (!empty($converts)) {
+						foreach ($converts as $f_value) {
+							// Prepare Visitor Data
+							$fullname = trim($f_value['firstname'] . ' ' . $f_value['surname']);
+							$email = trim($f_value['email']);
+							$phone = trim($f_value['phone']);
+							$gender = trim($f_value['gender']);
+							$dob = trim($f_value['dob']);
+							$invited_by = trim($f_value['invited_by']);
+							$reg_date = date('Y-m-d H:i:s');
+
+							// Check if visitor already exists (by email OR phone)
+							$existing_visitor_id = $this->Crud->read_field3('email', $email, 'source_type', 'service', 'source_id', $first_timer_id, 'visitors', 'id');
+
+							// Prepare data for insertion or update
+							$ins = [
+								'category' => 'first_timer',
+								'source_type' => 'service',
+								'ministry_id' => $this->Crud->read_field('id', $first_timer_id, 'service_report', 'ministry_id'),
+								'church_id' => $this->Crud->read_field('id', $first_timer_id, 'service_report', 'church_id'),
+								'source_id' => $first_timer_id,
+								'fullname' => $fullname,
+								'email' => $email,
+								'phone' => $phone,
+								'gender' => $gender,
+								'dob' => $dob,
+								'invited_by' => $invited_by,
+								'reg_date' => $reg_date
+							];
+
+							if (!empty($existing_visitor_id)) {
+								// Update Existing Record
+								$this->Crud->updates('id', $existing_visitor_id, 'visitors', $ins);
+							} else {
+								// Insert New Record
+								$this->Crud->create('visitors', $ins);
+							}
+						}
+					}
+
 					if ($this->Crud->updates('id', $first_timer_id, 'service_report', $timers) > 0) {
 						echo $this->Crud->msg('success', 'First Timer List Submitted');
 						
@@ -2193,7 +2235,12 @@ class Service extends BaseController {
 										  </td>';
 							}
 						}
-					
+						
+						$table .= '<td>
+							<button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
+								<i class="icon ni ni-trash"></i>
+							</button>
+						</td>';
 						$table .= '</tr>';
 					}
 					
