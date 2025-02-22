@@ -8000,7 +8000,7 @@ class Accounts extends BaseController {
 						}
 						$name = $firstname.' '.$othername.' '.$surname;
 						$names = '<a href="' . site_url('accounts/membership/view/' . $id) . '" class="text-primary">
-							<b>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)) . '</b></span>
+							' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)) . '</span>
 						</a>';
 
 
@@ -8036,7 +8036,7 @@ class Accounts extends BaseController {
 						$item .= '
 							<tr>
 								<td>
-									<span class="text-dark">' . ucwords(strtolower($title)) . '</span>
+									<span class="text">' . ucwords(strtolower($title)) . '</span>
 								</td>
 								<td>
 									<div class="user-card">
@@ -8044,7 +8044,7 @@ class Accounts extends BaseController {
 											<img alt="" src="' . site_url($img) . '" height="40px" width="50px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead"><b>' . (($names)) . '</b><br><span class="small ">'.ucwords(strtolower($church)).'</span> </span>
+											<span class="tb-lea">' . (($names)) . '<br><span class="small ">'.ucwords(strtolower($church)).'</span> </span>
 										</div>
 									</div>
 								</td>

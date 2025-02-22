@@ -58,14 +58,14 @@
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th><span class="sub-text"><?=translate_phrase('Title'); ?></th>
-                                            <th><span class="sub-text"><?=translate_phrase('Name'); ?></th>
-                                            <th><span class="sub-text"><?=translate_phrase('Member ID'); ?></th>
-                                            <th ><span class="sub-text">Phone</th>
-                                            <th><span class="sub-text"><?=translate_phrase('Email'); ?></th>
-                                            <th><span class="sub-text"><?=translate_phrase('Kingschat Handle'); ?></th>
-                                            <th><span class="sub-text"><?=translate_phrase('Cell'); ?></th>
-                                            <th><span class="sub-text"><?=translate_phrase('DOB'); ?></th>
+                                            <th><?=translate_phrase('Title'); ?></th>
+                                            <th><?=translate_phrase('Name'); ?></th>
+                                            <th><?=translate_phrase('Member ID'); ?></th>
+                                            <th >Phone</th>
+                                            <th><?=translate_phrase('Email'); ?></th>
+                                            <th><?=translate_phrase('Kingschat Handle'); ?></th>
+                                            <th><?=translate_phrase('Cell'); ?></th>
+                                            <th><?=translate_phrase('DOB'); ?></th>
                                             <th ></th>
                                         </tr>
                                     </thead>

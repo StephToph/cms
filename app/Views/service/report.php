@@ -560,45 +560,6 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                     <hr>
 
-                                    <div id="guest_part_view" class="table-responsive" style="display:none;">
-                                        <table class="table table-striped table-hover mt-5">
-                                            <thead>
-                                                <tr>
-                                                    <th>First Timer</th>
-                                                    <th>Offering</th>
-                                                    <th>Tithe</th>
-                                                    <th>Thanksgiving</th>
-                                                    <th>Special Seed</th>
-                                                    <?php
-                                                    $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                                    if (!empty($parts)) {
-                                                        foreach ($parts as $index => $pp) {
-                                                            $name = $pp->name;
-                                                            if (strtoupper($pp->name) == 'BIBLE SPONSOR')
-                                                                $name = 'Bible';
-                                                            if (strtoupper($pp->name) == 'CHILDREN MINISTRY')
-                                                                $name = 'Children';
-                                                            if (strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')
-                                                                $name = 'H.S.M';
-                                                            if (strtoupper($pp->name) == 'HEALING STREAM')
-                                                                $name = 'H.S';
-                                                            if (strtoupper($pp->name) == 'LOVEWORLD LWUSA')
-                                                                $name = 'lwusa';
-                                                            if (strtoupper($pp->name) == 'MINISTRY PROGRAM')
-                                                                $name = 'Ministry';
-                                                            // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
-                                                    
-                                                            echo ' <th width="200px">' . strtoupper($name) . '</th>';
-
-
-                                                        }
-                                                    }
-                                                    ?>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="guest_partner_list"> </tbody>
-                                        </table>
-                                    </div>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-hover mt-5">
                                             <thead>
@@ -646,6 +607,47 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                     <hr>
 
+                                    
+                                    <div id="guest_part_view" class="table-responsive" style="display:none;">
+                                        <table class="table table-striped table-hover mt-5">
+                                            <thead>
+                                                <tr>
+                                                    <th>First Timer</th>
+                                                    <th>Offering</th>
+                                                    <th>Tithe</th>
+                                                    <th>Thanksgiving</th>
+                                                    <th>Special Seed</th>
+                                                    <?php
+                                                    $parts = $this->Crud->read_order('partnership', 'name', 'asc');
+                                                    if (!empty($parts)) {
+                                                        foreach ($parts as $index => $pp) {
+                                                            $name = $pp->name;
+                                                            if (strtoupper($pp->name) == 'BIBLE SPONSOR')
+                                                                $name = 'Bible';
+                                                            if (strtoupper($pp->name) == 'CHILDREN MINISTRY')
+                                                                $name = 'Children';
+                                                            if (strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')
+                                                                $name = 'H.S.M';
+                                                            if (strtoupper($pp->name) == 'HEALING STREAM')
+                                                                $name = 'H.S';
+                                                            if (strtoupper($pp->name) == 'LOVEWORLD LWUSA')
+                                                                $name = 'lwusa';
+                                                            if (strtoupper($pp->name) == 'MINISTRY PROGRAM')
+                                                                $name = 'Ministry';
+                                                            // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
+                                                    
+                                                            echo ' <th width="200px">' . strtoupper($name) . '</th>';
+
+
+                                                        }
+                                                    }
+                                                    ?>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="guest_partner_list"> </tbody>
+                                        </table>
+                                    </div>
+                                    <hr>
                                     <div class="row">
                                         <div class="col-sm-12 text-center my-5">
                                             <button class="btn btn-primary bb_fo_btn" type="submit">
