@@ -260,37 +260,49 @@ $this->session = \Config\Services::session();
                             <div class="col-sm-12">No Record</div>
                         ';
                     } else {
-                        $timers = json_decode($r->timers);
-                        if(!empty($timers)){
-                            foreach($timers as $at => $val){
-                                $time = (array)$val;
-                            
-                            ?>
-                            
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Name</label>
-                                <p><?=ucwords($time['fullname']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Email</label>
-                                <p><?=ucwords($time['email']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Phone</label>
-                                <p><?=ucwords($time['phone']); ?></p>
-                            </div>
-                            <div class="col-sm-4 mb-2 ">
-                                <label class="fw-bold">Birthday</label>
-                                <p><?=ucwords($time['dob']); ?></p>
-                            </div>
-                            <hr>
-                        <?php }
+                        $timers = json_decode($r->timers, true); // Decode JSON as an associative array
+                        
+                        if (!empty($timers)) {
+                            foreach ($timers as $val) {
+                                ?>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Name</label>
+                                    <p><?= ucwords($val['firstname'] . ' ' . $val['surname']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Email</label>
+                                    <p><?= !empty($val['email']) ? ucwords($val['email']) : 'N/A'; ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Phone</label>
+                                    <p><?= !empty($val['phone']) ? ucwords($val['phone']) : 'N/A'; ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Gender</label>
+                                    <p><?= ucwords($val['gender']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Family Position</label>
+                                    <p><?= ucwords($val['family_position']); ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Birthday</label>
+                                    <p><?= !empty($val['dob']) ? ucwords($val['dob']) : 'N/A'; ?></p>
+                                </div>
+                                <div class="col-sm-4 mb-2">
+                                    <label class="fw-bold">Invited By</label>
+                                    <p><?= ucwords($val['invited_by']); ?></p>
+                                </div>
+                                <hr>
+                                <?php
+                            }
                         } else {
-                            echo '
-                                <div class="col-sm-12 my-2">No First Timer Record</div>
-                            ';
+                            echo '<div class="col-sm-12 my-2">No First Timer Record</div>';
                         }
-                    }?>  
+
+                    }
+                        ?>
+                        
                 </div>
             </div>    
             <div class="tab-pane" id="tabItem4">  
