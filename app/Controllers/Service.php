@@ -2059,7 +2059,7 @@ class Service extends BaseController {
 						foreach ($timers as $val) {
 							if (isset($val['firstname'], $val['phone'])) {
 								$data[] = [
-									'id' => $val['firstname'],
+									'id' => $val['firstname'].' '.$val['surname'],
 									'phone' => $val['phone']
 								];
 							}
