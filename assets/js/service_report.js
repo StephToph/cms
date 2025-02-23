@@ -730,48 +730,53 @@
                             url: site_url + 'service/report/records/get_service_partnership/' + id,
                             method: 'POST',
                             data: { name: fullname },
-                            success: function (data) {
-                                try {
-                                    var partners = JSON.parse(data); // Parse JSON Response
-                    
-                                    // Create a new row dynamically
-                                    var row = '<tr>';
-                                    row += '<td><input type="hidden" class="form-control guests" name="guests[]" value="' + fullname + '">';
-                                    row += '<span class="small">' + fullname + '</span></td>';
-                    
-                                    // Financial Contributions Inputs (Offering, Tithe, Thanksgiving, Seed)
-                                    var contributions = {
-                                        "offering": "calculateTotalz()",
-                                        "tithe": "calculateTotal()",
-                                        "thanksgiving": "calculateTotalz_thanksgiving()",
-                                        "seed": "calculateTotalz_seed()"
-                                    };
-                    
-                                    Object.keys(contributions).forEach(function (type) {
-                                        row += '<td><input type="text" style="width:100px;" class="form-control ' + type + '" name="' + type + '[]" ';
-                                        row += 'oninput="' + contributions[type] + '; this.value = this.value.replace(/[^0-9]/g, \'\');" ';
-                                        row += 'placeholder="0" ' + (partner.amount ? partner.amount : '0') + '></td>';
-                                    });
-                    
-                                    // Append partnership contributions if available
-                                    if (partners && Array.isArray(partners)) {
-                                        partners.forEach(function (partner, index) {
-                                            row += '<td>';
-                                            row += '<input type="text" style="width:100px;" class="form-control firsts_amount" ';
-                                            row += 'name="' + partner.id + '_first[' + index + ']" ';
-                                            row += 'oninput="bindInputEvents();" ';
-                                            row += 'value="' + (partner.amount ? partner.amount : '0') + '">';
-                                            row += '</td>';
-                                        });
-                                    }
-                    
-                                    row += '</tr>';
-                    
-                                    // Append the row to the table after the AJAX call is successful
-                                    $('#guest_partner_list').append(row);
-                                } catch (error) {
-                                    console.error("Error parsing JSON response:", error);
+                            dataType: 'json', // Ensures response is treated as JSON
+                            success: function (response) {
+                                if (!response || !response.partners) {
+                                    console.error("Invalid response format");
+                                    return;
                                 }
+                    
+                                var partners = response.partners;
+                                var guest_offering = response.guest_offering || "0";
+                                var guest_tithe = response.guest_tithe || "0";
+                                var guest_thanksgiving = response.guest_thanksgiving || "0";
+                                var guest_seed = response.guest_seed || "0";
+                    
+                                var row = '<tr>';
+                                row += '<td><input type="hidden" class="form-control guests" name="guests[]" value="' + fullname + '">';
+                                row += '<span class="small">' + fullname + '</span></td>';
+                    
+                                // Financial Contributions Inputs with pre-filled values
+                                var contributions = {
+                                    "guestz_offering": { value: guest_offering, function: "calculateTotalz()" },
+                                    "guestz_tithe": { value: guest_tithe, function: "calculateTotal()" },
+                                    "guestz_thanksgiving": { value: guest_thanksgiving, function: "calculateTotalz_thanksgiving()" },
+                                    "guestz_seed": { value: guest_seed, function: "calculateTotalz_seed()" }
+                                };
+                    
+                                Object.keys(contributions).forEach(function (type) {
+                                    var details = contributions[type];
+                                    row += '<td><input type="text" style="width:100px;" class="form-control ' + type + '" name="' + type + '[]" ';
+                                    row += 'oninput="' + details.function + '"; this.value = this.value.replace(/[^0-9]/g, \'\');" ';
+                                    row += 'placeholder="0" value="' + details.value + '"></td>';
+                                });
+                    
+                                // Partnership Contributions Inputs
+                                partners.forEach(function (partner, index) {
+                                    var amount = partner.amount || '0';
+                                    row += '<td>';
+                                    row += '<input type="text" style="width:100px;" class="form-control firsts_amount" ';
+                                    row += 'name="' + partner.id + '_first[' + index + ']" ';
+                                    row += 'oninput="bindInputEvents();" ';
+                                    row += 'value="' + amount + '">';
+                                    row += '</td>';
+                                });
+                    
+                                row += '</tr>';
+                    
+                                // Append the row to the table
+                                $('#guest_partner_list').append(row);
                             },
                             error: function (xhr, status, error) {
                                 console.error("AJAX Error:", status, error);
@@ -779,6 +784,7 @@
                             }
                         });
                     }
+                    
                     else{
                         row += '</tr>';
                          // Now append the row to the table after the AJAX call is successful
@@ -1569,25 +1575,32 @@
     
 
     function calculateTotal() {
-        
         var tithesInputs = document.querySelectorAll('.tithe');
         var total = 0;
         tithesInputs.forEach(function(input) {
             var value = parseFloat(input.value);
             total += isNaN(value) ? 0 : value;
         });
-        console.log(total);
-        var guest = $('#guest_tithe').val();
-        
         $('#member_tithe').val(total.toFixed(2));
-        total += parseFloat(guest);
+
+        var guest_tithesInputs = document.querySelectorAll('.guestz_tithe');
+        var guest_total = 0;
+        guest_tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            guest_total += isNaN(value) ? 0 : value;
+        });
+        $('#guest_tithe').val(guest_total.toFixed(2));
+
+        
+        total += parseFloat(guest_total);
+        
         total = total.toFixed(2);
         $('#total_tithe').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '';
+                input.value = '0';
             }
         });
     }
@@ -1602,18 +1615,25 @@
             var value = parseFloat(input.value);
             total += isNaN(value) ? 0 : value;
         });
-        console.log(total);
-        var guest = $('#guest_offering').val();
-        
         $('#member_offering').val(total.toFixed(2));
-        total += parseFloat(guest);
+
+        var guest_total = 0;
+        var guest_tithesInputs = document.querySelectorAll('.guestz_offering');
+        var guest_total = 0;
+        guest_tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            guest_total += isNaN(value) ? 0 : value;
+        });
+        var guest = $('#guest_offering').val(guest_total.toFixed(2));
+        
+        total += parseFloat(guest_total);
         total = total.toFixed(2);
         $('#total_offering').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '';
+                input.value = '0';
             }
         });
     }
@@ -1626,43 +1646,56 @@
             var value = parseFloat(input.value);
             total += isNaN(value) ? 0 : value;
         });
-        console.log(total);
-        var guest = $('#guest_thanksgiving').val();
-        
         $('#member_thanksgiving').val(total.toFixed(2));
-        total += parseFloat(guest);
+
+        var guest_tithesInputs = document.querySelectorAll('.guestz_thanksgiving');
+        var guest_total = 0;
+        guest_tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            guest_total += isNaN(value) ? 0 : value;
+        });
+        $('#guest_thanksgiving').val(guest_total.toFixed(2));
+
+        
+        total += parseFloat(guest_total);
         total = total.toFixed(2);
         $('#total_thanksgiving').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '';
+                input.value = '0';
             }
         });
     }
 
     
     function calculateTotalz_seed() {
-        
         var tithesInputs = document.querySelectorAll('.seed');
         var total = 0;
         tithesInputs.forEach(function(input) {
             var value = parseFloat(input.value);
             total += isNaN(value) ? 0 : value;
         });
-        console.log(total);
-        var guest = $('#guest_seed').val();
-        
         $('#member_seed').val(total.toFixed(2));
-        total += parseFloat(guest);
+
+        var guest_tithesInputs = document.querySelectorAll('.guestz_seed');
+        var guest_total = 0;
+        guest_tithesInputs.forEach(function(input) {
+            var value = parseFloat(input.value);
+            guest_total += isNaN(value) ? 0 : value;
+        });
+        $('#guest_seed').val(guest_total.toFixed(2));
+
+        
+        total += parseFloat(guest_total);
         total = total.toFixed(2);
         $('#total_seed').val(total);
 
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '';
+                input.value = '0';
             }
         });
     }
