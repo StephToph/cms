@@ -724,39 +724,49 @@ class Service extends BaseController {
 					$thanksgivings = $this->request->getPost('thanksgiving');
 					$seeds = $this->request->getPost('seed');
 				
+					$guests = $this->request->getPost('guests');
+					$guest_offerings = $this->request->getPost('guest_offering');
+					$guest_tithes = $this->request->getPost('guest_tithe');
+					$guest_thanksgivings = $this->request->getPost('guest_thanksgiving');
+					$guest_seeds = $this->request->getPost('guest_seed');
+				
 					// Fetch Partnerships
 					$partnerships = $this->Crud->read_order('partnership', 'name', 'asc');
 				
-					// Process Individual Financial Records
+					// Initialize Financial Data Structures with guest_list
 					$offering_data = [
 						"total" => $total_offering,
 						"member" => $member_offering,
 						"guest" => $guest_offering,
-						"list" => []
+						"list" => [],
+						"guest_list" => []
 					];
 				
 					$tithe_data = [
 						"total" => $total_tithe,
 						"member" => $member_tithe,
 						"guest" => $guest_tithe,
-						"list" => []
+						"list" => [],
+						"guest_list" => []
 					];
 				
 					$thanksgiving_data = [
 						"total" => $total_thanksgiving,
 						"member" => $member_thanksgiving,
 						"guest" => $guest_thanksgiving,
-						"list" => []
+						"list" => [],
+						"guest_list" => []
 					];
 				
 					$seed_data = [
 						"total" => $total_seed,
 						"member" => $member_seed,
 						"guest" => $guest_seed,
-						"list" => []
+						"list" => [],
+						"guest_list" => []
 					];
 				
-					// Initialize partnership structure
+					// Initialize Partnership Data
 					$partnership_data = [
 						"partnership" => [
 							"guest" => [],
@@ -766,49 +776,57 @@ class Service extends BaseController {
 						"total_part" => $total_part,
 						"member_part" => $member_part
 					];
-
-
 				
+					// Process Guest Contributions First
+					if (!empty($guests)) {
+						foreach ($guests as $index => $guest_name) {
+							$offering_data['guest_list'][$guest_name] = !empty($guest_offerings[$index]) ? (float)$guest_offerings[$index] : 0;
+							$tithe_data['guest_list'][$guest_name] = !empty($guest_tithes[$index]) ? (float)$guest_tithes[$index] : 0;
+							$thanksgiving_data['guest_list'][$guest_name] = !empty($guest_thanksgivings[$index]) ? (float)$guest_thanksgivings[$index] : 0;
+							$seed_data['guest_list'][$guest_name] = !empty($guest_seeds[$index]) ? (float)$guest_seeds[$index] : 0;
+				
+							// Process Guest Partnerships
+							foreach ($partnerships as $p => $pa) {
+								$key = $pa->id . '_first[' . $p . ']';
+								$guest_partnership_value = $this->request->getPost($key);
+								
+								// echo $key.' - ';
+								if (!empty($guest_partnership_value) && is_numeric($guest_partnership_value)) {
+									$partnership_data["partnership"]["guest"][$guest_name][$pa->id] = (float)$guest_partnership_value;
+								}
+								// echo $guest_partnership_value.' ';
+							}
+						}
+					}
 					// Process Member Contributions
 					if (!empty($members)) {
 						foreach ($members as $index => $member_id) {
-							// Store member contributions
-							$offering_data['list'][$member_id] = !empty($offerings[$index]) ? $offerings[$index] : "0";
-							$tithe_data['list'][$member_id] = !empty($tithes[$index]) ? $tithes[$index] : "0";
-							$thanksgiving_data['list'][$member_id] = !empty($thanksgivings[$index]) ? $thanksgivings[$index] : "0";
-							$seed_data['list'][$member_id] = !empty($seeds[$index]) ? $seeds[$index] : "0";
+							$offering_data['list'][$member_id] = !empty($offerings[$index]) ? (float)$offerings[$index] : 0;
+							$tithe_data['list'][$member_id] = !empty($tithes[$index]) ? (float)$tithes[$index] : 0;
+							$thanksgiving_data['list'][$member_id] = !empty($thanksgivings[$index]) ? (float)$thanksgivings[$index] : 0;
+							$seed_data['list'][$member_id] = !empty($seeds[$index]) ? (float)$seeds[$index] : 0;
 				
 							$member_partnerships = [];
-
-							// Loop through all partnership types
+				
+							// Process Member Partnerships
 							foreach ($partnerships as $p) {
 								$key = $p->id . '_member';
-
-								// Ensure valid input and greater than 0
-								if (!empty($this->request->getPost($key)[$index]) && is_numeric($this->request->getPost($key)[$index]) && $this->request->getPost($key)[$index] > 0) {
-									$member_partnerships[$p->id] = $this->request->getPost($key)[$index];
+								$member_partnership_value = $this->request->getPost($key)[$index] ?? 0;
+				
+								if (!empty($member_partnership_value) && is_numeric($member_partnership_value)) {
+									$member_partnerships[$p->id] = (float)$member_partnership_value;
 								}
 							}
-
-							// Store member partnership contributions if they exist
+				
 							if (!empty($member_partnerships)) {
 								$partnership_data["partnership"]["member"][$member_id] = $member_partnerships;
 							}
 						}
 					}
+					// print_r($partnership_data);
+					// die;
 				
-					
-					// Process Guest Contributions
-					if (!empty($guest_part)) {
-						foreach ($this->request->getPost('[object+Object]_member') as $index => $guest_amount) {
-							if (!empty($guest_amount) && is_numeric($guest_amount) && $guest_amount > 0) {
-								$partnership_data["partnership"]["guest"][$index] = $guest_amount;
-							}
-						}
-					}
-
-					
-				
+					// Prepare Data for Database Update
 					$finance_update = [
 						'tithe' => $total_tithe,
 						'offering' => $total_offering,
@@ -821,34 +839,36 @@ class Service extends BaseController {
 						'thanksgiving_record' => json_encode($thanksgiving_data),
 						'seed_record' => json_encode($seed_data)
 					];
-					// print_r($finance_update);
 				
 					// Update Database
 					if ($this->Crud->updates('id', $finance_id, 'service_report', $finance_update) > 0) {
 						echo $this->Crud->msg('success', 'Financial Report Submitted');
 				
-						// Store activities
+						// Store activity logs
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 						$service_date = $this->Crud->read_field('id', $finance_id, 'service_report', 'date');
-						$action = $by . ' updated Service Finance Report for ' . $service_date;
+						$action = "$by updated Service Finance Report for $service_date";
 						$this->Crud->activity('service', $finance_id, $action);
 				
-						echo '<script> setTimeout(function() {
-							$("#show").show(500);
-							$("#form").hide(500);
-							$("#finance_view").hide(500);
-							$("#attendance_prev").hide(500);
-							$("#add_btn").show(500);
-							$("#prev").hide(500);
-							load();
-							$("#tithe_msg").html("");
-						}, 2000); </script>';
+						echo '<script>
+							setTimeout(function() {
+								$("#show").show(500);
+								$("#form").hide(500);
+								$("#finance_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								$("#prev").hide(500);
+								load();
+								$("#tithe_msg").html("");
+							}, 2000);
+						</script>';
 					} else {
 						echo $this->Crud->msg('info', 'No Changes');
 					}
 				
 					die;
 				}
+				
 				
 
 			} elseif($param2 == 'media'){
@@ -2055,53 +2075,66 @@ class Service extends BaseController {
 				
 			}
 
-			if($param2 == 'get_service_partnership'){
 				
-				if($param3){
+			if ($param2 == 'get_service_partnership') {
+				if ($param3) {
 					$data = [];
-					$name = $this->request->getPost('name');
+					$name = strtoupper($this->request->getPost('name')); // Convert name to uppercase for consistency
 					$partners = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'partners'));
-					$partnership = $this->Crud->read_order('partnership', 'name', 'asc');
-					if(!empty($partnership)){
-						foreach($partnership as $p){
+					$offering_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'offering_givers'));
+					$tithe_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
+					$thanksgiving_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'thanksgiving_record'));
+					$seed_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'seed_record'));
+					$partnerships = $this->Crud->read_order('partnership', 'name', 'asc');
+			
+					// Initialize guest financial contributions
+					$guest_offering = $offering_data->guest_list->$name ?? '0';
+					$guest_tithe = $tithe_data->guest_list->$name ?? '0';
+					$guest_thanksgiving = $thanksgiving_data->guest_list->$name ?? '0';
+					$guest_seed = $seed_data->guest_list->$name ?? '0';
+			
+					// Retrieve partnerships
+					if (!empty($partnerships)) {
+						foreach ($partnerships as $p) {
 							$amount = 0;
 							$pid = $p->id;
-							if(!empty($partners)){
-								foreach($partners as $time => $val){
-									if($time == 'partnership'){
-										$guest= $val->guest;
-										if(!empty($guest)){
-											foreach($guest as $g => $gpal){
-												// echo strtoupper($g).' '.ucwords($name);
-												if(strtoupper($g) == $name){
-													
-													$gpals = (array)$gpal;
-													foreach($gpals as $gp => $gpl){
-														if($p->id == $gp){
-															$amount = $gpl;
-														}
-													}
-													
+			
+							if (!empty($partners)) {
+								foreach ($partners as $time => $val) {
+									if ($time == 'partnership' && isset($val->guest)) {
+										foreach ($val->guest as $g => $gpal) {
+											if (strtoupper($g) == $name) {
+												$gpals = (array) $gpal;
+												if (isset($gpals[$pid])) {
+													$amount = $gpals[$pid];
 												}
 											}
 										}
-										
 									}
-									
 								}
 							}
-							$data[] = array('id' => $pid,'amount'=> $amount);
-
-
+			
+							$data[] = ['id' => $pid, 'amount' => $amount];
 						}
 					}
-
-					echo json_encode($data);
+			
+					// Include guest financial records
+					$response = [
+						"partners" => $data,
+						"guest_offering" => $guest_offering,
+						"guest_tithe" => $guest_tithe,
+						"guest_thanksgiving" => $guest_thanksgiving,
+						"guest_seed" => $guest_seed
+					];
+			
+					echo json_encode($response);
 					die;
 				}
-					
-				
 			}
+			
+				
+			
+		
 			
 			if ($param2 == 'get_members_finance') {
 				if ($param3) {
