@@ -979,6 +979,8 @@ class Service extends BaseController {
 				if ($this->request->getMethod() == 'post') {
 					$service_id = $this->request->getPost('finance_id');
 					$church_id = $this->Crud->read_field('id', $service_id, 'service_report', 'church_id');
+					$country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+					$currency_id = $this->Crud->read_field('country_id', $country_id, 'currency', 'id');
 					$ministry_id = $this->Crud->read_field('id', $service_id, 'service_report', 'ministry_id');
 					$service_date = $this->Crud->read_field('id', $service_id, 'service_report', 'date');
 
@@ -1003,6 +1005,8 @@ class Service extends BaseController {
 					$member_seed = $this->request->getPost('member_seed');
 					$guest_seed = $this->request->getPost('guest_seed');
 				
+					$guest_currency = $this->request->getPost('guest_currency');
+					$currency = $this->request->getPost('currency');
 					$members = $this->request->getPost('members');
 					$offerings = $this->request->getPost('offering');
 					$tithes = $this->request->getPost('tithe');
@@ -1049,7 +1053,9 @@ class Service extends BaseController {
 						"total_part" => $total_part,
 						"member_part" => $member_part
 					];
+					
 				
+
 					// Process Guest Contributions First
 					if (!empty($guests)) {
 						foreach ($guests as $index => $guest_name) {
@@ -1077,7 +1083,9 @@ class Service extends BaseController {
 									'service_id', $service_id,
 									'service_finance', 'id'
 								);
-				
+								if($guest_currency[$index] <= 0){
+									$amount = $this->Crud->finance_exchange($amount, $currency_id);
+								}
 								$gs_fin['amount'] = $amount;
 				
 								if ($g_existingFinance) {
@@ -1123,7 +1131,11 @@ class Service extends BaseController {
 										'partnership_id', $partnership_id,
 										'service_finance', 'id'
 									);
-				
+									
+									if($guest_currency[$index] <= 0){
+										$amount = $this->Crud->finance_exchange($amount, $currency_id);
+									}
+
 									// Prepare data for insertion/update
 									$gs_part['amount'] = $amount;
 				
@@ -1188,13 +1200,18 @@ class Service extends BaseController {
 								'thanksgiving' => !empty($thanksgivings[$index]) ? (float)$thanksgivings[$index] : 0,
 								'seed' => !empty($seeds[$index]) ? (float)$seeds[$index] : 0
 							];
-					
+
+							
 							// Set user type
 							$user_type = 'member';
 					
 							// Insert or update general finance contributions
 							foreach ($financeTypes as $type => $amount) {
 								
+								if($currency[$index] <= 0){
+									$amount = $this->Crud->finance_exchange($amount, $currency_id);
+								}
+						
 								$existingFinance = $this->Crud->read_field3(
 									'finance_type', $type,
 									'user_id', $member_id,
@@ -1247,6 +1264,9 @@ class Service extends BaseController {
 									'partnership_id', $partnership_id,
 									'service_finance', 'id'
 								);
+								if($currency[$index] <= 0){
+									$amount = $this->Crud->finance_exchange($amount, $currency_id);
+								}
 				
 								// Prepare data for insertion/update
 								$s_part['amount'] = $amount;
@@ -2519,14 +2539,23 @@ class Service extends BaseController {
 							$data[] = ['id' => $pid, 'amount' => $amount];
 						}
 					}
-				
+					
+					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$country_id =  $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+					$currency_id =  $this->Crud->read_field('country_id', $country_id, 'currency', 'id');
+					$currency_name =  $this->Crud->read_field('country_id', $country_id, 'currency', 'currency_name');
+					$curz = [
+						$currency_id => ucwords($currency_name)
+
+					];
 					// Include guest financial records in response
 					$response = [
 						"partners" => $data,
 						"guest_offering" => $guest_offering,
 						"guest_tithe" => $guest_tithe,
 						"guest_thanksgiving" => $guest_thanksgiving,
-						"guest_seed" => $guest_seed
+						"guest_seed" => $guest_seed,
+						"currency" => $curz
 					];
 				
 					echo json_encode($response);
@@ -2541,8 +2570,16 @@ class Service extends BaseController {
 			
 					// Fetch Church Members
 					$church_id = $this->Crud->read_field('id', $param3, 'service_report', 'church_id');
+					$country_id =  $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+					$currency_id =  $this->Crud->read_field('country_id', $country_id, 'currency', 'id');
+					$currency_name =  $this->Crud->read_field('country_id', $country_id, 'currency', 'currency_name');
 					$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
-			
+					// echo $church_id;
+					$curz = [
+						$currency_id => ucwords($currency_name)
+
+					];
+
 					$church_memberss = [];
 					if(!empty($church)){
 						foreach($church as $c){
@@ -2635,22 +2672,22 @@ class Service extends BaseController {
 									</td>
 									<td>
 										<input type="text" style="width:100px;" class="form-control offering" name="offering[]" 
-											oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+											oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" 
 											value="' . htmlspecialchars($offering) . '">
 									</td>
 									<td>
 										<input type="text" style="width:100px;" class="form-control tithe" name="tithe[]" 
-											oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+											oninput="calculateTotal(); this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" 
 											value="' . htmlspecialchars($tithe) . '">
 									</td>
 									<td>
 										<input type="text" style="width:100px;" class="form-control thanksgiving" name="thanksgiving[]" 
-											oninput="calculateTotalz_thanksgiving(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+											oninput="calculateTotalz_thanksgiving();this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" 
 											value="' . htmlspecialchars($thanksgiving) . '">
 									</td>
 									<td>
 										<input type="text" style="width:100px;" class="form-control seed" name="seed[]" 
-											oninput="calculateTotalz_seed(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+											oninput="calculateTotalz_seed();this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" 
 											value="' . htmlspecialchars($seed) . '">
 									</td>';
 
@@ -2660,13 +2697,20 @@ class Service extends BaseController {
 							$table .= '<td>
 										<input type="text" style="width:100px;" class="form-control members_amount partnerships" 
 											name="' . htmlspecialchars($p_id) . '_member[]" 
-											oninput="bindInputEvents(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+											oninput="bindInputEvents(); this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" 
 											value="' . htmlspecialchars($amount) . '">
 									</td>';
 						}
 
 						// Delete button
-						$table .= '<td>
+						$table .= '
+									<td>
+										<select class="js-select2" name="currency[]">
+											<option value="0">Espees</option>
+											<option value="'.$currency_id.'" selected>'.ucwords($currency_name).'</option>
+										</select>
+									</td>
+									<td>
 									<button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
 										<i class="icon ni ni-trash"></i>
 									</button>
@@ -2679,6 +2723,7 @@ class Service extends BaseController {
 					$data['partnerships'] = ($partnerships);
 					$data['members'] = ($church_memberss);
 					$data['members_part'] = $table;
+					$data['currency'] = $curz;
 
 					echo json_encode($data);
 					die;
@@ -3987,7 +4032,7 @@ class Service extends BaseController {
 								$existingFinance = $this->Crud->read_field4(
 									'church_id', $church_id,
 									'finance_type', $type,
-									'user_id', $member_id,
+									'user_/id', $member_id,
 									'service_id', $service_id,
 									'service_finance', 'id'
 								);

@@ -268,6 +268,14 @@ $this->Crud = new Crud();
                     <input class="form-control" type="text" id="amount" name="amount" value="<?php if(!empty($e_amount_paid)) {echo $e_amount_paid;} ?>" required>
                 </div>
             </div>
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?=translate_phrase('Currency'); ?></label>
+                    <select id="currency" name="currency" class="js-select2">
+                        
+                    </select>
+                </div>
+            </div>
 
             <?php if($role == 'member'){?>
                 <div class="col-sm-12 mb-3">
@@ -374,12 +382,13 @@ $this->Crud = new Crud();
         <?php if($param2 == 'edit'){?>
             $(function() {
                 loadMember(eChurchId);
-            loadChurches(eMinistryId,eLevel);
+                loadChurches(eMinistryId,eLevel);
             });
    
            
         <?php }?>
-  // Helper function to convert strings to title case
+        
+        // Helper function to convert strings to title case
          function toTitleCase(str) {
             return str.toLowerCase().replace(/(?:^|\s)\S/g, function (a) { return a.toUpperCase(); });
         }
@@ -389,7 +398,7 @@ $this->Crud = new Crud();
             // Clear the Church dropdown
             $('#church_id').empty();
             $('#church_id').append(new Option('Loading...', '', false, false));
-
+           
             // Construct data object based on provided parameters
             var data = {};
             if (ministryId) {
@@ -409,7 +418,7 @@ $this->Crud = new Crud();
                     data: data,
                     success: function (response) {
                         $('#church_id').empty(); // Clear 'Loading...' option
-
+                       
                         if (response.success) {
                             $('#church_id').append(new Option('Select Church', '', false, false));
                             var eChurchIds = '<?php echo $e_church_ids; ?>';
@@ -441,6 +450,8 @@ $this->Crud = new Crud();
             // Clear the Church dropdown
             $('#member_id').empty();
             $('#member_id').append(new Option('Loading...', '', false, false));
+            $('#currency').empty();
+            $('#currency').append(new Option('Loading...', '', false, false));
 
             // Construct data object based on provided parameters
             var data = {};
@@ -457,6 +468,7 @@ $this->Crud = new Crud();
                     data: data,
                     success: function (response) {
                         $('#member_id').empty(); // Clear 'Loading...' option
+                        $('#currency').empty(); // Clear 'Loading...' option
 
                         if (response.success) {
                             $('#member_id').append(new Option('Select Members', '', false, false));
@@ -469,6 +481,15 @@ $this->Crud = new Crud();
                                 var churchType = (member.phone); // Convert type to title case
                                 $('#member_id').append(new Option(memberName + ' - ' + churchType, member.id, selected, selected));
                             });
+
+                            $.each(response.currency, function (index, member) {
+                                var currencyName = toTitleCase(member); // Convert currency name to title case
+                                var selected = (index !== 0); // Check if the ID matches
+                                
+                                var currencyId = index; // Get currency ID
+                                $('#currency').append(new Option(currencyName, currencyId, selected, selected));
+                            });
+
                         } else {
                             $('#member_id').append(new Option('No Members available', '', false, false));
                         }

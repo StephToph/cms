@@ -118,10 +118,7 @@ $service_church_id = $this->session->get('service_church_id');
                             </div>
                             <div class="card-inner" id="form" style="display:none;">
                                 <div class="row">
-                                    <div class="nk-block-head-sub mb-3" id="prev" style="display:none;">
-                                        <a class="back-to btn btn-outline-primary" id="back_btn" href="javascript:;"><em
-                                                class="icon ni ni-arrow-left"></em><span>Service Reports</span></a>
-                                    </div>
+                                    
                                     <h5>Enter the Details for the Service Meeting Below</h5>
                                     <p class="text-danger">Always click the save record Button after update of
                                         attendance, first timers and new convert.</p>
@@ -518,12 +515,12 @@ $service_church_id = $this->session->get('service_church_id');
                                         <table class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
-                                                    <th width="250px;">Member</th>
+                                                    <th width="250px;">MEMBER</th>
                                                     
-                                                    <th>Offering</th>
-                                                    <th>Tithe</th>
-                                                    <th>Thanksgiving</th>
-                                                    <th>Special Seed</th>
+                                                    <th>OFFERING</th>
+                                                    <th>TITHE</th>
+                                                    <th>THANKSGIVING</th>
+                                                    <th>SPECIAL SEED</th>
                                                     <?php
                                                     $parts = $this->Crud->read_order('partnership', 'name', 'asc');
                                                     if (!empty($parts)) {
@@ -547,6 +544,7 @@ $service_church_id = $this->session->get('service_church_id');
                                                         }
                                                     }
                                                     ?>
+                                                    <th>CURRENCY</th>
                                                     <th></th>
                                                 </tr>
                                             </thead>
@@ -566,11 +564,11 @@ $service_church_id = $this->session->get('service_church_id');
                                         <table class="table table-striped table-hover mt-5">
                                             <thead>
                                                 <tr>
-                                                    <th>First Timer</th>
-                                                    <th>Offering</th>
-                                                    <th>Tithe</th>
-                                                    <th>Thanksgiving</th>
-                                                    <th>Special Seed</th>
+                                                    <th>GUEST</th>
+                                                    <th>OFFERING</th>
+                                                    <th>TITHE</th>
+                                                    <th>THANKSGIVING</th>
+                                                    <th>SPECIAL SEED</th>
                                                     <?php
                                                     $parts = $this->Crud->read_order('partnership', 'name', 'asc');
                                                     if (!empty($parts)) {
@@ -596,6 +594,7 @@ $service_church_id = $this->session->get('service_church_id');
                                                         }
                                                     }
                                                     ?>
+                                                    <th>CURRENCY</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="guest_partner_list"> </tbody>
