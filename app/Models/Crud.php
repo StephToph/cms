@@ -4967,6 +4967,25 @@ class Crud extends Model {
 		return $result;
 	}
 	
+	public function finance_exchange($amount=0,$currency_id){
+		if($currency_id){
+			
+			$rate = $this->read_field('id', $currency_id, 'currency', 'rate');
+
+			if($rate && $amount > 0){
+				$result = (float)$amount * (float)$rate;
+			} else{
+				$result = (float)$amount * 1;
+			}
+			
+			
+		} else {
+			$result = 0;
+		}
+
+		return $result;
+	}
+	
 
     //////////////////// MODULE ///////////////////////
 	public function module($role, $module, $type) {

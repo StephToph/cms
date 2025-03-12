@@ -1002,7 +1002,7 @@ class Ministry extends BaseController {
 				$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 				$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
 				$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
-						
+				
 				if (!empty($church)) {
 					foreach ($church as $c) {
 						if ($c->type == $church_type) {
@@ -1056,7 +1056,15 @@ class Ministry extends BaseController {
 			$church_id = $this->request->getPost('church_id');
 			if ($church_id) {
 				$church = $this->Crud->read2_order('church_id', $church_id, 'is_member', 1, 'user', 'firstname', 'asc');
-				
+				$country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+				$currency_id = $this->Crud->read_field('country_id', $country_id, 'currency', 'id');
+				$currency_name = $this->Crud->read_field('country_id', $country_id, 'currency', 'currency_name');
+						
+				$curz = [
+					'0' => 'Espees',
+					$currency_id => ucwords($currency_name)
+
+				];
 
 				$churches = [];
 						
@@ -1073,7 +1081,8 @@ class Ministry extends BaseController {
 
 				return $this->response->setJSON([
 					'success' => true,
-					'data' => $churches
+					'data' => $churches,
+					'currency' => $curz
 				]);
 			}
 			

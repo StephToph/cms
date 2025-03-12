@@ -113,19 +113,19 @@
         // Get the value from the input field
         let value = $('#value' + id).val();
 
-        // Regular expression for currency format
-        let currencyRegex = /^\d+(\.\d{0,2})?$/;
-        $('#rate_resp'+id).html('');
+        // Regular expression for currency format (allows up to 3 decimal places)
+        let currencyRegex = /^\d+(\.\d{0,3})?$/;
+
+        $('#rate_resp' + id).html('');
         // Clear any previous timeout to reset the delay
         clearTimeout(timeout);
 
         // Check if the value matches the currency format
         if (!currencyRegex.test(value)) {
             $('#value' + id).val(value.replace(/[^0-9.]/g, ''));
-            $('#rate_resp'+id).html('Please enter a valid currency format (e.g., 100.00)');
+            $('#rate_resp' + id).html('Please enter a valid currency format (e.g., 100.000)');
             return;
         }
-
         if (parseFloat(value) == 0) {
             $('#rate_resp' + id).html('Value must not be 0').css('color', 'red');
             return;  // Don't run AJAX if the value is 0 or less

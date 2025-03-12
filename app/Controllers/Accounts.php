@@ -5860,12 +5860,17 @@ class Accounts extends BaseController {
 					$amount = $this->request->getVar('amount');
 					$status = $this->request->getVar('status');
 					$date_paid = $this->request->getVar('date_paid');
+					$currency = $this->request->getVar('currency');
 					$img_id = $this->request->getVar('img');
 
 					$church_id = $this->Crud->read_field('id', $member_id, 'user', 'church_id');
 					$ministry_id = $this->Crud->read_field('id', $member_id, 'user', 'ministry_id');
+					$country_id =  $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+					$currency_id =  $this->Crud->read_field('country_id', $country_id, 'currency', 'id');
 					
-
+					if($currency <= 0){
+						$amount = $this->Crud->finance_exchange($amount,$currency_id);
+					}
 					
 					 //// Image upload
 					 if(file_exists($this->request->getFile('pics'))) {

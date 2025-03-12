@@ -183,6 +183,7 @@
         $('#bb_ajax_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         $('#show').hide(500);
         $('#form').show(500);
+        $('#attendance_prev').show(500);
         $('#prev').show(500);
         currentInfo = (currentInfo === initialInfo) ? newInfo : initialInfo;
 
@@ -709,32 +710,31 @@
     
     function fetchAndPopulateFirstTimers(id) {
         $.ajax({
-            url: site_url + 'service/report/records/getFirstTimers/'+id, // Adjust the URL according to your API
+            url: site_url + 'service/report/records/getFirstTimers/' + id, // Adjust the URL according to your API
             type: 'get',
             success: function (data) {
                 var firstTimers = JSON.parse(data); // Assuming the response is JSON formatted
-    
+        
                 // Clear existing entries
                 $('#guest_partner_list').empty();
-            
+        
                 // Check if there are any first timers
                 if (firstTimers.length === 0) {
-                    
                     $('#guest_part_view').hide(500);
                     $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">No first timers available</td></tr>');
                     return;
                 }
-                
+        
                 $('#guest_part_view').show(500);
+        
                 // Iterate over firstTimers and append rows to the table
-                firstTimers.forEach(function(timer, index) {
+                firstTimers.forEach(function (timer, index) {
                     var row = '<tr class="original-row">';
-                    // Check if fullname is defined and convert to uppercase
                     var fullname = timer.id ? timer.id.toUpperCase() : '';
                     var phone = timer.phone ? timer.phone : '';
-                  
-                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer['+index+']" value="' + fullname + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
-                    
+        
+                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer[' + index + ']" value="' + fullname + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
+        
                     if (fullname) {
                         $.ajax({
                             url: site_url + 'service/report/records/get_service_partnership/' + id,
@@ -746,17 +746,18 @@
                                     console.error("Invalid response format");
                                     return;
                                 }
-                    
+        
+                                var currency = response.currency || [];
                                 var partners = response.partners;
                                 var guest_offering = response.guest_offering || "0";
                                 var guest_tithe = response.guest_tithe || "0";
                                 var guest_thanksgiving = response.guest_thanksgiving || "0";
                                 var guest_seed = response.guest_seed || "0";
-                    
+        
                                 var row = '<tr>';
                                 row += '<td><input type="hidden" class="form-control guests" name="guests[]" value="' + fullname + '">';
                                 row += '<span class="small">' + fullname + '</span></td>';
-                    
+        
                                 // Financial Contributions Inputs with pre-filled values
                                 var contributions = {
                                     "guestz_offering": { value: guest_offering, function: "calculateTotalz()" },
@@ -764,15 +765,16 @@
                                     "guestz_thanksgiving": { value: guest_thanksgiving, function: "calculateTotalz_thanksgiving()" },
                                     "guestz_seed": { value: guest_seed, function: "calculateTotalz_seed()" }
                                 };
-                    
+        
                                 Object.keys(contributions).forEach(function (type) {
                                     var details = contributions[type];
                                     row += '<td><input type="text" style="width:100px;" class="form-control ' + type + '" name="' + type + '[]" ';
-                                    row += 'oninput="' + details.function + '"; this.value = this.value.replace(/[^0-9]/g, \'\');" ';
+                                    row += 'oninput="' + details.function + '; this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" ';
                                     row += 'placeholder="0" value="' + details.value + '"></td>';
                                 });
-                    
-                               // Partnership Contributions Inputs for Guests
+                                
+        
+                                // Partnership Contributions Inputs for Guests
                                 partners.forEach(function (partner) {
                                     var amount = partner.amount || '0';
                                     row += '<td>';
@@ -782,38 +784,54 @@
                                     row += 'value="' + amount + '">';
                                     row += '</td>';
                                 });
-
-                    
-                                row += '</tr>';
-                    
+        
+                                // Create currency dropdown select element
+                                var currency_selectz = $('<select class="js-select2" name="guest_currency[]"></select>');
+        
+                                // Add default "Espees" option
+                                currency_selectz.append(`<option value="0">Espees</option>`);
+        
+                                // Check if currency data exists and populate the dropdown
+                                if (currency && Object.keys(currency).length > 0) {
+                                    Object.entries(currency).forEach(([id, name]) => {
+                                        currency_selectz.append(`<option value="${id}" selected>${name}</option>`);
+                                    });
+                                }
+        
+                                // Append the select dropdown inside a new table column correctly
+                                row += '<td>' + currency_selectz.prop('outerHTML') + '</td>'; // Convert jQuery object to string
+        
+                                row += '</tr>'; // Close table row
+        
                                 // Append the row to the table
                                 $('#guest_partner_list').append(row);
+        
+                                // Activate select2 for newly added dropdowns
+                                $('.js-select2').select2();
                             },
                             error: function (xhr, status, error) {
                                 console.error("AJAX Error:", status, error);
                                 alert("Failed to fetch partnership data. Please try again.");
                             }
                         });
-                    }
-                    
-                    else{
+                    } else {
                         row += '</tr>';
-                         // Now append the row to the table after the AJAX call is successful
                         $('#guest_partner_list').append(row);
                     }
-
-                    
                 });
-                $('.js-select2 ').select2();
             },
             error: function (xhr, status, error) {
                 console.error('Error fetching first timers:', error);
                 $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">Failed to load first timers.</td></tr>');
             }
         });
+        
     }
+
+
     let churchMembers = [];
     let partnerships = [];
+    let currency = [];
                
     function populateMember(id) {
         $.ajax({
@@ -846,6 +864,7 @@
     
                         // Store Partnerships
                         partnerships = mems.partnerships || [];
+                        currency = mems.currency || [];
     
                         // Initialize Select2 for any dynamically added dropdowns
                         $('.js-select2').select2();
@@ -1076,10 +1095,11 @@
             newRow.append(`
                 <td>
                     <input type="text" style="width:100px;" class="form-control ${type}" name="${type}[]" 
-                        oninput="${inputFunctions[type]}; this.value = this.value.replace(/[^0-9]/g, '');" 
+                        oninput="${inputFunctions[type]}; this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');" 
                         placeholder="0">
                 </td>
             `);
+            
         });
     
         // Add input textboxes for each partnership contribution dynamically
@@ -1096,9 +1116,24 @@
             `);
         });
 
-    
-        // Add delete button
-        newRow.append(`
+        const currency_select = $('<select class="js-select2" name="currency[]"></select>');
+
+        // Add default "espees" option
+        currency_select.append(`<option value="0">Espees</option>`);
+
+        // Check if currency data exists and populate the dropdown
+        if (currency && Object.keys(currency).length > 0) {
+            Object.entries(currency).forEach(([id, name]) => {
+                currency_select.append(`<option value="${id}" selected>${name}</option>`);
+            });
+        }
+
+        
+        // Append the select dropdown to the new row
+        newRow.append($('<td></td>').append(currency_select));
+
+         // Add delete button
+         newRow.append(`
             <td>
                 <button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
                     <i class="icon ni ni-trash"></i>
@@ -1111,7 +1146,7 @@
     
         // Initialize select2 for the new element only
         memberSelect.select2();
-    
+        currency_select.select2();
         // Reinitialize select2 for any previously existing elements if necessary
         $('.js-selects2').select2();
     });
