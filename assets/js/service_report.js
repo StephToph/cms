@@ -475,13 +475,13 @@
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="first_name_${rowCount}">*First Name</label>
-                    <input class="form-control" type="text" id="first_name_${rowCount}" name="first_name[]" ${record ? 'value="' + (record.fullname.split(' ')[0] || '') + '"' : ''} required>
+                    <input class="form-control" type="text" id="first_name_${rowCount}" name="first_name[]" ${record ? 'value="' + (record.fullname.split(' ')[0] || '') + '"' : ''} >
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="surname_${rowCount}">*Surname</label>
-                    <input class="form-control" type="text" id="surname_${rowCount}" name="surname[]" ${record ? 'value="' + (record.fullname.split(' ')[1] || '') + '"' : ''} required>
+                    <input class="form-control" type="text" id="surname_${rowCount}" name="surname[]" ${record ? 'value="' + (record.fullname.split(' ')[1] || '') + '"' : ''} >
                 </div>
             </div>
             <div class="col-sm-4 mb-3">
@@ -493,7 +493,7 @@
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label for="phone_${rowCount}">*Phone</label>
-                    <input class="form-control" type="text" id="phone_${rowCount}" name="phone[]" ${record ? 'value="' + (record.phone || '') + '"' : ''} required>
+                    <input class="form-control" type="text" id="phone_${rowCount}" name="phone[]" ${record ? 'value="' + (record.phone || '') + '"' : ''} >
                 </div>
             </div>
             <div class="col-sm-4 mb-3">
@@ -607,19 +607,19 @@
             <div class="row">
                 <div class="col-md-4">
                     <label class="form-label">Firstname</label>
-                    <input type="text" class="form-control" name="firstname[]" value="${data.firstname || ''}" required>
+                    <input type="text" class="form-control" name="firstname[]" value="${data.firstname || ''}" >
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Surname</label>
-                    <input type="text" class="form-control" name="surname[]" value="${data.surname || ''}" required>
+                    <input type="text" class="form-control" name="surname[]" value="${data.surname || ''}" >
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-control" name="email[]" value="${data.email || ''}" required>
+                    <input type="email" class="form-control" name="email[]" value="${data.email || ''}" >
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Phone</label>
-                    <input type="text" class="form-control" name="phone[]" value="${data.phone || ''}" required>
+                    <input type="text" class="form-control" name="phone[]" value="${data.phone || ''}" >
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Gender</label>
@@ -637,7 +637,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Date of Birth</label>
-                    <input type="date" class="form-control" name="dob[]" value="${data.dob || ''}" required>
+                    <input type="date" class="form-control" name="dob[]" value="${data.dob || ''}" >
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Invited By</label>
@@ -677,19 +677,29 @@
         $('#attendance_prev').show(500);
         
         $.ajax({
-            url: site_url + 'service/report/manage/partnership/' + id,
+            url: site_url + 'service/report/manage/finance/' + id,
             type: 'get',
             success: function (data) {
                 var dt = JSON.parse(data);
-                $('#finance_id').val(dt.id)
-                $('#total_part').val(dt.total_part)
-                $('#member_part').val(dt.member_part)
-                $('#guest_part').val(dt.guest_part)
-                thanksgiving_report(id);
-                tithe_report(id);
+                $('#finance_id').val(dt.id);
+                $('#total_part').val(dt.total_part);
+                $('#member_part').val(dt.member_part);
+                $('#guest_part').val(dt.guest_part);
+                $('#total_thanksgiving').val(dt.total_thanksgiving);
+                $("#member_thanksgiving").val(dt.member_thanksgiving);
+                $("#guest_thanksgiving").val(dt.guest_thanksgiving);
+                $('#total_tithe').val(dt.total_tithe);
+                $("#member_tithe").val(dt.member_tithe);
+                $("#guest_tithe").val(dt.guest_tithe);
+                $('#total_seed').val(dt.total_seed);
+                $("#member_seed").val(dt.member_seed);
+                $("#guest_seed").val(dt.guest_seed);
+                $('#total_offering').val(dt.total_offering);
+                $("#member_offering").val(dt.member_offering);
+                $("#guest_offering").val(dt.guest_offering);
+
                 fetchAndPopulateFirstTimers(dt.id);
-                seed_report(id);
-                offering_report(id);
+               
                 populateMember(dt.id)
                 $('#finance_msg').html('');
             }
@@ -762,16 +772,17 @@
                                     row += 'placeholder="0" value="' + details.value + '"></td>';
                                 });
                     
-                                // Partnership Contributions Inputs
-                                partners.forEach(function (partner, index) {
+                               // Partnership Contributions Inputs for Guests
+                                partners.forEach(function (partner) {
                                     var amount = partner.amount || '0';
                                     row += '<td>';
                                     row += '<input type="text" style="width:100px;" class="form-control firsts_amount" ';
-                                    row += 'name="' + partner.id + '_first[' + index + ']" ';
+                                    row += 'name="' + partner.id + '_guest[]" '; // Correct field name format
                                     row += 'oninput="bindInputEvents();" ';
                                     row += 'value="' + amount + '">';
                                     row += '</td>';
                                 });
+
                     
                                 row += '</tr>';
                     
@@ -1000,7 +1011,7 @@
         const absent_newRow = $('<tr></tr>');
     
         // Create a select element for church members
-        const absent_memberSelect = $(`<select class="js-select2" name="absent_members[]" id="members_${absentRowIndex}" required></select>`);
+        const absent_memberSelect = $(`<select class="js-select2" name="absent_members[]" id="members_${absentRowIndex}" ></select>`);
     
         // Add an empty default option
         absent_memberSelect.append('<option value="" selected disabled>Select a Member</option>');
@@ -1025,14 +1036,21 @@
         // Initialize Select2 for this individual element
         absent_memberSelect.select2();
     });
-    
 
     $('#mem_btn').click(function() {
+        const tableBody = $('#member_partner_list');
+        const noRecordsRow = tableBody.find('tr').first();
+    
+        // Check if the table contains "No records found."
+        if (noRecordsRow.length && noRecordsRow.text().trim() === "No records found.") {
+            tableBody.empty(); // Clear the tbody if the only row contains "No records found."
+        }
+    
         // Create a new row
         const newRow = $('<tr></tr>');
     
         // Create a select element for church members
-        const memberSelect = $('<select class="js-selects2 members form-control" name="members[]" required></select>');
+        const memberSelect = $('<select class="js-selects2 members form-control" name="members[]" ></select>');
         memberSelect.append('<option value="" selected disabled>Select a Member</option>');
     
         // Check if church members are available and append them to the select
@@ -1065,26 +1083,31 @@
         });
     
         // Add input textboxes for each partnership contribution dynamically
-        partnerships.forEach(function(partnership, index) {
-            let dynamicOninputFunction = `bindInputEvents(${index})`;
+        partnerships.forEach(function(partnership) {
+            let partnershipId = partnership.id; // Get the partnership ID
+            let dynamicOninputFunction = `bindInputEvents(${partnershipId})`; // Bind function using partnership ID
+
             newRow.append(`
                 <td>
                     <input type="text" style="width:100px;" class="form-control members_amount" 
                         oninput="${dynamicOninputFunction}; this.value = this.value.replace(/[^0-9]/g, '');" 
-                        name="${partnership}_member[]" placeholder="0">
+                        name="${partnershipId}_member[]" placeholder="0">
                 </td>
             `);
         });
-        
+
+    
+        // Add delete button
         newRow.append(`
             <td>
                 <button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
                     <i class="icon ni ni-trash"></i>
                 </button>
             </td>
-            `);
+        `);
+    
         // Append the new row to the table body
-        $('#member_partner_list').append(newRow);
+        tableBody.append(newRow);
     
         // Initialize select2 for the new element only
         memberSelect.select2();
@@ -1102,7 +1125,7 @@
         titheRowIndex++; // Increment the row index for each new row
     
         const titheNewRow = $('<tr></tr>');
-        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${titheRowIndex}" required></select>`);
+        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${titheRowIndex}" ></select>`);
         titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
     
         if (churchMembers && churchMembers.length > 0) {
@@ -1140,7 +1163,7 @@
         offeringRowIndex++; // Increment the row index for each new row
         
         const titheNewRow = $('<tr></tr>');
-        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${offeringRowIndex}" required></select>`);
+        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${offeringRowIndex}" ></select>`);
         titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
     
         if (churchMembers && churchMembers.length > 0) {
@@ -1534,7 +1557,7 @@
             
         });
 
-        $('#partnershipForm').submit(function(event) {
+        $('#financeForm').submit(function(event) {
             event.preventDefault(); // Prevent the default form submission
 
             // Gather form data
@@ -1542,12 +1565,13 @@
             $('#finance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
             // Send an AJAX POST request
             $.ajax({
-                url: site_url + 'service/report/manage/partnership', // Replace with your server URL
+                url: site_url + 'service/report/manage/finance', // Replace with your server URL
                 type: 'POST',
                 data: formData,
                 success: function(response) {
                     // Handle a successful response
                     $('#finance_msg').html(response);
+                    $('#financeForm').trigger('reset');
                 }
             });
         });
@@ -1600,7 +1624,7 @@
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '0';
+                input.value = '';
             }
         });
     }
@@ -1633,7 +1657,7 @@
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '0';
+                input.value = '';
             }
         });
     }
@@ -1664,7 +1688,7 @@
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '0';
+                input.value = '';
             }
         });
     }
@@ -1695,7 +1719,7 @@
         // Set value to 0 if the textbox is empty
         tithesInputs.forEach(function(input) {
             if (input.value === '') {
-                input.value = '0';
+                input.value = '';
             }
         });
     }

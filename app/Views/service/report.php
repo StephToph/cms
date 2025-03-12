@@ -210,7 +210,7 @@ $service_church_id = $this->session->get('service_church_id');
 
                                     <div class="col-sm-4 mb-3">
                                         <div class="form-group">
-                                            <label for="name">*<?= translate_phrase('Attendance'); ?></label>
+                                            <label for="name">*<?= translate_phrase('Head Count'); ?></label>
                                             <div class="form-control-wrap">
                                                 <div class="input-group">
                                                     <input type="text" name="attendance" id="attendance"
@@ -235,64 +235,14 @@ $service_church_id = $this->session->get('service_church_id');
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <div class="form-group">
-                                            <label for="name">*<?= translate_phrase('Offering'); ?></label>
-                                            <div class="form-control-wrap">
-                                                <div class="input-group">
-                                                    <input type="text" name="offering" id="offering"
-                                                        oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                        class="form-control" placeholder="0">
-
-                                                </div>
-                                                <span class="text-danger"></span>
-                                            </div>
-
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-4 mb-3">
-                                        <div class="form-group">
-                                            <label for="name">*<?= translate_phrase('Tithe'); ?></label>
-                                            <div class="form-control-wrap">
-                                                <div class="input-group">
-                                                    <input type="text" name="tithe" id="tithe"
-                                                        oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                        class="form-control" placeholder="0">
-
-                                                </div>
-                                                <span class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-4 mb-3">
-                                        <div class="form-group">
-                                            <label for="name">*<?= translate_phrase('Partnership'); ?></label>
-                                            <div class="form-control-wrap">
-                                                <div class="input-group">
-                                                    <input type="text" name="partnership" id="partnership"
-                                                        oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                        class="form-control" placeholder="0">
-
-                                                </div>
-                                                <span class="text-danger"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                    
                                     <div class="col-sm-12 mb-3">
                                         <div class="form-group">
                                             <label for="name"><?= translate_phrase('Note'); ?></label>
                                             <textarea class="form-control" id="note" name="note"></textarea>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="attendant" id="attendant">
-                                    <input type="hidden" name="converts" id="converts">
-                                    <input type="hidden" name="timers" id="timers">
-                                    <input type="hidden" name="tither" id="tither">
-                                    <input type="hidden" name="offering_givers" id="offering_givers">
-                                    <input type="hidden" name="partners" id="partners">
-
+                                    
                                     <div class="col-sm-12 text-center mt-3">
                                         <button class="btn btn-primary bb_fo_btn" type="submit">
                                             <em class="icon ni ni-save"></em>
@@ -468,30 +418,15 @@ $service_church_id = $this->session->get('service_church_id');
                                 </div>
                             </div>
                             <div class="card-inner" id="finance_view" style="display:none;">
-                                <form id="partnershipForm">
+                                <form id="financeForm">
                                     <input type="hidden" name="finance_id" id="finance_id">
                                     <input type="hidden" name="first_church_id" id="first_church_id">
 
                                     <div class="row">
                                         <span class="text-danger mb-2">Enter Finance Record in the Table
                                             Below</span>
-                                        <div class="col-sm-4 mb-3 ">
-                                            <label>Total Partnership</label>
-                                            <input class="form-control" id="total_part" type="text" name="total_part"
-                                                readonly value="0">
-                                        </div>
-                                        <div class="col-sm-4 mb-3">
-                                            <label>Member Partnership</label>
-                                            <input class="form-control" id="member_part" type="text" name="member_part"
-                                                readonly value="0">
-                                        </div>
-                                        <div class="col-sm-4 mb-3">
-                                            <label>Guest Partnership</label>
-                                            <input class="form-control" id="guest_part" type="text" name="guest_part"
-                                                oninput="get_part();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                readonly value="0">
-                                        </div>
-                                        
+
+                                             
                                         <div class="col-sm-4 mb-3 ">
                                             <label>Total Offering</label>
                                             <input class="form-control" id="total_offering" type="text" name="total_offering"
@@ -508,6 +443,24 @@ $service_church_id = $this->session->get('service_church_id');
                                                 oninput="get_offering();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
                                                 value="0">
                                         </div>
+                                        
+                                        <div class="col-sm-4 mb-3 ">
+                                            <label>Total Tithe</label>
+                                            <input class="form-control" id="total_tithe" type="text" name="total_tithe"
+                                                readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Member Tithe</label>
+                                            <input class="form-control" id="member_tithe" type="text"
+                                                name="member_tithe" readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <label>Guest Tithe</label>
+                                            <input class="form-control" id="guest_tithe" type="text" name="guest_tithe"
+                                                oninput="get_tithe();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
+                                                value="0">
+                                        </div>
+                                         
                                         <div class="col-sm-4 mb-3 ">
                                             <label>Total Thanksgiving Offering</label>
                                             <input class="form-control" id="total_thanksgiving" type="text" name="total_thanksgiving"
@@ -542,21 +495,22 @@ $service_church_id = $this->session->get('service_church_id');
                                         </div>
                                         
                                         <div class="col-sm-4 mb-3 ">
-                                            <label>Total Tithe</label>
-                                            <input class="form-control" id="total_tithe" type="text" name="total_tithe"
+                                            <label>Total Partnership</label>
+                                            <input class="form-control" id="total_part" type="text" name="total_part"
                                                 readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
-                                            <label>Member Tithe</label>
-                                            <input class="form-control" id="member_tithe" type="text"
-                                                name="member_tithe" readonly value="0">
+                                            <label>Member Partnership</label>
+                                            <input class="form-control" id="member_part" type="text" name="member_part"
+                                                readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
-                                            <label>Guest Tithe</label>
-                                            <input class="form-control" id="guest_tithe" type="text" name="guest_tithe"
-                                                oninput="get_tithe();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
-                                                value="0">
+                                            <label>Guest Partnership</label>
+                                            <input class="form-control" id="guest_part" type="text" name="guest_part"
+                                                oninput="get_part();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
+                                                readonly value="0">
                                         </div>
+                                      
                                     </div>
                                     <hr>
 
