@@ -370,6 +370,7 @@ class Service extends BaseController {
 			echo json_encode($edata);
 			die;
 		} 
+
 		// manage record
 		if($param1 == 'manage') {
 			$data['first'] = [];
@@ -849,6 +850,482 @@ class Service extends BaseController {
 						$service_date = $this->Crud->read_field('id', $finance_id, 'service_report', 'date');
 						$action = "$by updated Service Finance Report for $service_date";
 						$this->Crud->activity('service', $finance_id, $action);
+				
+						echo '<script>
+							setTimeout(function() {
+								$("#show").show(500);
+								$("#form").hide(500);
+								$("#finance_view").hide(500);
+								$("#attendance_prev").hide(500);
+								$("#add_btn").show(500);
+								$("#prev").hide(500);
+								load();
+								$("#tithe_msg").html("");
+							}, 2000);
+						</script>';
+					} else {
+						echo $this->Crud->msg('info', 'No Changes');
+					}
+				
+					die;
+				}
+				
+				
+
+			} elseif($param2 == 'finance'){
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$total_part = 0;
+					$member_part = 0;
+					$guest_part = 0;
+					$total_tithe = 0;
+					$member_tithe = 0;
+					$guest_tithe = 0;
+					$total_offering = 0;
+					$member_offering = 0;
+					$guest_offering = 0;
+					$total_seed = 0;
+					$member_seed = 0;
+					$guest_seed = 0;
+					$total_thanksgiving = 0;
+					$member_thanksgiving = 0;
+					$guest_thanksgiving = 0;
+
+
+					$id = 0;
+					$guest_partners = [];
+					$member_partners = [];
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$id = $e->id;
+							
+							// Decode JSON fields safely
+							$partners = !empty($e->partners) ? json_decode($e->partners) : (object)[];
+							$offering_givers = !empty($e->offering_givers) ? json_decode($e->offering_givers) : (object)[];
+							$tithers = !empty($e->tithers) ? json_decode($e->tithers) : (object)[];
+							$thanksgiving_record = !empty($e->thanksgiving_record) ? json_decode($e->thanksgiving_record) : (object)[];
+							$seed_record = !empty($e->seed_record) ? json_decode($e->seed_record) : (object)[];
+					
+							// Process partnerships
+							if (!empty($partners)) {
+								$total_part = $partners->total_part ?? 0;
+								$member_part = $partners->member_part ?? 0;
+								$guest_part = $partners->guest_part ?? 0;
+					
+								if (!empty($partners->partnership)) {
+									foreach ($partners->partnership as $p => $pval) {
+										if ($p === 'guest') {
+											$guest_partners = is_array($pval) ? $pval : [];
+										}
+										if ($p === 'member') {
+											$member_partners = is_array($pval) ? $pval : [];
+										}
+									}
+								}
+							}
+					
+							// Process offering records
+							if (!empty($offering_givers)) {
+								$total_offering = $offering_givers->total ?? 0;
+								$member_offering = $offering_givers->member ?? 0;
+								$guest_offering = $offering_givers->guest ?? 0;
+							}
+					
+							// Process tithe records
+							if (!empty($tithers)) {
+								$total_tithe = $tithers->total ?? 0;
+								$member_tithe = $tithers->member ?? 0;
+								$guest_tithe = $tithers->guest ?? 0;
+							}
+					
+							// Process thanksgiving records
+							if (!empty($thanksgiving_record)) {
+								$total_thanksgiving = $thanksgiving_record->total ?? 0;
+								$member_thanksgiving = $thanksgiving_record->member ?? 0;
+								$guest_thanksgiving = $thanksgiving_record->guest ?? 0;
+							}
+					
+							// Process seed records
+							if (!empty($seed_record)) {
+								$total_seed = $seed_record->total ?? 0;
+								$member_seed = $seed_record->member ?? 0;
+								$guest_seed = $seed_record->guest ?? 0;
+							}
+						}
+					}
+					
+					$resp['id'] = $id;
+					$resp['guest_partners'] = json_encode($guest_partners);
+					$resp['member_partners'] = json_encode($member_partners);
+					$resp['total_part'] = $total_part;
+					$resp['member_part'] = $member_part;
+					$resp['guest_part'] = $guest_part;
+					$resp['total_offering'] = $total_offering;
+					$resp['member_offering'] = $member_offering;
+					$resp['guest_offering'] = $guest_offering;
+					$resp['total_thanksgiving'] = $total_thanksgiving;
+					$resp['member_thanksgiving'] = $member_thanksgiving;
+					$resp['guest_thanksgiving'] = $guest_thanksgiving;
+					$resp['total_seed'] = $total_seed;
+					$resp['total_tithe'] = $total_tithe;
+					$resp['member_tithe'] = $member_tithe;
+					$resp['guest_tithe'] = $guest_tithe;
+					$resp['member_seed'] = $member_seed;
+					$resp['guest_seed'] = $guest_seed;
+					echo json_encode($resp);
+					die;
+				}
+				//When Adding Save in Session
+				if ($this->request->getMethod() == 'post') {
+					$service_id = $this->request->getPost('finance_id');
+					$church_id = $this->Crud->read_field('id', $service_id, 'service_report', 'church_id');
+					$ministry_id = $this->Crud->read_field('id', $service_id, 'service_report', 'ministry_id');
+					$service_date = $this->Crud->read_field('id', $service_id, 'service_report', 'date');
+
+					// Fetch form data
+					$total_part = $this->request->getPost('total_part');
+					$member_part = $this->request->getPost('member_part');
+					$guest_part = $this->request->getPost('guest_part');
+				
+					$total_offering = $this->request->getPost('total_offering');
+					$member_offering = $this->request->getPost('member_offering');
+					$guest_offering = $this->request->getPost('guest_offering');
+				
+					$total_tithe = $this->request->getPost('total_tithe');
+					$member_tithe = $this->request->getPost('member_tithe');
+					$guest_tithe = $this->request->getPost('guest_tithe');
+				
+					$total_thanksgiving = $this->request->getPost('total_thanksgiving');
+					$member_thanksgiving = $this->request->getPost('member_thanksgiving');
+					$guest_thanksgiving = $this->request->getPost('guest_thanksgiving');
+				
+					$total_seed = $this->request->getPost('total_seed');
+					$member_seed = $this->request->getPost('member_seed');
+					$guest_seed = $this->request->getPost('guest_seed');
+				
+					$members = $this->request->getPost('members');
+					$offerings = $this->request->getPost('offering');
+					$tithes = $this->request->getPost('tithe');
+					$thanksgivings = $this->request->getPost('thanksgiving');
+					$seeds = $this->request->getPost('seed');
+				
+					$guests = $this->request->getPost('guests');
+					$guest_offerings = $this->request->getPost('guestz_offering');
+					$guest_tithes = $this->request->getPost('guestz_tithe');
+					$guest_thanksgivings = $this->request->getPost('guestz_thanksgiving');
+					$guest_seeds = $this->request->getPost('guestz_seed');
+				
+					// Fetch Partnerships
+					$partnerships = $this->Crud->read_order('partnership', 'name', 'asc');
+				
+					// Initialize Financial Data Structures with guest_list
+					$offering_data = [
+						"total" => $total_offering,
+						"member" => $member_offering,
+						"guest" => $guest_offering
+					];
+				
+					$tithe_data = [
+						"total" => $total_tithe,
+						"member" => $member_tithe,
+						"guest" => $guest_tithe
+					];
+				
+					$thanksgiving_data = [
+						"total" => $total_thanksgiving,
+						"member" => $member_thanksgiving,
+						"guest" => $guest_thanksgiving
+					];
+				
+					$seed_data = [
+						"total" => $total_seed,
+						"member" => $member_seed,
+						"guest" => $guest_seed
+					];
+				
+					// Initialize Partnership Data
+					$partnership_data = [
+						"guest_part" => $guest_part,
+						"total_part" => $total_part,
+						"member_part" => $member_part
+					];
+				
+					// Process Guest Contributions First
+					if (!empty($guests)) {
+						foreach ($guests as $index => $guest_name) {
+							// Ensure guest_id is uniquely formatted for database consistency
+							$guest_id = "guest_" . str_replace(' ', '_', strtolower($guest_name)); // Convert spaces to underscores
+					
+							// Define finance types and their respective values
+							$financeTypes = [
+								'offering' => !empty($guest_offerings[$index]) ? (float)$guest_offerings[$index] : 0,
+								'tithe' => !empty($guest_tithes[$index]) ? (float)$guest_tithes[$index] : 0,
+								'thanksgiving' => !empty($guest_thanksgivings[$index]) ? (float)$guest_thanksgivings[$index] : 0,
+								'seed' => !empty($guest_seeds[$index]) ? (float)$guest_seeds[$index] : 0
+							];
+					
+							// Set user type
+							$user_type = 'guest';
+					
+							// Insert or update general finance contributions
+							foreach ($financeTypes as $type => $amount) {
+								// Ensure only valid amounts are processed
+								$g_existingFinance = $this->Crud->read_field4(
+									'church_id', $church_id,
+									'finance_type', $type,
+									'user_id', $guest_id,
+									'service_id', $service_id,
+									'service_finance', 'id'
+								);
+				
+								$gs_fin['amount'] = $amount;
+				
+								if ($g_existingFinance) {
+									// Update existing record
+									$this->Crud->updates('id', $g_existingFinance, 'service_finance', $gs_fin);
+								} else {
+									$gs_fin['church_id'] = $church_id;
+									$gs_fin['finance_type'] = $type;
+									$gs_fin['user_id'] = $guest_id; // Store guest name uniquely
+									$gs_fin['user_type'] = $user_type;
+									$gs_fin['service_id'] = $service_id;
+									$gs_fin['ministry_id'] = $ministry_id;
+									$gs_fin['reg_date'] = date('Y-m-d H:i:s');
+									if ($amount > 0) { 
+										// Insert new record
+										$this->Crud->create('service_finance', $gs_fin);
+										
+									}
+								}
+							}
+					
+							// Process and insert/update Guest Partnerships
+							foreach ($partnerships as $p) {
+								$key = $p->id . '_guest'; // Ensure correct input name format
+								$guest_partnership_values = $this->request->getPost($key) ?? [];
+					
+								// Ensure it's an array to avoid processing errors
+								if (!is_array($guest_partnership_values)) {
+									$guest_partnership_values = [$guest_partnership_values];
+								}
+					
+								foreach ($guest_partnership_values as $index => $guest_partnership_value) {
+									$partnership_id = $p->id;
+									$amount = (float)$guest_partnership_value;
+									
+									// Ensure only valid amounts are processed
+									// Retrieve existing finance record
+									$g_existingPartnership = $this->Crud->read_field5(
+										'church_id', $church_id,
+										'finance_type', 'partnership',
+										'guest', $guest_id,
+										'service_id', $service_id,
+										'partnership_id', $partnership_id,
+										'service_finance', 'id'
+									);
+				
+									// Prepare data for insertion/update
+									$gs_part['amount'] = $amount;
+				
+									if ($g_existingPartnership) {
+										// Update existing partnership finance record
+										$this->Crud->updates('id', $g_existingPartnership, 'service_finance', $gs_part);
+									} else {
+										$gs_part['church_id'] = $church_id;
+										$gs_part['finance_type'] = 'partnership';
+										$gs_part['guest'] = $guest_id; // Store guest ID correctly
+										$gs_part['user_type'] = $user_type;
+										$gs_part['partnership_id'] = $partnership_id;
+										$gs_part['service_id'] = $service_id;
+										$gs_part['ministry_id'] = $ministry_id;
+										$gs_part['reg_date'] = date('Y-m-d H:i:s');
+										if ($amount > 0) { 
+											// Insert new partnership finance record
+											$this->Crud->create('service_finance', $gs_part);
+										}
+									}
+
+									// Retrieve existing finance record in partners_history
+									$g_existingPartnershipz = $this->Crud->read_field3(
+										'guest', $guest_id,
+										'service_id', $service_id,
+										'partnership_id', $partnership_id,
+										'partners_history', 'id'
+									);
+				
+									$gh_part['amount_paid'] = $amount;
+				
+									if ($g_existingPartnershipz) {
+										// Update existing partnership finance record
+										$this->Crud->updates('id', $g_existingPartnershipz, 'partners_history', $gh_part);
+									} else {
+										// Add to the Partners History
+										$gh_part['guest'] = $guest_id; // Store guest ID correctly
+										$gh_part['church_id'] = $church_id;
+										$gh_part['ministry_id'] = $ministry_id;
+										$gh_part['service_id'] = $service_id;
+										$gh_part['partnership_id'] = $partnership_id;
+										$gh_part['status'] = 1;
+										$gh_part['date_paid'] = $service_date;
+										$gh_part['reg_date'] = date('Y-m-d H:i:s');
+				
+										$this->Crud->create('partners_history', $gh_part);
+									}
+								}
+							}
+						}
+					}
+					
+					
+
+					// Process Member Contributions
+					if (!empty($members)) {
+						foreach ($members as $index => $member_id) {
+							// Define finance types and their respective values
+							$financeTypes = [
+								'offering' => !empty($offerings[$index]) ? (float)$offerings[$index] : 0,
+								'tithe' => !empty($tithes[$index]) ? (float)$tithes[$index] : 0,
+								'thanksgiving' => !empty($thanksgivings[$index]) ? (float)$thanksgivings[$index] : 0,
+								'seed' => !empty($seeds[$index]) ? (float)$seeds[$index] : 0
+							];
+					
+							// Set user type
+							$user_type = 'member';
+					
+							// Insert or update general finance contributions
+							foreach ($financeTypes as $type => $amount) {
+								
+								$existingFinance = $this->Crud->read_field3(
+									'finance_type', $type,
+									'user_id', $member_id,
+									'service_id', $service_id,
+									'service_finance', 'id'
+								);
+				
+								$s_fin['amount'] = $amount;
+				
+								if ($existingFinance) {
+									// Update existing record
+									$this->Crud->updates('id', $existingFinance, 'service_finance', $s_fin);
+								} else {
+									
+									$s_fin['church_id'] = $church_id;
+									$s_fin['finance_type'] = $type;
+									$s_fin['user_id'] = $member_id;
+									$s_fin['user_type'] = $user_type;
+									$s_fin['service_id'] = $service_id;
+									$s_fin['ministry_id'] = $ministry_id;
+									$s_fin['reg_date'] = date('Y-m-d H:i:s');
+									if ($amount > 0) {
+										// Insert new record
+										$this->Crud->create('service_finance', $s_fin);
+									}
+								}
+							
+							}
+					
+							// Process and insert/update Member Partnerships
+							foreach ($partnerships as $p) {
+								if (!isset($p->id) || empty($p->id)) {
+									continue; // Skip if the partnership ID is not valid
+								}
+					
+								$key = $p->id . '_member';
+								$member_partnership_value = $this->request->getPost($key)[$index] ?? 0;
+								// echo $member_partnership_value;
+								// Ensure valid partnership value
+							
+								$partnership_id = $p->id;
+								$amount = (float)$member_partnership_value;
+				
+								// Retrieve existing finance record
+								$existingPartnership = $this->Crud->read_field5(
+									'church_id', $church_id,
+									'finance_type', 'partnership',
+									'user_id', $member_id,
+									'service_id', $service_id,
+									'partnership_id', $partnership_id,
+									'service_finance', 'id'
+								);
+				
+								// Prepare data for insertion/update
+								$s_part['amount'] = $amount;
+				
+								if ($existingPartnership) {
+									// Update existing partnership finance record
+									$this->Crud->updates('id', $existingPartnership, 'service_finance', $s_part);
+								} else {
+									$s_part['church_id'] = $church_id;
+									$s_part['finance_type'] = 'partnership';
+									$s_part['user_id'] = $member_id;
+									$s_part['user_type'] = $user_type;
+									$s_part['partnership_id'] = $partnership_id;
+									$s_part['service_id'] = $service_id;
+									$s_part['ministry_id'] = $ministry_id;
+									$s_part['reg_date'] = date('Y-m-d H:i:s'); // Correct format for date
+									if (!empty($member_partnership_value) && is_numeric($member_partnership_value)) {
+										// Insert new partnership finance record
+										$this->Crud->create('service_finance', $s_part);
+									}
+								}
+
+								// Retrieve existing finance record
+								$existingPartnershipz = $this->Crud->read_field3(
+									'member_id', $member_id,
+									'service_id', $service_id,
+									'partnership_id', $partnership_id,
+									'partners_history', 'id'
+								);
+								
+								$h_part['amount_paid'] = $amount;
+								if ($existingPartnershipz) {
+									// Update existing partnership finance record
+									$this->Crud->updates('id', $existingPartnershipz, 'partners_history', $h_part);
+								} else {
+
+									//Add to the Partners History
+									$h_part['member_id'] = $member_id;
+									$h_part['church_id'] = $church_id;
+									$h_part['ministry_id'] = $ministry_id;
+									$h_part['service_id'] = $service_id;
+									$h_part['partnership_id'] = $partnership_id;
+									$h_part['status'] = 1;
+									$h_part['date_paid'] = $service_date;
+									$h_part['reg_date'] = date(fdate);
+									if($amount > 0)$this->Crud->create('partners_history', $h_part);
+								}
+								
+							}
+						}
+					}
+					
+					
+					// print_r($partnership_data);
+					// die;
+				
+					// Prepare Data for Database Update
+					$finance_update = [
+						'tithe' => $total_tithe,
+						'offering' => $total_offering,
+						'partnership' => $total_part,
+						'thanksgiving' => $total_thanksgiving,
+						'seed' => $total_seed,
+						'partners' => json_encode($partnership_data),
+						'offering_givers' => json_encode($offering_data),
+						'tithers' => json_encode($tithe_data),
+						'thanksgiving_record' => json_encode($thanksgiving_data),
+						'seed_record' => json_encode($seed_data)
+					];
+				
+					// Update Database
+					if ($this->Crud->updates('id', $service_id, 'service_report', $finance_update) > 0) {
+						echo $this->Crud->msg('success', 'Financial Report Submitted');
+				
+						// Store activity logs
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$service_date = $this->Crud->read_field('id', $service_id, 'service_report', 'date');
+						$action = "$by updated Service Finance Report for $service_date";
+						$this->Crud->activity('service', $service_id, $action);
 				
 						echo '<script>
 							setTimeout(function() {
@@ -1752,23 +2229,16 @@ class Service extends BaseController {
 					$dates = date('y-m-d', strtotime($date));
 
 					
-					$ins_data['tithers'] = $tither;
 					$ins_data['type'] = $type;
 					$ins_data['date'] = $dates;
 					$ins_data['attendance'] = $attendance;
 					$ins_data['new_convert'] = $new_convert;
 					$ins_data['first_timer'] = $first_timer;
-					$ins_data['offering'] = $offering;
-					$ins_data['note'] = $note;
-					$ins_data['partnership'] = $partnership;
 					$ins_data['attendant'] = $attendant;
 					$ins_data['converts'] = $converts;
 					$ins_data['timers'] = $timers;
-					$ins_data['tithe'] = $tithe;
-					$ins_data['partners'] = $partners;
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_id'] = $church_id;
-					$ins_data['offering_givers'] = $offering_givers;
 			
 					
 
@@ -1777,15 +2247,6 @@ class Service extends BaseController {
 								
 						$upd_rec = $this->Crud->updates('id', $report_id, $table, $ins_data);
 						if($upd_rec > 0) {
-
-							$this->session->set('service_attendance', '');
-							$this->session->set('service_partnership', '');
-							$this->session->set('service_converts', '');
-							$this->session->set('service_timers', '');
-							$this->session->set('service_tithe', '');
-							$this->session->set('service_offering', '');
-							$this->session->set('service_timer_count', '');
-
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 							$action = $by.' updated Service Meeting Report';
@@ -1862,35 +2323,6 @@ class Service extends BaseController {
 														$this->Crud->updates('id', $Urec, 'user', array('user_no'=>'CEAM-00'.$Urec));
 
 														$user_no = 'CEAM-00'.$Urec;
-
-														if(!empty($partners)){
-															$partners = (array)json_decode($partners);
-															$part = $partners['partnership'];
-															$part = ((array)$part);
-															$guest = (array)($part['guest']);
-															if(!empty($guest)){
-																foreach ($guest as $Gkey => $Gvalue) {
-																	if($Gkey == $fullname){
-																		$uid = $this->Crud->read_field('email', $email, 'user', 'id');
-																		if(!empty($Gvalue)){
-																			foreach($Gvalue as $gb => $gamount){
-																				$p_ins['member_id'] = $uid;
-																				$p_ins['partnership_id'] = $gb;
-																				$p_ins['amount_paid'] = $gamount;
-																				$p_ins['reg_date'] = date(fdate);
-																				$p_ins['status'] = 1;
-																				$p_ins['date_paid'] = $dates;
-					
-																				if($this->Crud->check2('member_id', $uid, 'date_paid', $dates, 'partners_history') == 0){
-																					$this->Crud->create('partners_history', $p_ins);
-																				}
-																			}
-																		}
-																		
-																	}
-																}
-															}
-														}
 														
 													}
 													
@@ -1901,40 +2333,6 @@ class Service extends BaseController {
 									}
 								}
 
-								//Make Partnership Payment
-								if(!empty($partners)){
-									$partners = (array)json_decode($partners);
-									$part = $partners['partnership'];
-									$part = ((array)$part);
-									$member = (array)($part['member']);
-									if(!empty($member)){
-										foreach ($member as $Gkey => $Gvalue) {
-											if(!empty($Gvalue)){
-												foreach($Gvalue as $gb => $gamount){
-													$p_ins['member_id'] = $Gkey;
-													$p_ins['partnership_id'] = $gb;
-													$p_ins['amount_paid'] = $gamount;
-													$p_ins['reg_date'] = date(fdate);
-													$p_ins['status'] = 1;
-													$p_ins['date_paid'] = $dates;
-
-													if($this->Crud->check3('member_id', $Gkey, 'partnership_id', $gb, 'date_paid', $dates, 'partners_history') == 0){
-														$this->Crud->create('partners_history', $p_ins);
-													}
-												}
-											}
-												
-											
-										}
-									}
-								}
-								$this->session->set('service_attendance', '');
-								$this->session->set('service_partnership', '');
-								$this->session->set('service_converts', '');
-								$this->session->set('service_timers', '');
-								$this->session->set('service_offering', '');
-								$this->session->set('service_tithe', '');
-								$this->session->set('service_timer_count', '');
 								///// store activities
 								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 								$action = $by.' created a Service Report for ('.$date.')';
@@ -2079,46 +2477,50 @@ class Service extends BaseController {
 			if ($param2 == 'get_service_partnership') {
 				if ($param3) {
 					$data = [];
-					$name = strtoupper($this->request->getPost('name')); // Convert name to uppercase for consistency
-					$partners = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'partners'));
-					$offering_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'offering_givers'));
-					$tithe_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'));
-					$thanksgiving_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'thanksgiving_record'));
-					$seed_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'seed_record'));
-					$partnerships = $this->Crud->read_order('partnership', 'name', 'asc');
-			
+					$name = strtolower(str_replace(' ', '_', $this->request->getPost('name'))); // Convert name to lowercase and replace spaces with underscores
+					$guest_id = "guest_" . $name; // Ensure guest ID is formatted correctly
+				
+					// Fetch financial records directly from service_finance table
+					$financial_records = $this->Crud->read2('service_id', $param3, 'guest', $guest_id, 'service_finance');
+				
 					// Initialize guest financial contributions
-					$guest_offering = $offering_data->guest_list->$name ?? '0';
-					$guest_tithe = $tithe_data->guest_list->$name ?? '0';
-					$guest_thanksgiving = $thanksgiving_data->guest_list->$name ?? '0';
-					$guest_seed = $seed_data->guest_list->$name ?? '0';
-			
+					$guest_offering = $guest_tithe = $guest_thanksgiving = $guest_seed = "0";
+				
+					// Process financial records
+					if (!empty($financial_records)) {
+						foreach ($financial_records as $record) {
+							if ($record->finance_type == 'offering') {
+								$guest_offering = $record->amount;
+							} elseif ($record->finance_type == 'tithe') {
+								$guest_tithe = $record->amount;
+							} elseif ($record->finance_type == 'thanksgiving') {
+								$guest_thanksgiving = $record->amount;
+							} elseif ($record->finance_type == 'seed') {
+								$guest_seed = $record->amount;
+							}
+						}
+					}
+				
 					// Retrieve partnerships
+					$partnerships = $this->Crud->read_order('partnership', 'name', 'asc');
+				
 					if (!empty($partnerships)) {
 						foreach ($partnerships as $p) {
-							$amount = 0;
 							$pid = $p->id;
-			
-							if (!empty($partners)) {
-								foreach ($partners as $time => $val) {
-									if ($time == 'partnership' && isset($val->guest)) {
-										foreach ($val->guest as $g => $gpal) {
-											if (strtoupper($g) == $name) {
-												$gpals = (array) $gpal;
-												if (isset($gpals[$pid])) {
-													$amount = $gpals[$pid];
-												}
-											}
-										}
-									}
-								}
+							$amount = "0"; // Default amount
+				
+							// Fetch guest partnership contribution from service_finance
+							$guest_partnership = $this->Crud->read_field4('service_id', $param3, 'guest', $guest_id, 'finance_type',  'partnership', 'partnership_id', $pid, 'service_finance', 'amount');
+				
+							if (!empty($guest_partnership)) {
+								$amount = $guest_partnership;
 							}
-			
+				
 							$data[] = ['id' => $pid, 'amount' => $amount];
 						}
 					}
-			
-					// Include guest financial records
+				
+					// Include guest financial records in response
 					$response = [
 						"partners" => $data,
 						"guest_offering" => $guest_offering,
@@ -2126,15 +2528,12 @@ class Service extends BaseController {
 						"guest_thanksgiving" => $guest_thanksgiving,
 						"guest_seed" => $guest_seed
 					];
-			
+				
 					echo json_encode($response);
 					die;
 				}
-			}
-			
 				
-			
-		
+			}
 			
 			if ($param2 == 'get_members_finance') {
 				if ($param3) {
@@ -2155,15 +2554,40 @@ class Service extends BaseController {
 						}
 					}
 					
-			
-					// Fetch Financial Records
-					$offering_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'offering_givers'), true);
-					$tithers_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'tithers'), true);
-					$thanksgiving_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'thanksgiving_record'), true);
-					$seed_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'seed_record'), true);
-					$partnership_data = json_decode($this->Crud->read_field('id', $param3, 'service_report', 'partners'), true);
-			
-					// Fetch Partnership Types
+					// Fetch financial records directly from service_finance table
+					$financial_records = $this->Crud->read_single('service_id', $param3, 'service_finance');
+
+					// Initialize financial lists
+					$offerings_list = [];
+					$tithes_list = [];
+					$thanksgiving_list = [];
+					$seeds_list = [];
+					$partnerships_list = [];
+
+					// Process financial records from database
+					if (!empty($financial_records)) {
+						foreach ($financial_records as $record) {
+							$member_id = $record->user_id;
+							$finance_type = $record->finance_type;
+							$amount = (float)$record->amount;
+
+							if ($finance_type == 'offering') {
+								$offerings_list[$member_id] = $amount;
+							} elseif ($finance_type == 'tithe') {
+								$tithes_list[$member_id] = $amount;
+							} elseif ($finance_type == 'thanksgiving') {
+								$thanksgiving_list[$member_id] = $amount;
+							} elseif ($finance_type == 'seed') {
+								$seeds_list[$member_id] = $amount;
+							} elseif ($finance_type == 'partnership') {
+								$partnership_id = $record->partnership_id;
+								$user_type = $record->user_type;
+								$partnerships_list[$user_type][$member_id][$partnership_id] = $amount;
+							}
+						}
+					}
+
+					// Fetch partnership types
 					$partnerships = $this->Crud->read_order('partnership', 'name', 'asc');
 					$partnership_types = [];
 					if (!empty($partnerships)) {
@@ -2171,46 +2595,39 @@ class Service extends BaseController {
 							$partnership_types[$p->id] = strtoupper($p->name);
 						}
 					}
-			
-					// Function to process financial records into a formatted row
-					function process_financial_data($financial_record) {
-						return (!empty($financial_record) && isset($financial_record['list'])) ? $financial_record['list'] : [];
-					}
-			
-					// Extract financial lists
-					$offerings_list = process_financial_data($offering_data);
-					$tithes_list = process_financial_data($tithers_data);
-					$thanksgiving_list = process_financial_data($thanksgiving_data);
-					$seeds_list = process_financial_data($seed_data);
-					$partnerships_list = isset($partnership_data['partnership']) ? (array)$partnership_data['partnership'] : [];
-			
+
 					// Merge all unique member IDs
 					$all_member_ids = array_unique(array_merge(
-						array_keys($offerings_list), 
-						array_keys($tithes_list), 
-						array_keys($thanksgiving_list), 
-						array_keys($seeds_list), 
-						array_keys($partnerships_list)
+						array_keys($offerings_list),
+						array_keys($tithes_list),
+						array_keys($thanksgiving_list),
+						array_keys($seeds_list),
+						isset($partnerships_list['member']) ? array_keys($partnerships_list['member']) : [],
+						isset($partnerships_list['guest']) ? array_keys($partnerships_list['guest']) : []
 					));
-					
+
 					$table = '';
 					// Construct table rows dynamically
 					foreach ($all_member_ids as $member_id) {
-						$is_guest = strpos($member_id, 'guest_') !== false; // Check if it's a guest
-						if($member_id == 'member' || $member_id == 'guest'){
+						$is_guest = strpos($member_id, 'guest_') !== false;
+						if ($member_id == 'member' || $member_id == 'guest') {
 							continue;
 						}
+
+						// Fetch user details
 						$fullname = $is_guest ? 'GUEST' : $this->Crud->read_field('id', $member_id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $member_id, 'user', 'surname');
 						$phone = $is_guest ? '-' : $this->Crud->read_field('id', $member_id, 'user', 'phone');
-					
-						$offering = isset($offerings_list[$member_id]) ? $offerings_list[$member_id] : "0";
-						$tithe = isset($tithes_list[$member_id]) ? $tithes_list[$member_id] : "0";
-						$thanksgiving = isset($thanksgiving_list[$member_id]) ? $thanksgiving_list[$member_id] : "0";
-						$seed = isset($seeds_list[$member_id]) ? $seeds_list[$member_id] : "0";
-					
+
+						// Fetch financial contributions
+						$offering = $offerings_list[$member_id] ?? "0";
+						$tithe = $tithes_list[$member_id] ?? "0";
+						$thanksgiving = $thanksgiving_list[$member_id] ?? "0";
+						$seed = $seeds_list[$member_id] ?? "0";
+
 						// Define member type
 						$member_type = $is_guest ? "guest" : "member";
-					
+
+						// Construct table row
 						$table .= '<tr>
 									<td>
 										<input type="hidden" readonly class="form-control members" name="members[]" value="' . htmlspecialchars($member_id) . '">
@@ -2237,46 +2654,26 @@ class Service extends BaseController {
 											value="' . htmlspecialchars($seed) . '">
 									</td>';
 
-
-					
-						// Process Partnership Contributions in the required structure
-						if (isset($partnerships_list['member'][$member_id])) {
-							foreach ($partnership_types as $p_id => $p_name) {
-								$amount = isset($partnerships_list['member'][$member_id][$p_id]) ? $partnerships_list['member'][$member_id][$p_id] : "0";
-								
-								// Assign partnerships to either 'member' or 'guest' category
-								if ($amount > 0) {
-									$partnership_data['partnership'][$member_type][$member_id][$p_id] = $amount;
-								}
-					
-								// Add to table
-								$table .= '<td>
-											<input type="text" style="width:100px;" class="form-control members_amount partnerships" 
-												name="' . htmlspecialchars($p_id) . '_member[]" 
-												oninput="bindInputEvents(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
-												value="' . htmlspecialchars($amount) . '">
-										  </td>';
-							}
-						} else {
-							// If no partnerships, add empty fields
-							foreach ($partnership_types as $p_id => $p_name) {
-								$table .= '<td>
-											<input type="text" style="width:100px;" class="form-control members_amount partnerships" 
-												name="' . htmlspecialchars($p_id) . '_member[]" 
-												oninput="bindInputEvents(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
-												value="0">
-										  </td>';
-							}
+						// Process Partnership Contributions
+						foreach ($partnership_types as $p_id => $p_name) {
+							$amount = $partnerships_list[$member_type][$member_id][$p_id] ?? "0";
+							$table .= '<td>
+										<input type="text" style="width:100px;" class="form-control members_amount partnerships" 
+											name="' . htmlspecialchars($p_id) . '_member[]" 
+											oninput="bindInputEvents(); this.value = this.value.replace(/[^0-9]/g, \'\');" 
+											value="' . htmlspecialchars($amount) . '">
+									</td>';
 						}
-						
+
+						// Delete button
 						$table .= '<td>
-							<button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
-								<i class="icon ni ni-trash"></i>
-							</button>
-						</td>';
+									<button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
+										<i class="icon ni ni-trash"></i>
+									</button>
+								</td>';
 						$table .= '</tr>';
 					}
-					
+
 
 					// echo $table;
 					$data['partnerships'] = ($partnerships);
@@ -3430,6 +3827,256 @@ class Service extends BaseController {
             'file'    => $dir . $save_name,
         ];
     }
+
+	public function update(){
+		$service = $this->Crud->read('service_report');
+		if(!empty($service)){
+			foreach ($service as $s) {
+				$church_id = $s->church_id;
+				$ministry_id = $s->ministry_id;
+				$service_id = $s->id;
+				$service_date = $s->date;
+				
+				// Extract and merge firstname & surname into fullname
+				$all_guests = json_decode($s->timers, true);
+				$guests = [];
+
+				if (!empty($all_guests)) {
+					foreach ($all_guests as $person => $value) {
+						if(!empty($value["firstname"]) || !empty($value['surname'])){
+							$guests[] = $value["firstname"] . " " . $value["surname"]; // Corrected array access
+						}
+					}
+				}
+			
+				// Decode finance records
+				$offering_data = json_decode($s->offering_givers, true);
+				$tithe_data = json_decode($s->tithers, true);
+				$thanksgiving_data = json_decode($s->thanksgiving_record, true);
+				$seed_data = json_decode($s->seed_record, true);
+				$partnership_data = json_decode($s->partners, true);
+				
+				// Process Guest Contributions
+				if (!empty($guests)) {
+					foreach ($guests as $guest_name) {
+						// echo $s->id.' '.$guest_name.' ';
+						// Ensure guest_id is formatted correctly
+						$guest_id = "guest_" . str_replace(' ', '_', strtolower($guest_name));
+			
+						// Define finance types and their respective values
+						$financeTypes = [
+							'offering' => $offering_data['guest_list'][strtolower($guest_name)] ?? 0,
+							'tithe' => $tithe_data['guest_list'][strtolower($guest_name)] ?? 0,
+							'thanksgiving' => $thanksgiving_data['guest_list'][strtolower($guest_name)] ?? 0,
+							'seed' => $seed_data['guest_list'][strtolower($guest_name)] ?? 0
+						];
+			
+						// Set user type
+						$user_type = 'guest';
+			
+						// Insert or update general finance contributions
+						foreach ($financeTypes as $type => $amount) {
+							if ($amount > 0) {
+								$existingFinance = $this->Crud->read_field4(
+									'church_id', $church_id,
+									'finance_type', $type,
+									'guest', $guest_id,
+									'service_id', $service_id,
+									'service_finance', 'id'
+								);
+			
+								$gs_fin['amount'] = $amount;
+			
+								if ($existingFinance) {
+									// Update existing record
+									$this->Crud->updates('id', $existingFinance, 'service_finance', $gs_fin);
+								} else {
+									// Insert new record
+									$gs_fin['church_id'] = $church_id;
+									$gs_fin['finance_type'] = $type;
+									$gs_fin['guest'] = $guest_id;
+									$gs_fin['user_type'] = $user_type;
+									$gs_fin['service_id'] = $service_id;
+									$gs_fin['ministry_id'] = $ministry_id;
+									$gs_fin['reg_date'] = date('Y-m-d H:i:s');
+			
+									$this->Crud->create('service_finance', $gs_fin);
+								}
+							}
+						}
+			
+						// Process Guest Partnerships
+						if (!empty($partnership_data['partnership']['guest'][strtolower($guest_name)])) {
+							foreach ($partnership_data['partnership']['guest'][strtolower($guest_name)] as $partnership_id => $amount) {
+								if ($amount > 0) {
+									$existingPartnership = $this->Crud->read_field5(
+										'church_id', $church_id,
+										'finance_type', 'partnership',
+										'guest', $guest_id,
+										'service_id', $service_id,
+										'partnership_id', $partnership_id,
+										'service_finance', 'id'
+									);
+			
+									$gs_part['amount'] = $amount;
+			
+									if ($existingPartnership) {
+										$this->Crud->updates('id', $existingPartnership, 'service_finance', $gs_part);
+									} else {
+										$gs_part['church_id'] = $church_id;
+										$gs_part['finance_type'] = 'partnership';
+										$gs_part['guest'] = $guest_id;
+										$gs_part['user_type'] = $user_type;
+										$gs_part['partnership_id'] = $partnership_id;
+										$gs_part['service_id'] = $service_id;
+										$gs_part['ministry_id'] = $ministry_id;
+										$gs_part['reg_date'] = date('Y-m-d H:i:s');
+			
+										$this->Crud->create('service_finance', $gs_part);
+									}
+
+									// Retrieve existing finance record in partners_history
+									$g_existingPartnershipz = $this->Crud->read_field3(
+										'guest', $guest_id,
+										'service_id', $service_id,
+										'partnership_id', $partnership_id,
+										'partners_history', 'id'
+									);
+				
+									$gh_part['amount_paid'] = $amount;
+				
+									if ($g_existingPartnershipz) {
+										// Update existing partnership finance record
+										$this->Crud->updates('id', $g_existingPartnershipz, 'partners_history', $gh_part);
+									} else {
+										// Add to the Partners History
+										$gh_part['guest'] = $guest_id; // Store guest ID correctly
+										$gh_part['church_id'] = $church_id;
+										$gh_part['ministry_id'] = $ministry_id;
+										$gh_part['service_id'] = $service_id;
+										$gh_part['partnership_id'] = $partnership_id;
+										$gh_part['status'] = 1;
+										$gh_part['date_paid'] = $service_date;
+										$gh_part['reg_date'] = date('Y-m-d H:i:s');
+				
+										$this->Crud->create('partners_history', $gh_part);
+									}
+								}
+							}
+						}
+					}
+				}
+			
+				// Process Member Contributions
+				if (!empty($offering_data['list'])) {
+					foreach ($offering_data['list'] as $member_id => $amount) {
+						// Define finance types and their respective values
+						$financeTypes = [
+							'offering' => $offering_data['list'][$member_id] ?? 0,
+							'tithe' => $tithe_data['list'][$member_id] ?? 0,
+							'thanksgiving' => $thanksgiving_data['list'][$member_id] ?? 0,
+							'seed' => $seed_data['list'][$member_id] ?? 0
+						];
+			
+						// Set user type
+						$user_type = 'member';
+			
+						// Insert or update general finance contributions
+						foreach ($financeTypes as $type => $amount) {
+							if ($amount > 0) {
+								$existingFinance = $this->Crud->read_field4(
+									'church_id', $church_id,
+									'finance_type', $type,
+									'user_id', $member_id,
+									'service_id', $service_id,
+									'service_finance', 'id'
+								);
+			
+								$s_fin['amount'] = $amount;
+			
+								if ($existingFinance) {
+									$this->Crud->updates('id', $existingFinance, 'service_finance', $s_fin);
+								} else {
+									$s_fin['church_id'] = $church_id;
+									$s_fin['finance_type'] = $type;
+									$s_fin['user_id'] = $member_id;
+									$s_fin['user_type'] = $user_type;
+									$s_fin['service_id'] = $service_id;
+									$s_fin['ministry_id'] = $ministry_id;
+									$s_fin['reg_date'] = date('Y-m-d H:i:s');
+			
+									$this->Crud->create('service_finance', $s_fin);
+								}
+							}
+						}
+
+						
+			
+						// Process Member Partnerships
+						if (!empty($partnership_data['partnership']['member'][$member_id])) {
+							foreach ($partnership_data['partnership']['member'][$member_id] as $partnership_id => $amount) {
+								if ($amount > 0) {
+									$existingPartnership = $this->Crud->read_field5(
+										'church_id', $church_id,
+										'finance_type', 'partnership',
+										'user_id', $member_id,
+										'service_id', $service_id,
+										'partnership_id', $partnership_id,
+										'service_finance', 'id'
+									);
+			
+									$s_part['amount'] = $amount;
+			
+									if ($existingPartnership) {
+										$this->Crud->updates('id', $existingPartnership, 'service_finance', $s_part);
+									} else {
+										$s_part['church_id'] = $church_id;
+										$s_part['finance_type'] = 'partnership';
+										$s_part['user_id'] = $member_id;
+										$s_part['user_type'] = $user_type;
+										$s_part['partnership_id'] = $partnership_id;
+										$s_part['service_id'] = $service_id;
+										$s_part['ministry_id'] = $ministry_id;
+										$s_part['reg_date'] = date('Y-m-d H:i:s');
+			
+										$this->Crud->create('service_finance', $s_part);
+									}
+
+									// Retrieve existing finance record
+									$existingPartnershipz = $this->Crud->read_field3(
+										'member_id', $member_id,
+										'service_id', $service_id,
+										'partnership_id', $partnership_id,
+										'partners_history', 'id'
+									);
+									
+									$h_part['amount_paid'] = $amount;
+									if ($existingPartnershipz) {
+										// Update existing partnership finance record
+										$this->Crud->updates('id', $existingPartnershipz, 'partners_history', $h_part);
+									} else {
+
+										//Add to the Partners History
+										$h_part['member_id'] = $member_id;
+										$h_part['church_id'] = $church_id;
+										$h_part['ministry_id'] = $ministry_id;
+										$h_part['service_id'] = $service_id;
+										$h_part['partnership_id'] = $partnership_id;
+										$h_part['status'] = 1;
+										$h_part['date_paid'] = $service_date;
+										$h_part['reg_date'] = date(fdate);
+										if($amount > 0)$this->Crud->create('partners_history', $h_part);
+									}
+									
+								}
+							}
+						}
+					}
+				}
+			}
+			
+		}
+	}
 
 
 }

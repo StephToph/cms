@@ -604,7 +604,7 @@ class Dashboard extends BaseController {
         }
         
 
-        $parts = $this->Crud->read('partnership');
+        $parts = $this->Crud->read_order('partnership', 'name', 'asc');
         $col = array('success', 'primary', 'danger', 'info', 'warning', 'azure', 'gray','blue', 'indigo', 'orange', 'teal', 'purple');
         if(!empty($parts)){
             $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
