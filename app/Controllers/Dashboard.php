@@ -382,6 +382,7 @@ class Dashboard extends BaseController {
         $graduate = 0;
         $tithe = 0;
         $tithe_part = 0;
+        $offering_part = 0;
         $partnership = 0;
         $membership = 0;
         $first_timer = 0;
@@ -461,11 +462,23 @@ class Dashboard extends BaseController {
         $member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
         
         $partnership = 0;
-        if(!empty($partners)){
-            foreach($partners as $u){
-                $partnership += (float)$u->amount_paid;
+        $unique_partners = [];
+        $unique_tithe = [];
+        $unique_offering = [];
+        
+        if (!empty($partners)) {
+            foreach ($partners as $u) {
+                $partnership += (float) $u->amount_paid;
+        
+                // Assuming each partner has a unique 'user_id'
+                if (!in_array($u->member_id, $unique_partners)) {
+                    $unique_partners[] = $u->member_id;
+                }
+                if (!in_array($u->guest, $unique_partners)) {
+                    $unique_partners[] = $u->guest;
+                }
             }
-            $partnership_part = count($partners);
+            $partnership_part = count($unique_partners); // Count unique users
         }
 
         if(!empty($cells)){
@@ -576,30 +589,46 @@ class Dashboard extends BaseController {
             foreach ($service_report as $u) {
                 $offering += (float)$u->offering;
                 $tithe += (float)$u->tithe;
+
                 $first_timer += $u->first_timer;
                 $new_convert += $u->new_convert;
-                // $partnership += (float)$u->partnership;
-                // Decode tithers JSON
-                $convertsa = json_decode($u->tithers);
+
+
+                $service_tithe_part = $this->Crud->read2('service_id', $u->id, 'finance_type', 'tithe', 'service_finance');
                 
-                // Ensure $converts is initialized as an array
-                $converts = [];
-                
-                if (!empty($convertsa) && is_object($convertsa) && isset($convertsa->list)) {
-                    // Check if the list is an array before assigning
-                    if (is_array($convertsa->list)) {
-                        $converts = $convertsa->list;
-                    } else {
-                        // If it's not an array, you can decide how to handle it (e.g., log an error, etc.)
-                        // For example, if it's a single item, you could convert it to an array:
-                        $converts = [$convertsa->list];
+                if (!empty($service_tithe_part)) {
+                    foreach ($service_tithe_part as $mtp) {
+                        if($mtp->user_id > 0 || !empty($mtp->guest)){ 
+                            // Assuming each partner has a unique 'user_id'
+                            if (!in_array($mtp->user_id, $unique_tithe)) {
+                                $unique_tithe[] = $mtp->user_id;
+                            }
+                            if (!in_array($mtp->guest, $unique_tithe)) {
+                                $unique_tithe[] = $mtp->guest;
+                            }
+                        }
                     }
+                    $tithe_part = count($unique_tithe); // Count unique users
                 }
+
+
+                $service_offering_part = $this->Crud->read2('service_id', $u->id, 'finance_type', 'offering', 'service_finance');
                 
-                // Only count if $converts is an array
-                if (is_array($converts)) {
-                    $tithe_part += count($converts);
+                if (!empty($service_offering_part)) {
+                    foreach ($service_offering_part as $mtp) {
+                        if($mtp->user_id > 0 || !empty($mtp->guest)){ 
+                            // Assuming each partner has a unique 'user_id'
+                            if (!in_array($mtp->user_id, $unique_offering)) {
+                                $unique_offering[] = $mtp->user_id;
+                            }
+                            if (!in_array($mtp->guest, $unique_offering)) {
+                                $unique_offering[] = $mtp->guest;
+                            }
+                        }
+                    }
+                    $offering_part = count($unique_offering); // Count unique users
                 }
+               
             }
         }
         
@@ -704,6 +733,7 @@ class Dashboard extends BaseController {
        
         $resp['tithe'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($tithe),2);
         $resp['tithe_part'] = number_format($tithe_part);
+        $resp['offering_part'] = number_format($offering_part);
         $resp['prospective'] = number_format($prospective);
         $resp['student'] = number_format($student);
         $resp['graduate'] = number_format($graduate);
@@ -1285,14 +1315,15 @@ class Dashboard extends BaseController {
             }
 
             if($param2 == 'partnership'){
+
                 if($role == 'developer' || $role == 'administrator'){
                     $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
-                    $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+                    $partners = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partners_history');
                    
                 } else {
                     if($ministry_id > 0 && $church_id <= 0){
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
-                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
                    
                     } else {
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
