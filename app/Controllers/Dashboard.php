@@ -1046,19 +1046,19 @@ class Dashboard extends BaseController {
             if($param2 == 'service_offering'){
                 if($role == 'developer' || $role == 'administrator'){
                     $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
-                    $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+                    $partners = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partners_history', '', '', 'date_paid', 'desc');
                    
                     $cells = $this->Crud->read('cells', 7);
                 } else {
                     if($ministry_id > 0 && $church_id <= 0){
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
-                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id,'partners_history', '', '', 'date_paid', 'desc');
                    
                         $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells', 7);
                     } else {
                         $cells = $this->Crud->read_single('church_id', $church_id,'cells', 7);
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
-                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'church_id', $church_id,'partners_history');
+                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id,'partners_history', '', '', 'date_paid', 'desc');
                     }
                 }
                 $total_offering = 0;
@@ -1066,51 +1066,28 @@ class Dashboard extends BaseController {
                 if (!empty($service_report)) {
                     foreach ($service_report as $u) {
                         $total_offering += (float)$u->offering;
-                        $givers = $u->offering_givers;
+                        $givers = $this->Crud->read2('service_id', $u->id, 'finance_type', 'offering', 'service_finance');
                         $church = $this->Crud->read_field('id', $u->church_id, 'church', 'name');
                         $service = $this->Crud->read_field('id', $u->type, 'service_type', 'name');
                         // Decode the JSON data to an associative array
                         if(!empty($givers)){
-                           
-                            $offeringData = json_decode($givers, true);
-
-                            // Extract member and guest contributions
-                            $memberContributions = $offeringData["list"];
-                            $guestContributions = $offeringData["guest_list"];
-
-                            // Display member contributions
-                            if(!empty($memberContributions)){
-                                foreach ($memberContributions as $memberID => $amount) {
-                                    $list .= '<tr>
-                                        <td>'.$u->date.'</td>
-                                        <td>'.ucwords($church).'</td>
-                                        <td>'.ucwords($service).'</td>
-                                    ';
-                                    $member = $this->Crud->read_field('id', $memberID, 'user', 'firstname').' '.$this->Crud->read_field('id', $memberID, 'user', 'surname');
-                                    $list .= '
-                                        <td>'.ucwords($member).'</td>
-                                        <td>Member</td>
-                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
-                                        </tr>
-                                    ';
-                                    
-                                }
-                            }
-
-                            // Display guest contributions;
-                            if(!empty($guestContributions)){
-                                foreach ($guestContributions as $guestName => $amount) {
-                                    $list .= '<tr>
-                                        <td>'.$u->date.'</td>
-                                        <td>'.ucwords($church).'</td>
-                                        <td>'.ucwords($service).'</td>
-                                   
-                                        <td>'.ucwords($guestName).'</td>
-                                        <td>Visitor</td>
-                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
-                                        </tr>
+                            foreach ($givers as $gtithe) {
+                                $list .= '<tr>
+                                    <td>'.$u->date.'</td>
+                                    <td>'.ucwords($church).'</td>
+                                    <td>'.ucwords($service).'</td>
                                 ';
+                                $member = $this->Crud->read_field('id', $gtithe->user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $gtithe->user_id, 'user', 'surname');
+                                if($gtithe->user_type == 'guest'){
+                                    $member = str_replace('_', ' ', $gtithe->guest);
                                 }
+                                $list .= '
+                                    <td>'.ucwords($member).'</td>
+                                    <td>'.ucwords($gtithe->user_type).'</td>
+                                    <td>'.$this->session->get('currency').number_format($gtithe->amount,2).'</td>
+                                    </tr>
+                                ';
+                                
                             }
                         } else{
                             continue;
@@ -1251,54 +1228,29 @@ class Dashboard extends BaseController {
                 if (!empty($service_report)) {
                     foreach ($service_report as $u) {
                         $total_offering += (float)$u->tithe;
-                        $givers = $u->tithers;
+                        $givers = $this->Crud->read2('service_id', $u->id, 'finance_type', 'tithe', 'service_finance');
                         $church = $this->Crud->read_field('id', $u->church_id, 'church', 'name');
                         $service = $this->Crud->read_field('id', $u->type, 'service_type', 'name');
                         // Decode the JSON data to an associative array
                         if(!empty($givers)){
-                           
-                            $offeringData = json_decode($givers, true);
-
-                            // Extract member and guest contributions
-                            $memberContributions = $offeringData["list"];
-                            $guestContributions = $offeringData["guest_list"];
-
-                            // Display member contributions
-                            if(!empty($memberContributions)){
-                                foreach ($memberContributions as $memberID => $amount) {
-                                    $list .= '<tr>
-                                        <td>'.$u->date.'</td>
-                                        <td>'.ucwords($church).'</td>
-                                        <td>'.ucwords($service).'</td>
-                                    ';
-                                    $member = $this->Crud->read_field('id', $memberID, 'user', 'firstname').' '.$this->Crud->read_field('id', $memberID, 'user', 'surname');
-                                    $list .= '
-                                        <td>'.ucwords($member).'</td>
-                                        <td>Member</td>
-                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
-                                        </tr>
-                                    ';
-                                    
-                                }
-                            }
-
-                            // Display guest contributions;
-                            if(!empty($guestContributions)){
-                                foreach ($guestContributions as $guestName => $amount) {
-                                    $list .= '<tr>
-                                        <td>'.$u->date.'</td>
-                                        <td>'.ucwords($church).'</td>
-                                        <td>'.ucwords($service).'</td>
-                                   
-                                        <td>'.ucwords($guestName).'</td>
-                                        <td>Visitor</td>
-                                        <td>'.$this->session->get('currency').number_format($amount,2).'</td>
-                                        </tr>
+                            foreach ($givers as $gtithe) {
+                                $list .= '<tr>
+                                    <td>'.$u->date.'</td>
+                                    <td>'.ucwords($church).'</td>
+                                    <td>'.ucwords($service).'</td>
                                 ';
+                                $member = $this->Crud->read_field('id', $gtithe->user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $gtithe->user_id, 'user', 'surname');
+                                if($gtithe->user_type == 'guest'){
+                                    $member = str_replace('_', ' ', $gtithe->guest);
                                 }
+                                $list .= '
+                                    <td>'.ucwords($member).'</td>
+                                    <td>'.ucwords($gtithe->user_type).'</td>
+                                    <td>'.$this->session->get('currency').number_format($gtithe->amount,2).'</td>
+                                    </tr>
+                                ';
+                                
                             }
-                        } else{
-                            continue;
                         }
                                                 
                     }
@@ -1318,16 +1270,16 @@ class Dashboard extends BaseController {
 
                 if($role == 'developer' || $role == 'administrator'){
                     $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
-                    $partners = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partners_history');
+                    $partners = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partners_history', '', '', 'date_paid', 'desc');
                    
                 } else {
                     if($ministry_id > 0 && $church_id <= 0){
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
-                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id,'partners_history', '', '', 'date_paid', 'desc');
                    
                     } else {
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
-                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id,'partners_history');
+                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id,'partners_history', '', '', 'date_paid', 'desc');
                     }
                 }
 
@@ -1338,13 +1290,18 @@ class Dashboard extends BaseController {
 
                 if(!empty($partners)){
                     foreach($partners as $u){
-                        $history['member_id'] = $u->member_id;
+                        $utype = 'Member';
+                        $history['member'] = $member = $this->Crud->read_field('id', $u->member_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $u->member_id, 'user', 'surname');
+                        if(empty($u->member_id) && !empty($u->guest)){
+                            $utype = 'Guest';
+                            $history['member'] = str_replace('_', ' ', $u->guest);
+                        }
                         $history['partnership'] = $u->partnership_id;
                         $history['amount_paid'] = $u->amount_paid;
                         $history['date_paid'] = $u->date_paid;
                         $history['church_id'] = $u->church_id;
-                        $history['type'] = 'Member';
-                        $history['is_service'] = 0;
+                        $history['type'] = $utype;
+                        $history['service_id'] = $u->church_id;;
                         
                         $partners_history[] = $history;
                     }
@@ -1405,17 +1362,17 @@ class Dashboard extends BaseController {
                
                 if(!empty($partners_history)){
                     foreach($partners_history as $ua) {
-                        $member = $this->Crud->read_field('id', $ua['member_id'], 'user', 'firstname').' '.$this->Crud->read_field('id', $ua['member_id'], 'user', 'surname');
+                        
                         $partnership = $this->Crud->read_field('id', $ua['partnership'], 'partnership', 'name');
                         $church = $this->Crud->read_field('id', $ua['church_id'], 'church', 'name');
-                        $service = $this->Crud->read_field('id', $ua['is_service'], 'service_type', 'name');
+                        $service = $this->Crud->read_field('id', $ua['service_id'], 'service_report', 'date');
                         
                         $list .= '<tr>
                             <td>'.$ua['date_paid'].'</td>
                             <td>'.ucwords($church).'</td>
                             <td>'.ucwords($service).'</td>
-                            <td>'.ucwords($member).'</td>
                             <td>'.ucwords($partnership).'</td>
+                            <td>'.ucwords($ua['member']).'</td>
                             <td>'.ucwords($ua['type']).'</td>
                             <td>'.$this->session->get('currency').number_format($ua['amount_paid'], 2).'</td>
                         </tr>';
