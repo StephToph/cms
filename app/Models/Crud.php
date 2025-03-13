@@ -1538,15 +1538,20 @@ class Crud extends Model {
 	}
 
 	
-	public function date_range1($firstDate, $col1, $secondDate, $col2,$col3, $val3, $table, $limit='', $offset=''){
+	public function date_range1($firstDate, $col1, $secondDate, $col2,$col3, $val3, $table, $limit='', $offset='', $or_field='', $or_value=''){
 		$db = db_connect();
         $builder = $db->table($table);
 
 		$builder->where($col3, $val3);
 		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') >= '".$firstDate."'",NULL,FALSE);
    		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
-		 
-		 $builder->orderBy('id', 'DESC');
+		
+		if(!empty($or_field) && !empty($or_value)){
+			$builder->orderBy($or_field, $or_value);
+		} else {
+		 	$builder->orderBy('id', 'DESC');
+		}
+
 		// limit query
 		if($limit && $offset) {
 			$query = $builder->get($limit, $offset);
@@ -1592,13 +1597,19 @@ class Crud extends Model {
 	}
 	
 
-	public function date_range($firstDate, $col1, $secondDate, $col2, $table, $limit='', $offset=''){
+	public function date_range($firstDate, $col1, $secondDate, $col2, $table, $limit='', $offset='', $or_field='', $or_value=''){
 		$db = db_connect();
         $builder = $db->table($table);
 
 		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') >= '".$firstDate."'",NULL,FALSE);
    		$builder->where("DATE_FORMAT(".$col2.",'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
-		   $builder->orderBy('id', 'DESC');
+		  
+		if(!empty($or_field) && !empty($or_value)){
+			$builder->orderBy($or_field, $or_value);
+		} else {
+		 	$builder->orderBy('id', 'DESC');
+		}
+		
 		   // limit query
 		   if($limit && $offset) {
 			   $query = $builder->get($limit, $offset);
@@ -1613,7 +1624,7 @@ class Crud extends Model {
 		   $db->close();
 	}
 
-	public function date_range2($firstDate, $col1, $secondDate, $col2, $col3, $val3, $col4, $val4, $table, $limit='', $offset=''){
+	public function date_range2($firstDate, $col1, $secondDate, $col2, $col3, $val3, $col4, $val4, $table, $limit='', $offset='', $or_field='', $or_value=''){
 		$db = db_connect();
         $builder = $db->table($table);
 
@@ -1621,7 +1632,14 @@ class Crud extends Model {
 		$builder->where($col4, $val4);		
 		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') >= '".$firstDate."'",NULL,FALSE);
    		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
-		   $builder->orderBy('id', 'DESC');
+		
+		
+		if(!empty($or_field) && !empty($or_value)){
+			$builder->orderBy($or_field, $or_value);
+		} else {
+		 	$builder->orderBy('id', 'DESC');
+		}
+		
 		   // limit query
 		   if($limit && $offset) {
 			   $query = $builder->get($limit, $offset);
@@ -1636,7 +1654,7 @@ class Crud extends Model {
 		   $db->close();
 	}
 
-	public function date_range3($firstDate, $col1, $secondDate, $col2, $col3, $val3, $col4, $val4, $col5, $val5, $table, $limit='', $offset=''){
+	public function date_range3($firstDate, $col1, $secondDate, $col2, $col3, $val3, $col4, $val4, $col5, $val5, $table, $limit='', $offset='', $or_field='', $or_value=''){
 		$db = db_connect();
         $builder = $db->table($table);
 
@@ -1645,7 +1663,14 @@ class Crud extends Model {
 		$builder->where($col5, $val5);		
 		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') >= '".$firstDate."'",NULL,FALSE);
    		$builder->where("DATE_FORMAT(".$col1.",'%Y-%m-%d') <= '".$secondDate."'",NULL,FALSE);
-		   $builder->orderBy('id', 'DESC');
+		
+		
+		if(!empty($or_field) && !empty($or_value)){
+			$builder->orderBy($or_field, $or_value);
+		} else {
+		 	$builder->orderBy('id', 'DESC');
+		}
+		
 		   // limit query
 		   if($limit && $offset) {
 			   $query = $builder->get($limit, $offset);

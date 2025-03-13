@@ -20,6 +20,9 @@
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title"><?=translate_phrase('Givings');?></h3>
+                            <div class="nk-block-des text-soft">
+                                <p>Total of <span id="counta">0</span> Records.</p>
+                            </div>
                         </div>
                         
                         <div class="nk-block-head-content">
