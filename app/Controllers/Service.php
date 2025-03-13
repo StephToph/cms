@@ -4021,110 +4021,99 @@ class Service extends BaseController {
 					array_keys($partnership_data['partnership']['member'] ?? [])
 				));
 
-				// Process Member Contributions
-				foreach ($all_member_ids as $member_id) {
-					// Define finance types and their respective values
-					$financeTypes = [
-						'offering' => $offering_data['list'][$member_id] ?? 0,
-						'tithe' => $tithe_data['list'][$member_id] ?? 0,
-						'thanksgiving' => $thanksgiving_data['list'][$member_id] ?? 0,
-						'seed' => $seed_data['list'][$member_id] ?? 0
-					];
-
-					// Set user type
-					$user_type = 'member';
-
-					// Insert or update general finance contributions
-					foreach ($financeTypes as $type => $amount) {
-						if ($amount > 0) {
-							$existingFinance = $this->Crud->read_field4(
-								'church_id', $church_id,
-								'finance_type', $type,
-								'user_id', $member_id,
-								'service_id', $service_id,
-								'service_finance', 'id'
-							);
-
-							$s_fin['amount'] = $amount;
-
-							if ($existingFinance) {
-								$this->Crud->updates('id', $existingFinance, 'service_finance', $s_fin);
-							} else {
-								$s_fin['church_id'] = $church_id;
-								$s_fin['finance_type'] = $type;
-								$s_fin['user_id'] = $member_id;
-								$s_fin['user_type'] = $user_type;
-								$s_fin['service_id'] = $service_id;
-								$s_fin['ministry_id'] = $ministry_id;
-								$s_fin['reg_date'] = date('Y-m-d H:i:s');
-
-								$this->Crud->create('service_finance', $s_fin);
+				// print_r($all_member_ids);
+				if(!empty($all_member_ids)){
+					// Process Member Contributions
+					foreach ($all_member_ids as $member_id) {
+						// Define finance types and their respective values
+						$financeTypes = [
+							'offering' => $offering_data['list'][$member_id] ?? 0,
+							'tithe' => $tithe_data['list'][$member_id] ?? 0,
+							'thanksgiving' => $thanksgiving_data['list'][$member_id] ?? 0,
+							'seed' => $seed_data['list'][$member_id] ?? 0
+						];
+			
+						// Set user type
+						$user_type = 'member';
+			
+						// Insert or update general finance contributions
+						foreach ($financeTypes as $type => $amount) {
+							if ($amount > 0) {
+								$existingFinance = $this->Crud->read_field3('finance_type', $type,'user_id', $member_id,'service_id',$service_id,'service_finance', 'id'
+								);
+			
+								$s_fin['amount'] = $amount;
+			
+								if ($existingFinance) {
+									$this->Crud->updates('id', $existingFinance, 'service_finance', $s_fin);
+								} else {
+									$s_fin['church_id'] = $church_id;
+									$s_fin['finance_type'] = $type;
+									$s_fin['user_id'] = $member_id;
+									$s_fin['user_type'] = $user_type;
+									$s_fin['service_id'] = $service_id;
+									$s_fin['ministry_id'] = $ministry_id;
+									$s_fin['reg_date'] = date('Y-m-d H:i:s');
+			
+									$this->Crud->create('service_finance', $s_fin);
+								}
 							}
 						}
-					}
 
-					// Process Member Partnerships
-					if (!empty($partnership_data['partnership']['member'][$member_id])) {
-						foreach ($partnership_data['partnership']['member'][$member_id] as $partnership_id => $amount) {
-							if ($amount > 0) {
-								$existingPartnership = $this->Crud->read_field5(
-									'church_id', $church_id,
-									'finance_type', 'partnership',
-									'user_id', $member_id,
-									'service_id', $service_id,
-									'partnership_id', $partnership_id,
-									'service_finance', 'id'
-								);
-
-								$s_part['amount'] = $amount;
-
-								if ($existingPartnership) {
-									$this->Crud->updates('id', $existingPartnership, 'service_finance', $s_part);
-								} else {
-									$s_part['church_id'] = $church_id;
-									$s_part['finance_type'] = 'partnership';
-									$s_part['user_id'] = $member_id;
-									$s_part['user_type'] = $user_type;
-									$s_part['partnership_id'] = $partnership_id;
-									$s_part['service_id'] = $service_id;
-									$s_part['ministry_id'] = $ministry_id;
-									$s_part['reg_date'] = date('Y-m-d H:i:s');
-
-									$this->Crud->create('service_finance', $s_part);
-								}
-
-								// Retrieve existing finance record
-								$existingPartnershipz = $this->Crud->read_field3(
-									'member_id', $member_id,
-									'service_id', $service_id,
-									'partnership_id', $partnership_id,
-									'partners_history', 'id'
-								);
-
-								$h_part['amount_paid'] = $amount;
-								if ($existingPartnershipz) {
-									// Update existing partnership finance record
-									$this->Crud->updates('id', $existingPartnershipz, 'partners_history', $h_part);
-								} else {
-									// Add to the Partners History
-									$h_part['member_id'] = $member_id;
-									$h_part['church_id'] = $church_id;
-									$h_part['ministry_id'] = $ministry_id;
-									$h_part['service_id'] = $service_id;
-									$h_part['partnership_id'] = $partnership_id;
-									$h_part['status'] = 1;
-									$h_part['date_paid'] = $service_date;
-									$h_part['reg_date'] = date('Y-m-d H:i:s');
-
-									if ($amount > 0) {
-										$this->Crud->create('partners_history', $h_part);
+						
+			
+						// Process Member Partnerships
+						if (!empty($partnership_data['partnership']['member'][$member_id])) {
+							foreach ($partnership_data['partnership']['member'][$member_id] as $partnership_id => $amount) {
+								if ($amount > 0) {
+									$existingPartnership = $this->Crud->read_field4('finance_type', 'partnership','user_id', $member_id,'service_id', $service_id,'partnership_id', $partnership_id,'service_finance', 'id');
+			
+									$s_part['amount'] = $amount;
+			
+									if ($existingPartnership) {
+										$this->Crud->updates('id', $existingPartnership, 'service_finance', $s_part);
+									} else {
+										$s_part['church_id'] = $church_id;
+										$s_part['finance_type'] = 'partnership';
+										$s_part['user_id'] = $member_id;
+										$s_part['user_type'] = $user_type;
+										$s_part['partnership_id'] = $partnership_id;
+										$s_part['service_id'] = $service_id;
+										$s_part['ministry_id'] = $ministry_id;
+										$s_part['reg_date'] = date('Y-m-d H:i:s');
+			
+										$this->Crud->create('service_finance', $s_part);
 									}
+
+									// Retrieve existing finance record
+									$existingPartnershipz = $this->Crud->read_field3('member_id', $member_id,'service_id', $service_id,'partnership_id', $partnership_id,'partners_history', 'id');
+									
+									$h_part['amount_paid'] = $amount;
+									if ($existingPartnershipz) {
+										// Update existing partnership finance record
+										$this->Crud->updates('id', $existingPartnershipz, 'partners_history', $h_part);
+									} else {
+										$church_id = $s->church_id;
+										$ministry_id = $s->ministry_id;
+										$service_id = $s->id;
+										$service_date = $s->date;
+										//Add to the Partners History
+										$h_part['member_id'] = $member_id;
+										$h_part['church_id'] = $church_id;
+										$h_part['ministry_id'] = $ministry_id;
+										$h_part['service_id'] = $service_id;
+										$h_part['partnership_id'] = $partnership_id;
+										$h_part['status'] = 1;
+										$h_part['date_paid'] = $service_date;
+										$h_part['reg_date'] = date(fdate);
+										if($amount > 0)$this->Crud->create('partners_history', $h_part);
+									}
+									
 								}
 							}
 						}
 					}
 				}
-
 			}
 			
 		}

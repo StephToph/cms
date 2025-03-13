@@ -206,6 +206,14 @@ $this->Crud = new Crud();
                             </select>
                         </div>
                     </div>
+                    <div class="col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label for="name">*<?=translate_phrase('Currency'); ?></label>
+                            <select id="currency" name="currency" class="js-select2">
+                                
+                            </select>
+                        </div>
+                    </div>
                 <?php }  else { ?>
                     <div class="col-sm-12 mb-3">
                         <div class="form-group">
@@ -227,6 +235,21 @@ $this->Crud = new Crud();
                                         }
                                     }
                                 ?>
+                            </select>
+                        </div>
+                    </div>
+                    <?php
+                        $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+                        $currency_id = $this->Crud->read_field('country_id', $country_id, 'currency', 'id');
+                        $currency_name = $this->Crud->read_field('country_id', $country_id, 'currency', 'currency_name');
+                    ?>
+                    <div class="col-sm-12 mb-3">
+                        <div class="form-group">
+                            <label for="name">*<?=translate_phrase('Currency'); ?></label>
+                            <select id="currency" name="currency" class="js-select2">
+                                <option value="0">Espees</option>
+                                <option value="<?=$currency_id; ?>" selected><?=ucwords($currency_name); ?></option>
+                                
                             </select>
                         </div>
                     </div>
@@ -266,14 +289,6 @@ $this->Crud = new Crud();
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Amount'); ?></label>
                     <input class="form-control" type="text" id="amount" name="amount" value="<?php if(!empty($e_amount_paid)) {echo $e_amount_paid;} ?>" required>
-                </div>
-            </div>
-            <div class="col-sm-12 mb-3">
-                <div class="form-group">
-                    <label for="name">*<?=translate_phrase('Currency'); ?></label>
-                    <select id="currency" name="currency" class="js-select2">
-                        
-                    </select>
                 </div>
             </div>
 
@@ -366,6 +381,10 @@ $this->Crud = new Crud();
         loadMember(selectedChurch);
     });
 
+    // Trigger change event on page load if a value is already selected
+    if ($('#church_id').val().trim() !== '') {
+        $('#church_id').trigger('change');
+    }
    
 
     <?php
