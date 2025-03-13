@@ -435,19 +435,19 @@ class Dashboard extends BaseController {
 
         if($role == 'developer' || $role == 'administrator'){
             $service_report = $this->Crud->date_range($start_date, 'date', $end_date, 'date', 'service_report');
-            $partners = $this->Crud->date_range1($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partners_history');
+            $partners = $this->Crud->date_range1($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partners_history');
            
             $cells = $this->Crud->read('cells', 7);
         } else {
             if($ministry_id > 0 && $church_id <= 0){
                 $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
-                $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
+                $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
            
                 $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells', 7);
             } else {
                 $cells = $this->Crud->read_single('church_id', $church_id,'cells', 7);
                 $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
-                $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'church_id', $church_id,'partners_history');
+                $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id,'partners_history');
             }
         }
 
@@ -578,7 +578,7 @@ class Dashboard extends BaseController {
                 $tithe += (float)$u->tithe;
                 $first_timer += $u->first_timer;
                 $new_convert += $u->new_convert;
-                $partnership += (float)$u->partnership;
+                // $partnership += (float)$u->partnership;
                 // Decode tithers JSON
                 $convertsa = json_decode($u->tithers);
                 
@@ -617,14 +617,14 @@ class Dashboard extends BaseController {
                 $paid = 0;
                 if($role !=  'administrator' && $role != 'developer'){
                     if($church_id > 0){
-                        $partners = $this->Crud->date_range3($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'church_id', $church_id, 'partners_history');
+                        $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'church_id', $church_id, 'partners_history');
                
                     } else {
-                        $partners = $this->Crud->date_range3($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'ministry_id', $ministry_id, 'partners_history');
+                        $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'ministry_id', $ministry_id, 'partners_history');
                
                     }
                 } else {
-                    $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'partnership_id', $p->id, 'partners_history');
+                    $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'partners_history');
                 }
 
                 if(!empty($partners)){
@@ -1296,7 +1296,7 @@ class Dashboard extends BaseController {
                    
                     } else {
                         $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
-                        $partners = $this->Crud->date_range2($start_date, 'reg_date', $end_date, 'reg_date', 'status', 1, 'church_id', $church_id,'partners_history');
+                        $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id,'partners_history');
                     }
                 }
 
@@ -1402,6 +1402,7 @@ class Dashboard extends BaseController {
 
             }
            
+
         }
 
         if($param1 == 'finance'){
