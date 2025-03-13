@@ -184,7 +184,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_offering'); ?>" pageTitle="Service Offering Records" pageSize="modal-lg">
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_offering'); ?>" pageTitle="Service Offering Records" pageSize="modal-xl">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
                                                 <div class="card-title">
@@ -228,7 +228,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered card-full">
-                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_tithe'); ?>" pageTitle="Service Tithe Records" pageSize="modal-lg">
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_tithe'); ?>" pageTitle="Service Tithe Records" pageSize="modal-xl">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
                                                 <div class="card-title">
@@ -256,7 +256,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="card card-bordered  card-full">
-                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/partnership'); ?>" pageTitle="Partnership Records" pageSize="modal-lg">
+                                    <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/partnership'); ?>" pageTitle="Partnership Records" pageSize="modal-xl">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
                                                 <div class="card-title">

@@ -646,6 +646,55 @@ class Crud extends Model {
         $db->close();
 	}
 
+	public function read2_group($field, $value,$field2, $value2, $table, $group, $limit='', $offset='') {
+		$db = db_connect();
+		$db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+        $builder = $db->table($table);
+
+		$builder->orderBy('id', 'DESC');
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+		$builder->groupBy($group);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+
+	public function read3_group($field, $value,$field2, $value2,$field3, $value3, $table, $group, $limit='', $offset='') {
+		$db = db_connect();
+		$db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
+        $builder = $db->table($table);
+
+		$builder->orderBy('id', 'DESC');
+        $builder->where($field, $value);
+        $builder->where($field2, $value2);
+        $builder->where($field3, $value3);
+		$builder->groupBy($group);
+
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+	}
+
 	public function read_single_group_order($field, $value, $table, $group,$or_field='id', $or_value='DESC', $limit='', $offset='') {
 		$db = db_connect();
 		$db->query("SET sql_mode=(SELECT REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', ''));");
