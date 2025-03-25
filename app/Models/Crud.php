@@ -2177,6 +2177,39 @@ class Crud extends Model {
         $db->close();
     }
 
+    public function filter_member_attendance($search='', $church_id='') {
+        $db = db_connect();
+        $builder = $db->table('user');
+
+        // build query
+		$builder->orderBy('id', 'DESC');
+		
+		$role_id = $this->read_field('name', 'Member', 'access_role', 'id');
+		
+		
+		$builder->where('church_id', $church_id);
+
+		
+		$builder->where('is_member', 1);
+        if(!empty($search)) {
+            $builder->groupStart()
+				->like('surname', $search)
+				->orLike('email', $search)
+				->orLike('firstname', $search)
+				->orLike('othername', $search)
+				->groupEnd();
+        }
+
+		
+        // limit query
+       
+        $query = $builder->get();
+     
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
 	// You will need to implement this function to fetch sub-churches based on the parent church ID
 	private function get_sub_church_ids($parent_id, $type) {
 		$db = db_connect();
