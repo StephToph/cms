@@ -281,6 +281,327 @@ class Service extends BaseController {
 		}
     }
 
+	public function schedule($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'service/schedule';
+
+        $log_id = $this->session->get('td_id');
+        $switch_id = $this->session->get('switch_church_id');
+        
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+        }
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+		
+		$table = 'service_schedule';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+        $data['current_language'] = $this->session->get('current_language');
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if($this->request->getMethod() == 'post'){
+						$del_id = $this->request->getVar('d_type_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$type_id = $this->Crud->read_field('id', $del_id, $table, 'type_id');
+						$code = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
+						$action = $by.' deleted Service Schedule for Service ('.$code.')';
+
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							
+							$this->Crud->activity('user', $del_id, $action);
+							echo $this->Crud->msg('success', 'Service Schedule Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;	
+					}
+				}
+			} else {
+				// Prepare for edit
+				if ($param2 == 'edit') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_type_id'] = $e->type_id;
+								$data['e_type'] = $e->type;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_recurrence_pattern'] = $e->recurrence_pattern;
+								$data['e_service_date'] = $e->service_date;
+								$data['e_start_date'] = $e->start_date;
+								$data['e_occurrences'] = $e->occurrences;
+								$data['e_weekly_days'] = $e->weekly_days;
+								$data['e_monthly_type'] = $e->monthly_type;
+								$data['e_monthly_dates'] = $e->monthly_dates;
+								$data['e_monthly_weeks'] = $e->monthly_weeks;
+								$data['e_monthly_weekdays'] = $e->monthly_weekdays;
+								$data['e_yearly_date'] = $e->yearly_date;
+								$data['e_start_time'] = $e->start_time;
+								$data['e_end_time'] = $e->end_time;
+							}
+						}
+					}
+				}
+
+				// Handle form post
+				if ($this->request->getMethod() == 'post') {
+					$type_id = $this->request->getVar('type_id');
+
+					$church_id = $this->request->getVar('church_id');
+					// Common fields
+					$ins_data['ministry_id'] = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+					$ins_data['church_id'] = $this->request->getVar('church_id');
+					$ins_data['type_id'] = $this->request->getVar('type');
+					$ins_data['type'] = $this->request->getVar('service_type');
+					$ins_data['recurrence_pattern'] = $this->request->getVar('recurring_pattern');
+					$ins_data['service_date'] = $this->request->getVar('service_date');
+					$ins_data['start_date'] = $this->request->getVar('start_date');
+					$ins_data['occurrences'] = $this->request->getVar('occurrences');
+					$ins_data['start_time'] = $this->request->getVar('start_time');
+					$ins_data['end_time'] = $this->request->getVar('end_time');
+
+					// Weekly recurrence (checkbox array to CSV)
+					$weekly_days = $this->request->getVar('weekly_days');
+					$ins_data['weekly_days'] = is_array($weekly_days) ? implode(',', $weekly_days) : null;
+
+					// Monthly recurrence
+					$ins_data['monthly_type'] = $this->request->getVar('monthly_type');
+					$ins_data['monthly_dates'] = $this->request->getVar('monthly_dates');
+
+					$monthly_weeks = $this->request->getVar('monthly_weeks');
+					$monthly_weekdays = $this->request->getVar('monthly_weekdays');
+					$ins_data['monthly_weeks'] = is_array($monthly_weeks) ? implode(',', $monthly_weeks) : null;
+					$ins_data['monthly_weekdays'] = is_array($monthly_weekdays) ? implode(',', $monthly_weekdays) : null;
+
+					// Yearly
+					$ins_data['yearly_date'] = $this->request->getVar('yearly_date');
+
+					// CREATE or UPDATE
+					if ($type_id) {
+						$upd_rec = $this->Crud->updates('id', $type_id, $table, $ins_data);
+						if ($upd_rec > 0) {
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$type_idz = $this->Crud->read_field('id', $type_id, $table, 'type_id');
+							$code = $this->Crud->read_field('id', $type_idz, 'service_type', 'name');
+							$action = $by . ' updated Service Schedule for Service (' . $code . ')';
+							$this->Crud->activity('service', $type_id, $action);
+
+							echo $this->Crud->msg('success', 'Service Schedule Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');
+						}
+					} else {
+						if ($this->Crud->check3('start_time', $ins_data['start_time'], 'church_id', $ins_data['church_id'],'type_id', $ins_data['type_id'], $table) > 0) {
+							echo $this->Crud->msg('warning', 'Service Schedule Already Exists');
+						} else {
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if ($ins_rec > 0) {
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$type_id = $this->Crud->read_field('id', $ins_rec, $table, 'type_id');
+								$code = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
+								$action = $by . ' created Service Schedule for Service(' . $code . ')';
+								$this->Crud->activity('service', $ins_rec, $action);
+
+								echo $this->Crud->msg('success', 'Service Schedule Created');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');
+							}
+						}
+					}
+
+					die;
+				}
+
+			}
+		}
+
+        // record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 25;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$search = $this->request->getPost('search');
+			
+			$items = '
+				
+			';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				
+				$all_rec = $this->Crud->filter_service_schedule('', '', $search, $log_id);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_service_schedule($limit, $offset, $search, $log_id);
+				$data['count'] = $counts;
+
+				if (!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$name = $this->Crud->read_field('id',$q->type_id, 'service_type', 'name');
+						$type = ucfirst($q->type);
+						$pattern = !empty($q->recurrence_pattern) ? ucfirst($q->recurrence_pattern) : 'N/A';
+						$church_name = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+				
+						$start_time = !empty($q->start_time) ? date('h:i A', strtotime($q->start_time)) : '-';
+						$end_time = !empty($q->end_time) ? date('h:i A', strtotime($q->end_time)) : '-';
+				
+						if ($q->type == 'recurring') {
+							if ($q->recurrence_pattern == 'weekly') {
+								$summary = 'Occurs on: ' . str_replace(',', ', ', $q->weekly_days);
+							} elseif ($q->recurrence_pattern == 'monthly') {
+								if ($q->monthly_type == 'dates') {
+									$summary = 'Monthly on dates: ' . $q->monthly_dates;
+								} else {
+									$summary = 'Monthly: ' . str_replace(',', ', ', $q->monthly_weeks) . ' ' . str_replace(',', ', ', $q->monthly_weekdays);
+								}
+							} elseif ($q->recurrence_pattern == 'yearly') {
+								$summary = 'Yearly on: ' . date('F j', strtotime($q->yearly_date));
+							} else {
+								$summary = 'Recurring: ' . ucfirst($q->recurrence_pattern);
+							}
+						} else {
+							$summary = 'Scheduled for: ' . date('F j, Y', strtotime($q->service_date));
+						}
+				
+						// Buttons
+						$action_btns = '';
+						if ($role_u == 1 && empty($switch_id)) {
+							$action_btns = '
+								<div class="drodown">
+									<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+											<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageSize="modal-lg" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em> Edit</a></li>
+											<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em> Delete</a></li>
+										</ul>
+									</div>
+								</div>';
+						}
+				
+						$item .= '
+						<tr>
+							<td>
+								<strong>' . ucwords($name) . '</strong><br/>
+								<small class="text-muted">' . $type . ' | ' . $pattern . '</small>
+							</td>
+							<td>' . $summary . '</td>
+							<td>' . ucwords($church_name) . '</td>
+							<td>' . $start_time . ' - ' . $end_time . '</td>
+							<td>' . $action_btns . '</td>
+						</tr>';
+						$a++;
+					}
+				} 
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = '
+					<tr><td colspan="9"><div class="text-center text-muted">
+						<br/><br/><br/><br/>
+						<i class="ni ni-clipboard" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Service Schedule Returned').'<br/>
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('Service Schedule').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+    }
+
 	public function report($param1='', $param2='', $param3='', $param4='') {
 		// check session login
 		if($this->session->get('td_id') == ''){

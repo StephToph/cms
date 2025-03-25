@@ -2978,6 +2978,39 @@ class Crud extends Model {
         $db->close();
     }
 
+	public function filter_service_schedule($limit='', $offset='', $search='', $log_id='', $church_idz='') {
+        $db = db_connect();
+        $builder = $db->table('service_schedule');
+
+        // build query
+		$builder->orderBy('id', 'desc');
+		
+        if(!empty($search)) {
+            $builder->like('name', $search);
+        }
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+		if($role != 'developer' && $role != 'administrator'){
+			$builder->where('church_id', $church_id);
+		} else {
+			if(!empty($church_idz) && $church_idz != 'all') $builder->where('church_id', $church_idz);
+		}
+		
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
 	
 	public function filter_cell($limit='', $offset='', $search='', $log_id) {
         $db = db_connect();
@@ -5524,7 +5557,21 @@ class Crud extends Model {
 	}
 	////////////////////////////////////////////////////////////////////////////
 
-
+	public function mask_email($email) {
+		$parts = explode("@", $email);
+		$name = $parts[0];
+		$domain = $parts[1];
+	
+		$masked_name = substr($name, 0, 1) . str_repeat('*', max(strlen($name) - 2, 1)) . substr($name, -1);
+		return $masked_name . '@' . $domain;
+	}
+	
+	public function mask_phone($phone) {
+		$length = strlen($phone);
+		if ($length <= 4) return str_repeat('*', $length);
+		
+		return substr($phone, 0, 3) . str_repeat('*', $length - 6) . substr($phone, -3);
+	}
 	////////////////////////CRON JOB///////////////////////////
 	// Method to create a cron job dynamically
 	public function createCronJob($datetime, $functionName)
