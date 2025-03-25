@@ -69,13 +69,13 @@
                                 </div>
                                 <div class="nk-block-head">
                                     <div class="nk-block-head-content">
-                                        <h5 class="nk-block-title">Sign-In</h5>
+                                        <h5 class="nk-block-title">Attendance Sign-In</h5>
                                         <div class="nk-block-des">
-                                            <p>Access the <?=app_name;?> dashboard panel using your Membership ID and password.</p>
+                                            <p>Access the <?=app_name;?> Service Attendance panel using your Membership ID and password.</p>
                                         </div>
                                     </div>
                                 </div>
-                                <?php echo form_open_multipart('auth/login', array('id'=>'bb_ajax_form', 'class'=>'')); ?>
+                                <?php echo form_open_multipart('attendance/index', array('id'=>'bb_ajax_form', 'class'=>'')); ?>
                                     <div class="row mb-3"><div id="bb_ajax_msg"></div></div>
                                     <div class="form-group">
                                         <div class="form-label-group"><label class="form-label" for="default-01">Membership ID</label></div>
@@ -84,9 +84,9 @@
                                                 placeholder="Enter your Membership ID"></div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="form-label-group"><label class="form-label"
-                                                for="password">Password</label><a class="link link-primary link-sm"
-                                                tabindex="-1" href="<?=site_url('auth/forgot'); ?>">Reset Password?</a></div>
+                                        <div class="form-label-group">
+                                            <label class="form-label" for="password">Password</label>
+                                        </div>
                                         <div class="form-control-wrap">
                                             <a tabindex="-1" href="#" class="form-icon form-icon-right passcode-switch lg" data-target="password">
                                                 <em class="passcode-icon icon-show icon ni ni-eye"></em>
@@ -98,12 +98,7 @@
                                     <div class="form-group"><button class="btn btn-lg btn-primary btn-block">Sign
                                             in</button></div>
                                 </form>
-                                
-                                <div class="text-center mt-5">
-                                    <a class="fw-500" href="<?=site_url('prayer'); ?>">
-                                        Join Prayer Cloud?
-                                    </a>
-                                </div>
+                               
                             </div>
                             <div class="nk-block nk-auth-footer">
                                 

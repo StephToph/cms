@@ -50,8 +50,8 @@ defined('DECADE') || define('DECADE', 315360000);
  |
  | Provide simple customize global contants values
  */
-defined('app_name') || define('app_name', 'Angel Church Management System');
-defined('app_meta_desc') || define('app_meta_desc', 'Angel Church Management System');
+defined('app_name') || define('app_name', 'Angel CMS');
+defined('app_meta_desc') || define('app_meta_desc', 'Angel CMS');
 defined('app_email') || define('app_email', 'hello@loveworldbuddy.com');
 defined('app_website') || define('app_website', 'https://loveworldbuddy.com');
 defined('push_email') || define('push_email', 'hello@loveworldbuddy.com');

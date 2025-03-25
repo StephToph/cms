@@ -1,0 +1,310 @@
+<?php
+use App\Models\Crud;
+$this->Crud = new Crud();
+?>
+<?= $this->extend('attendance/backend'); ?>
+<?= $this->section('title'); ?>
+<?= $title; ?>
+<?= $this->endSection(); ?>
+
+<?= $this->section('content'); ?>
+<div class="nk-content ">
+    <div class="container-fluid">
+        <div class="nk-content-inner">
+            <div class="nk-content-body">
+                <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between">
+                        <div class="nk-block-head-content">
+                            <?php
+                                $type_id = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'type');
+                                $type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
+                            ?>
+                            <h3 class="nk-block-title page-title"><?=ucwords($type); ?></h3>
+                            <div class="nk-block-des text-soft">
+                                <!-- <p>Welcome to DashLite Dashboard Template.</p> -->
+                            </div>
+                        </div>
+                        <div class="nk-block-head-content">
+                            <div class="toggle-wrap nk-block-tools-toggle">
+                                <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu">
+                                    <em class="icon ni ni-more-v"></em>
+                                </a>
+                                <div class="toggle-expand-content" data-content="pageMenu">
+                                    <ul class="nk-block-tools g-3">
+                                        <?php 
+                                            $service_count = $this->Crud->check2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
+                                            if($service_count > 1){
+                                                if($attend_type == 'cell'){
+                                                    echo  '<li>
+                                                        <select class="js-select2" data-search="on" name="service"  id="service_select" >';
+                                                            for ($i=0; $i < $service_count; $i++) { 
+                                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
+                                                            }
+
+                                                        echo '</select>
+                                                    </li>';
+                                                } else {
+                                                    echo  '<li>
+                                                        <select class="js-select2" data-search="on" name="service" id="service">';
+                                                            for ($i=0; $i < $service_count; $i++) { 
+                                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
+                                                            }
+
+                                                        echo '</select>
+                                                    </li>';
+                                                }
+                                           
+                                        } else{
+                                            echo '<input type="hidden" id="service" value="1">
+                                            <input type="hidden" id="service_select" value="1">';
+                                        }
+
+                                        if($attend_type == 'admin'){?>
+                                            <li><a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-outline-primary"><em
+                                                        class="icon ni ni-reports"></em><span>View Analytics</span></a>
+                                            </li>
+                                        <?php } ?>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="nk-block">
+                    <div class="row g-gs">
+                        <div class="col-12" id="analytics" style="display:none;">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card card-bordered text-white bg-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Members'); ?></h6>
+                                                </div>
+                                            </div>
+                                            <div class="card-amount"><span class="amount text-white" id="membership"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card card-bordered text-white bg-success card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Present'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount text-white" id="present"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card card-bordered text-white bg-danger card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Total Absent'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount text-white" id="absent"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="card card-bordered card-full">
+                                <div class="card-inner-group">
+                                    <div class="card-inner">
+                                        <div class="card-title-group">
+                                            <div class="card-title">
+                                                <h6 class="title my-1"><?=translate_phrase('Mark Attendance');?></h6>
+                                            </div>
+                                            <div class="card-tools"></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <input type="hidden" id="church_id" value="<?=$church_id; ?>">
+                                        <input type="hidden" id="cell_id" value="<?=$cell_id; ?>">
+                                            
+                                        <?php if($attend_type == 'usher' || $attend_type == 'admin'){?>
+                                            <div class="col-sm-2 my-2">.</div>
+                                            <div class="col-sm-8 my-2">
+                                                <div class="form-control-wrap p-2"> 
+                                                    <label class="name">Enter Name/Email</label>   
+                                                    <div class="input-group p-2">        
+                                                        <input type="text" id="member_id" class="form-control form-control-lg" placeholder="Enter Your Name or Email">        
+                                                        <div class="input-group-append">            
+                                                            <button class="btn btn-outline-primary btn-dim" onclick="get_member();">Search</button>        
+                                                        </div>    
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2 my-2">.</div>
+                                        <?php } ?>
+
+                                        <?php if($attend_type == 'cell' ){?>
+                                            <div id="attendance_response">
+                                                <!-- dynamic content appears here -->
+                                            </div>
+                                            
+                                        <?php } ?>
+                                        <div class="col-12 my-2 text-center" id="member_response"></div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<?= $this->endSection(); ?>
+<?= $this->section('scripts'); ?>
+<script>
+    function get_member() {
+        $('#member_response').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        var member_id = $('#member_id').val();
+        var service = $('#service').val();
+        var church_id = $('#church_id').val();
+
+        $.ajax({
+            url: site_url + 'attendance/dashboard/get_member',
+            type: 'post',
+            data: { member_id: member_id, service:service, church_id:church_id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#member_response').html(dt.response);
+                
+            }
+        });
+    }
+    
+    $(document).ready(function () {
+        // Trigger change on page load
+        $('#service_select').trigger('change');
+
+    });
+
+    function checkAnalyticsAccess() {
+        let enteredPassword = prompt("Enter password to view analytics:");
+
+        if (enteredPassword === null || enteredPassword === "") return;
+
+        $.ajax({
+            url: site_url + 'attendance/dashboard/verify_password',
+            type: 'POST',
+            data: { password: enteredPassword },
+            success: function(response) {
+                if (response.status === 'success') {
+                    $('#analytics').toggle(500);
+                } else {
+                    alert("Incorrect password. Access denied.");
+                }
+            },
+            error: function() {
+                alert("An error occurred. Try again.");
+            }
+        });
+    }
+
+
+    $('#service_select').on('change', function () {
+        let service = $(this).val();
+        var cell_id = $('#cell_id').val();
+        
+        if (service !== "") {
+            $.ajax({
+                url: site_url + 'attendance/dashboard/get_attendance_by_service', // adjust this to your route
+                type: 'POST',
+                data: {
+                    service: service,
+                    cell_id : cell_id
+                },
+                beforeSend: function () {
+                    $('#attendance_response').html('<div class="text-center">Loading attendance...</div>');
+                },
+                success: function (response) {
+                    $('#attendance_response').html(response); // insert rendered table from PHP
+                },
+                error: function () {
+                    $('#attendance_response').html('<div class="text-danger">Something went wrong. Please try again.</div>');
+                }
+            });
+        } else {
+            $('#attendance_response').html('');
+        }
+    });
+
+
+    $(document).on('click', '.mark-present-btn', function () {
+        var member_id = $(this).data('member-id');
+        var service_id = $('#service').val();
+        if(!service_id)service_id = $('#service_select').val();
+        var church_id = $('#church_id').val();
+
+        // Optional: Disable button and show spinner
+        var button = $(this);
+        button.prop('disabled', true).html('Marking...');
+
+        $.ajax({
+            url: site_url + 'attendance/dashboard/mark_present', // Adjust this route
+            type: 'POST',
+            data: {
+                member_id: member_id,
+                service_id: service_id,
+                church_id: church_id
+            },
+            success: function (response) {
+                // Handle response (e.g., change button text)
+                button.html('Present ✅');
+                button.removeClass('btn-primary').addClass('btn-success');
+            },
+            error: function () {
+                $('#member_response').html('Failed to mark member as present.');
+                button.prop('disabled', false).html('Mark as Present');
+            }
+        });
+    });
+
+
+    function loadMetrics(serviceNumber) {
+        $.ajax({
+            url: site_url + 'attendance/dashboard/get_attendance_metrics',
+            type: 'POST',
+            data: { service: serviceNumber },
+            success: function (data) {
+                $('#membership').text(data.membership);
+                $('#present').text(data.present);
+                $('#absent').text(data.absent);
+            },
+            error: function () {
+                $('#membership, #present, #absent').text('0');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        let defaultService = $('#service').val();
+        loadMetrics(defaultService); // Load metrics on page load
+
+        $('#service').on('change', function () {
+            let selectedService = $(this).val();
+            loadMetrics(selectedService); // Reload metrics when changed
+        });
+    });
+
+</script>   
+
+
+<?= $this->endSection(); ?>

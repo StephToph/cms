@@ -336,17 +336,7 @@
         });
     }
 
-    function church_admin(page, id) {
-        $('#church_title').html(page + "`s Church Administrator");
-        $('#church_resp').hide(500);
-        $('#admin_resp').show(500);
-
-        $('#admin_search').on('input', function () {
-            load_admin('', '', id);
-        });
-        load_admin('', '', id);
-
-    }
+   
 
     function church_admin(page, id) {
         $('#church_title').html(page + "`s Church Administrator");
