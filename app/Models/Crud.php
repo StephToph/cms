@@ -5562,15 +5562,22 @@ class Crud extends Model {
 		$name = $parts[0];
 		$domain = $parts[1];
 	
-		$masked_name = substr($name, 0, 1) . str_repeat('*', max(strlen($name) - 2, 1)) . substr($name, -1);
-		return $masked_name . '@' . $domain;
+		$visible = substr($name, 0, 3);
+		$masked = str_repeat('*', max(strlen($name) - 3, 1));
+	
+		return $visible . $masked . '@' . $domain;
 	}
 	
 	public function mask_phone($phone) {
-		$length = strlen($phone);
-		if ($length <= 4) return str_repeat('*', $length);
-		
-		return substr($phone, 0, 3) . str_repeat('*', $length - 6) . substr($phone, -3);
+		$clean = preg_replace('/[^0-9]/', '', $phone); // remove any formatting
+		$length = strlen($clean);
+	
+		if ($length <= 7) return str_repeat('*', $length); // fallback
+	
+		$first = substr($clean, 0, 5);
+		$last = substr($clean, -2);
+	
+		return $first . str_repeat('*', $length - 7) . $last;
 	}
 	////////////////////////CRON JOB///////////////////////////
 	// Method to create a cron job dynamically
