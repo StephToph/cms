@@ -21,7 +21,7 @@ $this->Crud = new Crud();
                             ?>
                             <h3 class="nk-block-title page-title"><?=ucwords($type); ?></h3>
                             <div class="nk-block-des text-soft">
-                                <!-- <p>Welcome to DashLite Dashboard Template.</p> -->
+                                <p><?=date('Y-m-d'); ?></p>
                             </div>
                         </div>
                         <div class="nk-block-head-content">
@@ -32,7 +32,7 @@ $this->Crud = new Crud();
                                 <div class="toggle-expand-content" data-content="pageMenu">
                                     <ul class="nk-block-tools g-3">
                                         <?php 
-                                            $service_count = $this->Crud->check2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
+                                            $service_count = $this->Crud->check3('status', 0, 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
                                             if($service_count > 1){
                                                 if($attend_type == 'cell'){
                                                     echo  '<li>
@@ -74,7 +74,7 @@ $this->Crud = new Crud();
                     <div class="row g-gs">
                         <div class="col-12" id="analytics" style="display:none;">
                             <div class="row">
-                                <div class="col-md-4 mb-3">
+                                <div class="col-md-2 mb-3">
                                     <div class="card card-bordered text-white bg-primary card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -87,8 +87,8 @@ $this->Crud = new Crud();
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="card card-bordered text-white bg-success card-full">
+                                <div class="col-md-2 mb-3">
+                                    <div class="card card-bordered border-success card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
                                                 <div class="card-title">
@@ -96,13 +96,13 @@ $this->Crud = new Crud();
                                                 </div>
                                                
                                             </div>
-                                            <div class="card-amount"><span class="amount text-white" id="present"> 0 <span class="currency currency-usd"></span></span></div>
+                                            <div class="card-amount"><span class="amount " id="present"> 0 <span class="currency currency-usd"></span></span></div>
                                             
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4 mb-3">
-                                    <div class="card card-bordered text-white bg-danger card-full">
+                                <div class="col-md-2 mb-3">
+                                    <div class="card card-bordered border-danger card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
                                                 <div class="card-title">
@@ -110,7 +110,52 @@ $this->Crud = new Crud();
                                                 </div>
                                                
                                             </div>
-                                            <div class="card-amount"><span class="amount text-white" id="absent"> 0 <span class="currency currency-usd"></span></span></div>
+                                            <div class="card-amount"><span class="amount" id="absent"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Male Present'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="male"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Female Present'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="female"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2 mb-3">
+                                    <div class="card card-bordered  border-primary  card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Children Present'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="child"> 0 <span class="currency currency-usd"></span></span></div>
                                             
                                         </div>
                                     </div>
@@ -247,35 +292,54 @@ $this->Crud = new Crud();
     });
 
 
-    $(document).on('click', '.mark-present-btn', function () {
+    $(document).on('change', '.mark-present-switch', function () {
+        var $this = $(this);
         var member_id = $(this).data('member-id');
-        var service_id = $('#service').val();
-        if(!service_id)service_id = $('#service_select').val();
+        var isPresent = $(this).is(':checked');
+        var service_id = $('#service').val() || $('#service_select').val();
         var church_id = $('#church_id').val();
 
-        // Optional: Disable button and show spinner
-        var button = $(this);
-        button.prop('disabled', true).html('Marking...');
+        if (isPresent) {
+            $('#resp_' + member_id).html('<small class="text-info">Marking...</small>');
+            $this.prop('disabled', true);
+            $.ajax({
+                url: site_url + 'attendance/dashboard/mark_present',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    service_id: service_id,
+                    church_id: church_id
+                },
+                success: function (response) {
+                    // Try to parse if it's JSON
+                    let res;
+                    try {
+                        res = typeof response === 'object' ? response : JSON.parse(response);
+                    } catch (e) {
+                        res = { status: 'error', message: response };
+                    }
 
-        $.ajax({
-            url: site_url + 'attendance/dashboard/mark_present', // Adjust this route
-            type: 'POST',
-            data: {
-                member_id: member_id,
-                service_id: service_id,
-                church_id: church_id
-            },
-            success: function (response) {
-                // Handle response (e.g., change button text)
-                button.html('Present ✅');
-                button.removeClass('btn-primary').addClass('btn-success');
-            },
-            error: function () {
-                $('#member_response').html('Failed to mark member as present.');
-                button.prop('disabled', false).html('Mark as Present');
-            }
-        });
+                    if (res.status === 'success') {
+                        $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
+                        $this.prop('disabled', true); // ✅ disable the switch
+                        let defaultService = $('#service').val();
+                        loadMetrics(defaultService); 
+                    } else {
+                        $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                        $this.prop('checked', false); // rollback toggle if error
+                    }
+                },
+                error: function () {
+                    $('#resp_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
+                    $this.prop('disabled', false);
+                }
+            });
+        } else {
+            $('#resp_' + member_id).html('<small class="text-muted">Unmarked (optional)</small>');
+            // Optional: Send "unmark" request here
+        }
     });
+
 
 
     function loadMetrics(serviceNumber) {
@@ -287,9 +351,12 @@ $this->Crud = new Crud();
                 $('#membership').text(data.membership);
                 $('#present').text(data.present);
                 $('#absent').text(data.absent);
+                $('#male').text(data.male);
+                $('#female').text(data.female);
+                $('#children').text(data.children);
             },
             error: function () {
-                $('#membership, #present, #absent').text('0');
+                $('#membership, #present, #absent,#male, #female, #children').text('0');
             }
         });
     }

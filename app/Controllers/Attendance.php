@@ -62,12 +62,13 @@ class Attendance extends BaseController {
 							die;
 						}
 
-						$service_check = $this->Crud->read_field2( 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'id');
+						$service_check = $this->Crud->read_field3('status', 0, 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'id');
 
 						if($service_check <= 0){
 							echo $this->Crud->msg('danger', 'No Active Service Today<br>Check Back Later!!');
 							die;
 						}
+
 						
 						$status = true;
 						$msg = 'Login Successful!<br>Active Service..';
@@ -168,8 +169,19 @@ class Attendance extends BaseController {
 									$response .= '
 										<tr>
 											<td>'.ucwords(strtolower($q->firstname.' '.$q->surname.' '.$q->othername)).'</td>
-											<td>'.$q->email.'</td>
-											<td><button class="btn btn-primary  mark-present-btn"  data-member-id="'.$q->id.'"  id="present_btn" type="button">Mark as Present <em class="icon ni ni-check-round"></em> </button></td>
+											<td>'.$this->Crud->mask_email($q->email).'</td>
+											<td>'.$this->Crud->mask_phone($q->phone).'</td>
+											<td>
+												<div class="custom-control custom-switch">
+													<input type="checkbox"
+														class="custom-control-input mark-present-switch"
+														id="presentSwitch_'.$q->id.'"
+														data-member-id="'.$q->id.'">
+													<label class="custom-control-label" for="presentSwitch_'.$q->id.'">Mark Present</label>
+												</div>
+												<span id="resp_'.$q->id.'"></span>
+											</td>
+
 										</tr>
 									
 									';
@@ -177,7 +189,8 @@ class Attendance extends BaseController {
 									$response .= '
 										<tr>
 											<td>'.ucwords(strtolower($q->firstname.' '.$q->surname.' '.$q->othername)).'</td>
-											<td>'.$q->email.'</td>
+											<td>'.$this->Crud->mask_email($q->email).'</td>
+											<td>'.$this->Crud->mask_phone($q->phone).'</td>
 											<td width="100px">
 												<div class="text-success" role="alert">    
 													Attendance Marked   
@@ -284,18 +297,25 @@ class Attendance extends BaseController {
 						$response .= '
 							<tr>
 								<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
-								<td>' . $q->email . '</td>
+								<td>'.$this->Crud->mask_email($q->email).'</td>
+								<td>'.$this->Crud->mask_phone($q->phone).'</td>
 								<td>
-									<button class="btn btn-primary mark-present-btn" data-member-id="' . $q->id . '" data-service-id="' . $service_report_id . '" type="button">
-										Mark as Present <em class="icon ni ni-check-round"></em>
-									</button>
+									<div class="custom-control custom-switch">
+										<input type="checkbox"
+											class="custom-control-input mark-present-switch"
+											id="presentSwitch_'.$q->id.'"
+											data-member-id="'.$q->id.'">
+										<label class="custom-control-label" for="presentSwitch_'.$q->id.'">Mark Present</label>
+									</div>
+									<span id="resp_'.$q->id.'"></span>
 								</td>
 							</tr>';
 					} else {
 						$response .= '
 							<tr>
 								<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
-								<td>' . $q->email . '</td>
+								<td>'.$this->Crud->mask_email($q->email).'</td>
+								<td>'.$this->Crud->mask_phone($q->phone).'</td>
 								<td>
 									<div class="text-success">Attendance Marked</div>
 								</td>
@@ -333,18 +353,33 @@ class Attendance extends BaseController {
 			}
 		
 			// Count members in the cell
-			$total_members = $this->Crud->check('is_member', 1, 'user');
-		
+			$total_members = $this->Crud->check2('church_id', $church_id, 'is_member', 1, 'user');
+			$male = 0;$female = 0;$children = 0;
+			$present = 0;
 			// Count present for selected service
-			$present = $this->Crud->check2('service_id', $service_report_id, 'church_id', $church_id, 'service_attendance');
-		
+			$mem_query = $this->Crud->read2('service_id', $service_report_id, 'church_id', $church_id, 'service_attendance');
+			if(!empty($mem_query)){
+				foreach($mem_query as $mq){
+					$present++;
+					if(strtolower($this->Crud->read_field('id', $mq->member_id, 'user', 'gender')) == 'male'){
+						$male++;
+					}
+
+					if(strtolower($this->Crud->read_field('id', $mq->member_id, 'user', 'gender')) == 'female'){
+						$female++;
+					}
+				}
+			}
 			// Absent = total - present
 			$absent = $total_members - $present;
 		
 			return $this->response->setJSON([
 				'membership' => $total_members,
 				'present' => $present,
-				'absent' => $absent
+				'absent' => $absent,
+				'male' => $male,
+				'female' => $female,
+				'children' => $children
 			]);
 		}
 
