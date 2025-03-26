@@ -1857,6 +1857,7 @@ class Church extends BaseController{
 
 
 
+						
 						$item .= '
 							<tr>
 								<td>

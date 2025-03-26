@@ -6571,6 +6571,64 @@ class Accounts extends BaseController {
 						exit;	
 					}
 				}
+			}  elseif ($param2 == 'admin_send') {
+				if ($param3) {
+					$admin_id = $param3;
+					if ($admin_id) {
+						$surname = $this->Crud->read_field('id', $admin_id, 'user', 'surname');
+						$firstname = $this->Crud->read_field('id', $admin_id, 'user', 'firstname');
+						$role_id = $this->Crud->read_field('id', $admin_id, 'user', 'role_id');
+						$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
+						$othername = $this->Crud->read_field('id', $admin_id, 'user', 'othername');
+						$user_no = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
+						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
+						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
+						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
+						$church_id = $this->Crud->read_field('id', $admin_id, 'user', 'church_id');
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+
+						$name = ucwords($firstname . ' ' . $othername . ' ' . $surname);
+						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
+						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
+						$body = '
+							Dear ' . $name . ', <br><br>
+								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
+    							Below are your Account Details:<br><br>
+
+								Website: ' . site_url() . '
+								Membership ID: ' . $user_no . '<br>
+								Email: ' . $email . '<br>
+								Phone: ' . $phone . '<br>
+								
+								<p>To ensure the security of your account, please set your password by clicking the link below:</p>
+    
+
+								' . $link . '
+
+								<p>This link will direct you to a secure page where you can choose your own password. If you encounter any issues or have questions, please feel free to contact our support team.</p>
+								<p><strong>Important:</strong> Do not disclose your login credentials to anyone to avoid unauthorized access.</p>
+								<p>Welcome aboard, and we look forward to your participation!</p>
+								<p>Best regards,<br>
+								
+						';
+						if ($this->request->getMethod() == 'post') {
+							$head = 'Welcome to ' . $ministry . ' - Set Your Password';
+							$email_status = $this->Crud->send_email($email, $head, $body);
+							if ($email_status > 0) {
+								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
+								echo '<script>
+										load("","");
+										$("#modal").modal("hide");
+									</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Error Sending Email');
+							}
+							die;
+						}
+
+					}
+
+				}
 			} elseif($param2 == 'upload'){ 
 				if($param3 == 'download'){
 					// Define the path to the file
@@ -7417,7 +7475,7 @@ class Accounts extends BaseController {
 								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
-								
+								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
 							} else {
@@ -7428,7 +7486,7 @@ class Accounts extends BaseController {
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
 								<li><a href="javascript:;" class="text-dark pop" pageTitle="Leader ' . $name . '" pageName="' . site_url($mod . '/manage/leaders/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leader').'</span></a></li>
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
-								
+								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
 							}
