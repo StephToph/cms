@@ -343,7 +343,10 @@
                     <input class="form-control" type="text" id="city" name="city"  required>
                 </div>
             </div>
-            
+            <div class="col-sm-4">
+                <label for="country" class="form-label fw-bold">Country </label>
+                <input type="text" class="form-control" readonly id="country" name="country" placeholder="Your country">
+            </div>
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label">State</label>
@@ -383,12 +386,12 @@
             <div class="col-sm-4">
                 <label class="form-label fw-bold">How did you connect to service?</label>
                 <div class="form-check">
-                <input class="form-check-input" type="radio" name="connection" id="inPerson" value="In person">
-                <label class="form-check-label" for="inPerson">In person</label>
+                    <input class="form-check-input" type="radio" name="connection" id="inPerson" value="In person">
+                    <label class="form-check-label" for="inPerson">In person</label>
                 </div>
                 <div class="form-check">
-                <input class="form-check-input" type="radio" name="connection" id="online" value="Online">
-                <label class="form-check-label" for="online">Online</label>
+                    <input class="form-check-input" type="radio" name="connection" id="online" value="Online">
+                    <label class="form-check-label" for="online">Online</label>
                 </div>
             </div>
 
@@ -400,7 +403,7 @@
                     $ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
                     
                 ?>
-                <label class="form-label fw-bold">Would you consider joining <?=$ministry.' '.$church ?>?</label>
+                <label class="form-label fw-bold">Would you consider joining Us?</label>
                 <div class="form-check">
                 <input class="form-check-input" type="radio" name="joining" id="joinYes" value="Yes">
                 <label class="form-check-label" for="joinYes">Yes</label>
@@ -414,17 +417,15 @@
             <div class="col-sm-4">
                 <label class="form-label fw-bold">Are you Baptised by immersion?</label>
                 <div class="form-check">
-                <input class="form-check-input" type="radio" name="baptised" id="baptisedYes" value="Yes">
-                <label class="form-check-label" for="baptisedYes">Yes</label>
+                    <input class="form-check-input" type="radio" name="baptised" id="baptisedYes" value="Yes">
+                    <label class="form-check-label" for="baptisedYes">Yes</label>
                 </div>
                 <div class="form-check">
-                <input class="form-check-input" type="radio" name="baptised" id="baptisedNo" value="No">
-                <label class="form-check-label" for="baptisedNo">No</label>
+                    <input class="form-check-input" type="radio" name="baptised" id="baptisedNo" value="No">
+                    <label class="form-check-label" for="baptisedNo">No</label>
                 </div>
             </div>
-            </div>
 
-            <div class="row mb-4">
             <div class="col-sm-4">
                 <label class="form-label fw-bold">Would you want us to visit you?</label>
                 <div class="form-check">
@@ -441,12 +442,6 @@
                 <label for="visitTime" class="form-label fw-bold">If yes, when is best?</label>
                 <input type="text" class="form-control" id="visitTime" name="visit_time" placeholder="Your answer">
             </div>
-
-            <div class="col-sm-4">
-                <label for="country" class="form-label fw-bold">Country (auto-filled)</label>
-                <input type="text" class="form-control" readonly id="country" name="country" placeholder="Your country">
-            </div>
-            </div>
             
             <div class="col-sm-4 mb-3">
                 <label for="name"  class="form-label fw-bold">*<?=translate_phrase('Invited By'); ?></label>
@@ -460,8 +455,29 @@
             
             <div class="col-sm-4 mb-3 channel-div related-div"  style="display: none;">
                 <label for="name"  class="form-label fw-bold"><?=translate_phrase('Channel'); ?></label>
-                <input class="form-control" type="text" id="channel" name="channel[]" >
-                
+                <!-- Platform SELECT (for Online) -->
+                <select class="js-select2" data-search="on" name="platform" id="platform" style="display: none;">
+                    <option value="">Select Platform</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="WhatsApp">WhatsApp</option>
+                    <option value="Email Newsletter">Email Newsletter</option>
+                    <option value="Direct Mail/Postcard">Direct Mail/Postcard</option>
+                    <option value="Event/Conference">Event/Conference</option>
+                    <option value="Podcast">Podcast</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Twitter/X">Twitter/X</option>
+                    <option value="Tiktok">Tiktok</option>
+                    <option value="Our Website">Our Website</option>
+                    <option value="Google Search ">Google Search </option>
+                    <option value="TV">TV</option>
+                    <option value="Radio ">Radio </option>
+                </select>
+
+                <!-- Channel TEXT INPUT (for Others) -->
+                <input class="form-control" type="text" id="channel" name="channel" placeholder="Enter referral source" style="display: none;">
+
             </div>
 
             <div class="col-sm-4 mb-3 member-div related-div"  style="display: none;">
@@ -541,24 +557,34 @@
 
     $(document).ready(function () {
         $('#invited_by').on('change', function () {
-           
             var selectedOption = $(this).val();
-            var channelDiv = $('.channel-div');
-            var memberDiv = $('.member-div');
-            
-            // Hide all related divs initially
+            var $channelDiv = $('.channel-div');
+            var $memberDiv = $('.member-div');
+            var $platformSelect = $('#platform');
+            var $channelInput = $('#channel');
+
+            // Hide all by default
             $('.related-div').hide(500);
-            
-            // Show the corresponding div based on the selected option
-            if(selectedOption === "Member") {
-                memberDiv.show(500);channelDiv.hide(500);
-            } else if(selectedOption === "Online" || selectedOption === "Others") {
-                channelDiv.show(500);memberDiv.hide(500);
+            $platformSelect.hide(500);
+            $channelInput.hide(500);
+
+            // Logic based on selection
+            if (selectedOption === "Member") {
+                $memberDiv.show(500);
+            } else if (selectedOption === "Online") {
+                $channelDiv.show(500);
+                $platformSelect.show(500);
+                $channelInput.hide(500);
+            } else if (selectedOption === "Others") {
+                $channelDiv.show(500);
+                $platformSelect.hide(500);
+                $channelInput.show(500);
             }
         });
     });
 
-    invited_by
+
+    
     function get_state(country){
         $.ajax({
             url: site_url + 'attendance/get_state/'+country, // Update this to the path of your API endpoint
