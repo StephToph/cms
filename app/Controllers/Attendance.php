@@ -244,8 +244,10 @@ class Attendance extends BaseController {
 			// echo $service_report_id;
 
 			if(empty($service_report_id)){
-				echo $this->Crud->msg('warning', 'Service not Found');
-				die;
+				return $this->response->setJSON([
+					'status' => 'warning',
+					'message' => 'Service report not found.'
+				]);
 			}
 
 
@@ -257,11 +259,83 @@ class Attendance extends BaseController {
 					'church_id' => $church_id,
 					'status' => 'present'
 				]);
+				return $this->response->setJSON([
+					'status' => 'success',
+					'message' => 'Marked as present.'
+				]);
+			} else {
+				return $this->response->setJSON([
+					'status' => 'info',
+					'message' => 'Member already marked for this service.'
+				]);
 			}
 		
-			return $this->response->setJSON(['status' => 'success']);
-			die;
 		}
+
+		if ($param1 === 'mark_absent') {
+			$member_id = $this->request->getPost('member_id');
+			$service_number = $this->request->getPost('service_id'); // index position of the service
+			$reason = $this->request->getPost('reason');
+			$church_id = $this->request->getPost('church_id');
+		
+			// 🛡️ Validation
+			if (!$member_id || !$service_number || !$church_id || !$reason) {
+				return $this->response->setJSON([
+					'status' => 'error',
+					'message' => 'All fields are required.'
+				]);
+			}
+		
+			// 🔍 Get service report ID based on today's services for this church
+			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+		
+			$occurrence = 0;
+			$service_report_id = 0;
+		
+			if (!empty($query)) {
+				foreach ($query as $q) {
+					$occurrence++;
+					if ($occurrence == $service_number) {
+						$service_report_id = $q->id;
+						break;
+					}
+				}
+			}
+		
+			// 🛑 If not found
+			if (empty($service_report_id)) {
+				return $this->response->setJSON([
+					'status' => 'warning',
+					'message' => 'Service report not found.'
+				]);
+			}
+		
+			// ✅ Check if already marked
+			$exists = $this->Crud->check2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance');
+		
+			if ($exists == 0) {
+				// 💾 Save absence with reason
+				$this->Crud->create('service_attendance', [
+					'member_id' => $member_id,
+					'service_id' => $service_report_id,
+					'church_id' => $church_id,
+					'status' => 'absent',
+					'reason' => $reason,
+					'reg_date' => date('Y-m-d H:i:s')
+				]);
+		
+				return $this->response->setJSON([
+					'status' => 'success',
+					'message' => 'Marked as absent.'
+				]);
+			} else {
+				return $this->response->setJSON([
+					'status' => 'info',
+					'message' => 'Member already marked for this service.'
+				]);
+			}
+		}
+		
 
 		if($param1 == 'get_attendance_by_service'){
 			$service = $this->request->getPost('service'); // 1, 2, 3...
@@ -307,6 +381,35 @@ class Attendance extends BaseController {
 											data-member-id="'.$q->id.'">
 										<label class="custom-control-label" for="presentSwitch_'.$q->id.'">Mark Present</label>
 									</div>
+
+									<div class="custom-control custom-switch mb-1">
+										<input type="checkbox"
+											class="custom-control-input mark-absent-switch"
+											id="absentSwitch_'.$q->id.'"
+											data-member-id="'.$q->id.'">
+										<label class="custom-control-label" for="absentSwitch_'.$q->id.'">Absent</label>
+									</div>
+
+									<div id="absent_reason_wrapper_'.$q->id.'" style="display: none;" class="mt-2 form-group">
+										<label for="absent_reason_'.$q->id.'" class="form-label">Reason for Absence</label><br>
+										<select class="js-select2 reason-select w-100" data-search="on" name="absent_reason" id="absent_reason_'.$q->id.'" data-member-id="'.$q->id.'">
+											<option value="">-- Select Reason --</option>
+											<option value="Out of Town">Out of Town</option>
+											<option value="Gone to School">Gone to School</option>
+											<option value="Health Challenges">Health Challenges</option>
+											<option value="Challenges at Work">Challenges at Work</option>
+											<option value="Challenges at Home">Challenges at Home</option>
+											<option value="Financial Constraint">Financial Constraint</option>
+											<option value="Absent without reason">Absent without reason</option>
+											<option value="Offence">Offence</option>
+											<option value="Irregular">Irregular</option>
+											<option value="Not Yet Attending Church">Not Yet Attending Church</option>
+											<option value="Other">Other – Specify</option>
+										</select>
+
+										<!-- Custom reason input -->
+										<input type="text" class="form-control form-control-sm mt-2 other-reason-input" id="other_reason_'.$q->id.'" placeholder="Please specify" style="display: none;" />
+									</div>
 									<span id="resp_'.$q->id.'"></span>
 								</td>
 							</tr>';
@@ -317,12 +420,14 @@ class Attendance extends BaseController {
 								<td>'.$this->Crud->mask_email($q->email).'</td>
 								<td>'.$this->Crud->mask_phone($q->phone).'</td>
 								<td>
-									<div class="text-success">Attendance Marked</div>
+									<div class="text-info">Attendance Marked '.ucwords($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status')).'</div>
 								</td>
 							</tr>';
 					}
 				}
-				$response .= '</table></div>';
+				$response .= '</table></div>
+				<script>$(".js-select2").select2();</script>
+				';
 			} else {
 				$response .= '<div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div>';
 			}
@@ -355,12 +460,14 @@ class Attendance extends BaseController {
 			// Count members in the cell
 			$total_members = $this->Crud->check2('church_id', $church_id, 'is_member', 1, 'user');
 			$male = 0;$female = 0;$children = 0;
-			$present = 0;
+			$present = 0;$absent = 0;
 			// Count present for selected service
 			$mem_query = $this->Crud->read2('service_id', $service_report_id, 'church_id', $church_id, 'service_attendance');
 			if(!empty($mem_query)){
 				foreach($mem_query as $mq){
-					$present++;
+					if($mq->status == 'present')$present++;
+					if($mq->status == 'absent')$absent++;
+					
 					if(strtolower($this->Crud->read_field('id', $mq->member_id, 'user', 'gender')) == 'male'){
 						$male++;
 					}
@@ -370,8 +477,7 @@ class Attendance extends BaseController {
 					}
 				}
 			}
-			// Absent = total - present
-			$absent = $total_members - $present;
+			$unmarked = $total_members - $present - $absent;
 		
 			return $this->response->setJSON([
 				'membership' => $total_members,
@@ -379,7 +485,7 @@ class Attendance extends BaseController {
 				'absent' => $absent,
 				'male' => $male,
 				'female' => $female,
-				'children' => $children
+				'unmarked' => $unmarked
 			]);
 		}
 
@@ -420,7 +526,7 @@ class Attendance extends BaseController {
 			$code = $this->Crud->read_field('id', $user_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $user_id, 'user', 'surname');
 			$action = $code.translate_phrase(' logged out of Attendance Platform ');
 			
-			$this->Crud->activity('authentication', $user_id, $action);
+			$this->Crud->activity('authentication', $user_id, $action, $user_id);
 
 			$this->session->remove('td_attend_id');
 		}

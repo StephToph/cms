@@ -4962,12 +4962,13 @@ class Crud extends Model {
 	}
 
 	////// store activities
-	public function activity($item, $item_id, $action)
+	public function activity($item, $item_id, $action, $user_id='')
 	{
+		if(empty($user_id))$user_id = session()->get('td_id');
 		$ins['item'] = $item;
 		$ins['item_id'] = $item_id;
 		$ins['action'] = $action;
-		$ins['user_id'] = session()->get('td_id');
+		$ins['user_id'] = $user_id;
 		$ins['reg_date'] = date(fdate);
 		return $this->create('activity', $ins);
 	}
