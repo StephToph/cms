@@ -88,6 +88,20 @@ $this->Crud = new Crud();
                                     </div>
                                 </div>
                                 <div class="col-md-2 mb-3">
+                                    <div class="card card-bordered  border-primary  card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Umarked Attendance'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="unmarked"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-3">
                                     <div class="card card-bordered border-success card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -146,20 +160,6 @@ $this->Crud = new Crud();
                                     </div>
                                 </div>
                                 
-                                <div class="col-md-2 mb-3">
-                                    <div class="card card-bordered  border-primary  card-full">
-                                        <div class="card-inner">
-                                            <div class="card-title-group align-start mb-0">
-                                                <div class="card-title">
-                                                    <h6 class="title"><?=translate_phrase('Children Present'); ?></h6>
-                                                </div>
-                                               
-                                            </div>
-                                            <div class="card-amount"><span class="amount" id="child"> 0 <span class="currency currency-usd"></span></span></div>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div class="col-md-12">
@@ -299,6 +299,8 @@ $this->Crud = new Crud();
         var service_id = $('#service').val() || $('#service_select').val();
         var church_id = $('#church_id').val();
 
+        // Disable Absent if Present is checked
+        $('#absentSwitch_' + member_id).prop('disabled', isPresent);
         if (isPresent) {
             $('#resp_' + member_id).html('<small class="text-info">Marking...</small>');
             $this.prop('disabled', true);
@@ -340,6 +342,74 @@ $this->Crud = new Crud();
         }
     });
 
+    $(document).on('change', '.mark-absent-switch', function () {
+        let $this = $(this);
+        let member_id = $this.data('member-id');
+        let isAbsent = $this.is(':checked');
+
+        // Disable Present switch if Absent is checked
+        $('#presentSwitch_' + member_id).prop('disabled', isAbsent);
+
+        // Show or hide reason input
+        if (isAbsent) {
+            $('#absent_reason_wrapper_' + member_id).slideDown();
+        } else {
+            $('#absent_reason_wrapper_' + member_id).slideUp();
+            $('#absent_reason_' + member_id).val('');
+        }
+    });
+    $(document).on('change', '.reason-select', function () {
+        let $this = $(this);
+        let member_id = $this.data('member-id');
+        let selected = $this.val();
+
+        // If "Other", show input
+        if (selected === 'Other') {
+            $('#other_reason_' + member_id).show().focus();
+        } else {
+            $('#other_reason_' + member_id).hide().val('');
+        }
+    });
+
+    // Optional: When reason or "other" is selected/entered, submit
+    $(document).on('change blur', '.reason-select, .other-reason-input', function () {
+        let member_id = $(this).data('member-id');
+        let reason = $('#absent_reason_' + member_id).val();
+        let other_reason = $('#other_reason_' + member_id).val();
+        let final_reason = reason === 'Other' ? other_reason.trim() : reason;
+
+        if (final_reason !== '') {
+            let service_id = $('#service').val() || $('#service_select').val();
+            let church_id = $('#church_id').val();
+
+            $('#resp_' + member_id).html('<small class="text-info">Saving reason...</small>');
+
+            $.ajax({
+                url: site_url + 'attendance/dashboard/mark_absent',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    reason: final_reason,
+                    service_id: service_id,
+                    church_id: church_id
+                },
+                success: function (response) {
+                    let res = typeof response === 'object' ? response : JSON.parse(response);
+                    if (res.status === 'success') {
+                        $('#resp_' + member_id).html('<small class="text-success">' + res.message + '</small>');
+                        $('#absentSwitch_' + member_id).prop('disabled', true);
+                        $('#absent_reason_' + member_id).prop('disabled', true);
+                        $('#other_reason_' + member_id).prop('readonly', true);
+                    } else {
+                        $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                    }
+                },
+                error: function () {
+                    $('#resp_' + member_id).html('<small class="text-danger">Error saving reason.</small>');
+                }
+            });
+        }
+    });
 
 
     function loadMetrics(serviceNumber) {
@@ -353,10 +423,10 @@ $this->Crud = new Crud();
                 $('#absent').text(data.absent);
                 $('#male').text(data.male);
                 $('#female').text(data.female);
-                $('#children').text(data.children);
+                $('#unmarked').text(data.unmarked);
             },
             error: function () {
-                $('#membership, #present, #absent,#male, #female, #children').text('0');
+                $('#membership, #present, #absent,#male, #female, #unmarked').text('0');
             }
         });
     }
