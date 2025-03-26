@@ -738,6 +738,33 @@ class Accounts extends BaseController {
 						exit;	
 					}
 				}
+			} elseif($param2 == 'link'){ 
+				if($param3 == 'generate') {
+					$churchId = $this->request->getPost('church_id');
+
+					if (!$churchId) {
+						return $this->output->set_content_type('application/json')
+							->set_output(json_encode(['success' => false, 'message' => 'Church ID required']));
+					}
+				
+					$link = $this->Crud->read_field('id', $churchId, 'church', 'first_timer_link');
+					
+					if(empty($link)){
+						// Generate new unique code (e.g., random 8-character slug)
+						$link = $this->Crud->generateUniqueCode();
+					
+						// Save in database
+						$this->Crud->updates('id', $churchId, 'church', ['first_timer_link' => $link]);
+					
+					}
+					
+					if ($link) {
+						echo json_encode(['success' => true, 'url' => site_url('first-timer/' . $link)]);
+					} else {
+						echo json_encode(['success' => false, 'message' => 'Failed to generate link']);
+					}
+					die;
+				} 
 			} else {
 				// prepare for edit
 				if($param2 == 'edit') {
@@ -1000,7 +1027,9 @@ class Accounts extends BaseController {
 						}
 						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
 						$visit_date = date('M d, Y', strtotime($q->visit_date));
-
+						if(empty($q->visit_date)){
+							$visit_date = 'Not Visited';
+						}
 
 						// add manage buttons
 						if ($role_u != 1) {
@@ -4795,7 +4824,7 @@ class Accounts extends BaseController {
 					}
 				}
 
-			}  elseif($param2 == 'offering'){
+			} elseif($param2 == 'offering'){
 				$timer_count = $this->session->get('cell_timers');
 				// $first = json_decode($timer_count);
 				// echo $timer_count;
@@ -4922,7 +4951,7 @@ class Accounts extends BaseController {
 					}
 				}
 
-			}elseif($param2 == 'first_timer'){
+			} elseif($param2 == 'first_timer'){
 				
 				if($param3) {
 					
@@ -5054,7 +5083,6 @@ class Accounts extends BaseController {
 							$ins['source_id'] = $creport_id;
 							$ins['ministry_id'] = $ministry_id;
 							$ins['church_id'] = $church_id;
-							$ins['visit_date'] = $dates;
 
 							if (!empty($first)) {
 								$ins['category'] = 'first_timer';

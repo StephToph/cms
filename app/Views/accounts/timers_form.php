@@ -172,7 +172,91 @@
 
     </div>
 
-<?php } ?>
+    <?php } ?>
+
+
+    <?php if ($param2 == 'link') { ?>
+        <div class="row">
+            <?php
+                $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+
+                if ($church_id > 0) { ?>
+                    <input type="hidden" name="ministry_id" id="ministry_id" value="<?php echo $ministry_id; ?>">
+                    <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+                <?php }?>
+                   
+                <?php if ($church_id == 0) { ?>
+                    <div class="col-sm-6 mb-3">
+                        <div class="form-group">
+                            <label class="form-label">Church Type</label>
+                            <select class="js-select2" data-search="on" name="level" id="level">
+                                <option value="">Select Church Level</option>
+                                <?php
+                                $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                                $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');?>
+
+                                    <option value="region" <?php if (!empty($e_level)) {
+                                        if ($e_level == 'region') {
+                                            echo 'selected';
+                                        }
+                                    } ?>>Regional
+                                        Church</option>
+                                    <option value="zone" <?php if (!empty($e_level)) {
+                                        if ($e_level == 'zone') {
+                                            echo 'selected';
+                                        }
+                                    } ?>>Zonal Church
+                                    </option>
+                                    <option value="group" <?php if (!empty($e_level)) {
+                                        if ($e_level == 'group') {
+                                            echo 'selected';
+                                        }
+                                    } ?>>Group
+                                        Church</option>
+                                    <option value="church" <?php if (!empty($e_level)) {
+                                        if ($e_level == 'church') {
+                                            echo 'selected';
+                                        }
+                                    } ?>>Church
+                                        Assembly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 mb-3" id="church_div">
+                        <div class="form-group">
+                            <label class="form-label">Church</label>
+                            <select class="js-select2" data-search="on" name="church_id" id="church_id">
+                                <option value="">Select</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                <?php }?>
+                <p class="mb-3">Share this link with first timers or display the QR code below.</p>
+
+                <div class="mb-3">
+                <input type="text" id="firstTimerLink" class="form-control text-center" readonly
+                    value="<?= site_url('first-timer/register/' . $church_id); ?>">
+                </div>
+
+                <div id="qrContainer" class="my-3 d-flex justify-content-center">
+                    <!-- QR will be generated here -->
+                    <div id="firstTimerQR"></div>
+                </div>
+
+                <div class="d-flex justify-content-center mt-3">
+                    <button class="btn btn-outline-primary mx-1" onclick="copyFirstTimerLink()">Copy Link</button>
+                    <button class="btn btn-outline-success mx-1" onclick="downloadQRCode()">Download QR Code</button>
+                </div>
+
+            </div>
+                                    <!-- Include QRCode.js -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <?php } ?>
 
     <!-- insert/edit view -->
     
@@ -350,6 +434,89 @@
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script>
+    function updateFirstTimerDetails(churchId) {
+        const $linkInput = $('#firstTimerLink');
+        const $qrContainer = $('#firstTimerQR');
+
+        if (!churchId) {
+            $linkInput.val('');
+            $qrContainer.empty();
+            return;
+        }
+
+        // Send AJAX to backend to fetch or create URL
+        $.ajax({
+            url: "<?= site_url('accounts/timers/manage/link/generate') ?>", // Backend route
+            type: "POST",
+            dataType: "json",
+            data: { church_id: churchId },
+            success: function (response) {
+                if (response.success && response.url) {
+                    $linkInput.val(response.url);
+                    $qrContainer.empty();
+
+                    new QRCode($qrContainer[0], {
+                        text: response.url,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else {
+                    $linkInput.val('Error generating link');
+                    $qrContainer.empty();
+                }
+            },
+            error: function () {
+                $linkInput.val('Server error');
+                $qrContainer.empty();
+            }
+        });
+    }
+
+    // On document ready
+    $(document).ready(function () {
+        $('#church_id').on('change', function () {
+            const selectedChurchId = $(this).val();
+            updateFirstTimerDetails(selectedChurchId);
+        });
+
+        // Initial load (optional)
+        const initialChurchId = $('#church_id').val();
+        if (initialChurchId) {
+            updateFirstTimerDetails(initialChurchId);
+        }
+    });
+
+    // Copy to clipboard
+    function copyFirstTimerLink() {
+        const $copyInput = $('#firstTimerLink');
+        $copyInput.select();
+        document.execCommand('copy');
+        alert("Link copied to clipboard!");
+    }
+
+    
+    function downloadQRCode() {
+        const qrCanvas = $('#firstTimerQR canvas')[0];
+
+        if (!qrCanvas) {
+            alert("QR Code not available yet!");
+            return;
+        }
+
+        const image = qrCanvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.href = image;
+        link.download = 'first_timer_qr.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+<script>
     $(function() {
         $('.js-select2').select2();
     });
@@ -357,7 +524,67 @@
         format: 'yyyy-mm-dd', // Set the date format
         autoclose: true
     });
+    $('#level').change(function() {
+        var selectedLevel = $(this).val();
+        var selectedMinistryId = $('#ministry_id').val();
 
+        if (selectedLevel != '') {
+            loadChurches(selectedMinistryId, selectedLevel); // Load churches based on selected level
+        }
+    });
+
+    // Function to load churches based on selected ministry ID and/or level
+    function loadChurches(ministryId, level) {
+        // Clear the Church dropdown
+        $('#church_id').empty();
+        $('#church_id').append(new Option('Loading...', '', false, false));
+        
+        // Construct data object based on provided parameters
+        var data = {};
+        if (ministryId) {
+            data.ministry_id = ministryId;
+        }
+        if (level) {
+            data.level = level;
+        }
+
+        
+        // Proceed if there's data to be sent
+        if (Object.keys(data).length > 0) {
+            $.ajax({
+                url: site_url + 'ministry/announcement/get_church', // Update this to the path of your API endpoint
+                type: 'POST',
+                dataType: 'json',
+                data: data,
+                success: function (response) {
+                    const $churchDropdown = $('#church_id');
+                    $churchDropdown.empty(); // Clear existing options
+
+                    if (response.success) {
+                        $churchDropdown.append(new Option('Select Church', '', false, false));
+
+                        $.each(response.data, function (index, church) {
+                            const churchName = (church.name);
+                            const churchType = (church.type);
+                            const optionText = `${churchName} - ${churchType}`;
+                            $churchDropdown.append(new Option(optionText, church.id));
+                        });
+                    } else {
+                        $churchDropdown.append(new Option('No churches available', '', false, false));
+                    }
+                },
+
+                error: function () {
+                    $('#church_id').append(new Option('Error fetching churches', '', false, false));
+                }
+            });
+        } else {
+            $('#church_id').append(new Option('Please select a ministry or level', '', false, false));
+        }
+    }
+
+  
+    
     $('#is_assign').on('change', function () {
         var selectedType = $(this).val();
         if (selectedType == '1') {

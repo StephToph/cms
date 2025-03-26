@@ -10,6 +10,7 @@
 <?=$this->extend('designs/backend');?>
 <?=$this->section('title');?>
     <?=$title;?>
+
 <?=$this->endSection();?>
 
 <?=$this->section('content');?>
@@ -23,6 +24,21 @@
                             <h3 class="nk-block-title page-title"><?=translate_phrase('First Timer');?></h3>
                             <div class="nk-block-des text-soft">
                                 <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=translate_phrase('first timer(s).');?></p>
+                            </div>
+                        </div><!-- .nk-block-head-content -->
+                        <div class="nk-block-head-content">
+                            <div class="toggle-wrap nk-block-tools-toggle">
+                                <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="more-options"><em class="icon ni ni-more-v"></em></a>
+                                <div class="toggle-expand-content" data-content="more-options">
+                                    <ul class="nk-block-tools g-3">
+                                        
+                                        <li>
+                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-primary btn-lg btn-icon pop" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo base_url('accounts/timers/manage/link'); ?>" pageSize="modal-md">
+                                                <em class="icon ni ni-qr"></em>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
