@@ -62,7 +62,7 @@
                         <div class="nk-split-content nk-block-area nk-block-area-column nk-auth-container bg-white">
                             <div class="nk-block nk-block-middle nk-auth-body">
                                 <div class="brand-logo pb-2" style="display: flex;justify-content: center;    align-items: center;">
-                                    <a href="<?=site_url(); ?>" class="logo-link">
+                                    <a href="<?=site_url('attendance'); ?>" class="logo-link">
                                         <img class="logo-light logo-img logo-img-lg" style="max-height:150px" src="<?=site_url(); ?>assets/new_logo1.png" srcset="<?=site_url(); ?>assets/new_logo1.png" alt="logo">
                                         <img class="logo-dark logo-img logo-img-lg" style="max-height:150px" src="<?=site_url(); ?>assets/new_logo1.png" srcset="<?=site_url(); ?>assets/new_logo1.png" alt="logo-dark">
                                     </a>

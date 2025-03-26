@@ -196,7 +196,7 @@ $this->Crud = new Crud();
                                                 <div class="form-control-wrap p-2"> 
                                                     <label class="name">Enter Name/Email</label>   
                                                     <div class="input-group p-2">        
-                                                        <input type="text" id="member_id" class="form-control form-control-lg" placeholder="Enter Your Name or Email">        
+                                                        <input type="text" id="member_id" oninput="get_member();"class="form-control form-control-lg" placeholder="Enter Your Name or Email">        
                                                         <div class="input-group-append">            
                                                             <button class="btn btn-outline-primary btn-dim" onclick="get_member();">Search</button>        
                                                         </div>    

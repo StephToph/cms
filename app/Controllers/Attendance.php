@@ -143,8 +143,8 @@ class Attendance extends BaseController {
 				$response = '';
 
 				$mem_couunt = strlen($member_id);
-				if($mem_couunt < 5){
-					$response =  $this->Crud->msg('danger', 'Enter More than 5 Characters!');
+				if($mem_couunt < 3){
+					$response =  $this->Crud->msg('danger', 'Enter More than 3 Characters!');
 					
 				} else {
 					if(empty($member_id)){

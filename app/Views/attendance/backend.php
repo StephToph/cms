@@ -95,7 +95,7 @@ header("Access-Control-Allow-Headers: Content-Type");
                 <div class="container-xl wide-xl">
                     <div class="nk-header-wrap">
                         <div class="nk-header-brand">
-                            <a href="<?= site_url(); ?>" class="logo-link">
+                            <a href="<?= site_url('attendance'); ?>" class="logo-link">
                                 <img class="logo-light logo-img logo-img-lg" style="max-height:50px"
                                     src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo">
                                 <img class="logo-dark logo-img logo-img-lg" style="max-height:50px"
@@ -105,7 +105,7 @@ header("Access-Control-Allow-Headers: Content-Type");
                         <div class="nk-header-menu" data-content="headerNav">
                             <div class="nk-header-mobile">
                                 <div class="nk-header-brand">
-                                    <a href="<?= site_url(); ?>" class="logo-link">
+                                    <a href="<?= site_url('attendance'); ?>" class="logo-link">
                                         <img class="logo-light logo-img logo-img-lg" style="max-height:50px"
                                             src="<?= site_url($logo); ?>" srcset="<?= site_url($logo); ?>" alt="logo">
                                         <img class="logo-dark logo-img logo-img-lg" style="max-height:50px"
