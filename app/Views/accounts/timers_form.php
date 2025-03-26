@@ -183,7 +183,7 @@
 
                 if ($church_id > 0) { ?>
                     <input type="hidden" name="ministry_id" id="ministry_id" value="<?php echo $ministry_id; ?>">
-                    <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+                    <input type="hidden" name="church_id" id="church_id" value="<?php echo $church_id; ?>">
                 <?php }?>
                    
                 <?php if ($church_id == 0) { ?>
@@ -239,7 +239,7 @@
 
                 <div class="mb-3">
                 <input type="text" id="firstTimerLink" class="form-control text-center" readonly
-                    value="<?= site_url('first-timer/register/' . $church_id); ?>">
+                    value="">
                 </div>
 
                 <div id="qrContainer" class="my-3 d-flex justify-content-center">
@@ -437,7 +437,7 @@
     function updateFirstTimerDetails(churchId) {
         const $linkInput = $('#firstTimerLink');
         const $qrContainer = $('#firstTimerQR');
-
+      
         if (!churchId) {
             $linkInput.val('');
             $qrContainer.empty();
@@ -484,6 +484,7 @@
 
         // Initial load (optional)
         const initialChurchId = $('#church_id').val();
+        console.log(initialChurchId);
         if (initialChurchId) {
             updateFirstTimerDetails(initialChurchId);
         }
