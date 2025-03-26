@@ -310,9 +310,9 @@ class Service extends BaseController {
         $role_r = $this->Crud->module($role_id, $mod, 'read');
         $role_u = $this->Crud->module($role_id, $mod, 'update');
         $role_d = $this->Crud->module($role_id, $mod, 'delete');
-        if($role_r == 0){
-            return redirect()->to(site_url('dashboard'));	
-        }
+        // if($role_r == 0){
+        //     return redirect()->to(site_url('dashboard'));	
+        // }
         $data['log_id'] = $log_id;
         $data['role'] = $role;
         $data['role_c'] = $role_c;
