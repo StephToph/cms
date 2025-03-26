@@ -5688,5 +5688,16 @@ class Crud extends Model {
 		$output = shell_exec("crontab -l | grep -v 'php /path/to/your/project/public/index.php cron/$functionName' | crontab -");
 		log_message('info', 'Cron job deleted: ' . $output);
 	}
+
+	
+	public function generateUniqueCode($length = 6){
+		do {
+			$code = strtoupper(bin2hex(random_bytes($length / 2)));
+			$exists = $this->check('first_timer_link', $code, 'church') > 0;
+		} while ($exists);
+
+		return $code;
+	}
+
 	//////////////////////////////////END///////////////////////////////////////////////////////
 }

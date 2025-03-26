@@ -996,58 +996,57 @@ class Ministry extends BaseController {
 				if(!empty($level) && $level !=  'all'){
 					$church = $this->Crud->read2_order('type', $level, 'ministry_id', $ministry_id, 'church', 'name', 'asc');
 				}
-
-				$churches = [];
-				$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
-				$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-				$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
-				$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
-				
-				if (!empty($church)) {
-					foreach ($church as $c) {
-						if ($c->type == $church_type) {
-							if ($c->id == $church_id) {
-								// Add only the logged-in user's church if the type matches
-								$churches[] = [
-									'id' => $c->id,
-									'name' => $c->name,
-									'type' => $c->type
-								];
-							}
-						} 
-						if($church_type == 'region' && $c->type == 'region')continue;
-						
-						if($church_type == 'zone'){
-							if($c->type == 'region'  || $c->type == 'zone')continue;
-
-						}
-						if($church_type == 'group'){
-							if($c->type == 'region' ||  $c->type == 'zone' || $c->type == 'group')continue;
-
-						}
-
-						if($church_type == 'church'){
-							if($c->type == 'region' || $c->type == 'zone' || $c->type == 'group' || $c->type == 'church')continue;
-						}
-						
-						
-						$churches[] = [
-							'id' => $c->id,
-							'name' => $c->name,
-							'type' => $c->type
-						];
-					}
+			} else {
+				$church = $this->Crud->read_order( 'church', 'name', 'asc');
+				if(!empty($level) && $level !=  'all'){
+					$church = $this->Crud->read_single_order('type', $level, 'church', 'name', 'asc');
 				}
-
-				return $this->response->setJSON([
-					'success' => true,
-					'data' => $churches
-				]);
 			}
+			$churches = [];
+			$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+			$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
 			
+			if (!empty($church)) {
+				foreach ($church as $c) {
+					if ($c->type == $church_type) {
+						if ($c->id == $church_id) {
+							// Add only the logged-in user's church if the type matches
+							$churches[] = [
+								'id' => $c->id,
+								'name' => $c->name,
+								'type' => $c->type
+							];
+						}
+					} 
+					if($church_type == 'region' && $c->type == 'region')continue;
+					
+					if($church_type == 'zone'){
+						if($c->type == 'region'  || $c->type == 'zone')continue;
+
+					}
+					if($church_type == 'group'){
+						if($c->type == 'region' ||  $c->type == 'zone' || $c->type == 'group')continue;
+
+					}
+
+					if($church_type == 'church'){
+						if($c->type == 'region' || $c->type == 'zone' || $c->type == 'group' || $c->type == 'church')continue;
+					}
+					
+					
+					$churches[] = [
+						'id' => $c->id,
+						'name' => $c->name,
+						'type' => $c->type
+					];
+				}
+			}
+
 			return $this->response->setJSON([
-				'success' => false,
-				'message' => 'Invalid Ministry ID'
+				'success' => true,
+				'data' => $churches
 			]);
 		}
 
