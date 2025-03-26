@@ -109,8 +109,12 @@ class Attendance extends BaseController {
         // check login
         $log_id = $this->session->get('td_attend_id');
        if(empty($log_id)) return redirect()->to(site_url('attendance'));
-
-    
+	   $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+      
+		$active = $this->Crud->read_field('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'status');
+		if($active > 0){
+			return redirect()->to(site_url('attendance/logout'));	
+		}
         $mod = 'attendance/dashboard';
         
         $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
@@ -580,6 +584,17 @@ class Attendance extends BaseController {
                    
 					$occurrence = 0;
 					$service = $this->request->getPost('service');
+					$invited_by = $this->request->getPost('invited_by');
+					$platform = $this->request->getPost('platform');
+					$channel = $this->request->getPost('channel');
+					$member_id = $this->request->getPost('member_id');
+					if($invited_by == 'Member'){
+						$channel = $member_id;
+					}
+					if($invited_by == 'Online'){
+						$channel = $platform;
+					}
+					
 					$service_report_id = 0;
 					// Get all service reports for today for the specified church
 					$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
@@ -597,8 +612,10 @@ class Attendance extends BaseController {
 					}
 					$ins_data = [
 						'ministry_id'        => $ministry_id,
+						'channel'          	 => $channel,
 						'church_id'          => $church_id,
 						'title'              => $this->request->getPost('title'),
+						'invited_by'         => $this->request->getPost('invited_by'),
 						'fullname'           => $this->request->getPost('fullname'),
 						'email'              => $this->request->getPost('email'),
 						'phone'              => $this->request->getPost('phone'),
