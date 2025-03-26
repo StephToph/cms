@@ -233,10 +233,10 @@ class Auth extends BaseController {
 		$user_id = $this->session->get('user_no');
 		if(!empty($user_id)){
 			if($param1 == 'email'){
-				$acc_email = $this->Crud->read_field('user_no', $user_id, 'user', 'email');
+				$acc_email = strtolower($this->Crud->read_field('user_no', $user_id, 'user', 'email'));
 
 				if($this->request->getMethod() == 'post'){
-					$email = $this->request->getPost('email');
+					$email = strtolower($this->request->getPost('email'));
 					if($email != $acc_email){
 						echo $this->Crud->msg('danger', translate_phrase('Email does not match.'));
 					} else{

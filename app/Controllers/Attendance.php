@@ -111,7 +111,7 @@ class Attendance extends BaseController {
        if(empty($log_id)) return redirect()->to(site_url('attendance'));
 	   $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
       
-		$active = $this->Crud->read_field('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'status');
+		$active = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'status');
 		if($active > 0){
 			return redirect()->to(site_url('attendance/logout'));	
 		}
