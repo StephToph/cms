@@ -93,7 +93,7 @@ $this->Crud = new Crud();
             </div>
 
             <!-- One-Time Date -->
-            <div class="col-sm-6 mb-3 one-time-field" style="display:none;">
+            <div class="col-sm-6 mb-3 one-time-fields" style="display:none;">
                 <div class="form-group">
                     <label>Service Date</label>
                     <input type="text" name="service_date" value="<?php if(!empty($e_service_date)){echo $e_service_date;} ?>" class="form-control date-picker">
@@ -222,17 +222,17 @@ $this->Crud = new Crud();
             const type = $('#service_type').val();
 
             if (type === 'one-time') {
-                $('.one-time-fields').show();
-                $('.recurring-fields, .recurring-details').hide();
+                $('.one-time-fields').show(500);
+                $('.recurring-fields, .recurring-details').hide(500);
             } else if (type === 'recurring') {
-                $('.recurring-fields').show();
-                $('.one-time-fields').hide();
+                $('.recurring-fields').show(500);
+                $('.one-time-fields').hide(500);
                 toggleRecurringPattern(); // also handle pattern details
             } else {
-                $('.one-time-fields, .recurring-fields, .recurring-details').hide();
+                $('.one-time-fields, .recurring-fields, .recurring-details').hide(500);
             }
 
-            $('.common-time-fields').show();
+            $('.common-time-fields').show(500);
         }
 
         function toggleRecurringPattern() {

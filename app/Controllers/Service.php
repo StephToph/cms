@@ -81,7 +81,10 @@ class Service extends BaseController {
 							
 							$this->Crud->activity('user', $del_id, $action);
 							echo $this->Crud->msg('success', 'Service Type Deleted');
-							echo '<script>location.reload(false);</script>';
+							echo '<script>
+								load("","");
+								$("#modal").modal("hide");
+							</script>';
 						} else {
 							echo $this->Crud->msg('danger', 'Please try later');
 						}
@@ -119,7 +122,10 @@ class Service extends BaseController {
 							$this->Crud->activity('service', $type_id, $action);
 
 							echo $this->Crud->msg('success', 'Service Type Updated');
-							echo '<script>location.reload(false);</script>';
+							echo '<script>
+								load("","");
+								$("#modal").modal("hide");
+							</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
@@ -136,7 +142,10 @@ class Service extends BaseController {
 								$this->Crud->activity('service', $ins_rec, $action);
 
 								echo $this->Crud->msg('success', 'Service Type Created');
-								echo '<script>location.reload(false);</script>';
+								echo '<script>
+									load("","");
+									$("#modal").modal("hide");
+								</script>';
 							} else {
 								echo $this->Crud->msg('danger', 'Please try later');	
 							}	
@@ -161,13 +170,6 @@ class Service extends BaseController {
 			$search = $this->request->getPost('search');
 			
 			$items = '
-				<div class="nk-tb-item nk-tb-head">
-					<div class="nk-tb-col"><span class="sub-text">'.translate_phrase('Type').'</span></div>
-					<div class="nk-tb-col nk-tb-col-tools">
-						
-					</div>
-				</div><!-- .nk-tb-item -->
-		
 				
 			';
 			$a = 1;
@@ -211,27 +213,20 @@ class Service extends BaseController {
 						}
 
 						$item .= '
-							<div class="nk-tb-item">
-								<div class="nk-tb-col">
-									<div class="user-info">
-										<span class="tb-lead">' . ucwords($name) . ' </span>
+							<tr>
+								<td>' . ucwords($name) . ' </td>	
+								<td class="text-end">
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
 									</div>
-								</div>
-								<div class="nk-tb-col nk-tb-col-tools">
-									<ul class="nk-tb-actions gx-1">
-										<li>
-											<div class="drodown">
-												<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
-												<div class="dropdown-menu dropdown-menu-end">
-													<ul class="link-list-opt no-bdr">
-														' . $all_btn . '
-													</ul>
-												</div>
-											</div>
-										</li>
-									</ul>
-								</div>
-							</div><!-- .nk-tb-item -->
+								</td>
+							</tr>
+							
 						';
 						$a++;
 					}
@@ -241,10 +236,10 @@ class Service extends BaseController {
 			
 			if(empty($item)) {
 				$resp['item'] = $items.'
-					<div class="text-center text-muted">
+					<tr><td colspan="4"><div class="text-center text-muted">
 						<br/><br/><br/><br/>
 						<i class="ni ni-building" style="font-size:150px;"></i><br/><br/>'.translate_phrase('No Service Type Returned').'<br/>
-					</div>
+					</div></td></tr>
 				';
 			} else {
 				$resp['item'] = $items . $item;
@@ -360,7 +355,10 @@ class Service extends BaseController {
 							
 							$this->Crud->activity('user', $del_id, $action);
 							echo $this->Crud->msg('success', 'Service Schedule Deleted');
-							echo '<script>location.reload(false);</script>';
+							echo '<script>
+								load_schedule("","");
+								$("#modal").modal("hide");
+							</script>';
 						} else {
 							echo $this->Crud->msg('danger', 'Please try later');
 						}
@@ -439,7 +437,10 @@ class Service extends BaseController {
 							$this->Crud->activity('service', $type_id, $action);
 
 							echo $this->Crud->msg('success', 'Service Schedule Updated');
-							echo '<script>location.reload(false);</script>';
+							echo '<script>
+								load_schedule("","");
+								$("#modal").modal("hide");
+							</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');
 						}
@@ -456,7 +457,10 @@ class Service extends BaseController {
 								$this->Crud->activity('service', $ins_rec, $action);
 
 								echo $this->Crud->msg('success', 'Service Schedule Created');
-								echo '<script>location.reload(false);</script>';
+								echo '<script>
+								load_schedule("","");
+								$("#modal").modal("hide");
+							</script>';
 							} else {
 								echo $this->Crud->msg('danger', 'Please try later');
 							}
