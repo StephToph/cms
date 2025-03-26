@@ -201,10 +201,24 @@ header("Access-Control-Allow-Headers: Content-Type");
             </div>
         </div>
     </div>
-    
+    <div class="modal modal-center fade" tabindex="-1" id="modal" role="dialog" data-keyboard="false"
+        data-backdrop="static">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <a href="javascript:;" class="close" data-bs-dismiss="modal"><em class="icon ni ni-cross"></em></a>
+                <div class="modal-header">
+                    <h6 class="modal-title"></h6>
+                </div>
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="<?= site_url(); ?>assets/js/bundle.js"></script>
     <script src="<?= site_url(); ?>assets/js/scriptse5ca.js?v=<?= time(); ?>"></script>
-
+    
+    <script src="<?=site_url(''); ?>assets/js/jsmodal.js?v=<?=time(); ?>"></script>
     <script>
 
         var site_url = '<?= site_url(); ?>';

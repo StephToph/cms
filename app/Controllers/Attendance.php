@@ -123,7 +123,17 @@ class Attendance extends BaseController {
         $data['param1'] = $param1;
         $data['param2'] = $param2;
         $data['param3'] = $param3;
-
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+		
 
 		if($param1 == 'get_member'){
 			if($_POST){
@@ -504,6 +514,137 @@ class Attendance extends BaseController {
 			}
 		}
 
+		// manage record
+		if($param1 == 'manage') {
+			$table = 'visitors';
+			// prepare for delete
+			if($param2 == 'delete') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($_POST){
+						$del_id = $this->request->getPost('d_id');
+						$code = $this->Crud->read_field('id', $del_id, 'visitors', 'fullname');
+						if($this->Crud->deletes('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Record Deleted'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by.' deleted First Timer ('.$code.')';
+							$this->Crud->activity('user', $del_id, $action);
+
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+						}
+						exit;	
+					}
+				}
+			} elseif($param2 == 'link'){ 
+				if($param3 == 'generate') {
+					$churchId = $this->request->getPost('church_id');
+
+					if (!$churchId) {
+						return $this->output->set_content_type('application/json')
+							->set_output(json_encode(['success' => false, 'message' => 'Church ID required']));
+					}
+				
+					$link = $this->Crud->read_field('id', $churchId, 'church', 'first_timer_link');
+					
+					if(empty($link)){
+						// Generate new unique code (e.g., random 8-character slug)
+						$link = $this->Crud->generateUniqueCode();
+					
+						// Save in database
+						$this->Crud->updates('id', $churchId, 'church', ['first_timer_link' => $link]);
+					
+					}
+					
+					if ($link) {
+						echo json_encode(['success' => true, 'url' => site_url('first-timer/' . $link)]);
+					} else {
+						echo json_encode(['success' => false, 'message' => 'Failed to generate link']);
+					}
+					die;
+				} 
+			} else {
+				
+				if($this->request->getMethod() == 'post'){
+					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                    $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                   
+					$occurrence = 0;
+					$service = $this->request->getPost('service');
+					$service_report_id = 0;
+					// Get all service reports for today for the specified church
+					$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+
+					if (!empty($query)) {
+						foreach ($query as $q) {
+							$occurrence++;
+
+							if ($occurrence == $service) {
+								$service_report_id = $q->id; // grab the ID of the N-th occurrence
+								break;
+							}
+						
+						}
+					}
+					$ins_data = [
+						'ministry_id'        => $ministry_id,
+						'church_id'          => $church_id,
+						'title'              => $this->request->getPost('title'),
+						'fullname'           => $this->request->getPost('fullname'),
+						'email'              => $this->request->getPost('email'),
+						'phone'              => $this->request->getPost('phone'),
+						'dob'                => $this->request->getPost('dob'),
+						'gender'             => $this->request->getPost('gender'),
+						'address'            => $this->request->getPost('address'),
+						'city'               => $this->request->getPost('city'),
+						'state'              => $this->request->getPost('state_id'),
+						'postal_code'        => $this->request->getPost('postal'),
+						'country'            => $this->request->getPost('country'),
+						'marital_status'     => $this->request->getPost('marital'),
+						'occupation'         => $this->request->getPost('occupation'),
+						'connect_method'     => $this->request->getPost('connection'),
+						'consider_joining'   => $this->request->getPost('joining') ? 1 : 0,
+						'baptised'           => $this->request->getPost('baptised') ? 1 : 0,
+						'wants_visit'        => $this->request->getPost('visit') ? 1 : 0,
+						'visit_time'         => $this->request->getPost('visit_time'),
+						'prayer_request'     => $this->request->getPost('prayer_request'),
+						'category'         	=> 'first_timer',
+						'source_type'         	=> 'service',
+						'source_id'         	=> $service_report_id,
+						'reg_date'           => date('Y-m-d H:i:s'),
+					];
+			
+
+					$upd_rec = $this->Crud->create($table, $ins_data);
+					if($upd_rec > 0) {
+						echo $this->Crud->msg('success', translate_phrase('First Timer Record Submitted'));
+
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $upd_rec, 'visitors', 'fullname');
+						$action = $by.' submitted First Timer ('.$upd_rec.') Record';
+						$this->Crud->activity('first_timer', $upd_rec, $action, $log_id);
+
+						echo '<script>location.reload(false);</script>';
+					} else {
+						echo $this->Crud->msg('info', translate_phrase('No Changes'));	
+					}
+					 
+					exit;	
+				}
+			}
+		}
+		
+
         $data['log_id'] = $log_id;
         $data['log_name'] = $username;
         $data['current_language'] = $this->session->get('current_language');
@@ -512,11 +653,29 @@ class Attendance extends BaseController {
 		$data['cell_id'] = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
 		
         $data['role'] = $role;
-        $data['title'] = translate_phrase('Attendance Dashboard').' - '.app_name;
-        $data['page_active'] = $mod;
-        return view('attendance/dashboard', $data);
+		if($param1 == 'manage') { // view for form data posting
+			return view('attendance/dashboard_form', $data);
+		} else { 
+			$data['title'] = translate_phrase('Attendance Dashboard').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view('attendance/dashboard', $data);
+		}
     }
 
+	public function get_state($country=''){
+		$country_id = $this->Crud->read_field('name', $country, 'country', 'id');
+		$state = $this->Crud->read_single_order('country_id', $country_id, 'state', 'name', 'asc');
+		$rezp = '';
+		if(!empty($state)){
+			foreach($state as $st){
+				$rezp .= '<option value="'.$st->id.'">'.$st->name.'</option>';
+
+			}
+		}
+
+		echo $rezp;
+	}
+	
 
     ///// LOGOUT
     public function logout() {

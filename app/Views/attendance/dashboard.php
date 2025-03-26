@@ -30,19 +30,20 @@ $this->Crud = new Crud();
                                     <em class="icon ni ni-more-v"></em>
                                 </a>
                                 <div class="toggle-expand-content" data-content="pageMenu">
-                                    <ul class="nk-block-tools g-3">
+                                    <div class="nk-block-tools g-3">
+                                        <div class="row ">
                                         <?php 
                                             $service_count = $this->Crud->check3('status', 0, 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
                                             if($service_count > 1){
                                                 if($attend_type == 'cell'){
-                                                    echo  '<li>
+                                                    echo  '<div class="col-sm-3 mb-3">
                                                         <select class="js-select2" data-search="on" name="service"  id="service_select" >';
                                                             for ($i=0; $i < $service_count; $i++) { 
                                                                 echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
                                                             }
 
                                                         echo '</select>
-                                                    </li>';
+                                                    </div>';
                                                 } else {
                                                     echo  '<li>
                                                         <select class="js-select2" data-search="on" name="service" id="service">';
@@ -58,13 +59,24 @@ $this->Crud = new Crud();
                                             echo '<input type="hidden" id="service" value="1">
                                             <input type="hidden" id="service_select" value="1">';
                                         }
-
+                                        
                                         if($attend_type == 'admin'){?>
-                                            <li><a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-outline-primary"><em
-                                                        class="icon ni ni-reports"></em><span>View Analytics</span></a>
-                                            </li>
+                                            <div class="col-sm-4 mb-3">
+                                                <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-outline-primary"><em
+                                                        class="icon ni ni-reports"></em><span>Analytics</span></a>
+                                            </div>
                                         <?php } ?>
-                                    </ul>
+                                        <div class="col-sm-3 mb-3">
+                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-outline-info pop" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
+                                                <em class="icon ni ni-plus-c"></em><span>Add </span>
+                                            </a>
+                                        </div>
+                                        <div class="col-sm-3 mb-3">
+                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-white pop" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
+                                                    class="icon ni ni-qr"></em><span> QR</span></a>
+                                        </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -238,7 +250,7 @@ $this->Crud = new Crud();
     $(document).ready(function () {
         // Trigger change on page load
         $('#service_select').trigger('change');
-
+        
     });
 
     function checkAnalyticsAccess() {
@@ -442,6 +454,5 @@ $this->Crud = new Crud();
     });
 
 </script>   
-
 
 <?= $this->endSection(); ?>
