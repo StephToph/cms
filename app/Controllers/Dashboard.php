@@ -1399,7 +1399,21 @@ class Dashboard extends BaseController {
     }
 
 
-    public function map (){
+    public function timezone (){
+        set_time_limit(600);
 
+        $state = $this->Crud->read_order('state', 'id', 'asc');
+        foreach($state as $s){
+            if($s->gmt != 0 )continue;
+            $country = $this->Crud->read_field('id', $s->country_id, 'country', 'name');
+            $result = $this->Crud->getGmtOffsetFromLocation($s->name, $country);
+            if(!empty($result) && !empty($result['gmtOffset'])){
+                $gmt = $result['gmtOffset'];
+                $this->Crud->updates('id', $s->id, 'state', ['gmt'=>$gmt]);
+            }
+           
+        }
+        
+        
     }
 }

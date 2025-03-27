@@ -7269,33 +7269,32 @@ class Accounts extends BaseController {
 			}
 		}
 
-		if($param1 == 'get_dept_role'){
-			if(!empty($param2)){
-				
-				$li = '';
-				$dept = $this->Crud->read_field('id', $param2, 'dept', 'name');
-				$dept_role = $this->Crud->read_field('id', $param2, 'dept', 'roles');
-				if($dept != 'member'){
-					$li = '<option value="">Select Deparment Role</option>';
-					if(!empty($dept_role)){
-						foreach(json_decode($dept_role) as $r => $val){
-							$sel = '';
-							if(!empty($param3)){
-								if($param3 == $val){
-									$sel = 'selected';
-								}
-							}
-							$li .= '<option value="'.$val.'" '.$sel.'>'.ucwords($val).'</option>';
-						}
+		if ($param1 == 'get_dept_role') {
+			$dept_id = $this->request->getPost('dept_id');
+		
+			// Get the roles JSON from the 'dept' table
+			$roles_json = $this->Crud->read_field('id', $dept_id, 'dept', 'roles');
+			$department_name = $this->Crud->read_field('id', $dept_id, 'dept', 'name');
+		
+			$response = [];
+		
+			if (!empty($roles_json)) {
+				$roles = json_decode($roles_json, true);
+		
+				if (is_array($roles)) {
+					foreach ($roles as $role) {
+						$response[] = [
+							'name' => ucwords($role),
+							'department_name' => ucwords($department_name)
+						];
+						
 					}
 				}
-				$resp['list'] = $li;
-				$resp['script'] = '<script>$("#dept_resp").show(500);</script>';
-
-				echo json_encode($resp);
-				die;
 			}
+		
+			return $this->response->setJSON($response);
 		}
+		
 
 		if($param1 == 'get_cell_role'){
 			if(!empty($param2)){

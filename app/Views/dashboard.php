@@ -576,6 +576,8 @@
     </div>
 </div>
 <input type="hidden" id="finance_type" value="offering">
+
+
 <?=$this->endSection();?>
 <?=$this->section('scripts');?>
 
