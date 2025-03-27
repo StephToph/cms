@@ -62,17 +62,17 @@ $this->Crud = new Crud();
                                         
                                         if($attend_type == 'admin'){?>
                                             <div class="col-sm-4 mb-3">
-                                                <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-outline-primary"><em
+                                                <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim  mx-2 btn-outline-primary"><em
                                                         class="icon ni ni-reports"></em><span>Analytics</span></a>
                                             </div>
                                         <?php } ?>
                                         <div class="col-sm-3 mb-3">
-                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-outline-info pop" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
-                                                <em class="icon ni ni-plus-c"></em><span>Add </span>
+                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-outline-info pop mx-2" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
+                                                <em class="icon ni ni-plus-c"></em><span> FT</span>
                                             </a>
                                         </div>
                                         <div class="col-sm-3 mb-3">
-                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-white pop" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
+                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-white pop  ml-2" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
                                                     class="icon ni ni-qr"></em><span> QR</span></a>
                                         </div>
                                         </div>
@@ -360,6 +360,60 @@ $this->Crud = new Crud();
                 },
                 error: function () {
                     $('#resp_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
+                    $this.prop('disabled', false);
+                }
+            });
+        
+    });
+
+    
+    $(document).on('change', '.mark-convert-switch', function () {
+        var $this = $(this);
+        var member_id = $(this).data('member-id');
+        var type = $(this).data('type');
+        var isPresent = $(this).is(':checked');
+        var service_id = $('#service').val() || $('#service_select').val();
+        var church_id = $('#church_id').val();
+
+        var mark = 0;
+        if(isPresent){
+            var mark = 1;
+        }
+
+       
+            $('#con_resp_' + member_id).html('<small class="text-info">Updating...</small>');
+            // $this.prop('disabled', true);
+            $.ajax({
+                url: site_url + 'attendance/dashboard/mark_convert',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    service_id: service_id,
+                    church_id: church_id,
+                    mark: mark,
+                    type: type
+                },
+                success: function (response) {
+                    // Try to parse if it's JSON
+                    let res;
+                    try {
+                        res = typeof response === 'object' ? response : JSON.parse(response);
+                    } catch (e) {
+                        res = { status: 'error', message: response };
+                    }
+
+                    if (res.status === 'success') {
+                        $('#con_resp_' + member_id).html('<small class="text-success">Marked</small>');
+                        // $this.prop('disabled', true); // ✅ disable the switch
+                        let defaultService = $('#service').val();
+                        loadMetrics(defaultService); 
+                    } else {
+                        $('#con_resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                        $this.prop('checked', false); // rollback toggle if error
+                    }
+                },
+                error: function () {
+                    $('#con_resp_' + member_id).html('<small class="text-danger">Failed to mark member as New Convert.</small>');
                     $this.prop('disabled', false);
                 }
             });

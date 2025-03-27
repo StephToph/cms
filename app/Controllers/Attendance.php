@@ -140,6 +140,7 @@ class Attendance extends BaseController {
 		$data['form_link'] = $form_link;
 		
 
+
 		if($param1 == 'get_member'){
 			if($_POST){
 				$member_id = $this->request->getPost('member_id');
@@ -316,6 +317,56 @@ class Attendance extends BaseController {
 				}
 				
 			}
+		
+		}
+		if($param1 == 'mark_convert'){
+			$member_id = $this->request->getPost('member_id');
+			$service = $this->request->getPost('service_id'); // e.g., "Sunday Service"
+			$mark = $this->request->getPost('mark'); // e.g., "Sunday Service"
+			$type = $this->request->getPost('type'); // e.g., "Sunday Service"
+			$church_id = $this->request->getPost('church_id');
+
+			// Get all service reports for today for the specified church
+			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+
+			// Target occurrence number (you can calculate or pass it from frontend)
+			$occurrence = 0;
+			$service_report_id = 0;
+
+			if (!empty($query)) {
+				foreach ($query as $q) {
+					$occurrence++;
+
+					if ($occurrence == $service) {
+						$service_report_id = $q->id; // grab the ID of the N-th occurrence
+						break;
+					}
+				
+				}
+			}
+			// echo $service_report_id;
+
+			if(empty($service_report_id)){
+				return $this->response->setJSON([
+					'status' => 'warning',
+					'message' => 'Service report not found.'
+				]);
+			}
+
+			if($type == 'member'){
+				$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
+				
+				$this->Crud->updates('id', $exists, 'service_attendance', ['new_convert'=>$mark]);
+			}
+
+			if($type == 'ft'){
+				$this->Crud->updates('id', $member_id, 'visitors', ['new_convert'=>$mark]);
+			}
+			return $this->response->setJSON([
+				'status' => 'success',
+				'message' => 'Member Neww Convert Updated'
+			]);
+			
 		
 		}
 
@@ -539,14 +590,16 @@ class Attendance extends BaseController {
 
 			// echo $cell_id;
 			$query = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'surname', 'asc');
+			$timer_query = $this->Crud->read3_order('source_type', 'service', 'source_id', $service_report_id,  'church_id', $church_id, 'visitors', 'fullname', 'asc');
 		
 			$response = '';
-		
+			$response .= '<div class="table-responsive"><table class="table table-hover">';
+					
 			if (!empty($query)) {
-				$response .= '<div class="table-responsive"><table class="table table-hover">';
 				foreach ($query as $q) {
 					
-						$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+					$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+					$new_convert = ($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'new_convert'));
 					
 						// If absent, fetch the reason (optional)
 						$absent_reason = '';
@@ -600,19 +653,60 @@ class Attendance extends BaseController {
 					
 								<span id="resp_'.$q->id.'"></span>
 							</td>
+							<td>
+								<div class="custom-control custom-switch mb-1">
+									<input type="checkbox"
+										class="custom-control-input mark-convert-switch"
+										data-type="member"
+										id="convertSwitch_'.$q->id.'"
+										data-member-id="'.$q->id.'"
+										'.($new_convert == '1' ? 'checked' : '').'>
+									<label class="custom-control-label" for="convertSwitch_'.$q->id.'">New Convert</label>
+								</div>
+								<span id="con_resp_'.$q->id.'"></span>
+							</td>
 						</tr>';
 					
 					
 				}
-				$response .= '</table></div>
-				<script>$(".js-select2").select2();</script>
-				';
+				
 			} else {
-				$response .= '<div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div>';
+				$response .='<tr><td><div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div></td></tr>';
 			}
+			if (!empty($timer_query)) {
+				foreach ($timer_query as $q) {
+				
+					$status ='present';
+					$response .= '
+					<tr>
+						<td>' . ucwords(strtolower($q->fullname)).'<br><span class="small text-info">FT</span></td>
+						<td>'.$this->Crud->mask_email($q->email).'</td>
+						<td>'.$this->Crud->mask_phone($q->phone).'</td>
+						<td>Present</td>
+						<td>
+							<div class="custom-control custom-switch mb-1">
+								<input type="checkbox"
+									class="custom-control-input mark-convert-switch"
+									id="convertSwitch_'.$q->id.'" data-type="ft"
+									data-member-id="'.$q->id.'"
+									'.($q->new_convert == '1' ? 'checked' : '').'>
+								<label class="custom-control-label" for="convertSwitch_'.$q->id.'">New Convert</label>
+							</div>
+							<span id="con_resp_'.$q->id.'"></span>
+						</td>
+					</tr>';
+				
+					
+				}
+				
+			} 
+			$response .= '</table></div>';
 
+
+
+			$general_response .= '<div class="table-responsive"><table class="table table-hover">';
 			if (!empty($query)) {
-				$general_response .= '<div class="table-responsive"><table class="table table-hover">';
+				
 				foreach ($query as $q) {
 					
 					$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
@@ -635,12 +729,33 @@ class Attendance extends BaseController {
 				
 					
 				}
-				$general_response .= '</table></div>
+				
+			} else {
+				$general_response .= '<tr><td><div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div></td></tr>';
+			}
+			if (!empty($timer_query)) {
+				
+				foreach ($timer_query as $q) {
+					$status = 'present';
+					
+					$general_response .= '
+					<tr>
+						<td>' . ucwords(strtolower($q->fullname)).'<br><span class="small text-info">FT</span></td>
+						<td>'.$this->Crud->mask_email($q->email).'</td>
+						<td>'.$this->Crud->mask_phone($q->phone).'</td>
+						<td>
+							'.ucwords($status).'
+						</td>
+					</tr>';
+				
+					
+				}
+				
+			}
+
+			$general_response .= '</table></div>
 				
 				';
-			} else {
-				$general_response .= '<div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div>';
-			}
 		
 			
 			return $this->response->setJSON([
