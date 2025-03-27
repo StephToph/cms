@@ -695,6 +695,7 @@ class Service extends BaseController {
 			echo json_encode($edata);
 			die;
 		} 
+		
 
 		// manage record
 		if($param1 == 'manage') {

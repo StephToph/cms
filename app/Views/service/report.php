@@ -74,6 +74,7 @@ $service_church_id = $this->session->get('service_church_id');
                                                         class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
 
+                                            
                                             <?php } ?>
                                             <li>
                                                 <div class="nk-block-head-sub mb-3" id="attendance_prev"
