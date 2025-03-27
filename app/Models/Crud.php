@@ -2193,10 +2193,10 @@ class Crud extends Model {
 		$builder->where('is_member', 1);
         if(!empty($search)) {
             $builder->groupStart()
-				->like('surname', $search)
-				->orLike('email', $search)
-				->orLike('firstname', $search)
-				->orLike('othername', $search)
+				->like('surname', $search, 'both')
+				->orLike('email', $search, 'both')
+				->orLike('firstname', $search, 'both')
+				->orLike('othername', $search, 'both')
 				->groupEnd();
         }
 
