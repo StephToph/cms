@@ -5699,5 +5699,58 @@ class Crud extends Model {
 		return $code;
 	}
 
+	public function getGmtOffsetFromLocation($state, $country, $geonamesUsername='tophunmi') {
+		// 1. Geocode the location (get lat/lng)
+		$location = urlencode("$state, $country");
+		$geoUrl = "https://nominatim.openstreetmap.org/search?q=$location&format=json&limit=1";
+	
+		$geoContext = stream_context_create([
+			'http' => [
+				'header' => "User-Agent: KemafyApp/1.0\r\n"
+			]
+		]);
+	
+		$geoResponse = file_get_contents($geoUrl, false, $geoContext);
+		$geoData = json_decode($geoResponse, true);
+	
+		if (empty($geoData) || !isset($geoData[0]['lat'], $geoData[0]['lon'])) {
+			return ['error' => "❌ Could not find coordinates for $state, $country"];
+		}
+	
+		$lat = $geoData[0]['lat'];
+		$lon = $geoData[0]['lon'];
+	
+		  // 2. Get time zone using GeoNames
+		  $tzUrl = "http://api.geonames.org/timezoneJSON?lat={$lat}&lng={$lon}&username={$geonamesUsername}";
+		  $tzResponse = file_get_contents($tzUrl);
+		  $tzData = json_decode($tzResponse, true);
+	  
+		  // ✅ Check for expected fields and errors
+		  if (isset($tzData['status']['message'])) {
+			  return ['error' => "❌ GeoNames API error: " . $tzData['status']['message']];
+		  }
+	  
+		  if (!isset($tzData['gmtOffset']) || !isset($tzData['timezoneId'])) {
+			  return ['error' => "❌ Unexpected response structure from GeoNames."];
+		  }
+	  
+	
+		if (isset($tzData['gmtOffset'])) {
+			return [
+				'state' => $state,
+				'country' => $country,
+				'lat' => $lat,
+				'lon' => $lon,
+				'timezone' => $tzData['timezoneId'],
+				'gmtOffset' => $tzData['gmtOffset'],
+				'gmtLabel' => 'GMT' . ($tzData['gmtOffset'] >= 0 ? '+' : '') . $tzData['gmtOffset'],
+				'localTime' => $tzData['time']
+			];
+		} else {
+			return ['error' => "❌ Could not retrieve timezone info for $state, $country"];
+		}
+	}
+	 
+
 	//////////////////////////////////END///////////////////////////////////////////////////////
 }

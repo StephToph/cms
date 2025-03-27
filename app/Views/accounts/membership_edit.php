@@ -276,8 +276,7 @@
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Department</label>
                                         <div class="form-control-wrap">
-                                            <select class="form-select js-select2" id="dept_id" name="dept_id"
-                                                data-placeholder="Select Department" onchange="dept_role();">
+                                            <select class="form-select js-select2" id="dept_id" name="dept_id[]" multiple data-placeholder="Select Department" onchange="dept_role();">
                                                 <option value="">Select</option>
                                                 <?php
                                                     $parent  = $this->Crud->read_order('dept', 'name', 'asc');
@@ -311,17 +310,11 @@
                                         
                                     }
                                 ?>
-                                <div class="col-md-6 col-lg-4 col-xxl-3" id="dept_resp" style="display:<?=$dept_roles;?>;">
-                                    <div class="form-group"><label class="form-label">Department Role</label>
-                                        <div class="form-control-wrap">
-                                            <select class="form-select js-select2" id="dept_role_id" name="dept_role_id"
-                                                data-placeholder="Select Role">
-                                                <option value="">Select</option>
-                                               
-                                            </select>
-                                        </div>
-                                    </div>
+                                <div class="col-12" >
+                                    <div class="row" id="dept_roles_container"></div>
                                 </div>
+
+                               
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Cell</label>
                                         <div class="form-control-wrap">
@@ -578,25 +571,71 @@
             setTimeout(dept_role(dept), 2000);
         <?php }
     ?>
-     <?php 
+        <?php 
         if(!empty($e_cell_role)){?>
             var cell = '<?=$e_cell_role; ?>';
             setTimeout(cell_role(cell), 2000);
         <?php }
     ?>
-    function dept_role(dept){
-        var dept_id = $('#dept_id').val();
-        $.ajax({
-            url: site_url + 'accounts/membership/get_dept_role/' + dept_id + '/'+ dept,
-            type: 'get',
-            success: function (data) {
-                var dt = JSON.parse(data);
-                $('#dept_role_id').html(dt.list);
-                $('#bb_ajax_msg').html(dt.script);
-                
-            }
+    
+    function dept_role() {
+        const dept_ids = $('#dept_id').val(); // Get selected departments
+        const container = $('#dept_roles_container');
+        container.empty(); // Clear current role fields
+
+        if (dept_ids.length === 0) return;
+
+        // Loop through each selected dept ID and fetch roles
+        dept_ids.forEach(dept_id => {
+            $.ajax({
+                url: "<?= site_url('accounts/membership/get_dept_role') ?>", // Adjust this URL to your route
+                method: 'POST',
+                data: { dept_id: dept_id },
+                success: function(response) {
+                    // Assume response is an array of role objects { id, name }
+
+                    let options = '<option value="">Select Role</option>';
+                    if (response.length > 0) {
+                        response.forEach(role => {
+                            options += `<option value="${role.id}">${role.name}</option>`;
+                        });
+                    }
+
+                    const html = `
+                    
+                        <div class="col-md-6 col-lg-4 col-xxl-3 mb-3">
+                            <div class="form-group">
+                                <label class="form-label">Role in ${response[0]?.department_name || 'Department'}</label>
+                                <div class="form-control-wrap">
+                                    <select class="form-select js-select2" name="dept_role_id[${dept_id}]">
+                                        ${options}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    `;
+
+                    container.append(html);
+                    $('.js-select2').select2(); // Re-initialize select2 for new fields
+                }
+            });
         });
-    }
+        }
+
+    // function dept_role(dept){
+    //     var dept_id = $('#dept_id').val();
+    //     $.ajax({
+    //         url: site_url + 'accounts/membership/get_dept_role/' + dept_id + '/'+ dept,
+    //         type: 'get',
+    //         success: function (data) {
+    //             var dt = JSON.parse(data);
+    //             $('#dept_role_id').html(dt.list);
+    //             $('#bb_ajax_msg').html(dt.script);
+                
+    //         }
+    //     });
+    // }
 
     function cell_role(cell){
         var cell_id = $('#cell_id').val();

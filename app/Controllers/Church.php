@@ -1857,7 +1857,7 @@ class Church extends BaseController{
 
 
 
-						
+
 						$item .= '
 							<tr>
 								<td>
@@ -5528,5 +5528,35 @@ class Church extends BaseController{
 		echo '<script>location.reload(false);</script>';
 		die;
 	}
+
+	public function update_state(){
+		$log_id = $this->session->get('td_id');
+		$state_id = $this->request->getPost('state_id');
+		$country_id = $this->request->getPost('country_id');
+		
+		$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+		if($state_id){
+			$in = $this->Crud->updates('id', $church_id, 'church', ['state_id'=>$state_id, 'country_id'=>$country_id]);
+			if($in > 0){
+				echo $this->Crud->msg('success', 'Church Profile Updated');
+				///// store activities
+				$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+				$code = $this->Crud->read_field('id', $church_id, 'church', 'name');
+				$action = $by . ' updated Church (' . $code . ') State';
+				$this->Crud->activity('church', $church_id, $action);
+
+				echo '<script>location.reload(false);</script>';
+			} else {
+				echo $this->Crud->msg('info', 'No Changes');
+			}
+		}
+	}
+
+	public function get_states_by_country($country_id)
+	{
+		$states = $this->Crud->read_single_order('country_id', $country_id, 'state', 'name', 'asc');
+		echo json_encode($states);
+	}
+
 
 }

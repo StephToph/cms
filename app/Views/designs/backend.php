@@ -502,8 +502,84 @@
             </div>
         </div>
     </div>
-          
+    <?php 
+        $is_admin = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $state_id = $this->Crud->read_field('id', $church_id, 'church', 'state_id');
+        $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');?>
 
+
+    <div class="modal fade" id="pinModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="pinModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pinModalLabel">Update Church Profile</h5>
+                </div>
+                <div class="modal-body">
+                    <p>You need to select the state your church is located to proceed.</p>
+                    <div id="transaction_form">
+                        <?php 
+                        $is_admin = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
+                        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                        $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+                        $state_id = $this->Crud->read_field('id', $church_id, 'church', 'state_id');
+                        ?>
+
+                        <div class="form-group mb-5">
+                            <?php if (empty($country_id) || $country_id == 0): ?>
+                                <!-- Show Country Selector -->
+                                <label class="mb-2" for="country_id">Country</label>
+                                <select class="js-select2" data-search="on" name="country_id" id="country_id" required>
+                                    <option value="">Select Country</option>
+                                    <?php 
+                                    $countries = $this->Crud->read_order('country', 'name', 'asc');
+                                    foreach ($countries as $c) {
+                                        echo '<option value="' . $c->id . '">' . ucwords($c->name) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+
+                                <!-- State will be loaded dynamically -->
+                                <label class="mb-2 mt-4" for="state_id">State</label>
+                                <select class="js-select2" data-search="on" name="state_id" id="state_id" required>
+                                    <option value="">Select State</option>
+                                </select>
+                            <?php else: ?>
+                                <input type="hidden" name="country_id" id="country_id" value="<?=$country_id; ?>">
+                                <!-- Show State only based on fixed Country -->
+                                <label class="mb-2" for="state_id">State</label>
+                                <select class="js-select2" data-search="on" name="state_id" id="state_id" required>
+                                    <option value="">Select State</option>
+                                    <?php 
+                                    $states = $this->Crud->read_single_order('country_id', $country_id, 'state', 'name', 'asc');
+                                    foreach ($states as $s) {
+                                        echo '<option value="' . $s->id . '">' . ucwords($s->name) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            <?php endif; ?>
+                        </div>
+                        <div id="bb_ajax_msg2" class="mt-2"></div>
+                        <button id="state_btn" class="btn btn-primary mt-3">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <script>
+        function validateState() {
+            const state = document.querySelector('[name="state"]').value;
+            if (!state) {
+                alert("Please select a state.");
+                return false;
+            }
+            return true;
+        }
+        </script>
+
+  
     <script src="<?=site_url(); ?>assets/js/bundle.js"></script>
     <script src="<?=site_url(); ?>assets/js/scriptse5ca.js?v=<?=time(); ?>"></script>
     
@@ -595,6 +671,89 @@
         }
 
     </script>
+    
+       
+    <script>
+        $(document).ready(function () {
+            $('#country_id').on('change', function () {
+                var countryId = $(this).val();
+                var stateDropdown = $('#state_id');
+
+                stateDropdown.html('<option value="">Loading states...</option>');
+
+                $.ajax({
+                    url: '<?= site_url("church/get_states_by_country/") ?>' + countryId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (response) {
+                        stateDropdown.empty();
+                        stateDropdown.append('<option value="">Select State</option>');
+                        $.each(response, function (index, state) {
+                            stateDropdown.append('<option value="' + state.id + '">' + state.name + '</option>');
+                        });
+                    },
+                    error: function () {
+                        stateDropdown.html('<option value="">Error loading states</option>');
+                    }
+                });
+            });
+        });
+        $(document).ready(function () {
+            <?php 
+            $hasTransactionPin = ($is_admin > 0 && $state_id == 0) ? 'true' : 'false'; 
+            ?>
+            var hasTransactionPin = <?= $hasTransactionPin ?>;
+            console.log(hasTransactionPin);
+            
+            
+            if (hasTransactionPin) {
+                // Show the modal and prevent it from being closed
+                var pinModal = new bootstrap.Modal(document.getElementById('pinModal'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                pinModal.show(500);
+            }
+
+            $('#state_btn').on('click', function () {
+                // Display a loading spinner
+                $('#bb_ajax_msg2').html(
+                    '<div class="col-sm-12 text-center">' +
+                    '<div class="spinner-border" role="status">' +
+                    '<span class="visually-hidden">Loading...</span>' +
+                    '</div><br>Processing Please Wait..</div>'
+                );
+
+                // Get the PIN value
+                var state_id = $('#state_id').val();
+                var country_id = $('#country_id').val();
+
+                // Validate the PIN
+                if (state_id === '') {
+                    $('#bb_ajax_msg2').html('<div class="text-danger">Church State is required.</div>');
+                    return;
+                }
+
+                // Submit the form via AJAX
+                $.ajax({
+                    url: '<?= site_url('church/update_state') ?>',
+                    type: 'POST',
+                    data: { state_id: state_id, country_id: country_id },
+                    success: function (response) {
+                        $('#bb_ajax_msg2').html(response);
+
+                        // Clear the input field
+                        $('#state_id').val('');
+                    },
+                    error: function () {
+                        $('#bb_ajax_msg2').html('<div class="text-danger">An error occurred. Please try again.</div>');
+                    }
+                });
+            });
+
+        });
+    </script>
+
     <?=$this->renderSection('scripts');?>
     <script>
        
