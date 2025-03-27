@@ -1400,9 +1400,9 @@ class Dashboard extends BaseController {
 
 
     public function timezone (){
-        set_time_limit(600);
+        set_time_limit(1800);
 
-        $state = $this->Crud->read_order('state', 'id', 'asc');
+        $state = $this->Crud->read_order('state', 'id', 'desc');
         foreach($state as $s){
             if($s->gmt != 0 )continue;
             $country = $this->Crud->read_field('id', $s->country_id, 'country', 'name');
