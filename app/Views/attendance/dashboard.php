@@ -220,6 +220,11 @@ $this->Crud = new Crud();
                                 
                             </div>
                         </div>
+                        <?php if($attend_type == 'admin' || $attend_type == 'usher'){?>
+                            <div class="col-md-12 mb-3" id="general_response">
+                                <!-- dynamic content appears here -->
+                            </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
@@ -499,6 +504,7 @@ $this->Crud = new Crud();
                 $('#female').text(data.female);
                 $('#unmarked').text(data.unmarked);
                 $('#metric_response').html(data.metric_response);
+                $('#general_response').html(data.general_response);
             },
             error: function () {
                 $('#membership, #present, #absent,#male, #female, #unmarked').text('0');

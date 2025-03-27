@@ -503,6 +503,7 @@ class Attendance extends BaseController {
 			$occurrence = 0;
 			$service_report_id = 0;
 			$metric_response = '';
+			$general_response = '';
 		
 			if (!empty($query)) {
 				foreach ($query as $q) {
@@ -609,6 +610,37 @@ class Attendance extends BaseController {
 			} else {
 				$response .= '<div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div>';
 			}
+
+			if (!empty($query)) {
+				$general_response .= '<div class="table-responsive"><table class="table table-hover">';
+				foreach ($query as $q) {
+					
+					$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+					if ($status != 'present') continue;
+					// If absent, fetch the reason (optional)
+					$absent_reason = '';
+					if ($status == 'absent') {
+						$absent_reason = $this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'reason');
+					}
+				
+					$general_response .= '
+					<tr>
+						<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
+						<td>'.$this->Crud->mask_email($q->email).'</td>
+						<td>'.$this->Crud->mask_phone($q->phone).'</td>
+						<td>
+							'.ucwords($status).'
+						</td>
+					</tr>';
+				
+					
+				}
+				$general_response .= '</table></div>
+				
+				';
+			} else {
+				$general_response .= '<div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div>';
+			}
 		
 			
 			return $this->response->setJSON([
@@ -618,7 +650,8 @@ class Attendance extends BaseController {
 				'male' => $male,
 				'female' => $female,
 				'unmarked' => $unmarked,
-				'metric_response' => $response
+				'metric_response' => $response,
+				'general_response' => $general_response
 			]);
 		}
 
