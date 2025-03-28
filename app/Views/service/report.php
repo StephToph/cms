@@ -298,7 +298,18 @@ $service_church_id = $this->session->get('service_church_id');
                                                 name="children" value="" readonly placeholder="0">
                                         </div>
                                         
-                                        <div class="col-md-12 my-3" id="metric_response">
+                                        <div class="col-sm-8 mb-2">
+                                            <label class="name">Mark New Member Attendance</label>   
+                                            <div class="input-group">        
+                                                <input type="text" id="member_id" oninput="get_member();"class="form-control " placeholder="Enter Name or Email">        
+                                                <div class="input-group-append">            
+                                                    <button class="btn btn-outline-primary btn-dim" onclick="get_member();">Search</button>        
+                                                </div> 
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-2 my-2">.</div>
+                                        <div class="col-12 my-2 text-center" id="member_response"></div>
+                                        <div class="col-sm-12 my-3" id="metric_response">
                                             <!-- dynamic content appears here -->
                                         </div>
                                     </div>
