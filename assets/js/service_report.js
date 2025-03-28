@@ -516,7 +516,23 @@
         }
     });
         
-    
+    function get_member() {
+        $('#member_response').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+        var member_id = $('#member_id').val();
+        var service = $('#attendance_id').val();
+        var church_id = $('#church_id').val();
+
+        $.ajax({
+            url: site_url + 'service/report/attendance/get_member',
+            type: 'post',
+            data: { member_id: member_id, service:service, church_id:church_id },
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#member_response').html(dt.response);
+                
+            }
+        });
+    }
 
     
     function tithe_report(id){
