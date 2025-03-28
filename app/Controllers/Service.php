@@ -651,9 +651,9 @@ class Service extends BaseController {
 		$table = 'service_report';
 		$form_link = site_url($mod);
 		if($param1){$form_link .= '/'.$param1;}
-		if($param2){$form_link .= '/'.$param2.'/';}
-		if($param3){$form_link .= '/'.$param3.'/';}
-		if($param4){$form_link .= $param4;}
+		if($param2){$form_link .= '/'.$param2;}
+		if($param3){$form_link .= '/'.$param3;}
+		if($param4){$form_link .= '/'.$param4;}
 		
 		// pass parameters to view
 		$data['param1'] = $param1;
@@ -1341,8 +1341,6 @@ class Service extends BaseController {
 						"total_part" => $total_part,
 						"member_part" => $member_part
 					];
-					
-				
 
 					// Process Guest Contributions First
 					if (!empty($guests)) {
@@ -1476,8 +1474,6 @@ class Service extends BaseController {
 						}
 					}
 					
-					
-
 					// Process Member Contributions
 					if (!empty($members)) {
 						foreach ($members as $index => $member_id) {
@@ -1495,7 +1491,6 @@ class Service extends BaseController {
 					
 							// Insert or update general finance contributions
 							foreach ($financeTypes as $type => $amount) {
-								
 								if($currency[$index] <= 0){
 									$amount = $this->Crud->finance_exchange($amount, $currency_id);
 								}
@@ -1508,6 +1503,7 @@ class Service extends BaseController {
 								);
 				
 								$s_fin['amount'] = $amount;
+								$s_fin['currency'] = $currency[$index];
 				
 								if ($existingFinance) {
 									// Update existing record
@@ -2379,7 +2375,7 @@ class Service extends BaseController {
 				}
 			
 
-			} elseif($param2 == 'first_timer'){
+			} elseif($param2 == 'timers'){
 				if($param3){
 					$resp = [];
 					$edit = $this->Crud->read_single('id', $param3, 'service_report');
@@ -2396,98 +2392,167 @@ class Service extends BaseController {
 						
 					}
 
-					$resp['timer_list'] =  $timers;
-					$resp['id'] = $id;
-					$resp['church_id'] = $e->church_id;
-
-					echo json_encode($resp);
-					die;
-				}
-				//When Adding Save in Session
-				if ($this->request->getMethod() == 'post') {
-					$postData = json_decode(file_get_contents("php://input"), true);
 					
-					if (empty($postData['first_timers'])) {
-						echo $this->Crud->msg('danger', 'Enter the First Timer Details');
-						die;
-					}
+				}
 				
-					$first_timer_id = $postData['first_timer_id'];
-					$timers = [
-						'timers' => json_encode($postData['first_timers']),
-						'first_timer' => count($postData['first_timers'])
+				if($this->request->getMethod() == 'post'){
+					
+					$occurrence = 0;
+					$church_id = $this->request->getPost('church_id');
+					$ministry_id = $this->request->getPost('ministry_id');
+					$service = $this->request->getPost('service');
+					$invited_by = $this->request->getPost('invited_by');
+					$platform = $this->request->getPost('platform');
+					$channel = $this->request->getPost('channel');
+					$member_id = $this->request->getPost('member_id');
+					if($invited_by == 'Member'){
+						$channel = $member_id;
+					}
+					if($invited_by == 'Online'){
+						$channel = $platform;
+					}
+					
+					$service_report_id = $service;
+					
+					
+					$ins_data = [
+						'ministry_id'        => $ministry_id,
+						'channel'          	 => $channel,
+						'church_id'          => $church_id,
+						'title'              => $this->request->getPost('title'),
+						'invited_by'         => $this->request->getPost('invited_by'),
+						'fullname'           => $this->request->getPost('fullname'),
+						'email'              => $this->request->getPost('email'),
+						'phone'              => $this->request->getPost('phone'),
+						'dob'                => $this->request->getPost('dob'),
+						'gender'             => $this->request->getPost('gender'),
+						'address'            => $this->request->getPost('address'),
+						'city'               => $this->request->getPost('city'),
+						'state'              => $this->request->getPost('state_id'),
+						'postal_code'        => $this->request->getPost('postal'),
+						'country'            => $this->request->getPost('country'),
+						'marital_status'     => $this->request->getPost('marital'),
+						'occupation'         => $this->request->getPost('occupation'),
+						'connect_method'     => $this->request->getPost('connection'),
+						'consider_joining'   => $this->request->getPost('joining') ? 1 : 0,
+						'baptised'           => $this->request->getPost('baptised') ? 1 : 0,
+						'wants_visit'        => $this->request->getPost('visit') ? 1 : 0,
+						'visit_time'         => $this->request->getPost('visit_time'),
+						'prayer_request'     => $this->request->getPost('prayer_request'),
+						'category'         	=> 'first_timer',
+						'source_type'         	=> 'service',
+						'source_id'         	=> $service_report_id,
+						'reg_date'           => date('Y-m-d H:i:s'),
 					];
+			
 
-					$converts = $postData['first_timers'];
+					$upd_rec = $this->Crud->create('visitors', $ins_data);
+					if($upd_rec > 0) {
+						echo $this->Crud->msg('success', translate_phrase('First Timer Record Submitted'));
 
-					// print_r($converts);
-					// die;
-					if (!empty($converts)) {
-						foreach ($converts as $f_value) {
-							// Prepare Visitor Data
-							$fullname = trim($f_value['firstname'] . ' ' . $f_value['surname']);
-							$email = trim($f_value['email']);
-							$phone = trim($f_value['phone']);
-							$gender = trim($f_value['gender']);
-							$dob = trim($f_value['dob']);
-							$invited_by = trim($f_value['invited_by']);
-							$reg_date = date('Y-m-d H:i:s');
-
-							// Check if visitor already exists (by email OR phone)
-							$existing_visitor_id = $this->Crud->read_field3('email', $email, 'source_type', 'service', 'source_id', $first_timer_id, 'visitors', 'id');
-
-							// Prepare data for insertion or update
-							$ins = [
-								'category' => 'first_timer',
-								'source_type' => 'service',
-								'ministry_id' => $this->Crud->read_field('id', $first_timer_id, 'service_report', 'ministry_id'),
-								'church_id' => $this->Crud->read_field('id', $first_timer_id, 'service_report', 'church_id'),
-								'source_id' => $first_timer_id,
-								'fullname' => $fullname,
-								'email' => $email,
-								'phone' => $phone,
-								'gender' => $gender,
-								'dob' => $dob,
-								'invited_by' => $invited_by,
-								'reg_date' => $reg_date
-							];
-
-							if (!empty($existing_visitor_id)) {
-								// Update Existing Record
-								$this->Crud->updates('id', $existing_visitor_id, 'visitors', $ins);
-							} else {
-								// Insert New Record
-								$this->Crud->create('visitors', $ins);
-							}
-						}
-					}
-
-					if ($this->Crud->updates('id', $first_timer_id, 'service_report', $timers) > 0) {
-						echo $this->Crud->msg('success', 'First Timer List Submitted');
-						
-						// Log Activity
+						///// store activities
 						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-						$service_date = $this->Crud->read_field('id', $first_timer_id, 'service_report', 'date');
-						$action = $by . ' updated Service First Timer Report for ' . $service_date;
-						$this->Crud->activity('service', $first_timer_id, $action);
-				
-						// echo json_encode(['status' => 'success']);
-							// echo json_encode($data);
-						echo '<script> setTimeout(function() {
-							$("#show").show(500);
-								$("#form").hide(500);
-								$("#first_timer_view").hide(500);
-								$("#attendance_prev").hide(500);
-								$("#add_btn").show(500);
-								
-								$("#prev").hide(500);
-								load();
-								$("#first_timer_msg").html("");
-						}, 2000); </script>';
+						$code = $this->Crud->read_field('id', $upd_rec, 'visitors', 'fullname');
+						$action = $by.' submitted First Timer ('.$upd_rec.') Record';
+						$this->Crud->activity('first_timer', $upd_rec, $action, $log_id);
+
+						echo '<script>location.reload(false);</script>';
 					} else {
-						echo $this->Crud->msg('info', 'No Changes');
+						echo $this->Crud->msg('info', translate_phrase('No Changes'));	
 					}
-					die;
+					 
+					exit;	
+				}
+				
+			} elseif($param2 == 'report'){
+				if($param3){
+					$resp = [];
+					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$timers = [];
+					$id = 0;
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$id = $e->id;
+							$note = $e->note;
+							$date = $e->date;
+							$reg_date = $e->reg_date;
+							$type = $this->Crud->read_field('id', $e->type, 'service_type', 'name');
+							$total_part = 0;
+							$member_part = 0;
+							$guest_part = 0;
+							$total_tithe = 0;
+							$member_tithe = 0;
+							$guest_tithe = 0;
+							$total_offering = 0;
+							$member_offering = 0;
+							$guest_offering = 0;
+							$total_seed = 0;
+							$member_seed = 0;
+							$guest_seed = 0;
+							$total_thanksgiving = 0;
+							$member_thanksgiving = 0;
+							$guest_thanksgiving = 0;
+
+							$timer = $this->Crud->check3('source_id', $e->id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
+							
+							$convert = $this->Crud->check4('new_convert', 1, 'source_id', $e->id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
+							$conv = $this->Crud->check3('service_id', $e->id, 'new_convert', 1, 'status', 'present', 'service_attendance');
+
+							$convert += (int)$conv;
+
+							$attendance = $e->attendance;
+							if(empty($attendance)){
+								$attend = $this->Crud->check2('service_id', $e->id, 'status', 'present', 'service_attendance');
+								$attendance = (int)$attend + (int)$timer;
+							}
+
+
+							$finance = $this->Crud->read_single('service_id', $id, 'service_finance');
+							if(!empty($finance)){
+								foreach($finance as $f){
+									if($f->finance_type == 'offering'){
+										$total_offering += (float)$f->amount;
+									}
+									if($f->finance_type == 'tithe'){
+										$total_tithe += (float)$f->amount;
+									}
+									if($f->finance_type == 'partnership'){
+										$total_part += (float)$f->amount;
+									}
+									if($f->finance_type == 'seed'){
+										$total_seed += (float)$f->amount;
+									}
+									if($f->finance_type == 'thanksgiving'){
+										$total_thanksgiving += (float)$f->amount;
+									}
+								}
+							}
+							
+							$data['id'] = $id;
+							$data['service_report_id'] = $id;
+							$data['note'] = $note;
+							$data['date'] = $date;
+							$data['types'] = $type;
+							$data['total_part'] = $total_part;
+							$data['total_tithe'] = $total_tithe;
+							$data['total_offering'] = $total_offering;
+							$data['total_seed'] = $total_seed;
+							$data['total_thanksgiving'] = $total_thanksgiving;
+							$data['convert'] = $convert;
+							$data['timer'] = $timer;
+							$data['attendance'] = $attendance;
+							$data['reg_date'] = $reg_date;
+							$data['finance'] = $this->Crud->read_single('service_id', $id, 'service_finance');
+							$data['member_attendance'] = $this->Crud->read_single('service_id', $id, 'service_attendance');
+							$data['convert_member'] = $this->Crud->read2('new_convert', 1,'service_id', $id, 'service_attendance');
+							$data['guest_attendance'] = $this->Crud->read3('source_id', $e->id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
+							$data['convert_guest'] = $this->Crud->read4('new_convert', 1, 'source_id', $e->id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
+							
+						}
+						
+					}
+
+					
 				}
 				
 			} else {

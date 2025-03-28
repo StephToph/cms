@@ -957,7 +957,7 @@ class Attendance extends BaseController {
 			}
 		}
 
-		echo $rezp;
+		echo $rezp.'<script>$(".js-select2").select2();</script>';
 	}
 	
 
