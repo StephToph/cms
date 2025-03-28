@@ -256,96 +256,50 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-inner" id="mark_attendance_view" style="display:none;">
-                                <form id="mark_attendanceForm">
-                                    <div class="row my-3">
-                                        <h5>Members Attendance</h5>
-                                        <div id="member_attendance_list" class="col-sm-12 row"></div>
-                                        
-                                    </div>
-                                    
-                                    <hr>
-                                    <div class="row">
-                                        <input type="hidden" name="attendance_id" id="mark_attendance_id">
-                                        <span class="text-danger mb-2">Select Members in Service</span>
-
-                                        <div class="col-sm-12">
-                                            <label for="name"><?= translate_phrase('Present Member'); ?></label>
-                                            <select class="js-select2" id="present_members" data-search="on" multiple name="present_member_id[]" required>
-                                                <option value="">Select Members</option>
-
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                                
-                                    
-                                    <div class="table-responsive" >
-                                        <table class="table table-striped table-hover mt-5">
-                                            <thead>
-                                                <tr>
-                                                    <th>Member</th>
-                                                    <th>Reason for Absence</th>
-                                                    
-                                                </tr>
-                                            </thead>
-                                            <tbody id="absent_attendance_list"> </tbody>
-                                            
-                                        </table>
-                                        <div class="col-12 my-3 text-center">
-                                            <button type="button" class="btn btn-primary" id="absent_add_btn">Add More</button>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="row mt-5">
-                                        <div class="col-sm-12 text-center mt-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i>
-                                                <span><?= translate_phrase('Save Record'); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12 my-2">
-                                            <div id="mark_attendance_msg"></div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                            
                             <div class="card-inner" id="attendance_view" style="display:none;">
                                 <form id="attendanceForm">
                                     <div class="row">
                                         <input type="hidden" name="attendance_id" id="attendance_id">
                                         <span class="text-danger mb-2">Enter Attendance</span>
                                         <div class="col-sm-4 mb-3 ">
-                                            <label>Total</label>
-                                            <input class="form-control" id="total_attendance" type="text" name="total"
+                                            <label>Head Count</label>
+                                            <input class="form-control" id="head_count" type="text" name="total"
+                                                readonly value="0">
+                                        </div>
+                                        <div class="col-sm-4 mb-3 ">
+                                            <label>Total Marked Attendance</label>
+                                            <input class="form-control" id="total_attendance" type="text" name="totalz"
                                                 readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>Member</label>
                                             <input class="form-control" id="member_attendance" type="text" name="member"
-                                                value="0" placeholder="0">
+                                                value="0" readonly placeholder="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>First Timer</label>
                                             <input class="form-control" id="guest_attendance" type="text" name="guest"
-                                                value="" placeholder="0">
+                                                value="" readonly placeholder="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>Male</label>
                                             <input class="form-control" id="male_attendance" type="text" name="male"
-                                                value="" placeholder="0">
+                                                value="" readonly placeholder="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>Female</label>
                                             <input class="form-control" id="female_attendance" type="text" name="female"
-                                                value="" placeholder="0">
+                                                value="" readonly placeholder="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>Children</label>
                                             <input class="form-control" id="children_attendance" type="text"
-                                                name="children" value="" placeholder="0">
+                                                name="children" value="" readonly placeholder="0">
+                                        </div>
+                                        
+                                        <div class="col-md-12 my-3" id="metric_response">
+                                            <!-- dynamic content appears here -->
                                         </div>
                                     </div>
                                     <hr>
@@ -364,58 +318,7 @@ $service_church_id = $this->session->get('service_church_id');
                                     </div>
                                 </form>
                             </div>
-                            
-                            <div class="card-inner" id="new_convert_view" style="display:none;">
-                                <form id="new_convert_Form">
-                                    <input type="hidden" name="new_convert_id" id="new_convert_id">
-
-                                    <div id="rowsContainer">
-                                        <!-- Rows will be dynamically added here -->
-                                    </div>
-                                    <div class="col-sm-12 my-4 text-center">
-                                        <button id="addMores" class="btn btn-block btn-ico btn-outline-info"
-                                            type="button"><i class="icon ni ni-plus-c"></i>
-                                            <span><?= translate_phrase('Add More'); ?></span></button>
-                                    </div>
-
-
-                                    <div class="row">
-                                        <div class="col-sm-12 text-center my-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i>
-                                                <span><?= translate_phrase('Save Record'); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-12">
-                                            <div id="new_convert_msg"></div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="card-inner" id="first_timer_view" style="display:none;">
-                                <form id="firstTimerForm">
-                                    <input type="hidden" id="first_timer_id" name="first_timer_id">
-                                    <div id="formContainer">
-                                        <!-- Existing or new records will load here -->
-                                    </div>
-
-                                    <!-- Add More Button -->
-                                    <button type="button" id="addMore" class="btn btn-outline-primary d-block mx-auto">
-                                        + Add More
-                                    </button>
-
-                                    <!-- Submit Button -->
-                                    <button type="submit" class="btn btn-primary mt-3 d-block mx-auto">Save Record</button>
-                                </form>
-                                
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div id="first_timer_msg"></div>
-                                    </div>
-                                </div>
-                            </div>
+                           
                             <div class="card-inner" id="finance_view" style="display:none;">
                                 <form id="financeForm">
                                     <input type="hidden" name="finance_id" id="finance_id">

@@ -734,37 +734,26 @@ class Service extends BaseController {
 			
 			} elseif($param2 == 'attendance'){
 				if($param3) {
-					$edit = $this->Crud->read_single('id', $param3, 'service_report');
+					$edit = $this->Crud->read_single('service_id', $param3, 'service_attendance');
+					$total =0;$guest=0;$member=0;
+					$male=0;$female=0;$children=0;
 					if(!empty($edit)) {
 						foreach($edit as $e){
-							$attendant = $e->attendant;
-							$attendants = json_decode($attendant);
-							$total =0;$guest=0;$member=0;
-							$male=0;$female=0;$children=0;
-							if(!empty($attendants)){
-								foreach($attendants as $at => $ats){
-									if($at == 'total'){
-										$total = $ats;
-									}
-									if($at == 'guest'){
-										$guest = $ats;
-									}
-									if($at == 'member'){
-										$member = $ats;
-									}
-									if($at == 'male'){
-										$male = $ats;
-									}
-									if($at == 'female'){
-										$female = $ats;
-									}
-									if($at == 'children'){
-										$children = $ats;
-									}
-								}
-							}
+							$total++;$member++;
+							$gender = strtolower($this->Crud->read_field('id', $e->member_id, 'user', 'gender'));
+							$family_position = strtolower($this->Crud->read_field('id', $e->member_id, 'user', 'family_position'));
+							if($gender == 'male')$male++;
+							if($gender == 'female')$female++;
+							if($family_position == 'child')$children++;
+							
+
 						}
+						
+						$guest = $this->Crud->check3('category','first_timer', 'source_type', 'service', 'source_id', $param3, 'visitors');
+						$total += (int)$guest;
+
 						$resp['attendance_id'] = $param3;
+						$resp['head_count'] = $this->Crud->read_field('id', $param3, 'service_report', 'attendance');
 						$resp['total_attendance'] = $total;
 						$resp['guest_attendance'] = $guest;
 						$resp['member_attendance'] = $member;
@@ -780,39 +769,7 @@ class Service extends BaseController {
 				if($this->request->getMethod() == 'post'){
 					$attendance_id = $this->request->getPost('attendance_id');
 					$total = $this->request->getPost('total');
-					$member = $this->request->getPost('member');
-					$guest = $this->request->getPost('guest');
-					$male = $this->request->getPost('male');
-					$female = $this->request->getPost('female');
-					$children = $this->request->getPost('children');
-
-					// Fetch the existing attendant data and decode it
-					$existing_attendant = json_decode($this->Crud->read_field('id', $attendance_id, 'service_report', 'attendant'), true);
-
-					// Check if the existing attendant data is not empty
-					if (!empty($existing_attendant)) {
-						// If it's not empty, merge the new attendant data with the existing data
-						$existing_attendant['total'] = $total;
-						$existing_attendant['member'] = $member;
-						$existing_attendant['guest'] = $guest;
-						$existing_attendant['male'] = $male;
-						$existing_attendant['female'] = $female;
-						$existing_attendant['children'] = $children;
-					} else {
-						// If it's empty, create a new attendant array
-						$existing_attendant = [
-							'total' => $total,
-							'member' => $member,
-							'guest' => $guest,
-							'male' => $male,
-							'female' => $female,
-							'children' => $children,
-						];
-					}
-
-					// Encode the attendant data back to JSON
-					$in_data['attendant'] = json_encode($existing_attendant);
- 
+					
 					$in_data['attendance'] = $total; 
 					
 					if(empty($data)){
@@ -3676,6 +3633,293 @@ class Service extends BaseController {
 			die;
 		}
 		
+		
+		if($param1 == 'get_attendance_metrics'){
+			$service = $this->request->getPost('service'); // e.g. 1st, 2nd, 3rd occurrence
+			$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
+			
+			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+		
+			$service_report_id = $service;
+			$metric_response = '';
+
+			
+			// echo $cell_id;
+			$query = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'surname', 'asc');
+			$timer_query = $this->Crud->read3_order('source_type', 'service', 'source_id', $service_report_id,  'church_id', $church_id, 'visitors', 'fullname', 'asc');
+		
+			$response = '';
+			$response .= '<div class="table-responsive"><table class="table table-hover">';
+					
+			if (!empty($query)) {
+				foreach ($query as $q) {
+					
+					$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+					$new_convert = ($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'new_convert'));
+					
+						// If absent, fetch the reason (optional)
+						$absent_reason = '';
+						if ($status == 'absent') {
+							$absent_reason = $this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'reason');
+						}
+					
+						$response .= '
+						<tr>
+							<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
+							<td>'.$this->Crud->mask_email($q->email).'</td>
+							<td>'.$this->Crud->mask_phone($q->phone).'</td>
+							<td style="vertical-align: top;">
+								<div class="d-flex justify-content-between align-items-start">
+									<div class="w-100">
+										<div id="switches_wrapper_'.$q->id.'" style="display: none;">
+											<div class="mb-2">
+												<div class="custom-control custom-switch">
+													<input type="checkbox" class="custom-control-input mark-present-switch"
+														id="presentSwitch_'.$q->id.'"
+														data-member-id="'.$q->id.'" '.($status == 'present' ? 'checked' : '').'>
+													<label class="custom-control-label" for="presentSwitch_'.$q->id.'">Mark Present</label>
+												</div>
+											</div>
+
+											<div class="mb-2">
+												<div class="custom-control custom-switch">
+													<input type="checkbox" class="custom-control-input mark-absent-switch"
+														id="absentSwitch_'.$q->id.'"
+														data-member-id="'.$q->id.'" '.($status == 'absent' ? 'checked' : '').'>
+													<label class="custom-control-label" for="absentSwitch_'.$q->id.'">Absent</label>
+												</div>
+											</div>
+
+											<div id="absent_reason_wrapper_'.$q->id.'" class="form-group mb-2"
+												style="display: '.($status == 'absent' ? 'block' : 'none').';">
+												<label for="absent_reason_'.$q->id.'" class="form-label">Reason for Absence</label>
+												<select class="form-select reason-select" name="absent_reason"
+													id="absent_reason_'.$q->id.'" data-member-id="'.$q->id.'">
+													<option value="">-- Select Reason --</option>
+													<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
+													<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
+													<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
+													<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
+													<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
+													<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
+													<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
+													<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
+													<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
+													<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
+													<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
+												</select>
+												<input type="text" class="form-control form-control-sm mt-2 other-reason-input"
+													id="other_reason_'.$q->id.'"
+													placeholder="Please specify"
+													style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';"
+													value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
+											</div>
+
+											<div class="custom-control custom-switch mb-2">
+												<input type="checkbox" class="custom-control-input mark-convert-switch"
+													id="convertSwitch_'.$q->id.'"
+													data-type="member"
+													data-member-id="'.$q->id.'" '.($new_convert == '1' ? 'checked' : '').'>
+												<label class="custom-control-label" for="convertSwitch_'.$q->id.'">New Convert</label>
+											</div>
+
+											<span id="resp_'.$q->id.'"></span>
+											<span id="con_resp_'.$q->id.'"></span>
+										</div>
+									</div>
+
+									<div>
+										<button type="button" class="btn btn-sm btn-outline-primary toggle-switches-btn" data-member-id="'.$q->id.'">
+											<i class="icon ni ni-toggle-on"></i> Action
+										</button>
+									</div>
+								</div>
+							</td>
+
+						</tr>';
+					
+					
+				}
+				
+			} else {
+				$response .='<tr><td><div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div></td></tr>';
+			}
+			if (!empty($timer_query)) {
+				foreach ($timer_query as $q) {
+				
+					$status ='present';
+					$response .= '
+					<tr>
+						<td>' . ucwords(strtolower($q->fullname)).'<br><span class="small text-info">FT</span></td>
+						<td>'.$this->Crud->mask_email($q->email).'</td>
+						<td>'.$this->Crud->mask_phone($q->phone).'</td>
+						<td>
+							<div class="custom-control custom-switch mb-1">
+								<input type="checkbox"
+									class="custom-control-input mark-convert-switch"
+									id="convertSwitch_'.$q->id.'" data-type="ft"
+									data-member-id="'.$q->id.'"
+									'.($q->new_convert == '1' ? 'checked' : '').'>
+								<label class="custom-control-label" for="convertSwitch_'.$q->id.'">New Convert</label>
+							</div>
+							<span id="con_resp_'.$q->id.'"></span>
+						</td>
+					</tr>';
+				
+					
+				}
+				
+			} 
+			$response .= '</table></div>';
+
+		
+			
+			return $this->response->setJSON([
+				'metric_response' => $response
+			]);
+		}
+
+		if($param1 == 'attendance'){
+			if($param2 == 'mark_present'){
+				$member_id = $this->request->getPost('member_id');
+				$service = $this->request->getPost('service_id'); // e.g., "Sunday Service"
+				$mark = $this->request->getPost('mark'); // e.g., "Sunday Service"
+				$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
+				$service_report_id = $service;
+
+				if(empty($service_report_id)){
+					return $this->response->setJSON([
+						'status' => 'warning',
+						'message' => 'Service report not found.'
+					]);
+				}
+
+				$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
+				if($exists == 0){
+					// Do DB logic here, example:
+					$this->Crud->create('service_attendance',[
+						'member_id' => $member_id,
+						'service_id' => $service_report_id,
+						'church_id' => $church_id,
+						'status' => 'present'
+					]);
+					return $this->response->setJSON([
+						'status' => 'success',
+						'message' => 'Marked as present.'
+					]);
+				} else {
+					if(empty($mark)){
+						$this->Crud->deletes('id', $exists, 'service_attendance');
+						return $this->response->setJSON([
+							'status' => 'success',
+							'message' => 'Member Unmarked'
+						]);
+					} else {
+
+						$this->Crud->updates('id', $exists, 'service_attendance', ['status' => 'present']);
+						return $this->response->setJSON([
+							'status' => 'success',
+							'message' => 'Marked as present.'
+						]);
+					}
+					
+				}
+			
+			}
+
+			if($param2 == 'mark_convert'){
+				$member_id = $this->request->getPost('member_id');
+				$type = $this->request->getPost('type'); // e.g., "Sunday Service"
+				$service = $this->request->getPost('service_id'); // e.g., "Sunday Service"
+				$mark = $this->request->getPost('mark'); // e.g., "Sunday Service"
+				$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
+				$service_report_id = $service;
+
+				if(empty($service_report_id)){
+					return $this->response->setJSON([
+						'status' => 'warning',
+						'message' => 'Service report not found.'
+					]);
+				}
+
+				if($type == 'member'){
+					$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
+					
+					$this->Crud->updates('id', $exists, 'service_attendance', ['new_convert'=>$mark]);
+				}
+
+				if($type == 'ft'){
+					$this->Crud->updates('id', $member_id, 'visitors', ['new_convert'=>$mark]);
+				}
+				return $this->response->setJSON([
+					'status' => 'success',
+					'message' => 'Member Neww Convert Updated'
+				]);
+				
+			
+			}
+
+			if ($param2 === 'mark_absent') {
+				$member_id = $this->request->getPost('member_id');
+				$service = $this->request->getPost('service_id'); // e.g., "Sunday Service"
+				$mark = $this->request->getPost('mark'); // e.g., "Sunday Service"
+				$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
+				$reason = $this->request->getPost('reason');
+				
+				// 🛡️ Validation
+				if (!$member_id || !$service || !$church_id || !$reason) {
+					return $this->response->setJSON([
+						'status' => 'error',
+						'message' => 'All fields are required.'
+					]);
+				}
+			
+				$service_report_id = $service;
+			
+				// 🛑 If not found
+				if (empty($service_report_id)) {
+					return $this->response->setJSON([
+						'status' => 'warning',
+						'message' => 'Service report not found.'
+					]);
+				}
+			
+				// ✅ Check if already marked
+				$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
+				
+				if(empty($exists)) {
+					// 💾 Save absence with reason
+					$this->Crud->create('service_attendance', [
+						'member_id' => $member_id,
+						'service_id' => $service_report_id,
+						'church_id' => $church_id,
+						'status' => 'absent',
+						'reason' => $reason,
+						'reg_date' => date('Y-m-d H:i:s')
+					]);
+					return $this->response->setJSON([
+						'status' => 'success',
+						'message' => 'Marked as absent.'
+					]);
+				} else {
+					if(empty($mark)){
+						$this->Crud->deletes('id', $exists, 'service_attendance');
+						return $this->response->setJSON([
+							'status' => 'success',
+							'message' => 'Member Unmarked'
+						]);
+					} else {
+						$this->Crud->updates('id', $exists, 'service_attendance', ['status' => 'absent','reason' => $reason]);
+						return $this->response->setJSON([
+							'status' => 'success',
+							'message' => 'Marked as absent.'
+						]);
+					}
+				}
+			}
+		
+		}
+
 		//Get Role
 		if($param1 == 'gets'){
 			$total = $this->request->getPost('total');
@@ -4052,12 +4296,18 @@ class Service extends BaseController {
 						$seed = $q->seed;
 						$thanksgiving = $q->thanksgiving;
 						$partnership = $q->partnership;
-						$attendance = $q->attendance;
 						$offering = $q->offering;
-						$new_convert = $q->new_convert;
-						$first_timer = $q->first_timer;
+						$first_timer = $this->Crud->check3('category','first_timer', 'source_type', 'service', 'source_id', $q->id, 'visitors');
 						$date = date('d M Y', strtotime($q->date));
 						$reg_date = $q->reg_date;
+						
+						$attend = $this->Crud->check('service_id', $q->id, 'service_attendance');
+						$nattend = $this->Crud->check2('new_convert', 1, 'service_id', $q->id, 'service_attendance');
+
+						$attendance = $q->attendance;
+						$convert = $this->Crud->check4('new_convert', 1, 'category','first_timer', 'source_type', 'service', 'source_id', $q->id, 'visitors');
+						$new_convert = (int)$convert + (int)$nattend;
+
 
 						$types = $this->Crud->read_field('id', $type, 'service_type', 'name');
 						
@@ -4078,12 +4328,9 @@ class Service extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								<li><a href="javascript:;" class="text-indigo" onclick="mark_attendance('.$id.')"><em class="icon ni ni-user-check"></em><span>'.translate_phrase('Mark Attendance').'</span></a></li>
-								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance Details').'</span></a></li>
+								<li><a href="javascript:;" class="text-secondary" onclick="attendance_report('.$id.')"><em class="icon ni ni-users"></em><span>'.translate_phrase('Attendance').'</span></a></li>
 								<li><a href="javascript:;" class="text-warning"  onclick="finance_report('.$id.')"><em class="icon ni ni-money"></em><span>'.translate_phrase('Finance Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-info" onclick="new_convert_report('.$id.')"><em class="icon ni ni-user-list"></em><span>'.translate_phrase('Add New Convert Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-dark" onclick="first_timer_report('.$id.')"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Add First Timer Details').'</span></a></li>
-								<li><a href="javascript:;" class="text-danger" onclick="media_report('.$id.')"><em class="icon ni ni-img"></em><span>'.translate_phrase('Media').'</span></a></li>
+								<li><a href="javascript:;" class="text-info" onclick="media_report('.$id.')"><em class="icon ni ni-img"></em><span>'.translate_phrase('Media').'</span></a></li>
 								
 								
 							';
