@@ -752,8 +752,13 @@ class Service extends BaseController {
 						$guest = $this->Crud->check3('category','first_timer', 'source_type', 'service', 'source_id', $param3, 'visitors');
 						$total += (int)$guest;
 
+						$head = $this->Crud->read_field('id', $param3, 'service_report', 'attendance');
+						if(empty($head)){
+							$head = $total;
+						}
+
 						$resp['attendance_id'] = $param3;
-						$resp['head_count'] = $this->Crud->read_field('id', $param3, 'service_report', 'attendance');
+						$resp['head_count'] = $head;
 						$resp['total_attendance'] = $total;
 						$resp['guest_attendance'] = $guest;
 						$resp['member_attendance'] = $member;
