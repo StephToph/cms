@@ -265,7 +265,7 @@ $service_church_id = $this->session->get('service_church_id');
                                         <div class="col-sm-4 mb-3 ">
                                             <label>Head Count</label>
                                             <input class="form-control" id="head_count" type="text" name="total"
-                                                readonly value="0">
+                                                 value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3 ">
                                             <label>Total Marked Attendance</label>

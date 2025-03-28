@@ -2493,7 +2493,7 @@ class Service extends BaseController {
 							$member_thanksgiving = 0;
 							$guest_thanksgiving = 0;
 
-							$timer = $this->Crud->check3('source_id', $e->id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
+							$timer = $this->Crud->check3('source_id', $id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
 							
 							$convert = $this->Crud->check4('new_convert', 1, 'source_id', $e->id, 'source_type', 'service', 'category', 'first_timer', 'visitors');
 							$conv = $this->Crud->check3('service_id', $e->id, 'new_convert', 1, 'status', 'present', 'service_attendance');
@@ -2502,7 +2502,7 @@ class Service extends BaseController {
 
 							$attendance = $e->attendance;
 							if(empty($attendance)){
-								$attend = $this->Crud->check2('service_id', $e->id, 'status', 'present', 'service_attendance');
+								$attend = $this->Crud->check2('service_id', $id, 'status', 'present', 'service_attendance');
 								$attendance = (int)$attend + (int)$timer;
 							}
 
