@@ -298,7 +298,7 @@ $service_church_id = $this->session->get('service_church_id');
                                                 name="children" value="" readonly placeholder="0">
                                         </div>
                                         
-                                        <div class="col-sm-8 mb-2">
+                                        <div class="col-sm-6 mb-2">
                                             <label class="name">Mark New Member Attendance</label>   
                                             <div class="input-group">        
                                                 <input type="text" id="member_id" oninput="get_member();"class="form-control " placeholder="Enter Name or Email">        
@@ -307,7 +307,18 @@ $service_church_id = $this->session->get('service_church_id');
                                                 </div> 
                                             </div>
                                         </div>
-                                        <div class="col-sm-2 my-2">.</div>
+                                        <div class="col-sm-2 my-2">
+                                            <a href="javascript:;" id="firstTimerBtnz"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                title="Add First Timer"
+                                                class="btn btn-block btn-dim btn-outline-info pop mt-3 mx-2"
+                                                pageTitle="<?=translate_phrase('Add First Timer');?>"
+                                                pageName="<?= site_url('service/report/manage/timers'); ?>"
+                                                pageSize="modal-xl">
+                                                <em class="icon ni ni-plus-c"></em><span> Add First Timer</span>
+                                            </a>
+
+                                        </div>
                                         <div class="col-12 my-2 text-center" id="member_response"></div>
                                         <div class="col-sm-12 my-3" id="metric_response">
                                             <!-- dynamic content appears here -->

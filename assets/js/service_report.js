@@ -199,6 +199,7 @@
         // $(this).attr('onclick', currentInfo.onclick);
         $(this).find('em').removeClass().addClass('icon ni ' + currentInfo.iconClass);
 
+        
         $.ajax({
             url: site_url + 'service/report/edit/' + id,
             type: 'get',
@@ -239,6 +240,12 @@
         $('#attendance_view').show(500);
         $('#attendance_prev').show(500);
         loadMetrics(id);
+        // Update the Add First Timer link dynamically
+        var firstTimerBtn = document.getElementById("firstTimerBtnz");
+        if (firstTimerBtn) {
+            let baseUrl = site_url+"service/report/manage/timers";
+            firstTimerBtn.setAttribute("pageName", baseUrl + "/" + id);
+        }
         $.ajax({
             url: site_url + 'service/report/manage/attendance/' + id,
             type: 'get',
@@ -1444,7 +1451,7 @@
         // Add the input field
         titheNewRow.append(`
             <td>
-                <input type="text" class="form-control tithes" name="tithe[]" value="0" oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, '');">
+                <input type="text" class="form-control tithe" name="tithe[]" value="0" oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, '');">
 
             </td>
         `);
