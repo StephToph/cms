@@ -4411,10 +4411,13 @@ class Service extends BaseController {
 						$date = date('d M Y', strtotime($q->date));
 						$reg_date = $q->reg_date;
 						
-						$attend = $this->Crud->check('service_id', $q->id, 'service_attendance');
+						$attend = $this->Crud->check2('status', 'present', 'service_id', $q->id, 'service_attendance');
 						$nattend = $this->Crud->check2('new_convert', 1, 'service_id', $q->id, 'service_attendance');
 
 						$attendance = $q->attendance;
+						if(empty($attendance)){
+							$attendance = (int)$attend + (int)$first_timer;
+						}
 						$convert = $this->Crud->check4('new_convert', 1, 'category','first_timer', 'source_type', 'service', 'source_id', $q->id, 'visitors');
 						$new_convert = (int)$convert + (int)$nattend;
 
