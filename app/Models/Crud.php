@@ -5785,6 +5785,31 @@ class Crud extends Model {
 		// Step 5: Fallback — return server's default timezone
 		return date_default_timezone_get(); // e.g. 'UTC' or 'Africa/Lagos'
 	}
+
+	public function getChurchTimezone($churchId)	{
+		$db = \Config\Database::connect();
+
+		$builder = $db->table('church');
+		$builder->select('state_id');
+		$builder->where('id', $churchId);
+		$church = $builder->get()->getRow();
+
+		if (!$church) {
+			return date_default_timezone_get();
+		}
+
+		$builder = $db->table('state');
+		$builder->select('timezone_id');
+		$builder->where('id', $church->state_id);
+		$state = $builder->get()->getRow();
+
+		if (!empty($state->timezone_id) && in_array($state->timezone_id, timezone_identifiers_list())) {
+			return $state->timezone_id;
+		}
+
+		return date_default_timezone_get();
+	}
+
 	
 
 	//////////////////////////////////END///////////////////////////////////////////////////////
