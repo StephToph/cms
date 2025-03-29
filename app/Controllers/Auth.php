@@ -30,7 +30,13 @@ class Auth extends BaseController {
 
 				$id = $resp->data->id;
 				$this->session->set('td_id', $id);
-				
+				if($this->Crud->read_field('id', $id, 'user', 'church_id') > 0){
+					$timezone = $this->Crud->getUserTimezone($id); // e.g. "+01:00" or "Africa/Lagos"
+					session()->set('user_timezone', $timezone);
+
+					// Optional: apply it immediately
+					date_default_timezone_set($timezone);
+				}
 				$this->Crud->updates('id', $id, 'user', array('last_log'=> date(fdate)));
 				///// store activities
 				$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
@@ -40,13 +46,7 @@ class Auth extends BaseController {
 				$this->session->set('timeout', $this->session->get('timeout'));
 				$this->session->set('isLoggedIn', true);
 				
-				if($this->Crud->read_field('id', $id, 'user', 'church_id') > 0){
-					$timezone = $this->Crud->getUserTimezone($id); // e.g. "+01:00" or "Africa/Lagos"
-					session()->set('user_timezone', $timezone);
-
-					// Optional: apply it immediately
-					date_default_timezone_set($timezone);
-				}
+				
 
 
 				echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
@@ -109,6 +109,16 @@ class Auth extends BaseController {
 						$code = 'success';
 						$id = $this->Crud->read_field($type, $email, 'user', 'id');
 						$this->session->set('td_id', $id);
+
+						if($this->Crud->read_field('id', $id, 'user', 'church_id') > 0){
+							$timezone = $this->Crud->getUserTimezone($id); // e.g. "+01:00" or "Africa/Lagos"
+							session()->set('user_timezone', $timezone);
+		
+							// Optional: apply it immediately
+							date_default_timezone_set($timezone);
+						}
+
+
 						$this->Crud->updates('id', $id, 'user', array('last_log'=> date(fdate)));
 						///// store activities
 						$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
@@ -119,13 +129,8 @@ class Auth extends BaseController {
 						$this->session->set('isLoggedIn', true);
 						$this->session->set('logged_in', true);
 						$this->session->set('last_activity', time()); 
-						if($this->Crud->read_field('id', $id, 'user', 'church_id') > 0){
-							$timezone = $this->Crud->getUserTimezone($id); // e.g. "+01:00" or "Africa/Lagos"
-							session()->set('user_timezone', $timezone);
-
-							// Optional: apply it immediately
-							date_default_timezone_set($timezone);
-						}
+						
+						
 
 						echo $this->Crud->msg('success', translate_phrase($msg));
 						echo '<script>window.location.replace("'.site_url('dashboard').'");</script>';
