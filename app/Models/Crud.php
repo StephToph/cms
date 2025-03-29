@@ -5717,20 +5717,20 @@ class Crud extends Model {
 		$lat = $geoData[0]['lat'];
 		$lon = $geoData[0]['lon'];
 	
-		  // 2. Get time zone using GeoNames
-		  $tzUrl = "http://api.geonames.org/timezoneJSON?lat={$lat}&lng={$lon}&username={$geonamesUsername}";
-		  $tzResponse = file_get_contents($tzUrl);
-		  $tzData = json_decode($tzResponse, true);
-	  
-		  // ✅ Check for expected fields and errors
-		  if (isset($tzData['status']['message'])) {
-			  return ['error' => "❌ GeoNames API error: " . $tzData['status']['message']];
-		  }
-	  
-		  if (!isset($tzData['gmtOffset']) || !isset($tzData['timezoneId'])) {
-			  return ['error' => "❌ Unexpected response structure from GeoNames."];
-		  }
-	  
+		// 2. Get time zone using GeoNames
+		$tzUrl = "http://api.geonames.org/timezoneJSON?lat={$lat}&lng={$lon}&username={$geonamesUsername}";
+		$tzResponse = file_get_contents($tzUrl);
+		$tzData = json_decode($tzResponse, true);
+	
+		// ✅ Check for expected fields and errors
+		if (isset($tzData['status']['message'])) {
+			return ['error' => "❌ GeoNames API error: " . $tzData['status']['message']];
+		}
+	
+		if (!isset($tzData['gmtOffset']) || !isset($tzData['timezoneId'])) {
+			return ['error' => "❌ Unexpected response structure from GeoNames."];
+		}
+	
 	
 		if (isset($tzData['gmtOffset'])) {
 			return [
