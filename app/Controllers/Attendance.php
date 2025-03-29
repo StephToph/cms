@@ -79,7 +79,11 @@ class Attendance extends BaseController {
 						$this->session->set('td_attend_type', $attend_type);
 						$this->session->set('td_church_id', $church_id);
 						
-						
+						$timezone = $this->Crud->getUserTimezone($id); // e.g. "+01:00" or "Africa/Lagos"
+						session()->set('user_timezone', $timezone);
+
+						// Optional: apply it immediately
+						date_default_timezone_set($timezone);
 						///// store activities
 						$codes = $this->Crud->read_field('id', $id, 'user', 'firstname').' '.$this->Crud->read_field('id', $id, 'user', 'surname');
 						$action = $codes . ' logged into the Attendance Platform ';

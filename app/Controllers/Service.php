@@ -386,8 +386,8 @@ class Service extends BaseController {
 								$data['e_monthly_weeks'] = $e->monthly_weeks;
 								$data['e_monthly_weekdays'] = $e->monthly_weekdays;
 								$data['e_yearly_date'] = $e->yearly_date;
-								$data['e_start_time'] = $e->start_time;
-								$data['e_end_time'] = $e->end_time;
+								$data['e_start_time'] = date('h:i A', strtotime($e->start_time));
+								$data['e_end_time'] = date('h:i A', strtotime($e->end_time));
 							}
 						}
 					}
@@ -407,8 +407,8 @@ class Service extends BaseController {
 					$ins_data['service_date'] = $this->request->getVar('service_date');
 					$ins_data['start_date'] = $this->request->getVar('start_date');
 					$ins_data['occurrences'] = $this->request->getVar('occurrences');
-					$ins_data['start_time'] = $this->request->getVar('start_time');
-					$ins_data['end_time'] = $this->request->getVar('end_time');
+					$ins_data['start_time'] = date('H:i:s', strtotime($this->request->getVar('start_time')));
+					$ins_data['end_time'] = date('H:i:s', strtotime($this->request->getVar('end_time')));
 
 					// Weekly recurrence (checkbox array to CSV)
 					$weekly_days = $this->request->getVar('weekly_days');
