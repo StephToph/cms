@@ -1397,19 +1397,25 @@ class Dashboard extends BaseController {
             return view('dashboard_form', $data);
         }
     }
-
+   
 
     public function timezone (){
-        set_time_limit(1800);
+        // set_time_limit(1800);
+        
+        $state = $this->Crud->read_order('state', 'id', 'asc');
 
-        $state = $this->Crud->read_order('state', 'id', 'desc');
+        // $country = $this->Crud->read_field('id', $s->country_id, 'country', 'name');
+        $result = $this->Crud->getGmtOffsetFromLocation('Lagos', 'Nigeria');
+        // print_r($result);
         foreach($state as $s){
-            if($s->gmt != 0 )continue;
+            // if($s->gmt != 0 )continue;
             $country = $this->Crud->read_field('id', $s->country_id, 'country', 'name');
             $result = $this->Crud->getGmtOffsetFromLocation($s->name, $country);
             if(!empty($result) && !empty($result['gmtOffset'])){
                 $gmt = $result['gmtOffset'];
-                $this->Crud->updates('id', $s->id, 'state', ['gmt'=>$gmt]);
+                $timezone = $result['timezone'];
+                echo $timezone.' ';
+                $this->Crud->updates('id', $s->id, 'state', ['gmt'=>$gmt, 'timezone_id'=>$timezone]);
             }
            
         }

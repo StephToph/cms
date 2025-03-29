@@ -5748,6 +5748,44 @@ class Crud extends Model {
 		}
 	}
 	 
+	public function getUserTimezone($userId){
+		$db = \Config\Database::connect();
+	
+		// Step 1: Get the user's church_id
+		$builder = $db->table('user');
+		$builder->select('church_id');
+		$builder->where('id', $userId);
+		$user = $builder->get()->getRow();
+	
+		if (!$user) {
+			throw new \Exception('User not found');
+		}
+	
+		// Step 2: Get the state_id from the church
+		$builder = $db->table('church');
+		$builder->select('state_id');
+		$builder->where('id', $user->church_id);
+		$church = $builder->get()->getRow();
+	
+		if (!$church) {
+			throw new \Exception('Church not found');
+		}
+	
+		// Step 3: Get the timezone_id from the state
+		$builder = $db->table('state');
+		$builder->select('timezone_id');
+		$builder->where('id', $church->state_id);
+		$state = $builder->get()->getRow();
+	
+		// Step 4: Return timezone_id if valid
+		if (!empty($state->timezone_id) && in_array($state->timezone_id, timezone_identifiers_list())) {
+			return $state->timezone_id;
+		}
+	
+		// Step 5: Fallback — return server's default timezone
+		return date_default_timezone_get(); // e.g. 'UTC' or 'Africa/Lagos'
+	}
+	
 
 	//////////////////////////////////END///////////////////////////////////////////////////////
 }

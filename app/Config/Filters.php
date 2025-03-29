@@ -24,6 +24,7 @@ class Filters extends BaseConfig
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'sessionTimeout' => \App\Filters\SessionTimeoutFilter::class,
+        'userTimezone' => \App\Filters\UserTimezoneFilter::class,
     ];
 
     /**
@@ -38,6 +39,7 @@ class Filters extends BaseConfig
             // 'csrf',
             // 'invalidchars',
             'sessionTimeout',
+            'userTimezone',
         ],
         'after' => [
             'toolbar',

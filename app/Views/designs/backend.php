@@ -268,6 +268,14 @@
                                     <img class="logo-dark logo-img logo-img-lg" style="max-height:50px" src="<?=site_url($logo); ?>" srcset="<?=site_url($logo); ?>" alt="logo-dark">
                                 </a>
                             </div>
+                            <div class="nk-header-news d-none d-xl-block">
+                                <div class="nk-news-list"><a class="nk-news-item" href="javascript:;">
+                                        <div class="nk-news-icon"><em class="icon ni ni-card-view"></em></div>
+                                        <div class="nk-news-text">
+                                            <span class="small"><?php echo date('d F, Y h:i A ');?></span>
+                                        </div>
+                                    </a></div>
+                            </div>
                             <div class="nk-header-tools">
                                 <ul class="nk-quick-nav">
 
