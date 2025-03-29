@@ -10,6 +10,7 @@ $log_name = $this->Crud->read_field('id', $log_id, 'user', 'firstname') . ' ' . 
 $email = $this->Crud->read_field('id', $log_id, 'user', 'email');
 $log_user_img = $this->Crud->read_field('id', $log_id, 'user', 'img_id');
 $log_role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 
 $log_role = strtolower($this->Crud->read_field('id', $log_role_id, 'access_role', 'name'));
 if (empty($log_user_img) && !file_exists($log_user_img)) {
