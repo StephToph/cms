@@ -184,83 +184,74 @@ class Cron extends BaseController {
 		return $body;
 	} 
 	
-	public function auto_generate_service_reports()
-    {
-        helper('date');
-        $db = \Config\Database::connect();
+	public function auto_generate_service_reports()	{
+		helper('date');
+		$db = \Config\Database::connect();
 
-        $now = date('Y-m-d H:i:s');
-        $today = date('Y-m-d');
-        $current_time = date('H:i:s');
+		$schedule_table = 'service_schedule';
+		$report_table = 'service_report';
 
-        $schedule_table = 'service_schedule';
-        $report_table = 'service_report';
+		$logs = [];
 
-        $logs = [];
-
-        $schedules = $db->table($schedule_table)->get()->getResult();
+		$schedules = $db->table($schedule_table)->get()->getResult();
 
 		foreach ($schedules as $schedule) {
+			// Set timezone per church
+			$timezone = $this->Crud->getChurchTimezone($schedule->church_id); // 👈 NEW METHOD
+			date_default_timezone_set($timezone); // Set before any time-based operations
+
 			$run_today = false;
 			$today = date('Y-m-d');
-			$now = time();
-		
+			$now = time(); // UNIX timestamp
+
 			// 1. Determine if schedule should run today
 			if ($schedule->type === 'one-time' && $schedule->service_date === $today) {
 				$run_today = true;
 			}
-		
+
 			if ($schedule->type === 'recurring') {
 				$day = date('D'); // Mon, Tue, etc.
-		
+
 				if ($schedule->recurrence_pattern === 'weekly') {
 					$weekly_days = explode(',', $schedule->weekly_days ?? '');
 					$run_today = in_array($day, $weekly_days);
 				}
-		
+
 				if ($schedule->recurrence_pattern === 'monthly') {
 					if ($schedule->monthly_type === 'dates') {
 						$monthly_dates = explode(',', $schedule->monthly_dates ?? '');
 						$run_today = in_array(date('j'), $monthly_dates);
 					}
 				}
-		
+
 				if ($schedule->recurrence_pattern === 'yearly') {
 					$run_today = (date('m-d') === date('m-d', strtotime($schedule->yearly_date)));
 				}
 			}
-		
+
 			if (!$run_today) continue;
-		
-			// 2. Prepare timestamps
-			$start_time = $schedule->start_time;
-			$end_time   = $schedule->end_time;
-		
-			$start_timestamp         = strtotime("{$today} {$start_time}");
-			$end_timestamp           = strtotime("{$today} {$end_time}");
+
+			// 2. Time windows
+			$start_timestamp         = strtotime("{$today} {$schedule->start_time}");
+			$end_timestamp           = strtotime("{$today} {$schedule->end_time}");
 			$create_window_timestamp = $start_timestamp - 7200; // 2 hours before
 			$close_window_timestamp  = $end_timestamp + 7200;   // 2 hours after
-		
-			// Optional readable format for logs
+
 			$create_window_dt = date('Y-m-d H:i:s', $create_window_timestamp);
 			$close_window_dt  = date('Y-m-d H:i:s', $close_window_timestamp);
-		
-			// 3. Check for existing report (loose date range to handle midnight issues)
+
+			// 3. Check for existing report
 			$report = $db->table($report_table)
 				->where('schedule_id', $schedule->id)
 				->where('date >=', date('Y-m-d', strtotime('-1 day')))
 				->where('date <=', date('Y-m-d', strtotime('+1 day')))
 				->get()
 				->getRow();
-		
-			// Get service type name (for logging)
+
+			// Get service type name
 			$name = $this->Crud->read_field('id', $schedule->type_id, 'service_type', 'name');
-		
-			// Debug (Optional)
-			// print_r($report);
-			echo "Create Window: $close_window_timestamp | Now: " . date('Y-m-d H:i:s', $now);
-		
-			// 4. CREATE: Only if no report exists and we are in the create window
+
+			// 4. CREATE: New report
 			if (!$report && $now >= $create_window_timestamp && $now <= $start_timestamp) {
 				$db->table($report_table)->insert([
 					'church_id'   => $schedule->church_id,
@@ -271,30 +262,30 @@ class Cron extends BaseController {
 					'status'      => 0,
 					'reg_date'    => date('Y-m-d H:i:s')
 				]);
-		
-				$logs[] = "✅ Created service report for <strong>{$name}</strong> at {$create_window_dt}";
+
+				$logs[] = "✅ Created service report for <strong>{$name}</strong> at {$create_window_dt} (Timezone: {$timezone})";
 			}
-		
-			// 5. CLOSE: If report exists, still open, and we're past the close window
+
+			// 5. CLOSE: If past end time
 			if ($report && $report->status == 0 && $now >= $close_window_timestamp) {
 				$db->table($report_table)
 					->where('id', $report->id)
 					->update(['status' => 1]);
-		
-				$logs[] = "🔒 Closed service report for <strong>{$name}</strong> at {$close_window_dt}";
+
+				$logs[] = "🔒 Closed service report for <strong>{$name}</strong> at {$close_window_dt} (Timezone: {$timezone})";
 			}
 		}
-		
 
-        echo "<h4>CRON Job Executed at $now</h4>";
-        if (count($logs) > 0) {
-            echo "<ul>";
-            foreach ($logs as $log) {
-                echo "<li>$log</li>";
-            }
-            echo "</ul>";
-        } else {
-            echo "<p>No services triggered at this time.</p>";
-        }
-    }
+		echo "<h4>CRON Job Executed at " . date('Y-m-d H:i:s') . "</h4>";
+		if (count($logs) > 0) {
+			echo "<ul>";
+			foreach ($logs as $log) {
+				echo "<li>$log</li>";
+			}
+			echo "</ul>";
+		} else {
+			echo "<p>No services triggered at this time.</p>";
+		}
+	}
+
 }
