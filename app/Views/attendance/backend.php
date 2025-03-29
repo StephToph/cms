@@ -18,6 +18,12 @@ if (empty($log_user_img) && !file_exists($log_user_img)) {
 $logo = 'assets/new_logo1.png';
 $min_title = $title;
 
+$active = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'status');
+if($active > 0){
+    return redirect()->to(site_url('attendance/logout'));	
+}
+
+
 header("Access-Control-Allow-Origin: *");  // Replace * with the specific origin(s) you want to allow
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
