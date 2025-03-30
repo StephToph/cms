@@ -379,7 +379,7 @@
                             
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Postal Code');?></label>
+                    <label class="form-label" for="name"><?=translate_phrase('Postal Code');?></label>
                     <input class="form-control" type="text" id="postal" name="postal"  >
                 </div>
             </div>
@@ -594,9 +594,6 @@
     });
 
 
-    var country = '<?=$country_id; ?>';
-    // get_state(country);
-    
     function get_state(country){
         $.ajax({
             url: site_url + 'attendance/get_state/'+country, // Update this to the path of your API endpoint
