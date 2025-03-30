@@ -572,14 +572,6 @@
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script>
-    fetch("http://ip-api.com/json/")
-    .then(res => res.json())
-    .then(data => {
-        console.log("Country:", data.country);
-        get_state(data.country);
-        document.getElementById('country').value = data.country;
-    });
-
     $(document).ready(function () {
         $('#invited_by').on('change', function () {
             var selectedOption = $(this).val();
