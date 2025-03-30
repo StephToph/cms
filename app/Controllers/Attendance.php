@@ -883,13 +883,14 @@ class Attendance extends BaseController {
 						
 						}
 					}
+					$name = $this->request->getPost('firstname').' '.$this->request->getPost('surname');
 					$ins_data = [
 						'ministry_id'        => $ministry_id,
 						'channel'          	 => $channel,
 						'church_id'          => $church_id,
 						'title'              => $this->request->getPost('title'),
 						'invited_by'         => $this->request->getPost('invited_by'),
-						'fullname'           => $this->request->getPost('firstname').' '.$this->request->getPost('surname'),
+						'fullname'           => $name,
 						'email'              => $this->request->getPost('email'),
 						'phone'              => $this->request->getPost('phone'),
 						'dob'                => $this->request->getPost('dob'),
