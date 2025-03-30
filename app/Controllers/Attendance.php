@@ -889,7 +889,7 @@ class Attendance extends BaseController {
 						'church_id'          => $church_id,
 						'title'              => $this->request->getPost('title'),
 						'invited_by'         => $this->request->getPost('invited_by'),
-						'fullname'           => $this->request->getPost('fullname'),
+						'fullname'           => $this->request->getPost('firstname').' '.$this->request->getPost('surname'),
 						'email'              => $this->request->getPost('email'),
 						'phone'              => $this->request->getPost('phone'),
 						'dob'                => $this->request->getPost('dob'),
@@ -963,7 +963,7 @@ class Attendance extends BaseController {
 			}
 		}
 
-		echo $rezp.'<script>$(".js-select2").select2();</script>';
+		echo $rezp.'';
 	}
 	
 

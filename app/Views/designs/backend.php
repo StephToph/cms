@@ -55,11 +55,10 @@
     }
     $this->session->set('currency', $currence);
 
-    if($this->Crud->read_field('id', $id, 'user', 'church_id') > 0){
-        $timezone = $this->Crud->getUserTimezone($id); // e.g. "+01:00" or "Africa/Lagos"
-        session()->set('user_timezone', $timezone);
 
-        // Optional: apply it immediately
+    if($this->Crud->read_field('id', $log_id, 'user', 'church_id') > 0){
+        $timezone = $this->Crud->getUserTimezone($log_id); // e.g. "+01:00" or "Africa/Lagos"
+        session()->set('user_timezone', $timezone);
         date_default_timezone_set($timezone);
     }
 
