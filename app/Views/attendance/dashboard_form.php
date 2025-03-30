@@ -362,7 +362,17 @@
                 <div class="form-group">
                     <label class="form-label">State</label>
                     <select class="js-select2" name="state_id" id="state_id" data-placeholder="Select" >
-                       
+                    <?php
+
+                        $ministry = $this->Crud->read_single_order('country_id', $country_id, 'state', 'name', 'asc');
+                        if (!empty($ministry)) {
+                            foreach ($ministry as $d) {
+                                $sel = '';
+                                
+                                echo '<option value="' . $d->id . '" ' . $sel . '>' . ucwords($d->name) . '</option>';
+                            }
+                        }
+                        ?>
                     </select>
                 </div>
             </div>
