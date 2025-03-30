@@ -288,8 +288,14 @@
 
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Full Name'); ?></label>
-                    <input class="form-control" type="text" id="fullname" name="fullname" value="<?php if(!empty($e_fullname)) {echo $e_fullname;} ?>" >
+                    <label class="form-label" for="name">*<?=translate_phrase('First Name'); ?></label>
+                    <input class="form-control" type="text" id="firstname" name="firstname" required >
+                </div>
+            </div>
+            <div class="col-sm-4 mb-3">
+                <div class="form-group">
+                    <label class="form-label" for="name">*<?=translate_phrase('Surame'); ?></label>
+                    <input class="form-control" type="text" id="surname" name="surname" required>
                 </div>
             </div>
 
@@ -344,8 +350,13 @@
                 </div>
             </div>
             <div class="col-sm-4">
+                <?php
+                    $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id'); 
+                    $country = $this->Crud->read_field('id', $country_id, 'country', 'name');
+                ?>
                 <label for="country" class="form-label fw-bold">Country </label>
-                <input type="text" class="form-control" readonly id="country" name="country" placeholder="Your country">
+                <input type="text" class="form-control" readonly placeholder="Your country" value="<?=$country; ?>">
+                <input type="hidden"  id="country" name="country" value="<?=$country_id; ?>">
             </div>
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
@@ -455,35 +466,39 @@
             
             <div class="col-sm-4 mb-3 channel-div related-div"  style="display: none;">
                 <label for="name"  class="form-label fw-bold"><?=translate_phrase('Channel'); ?></label>
-                <!-- Platform SELECT (for Online) -->
-                <select class="js-select2" data-search="on" name="platform" id="platform" style="display: none;">
-                    <option value="">Select Platform</option>
-                    <option value="Facebook">Facebook</option>
-                    <option value="Instagram">Instagram</option>
-                    <option value="YouTube">YouTube</option>
-                    <option value="WhatsApp">WhatsApp</option>
-                    <option value="Email Newsletter">Email Newsletter</option>
-                    <option value="Direct Mail/Postcard">Direct Mail/Postcard</option>
-                    <option value="Event/Conference">Event/Conference</option>
-                    <option value="Podcast">Podcast</option>
-                    <option value="LinkedIn">LinkedIn</option>
-                    <option value="Twitter/X">Twitter/X</option>
-                    <option value="Tiktok">Tiktok</option>
-                    <option value="Our Website">Our Website</option>
-                    <option value="Google Search ">Google Search </option>
-                    <option value="TV">TV</option>
-                    <option value="Radio ">Radio </option>
-                </select>
 
-                <!-- Channel TEXT INPUT (for Others) -->
-                <input class="form-control" type="text" id="channel" name="channel" placeholder="Enter referral source" style="display: none;">
+                <div class="platform-select-wrap" style="display: none;">
+                    <!-- Platform SELECT (for Online) -->
+                    <select class="js-select2" data-search="on" name="platform" id="platform" style="display: none;">
+                        <option value="">Select Platform</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Email Newsletter">Email Newsletter</option>
+                        <option value="Direct Mail/Postcard">Direct Mail/Postcard</option>
+                        <option value="Event/Conference">Event/Conference</option>
+                        <option value="Podcast">Podcast</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="Twitter/X">Twitter/X</option>
+                        <option value="Tiktok">Tiktok</option>
+                        <option value="Our Website">Our Website</option>
+                        <option value="Google Search ">Google Search </option>
+                        <option value="TV">TV</option>
+                        <option value="Radio ">Radio </option>
+                    </select>
 
+                </div>
+                
+                <div class="channel-input-wrap" style="display: none;">
+                    <input class="form-control" type="text" id="channel" name="channel" placeholder="Enter referral source">
+                </div>
             </div>
 
             <div class="col-sm-4 mb-3 member-div related-div"  style="display: none;">
                 
                 <label for="name"  class="form-label fw-bold"><?=translate_phrase('Member'); ?></label>
-                <select class="js-select2" data-search="on" name="member_id">
+                <select class="form-select js-select2" data-search="on" id="member_id" name="member_id">
                     <option value="">Select Member</option>
                     <?php 
                         $roles_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
@@ -558,32 +573,27 @@
     $(document).ready(function () {
         $('#invited_by').on('change', function () {
             var selectedOption = $(this).val();
-            var $channelDiv = $('.channel-div');
-            var $memberDiv = $('.member-div');
-            var $platformSelect = $('#platform');
-            var $channelInput = $('#channel');
 
-            // Hide all by default
-            $('.related-div').hide(500);
-            $platformSelect.hide(500);
-            $channelInput.hide(500);
+            // Hide all related divs and channel/platform wrappers
+            $('.related-div').hide(300);
+            $('.platform-select-wrap').hide(300);
+            $('.channel-input-wrap').hide(300);
 
-            // Logic based on selection
             if (selectedOption === "Member") {
-                $memberDiv.show(500);
+                $('.member-div').show(300);
             } else if (selectedOption === "Online") {
-                $channelDiv.show(500);
-                $platformSelect.show(500);
-                $channelInput.hide(500);
+                $('.channel-div').show(300);
+                $('.platform-select-wrap').show(300);
             } else if (selectedOption === "Others") {
-                $channelDiv.show(500);
-                $platformSelect.hide(500);
-                $channelInput.show(500);
+                $('.channel-div').show(300);
+                $('.channel-input-wrap').show(300);
             }
         });
     });
 
 
+    var country = '<?=$country_id; ?>';
+    get_state(country);
     
     function get_state(country){
         $.ajax({
@@ -696,7 +706,7 @@
 
 <script>
     $(function() {
-        $('.js-select2').select2();
+        // $('.js-select2').select2();
     });
     $('.date-picker').datepicker({
         format: 'yyyy-mm-dd', // Set the date format

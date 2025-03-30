@@ -4872,5 +4872,9 @@ class Service extends BaseController {
 		}
 	}
 
+	public function timer($code=null){
+		 // Handle the logic
+		 echo "You opened link for: " . esc($code);
+	}
 
 }
