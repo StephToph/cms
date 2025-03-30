@@ -595,7 +595,7 @@
 
 
     var country = '<?=$country_id; ?>';
-    get_state(country);
+    // get_state(country);
     
     function get_state(country){
         $.ajax({
