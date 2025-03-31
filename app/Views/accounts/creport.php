@@ -154,7 +154,7 @@
                                     </div>
                                     
                                     <div class="col-sm-3 mb-3 filter_resp" style="display:none;" id="cell_resp">
-                                        <select class="form-select js-select2" id="cell_id" onchange="load();"
+                                        <select class="form-select js-select2" id="cell_idz" onchange="load();"
                                             data-placeholder="All Cell">
                                             <option value="all">All Cell</option>
                                             
@@ -199,28 +199,27 @@
                                         
                                         if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){?>
 
-                                            <input type="hidden" name="cell_id" id="cells_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
-                                        <?php } else{?>
+                                            <input type="hidden" name="cell_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'cell_id'); ?>">
+                                        <?php } else { ?>
                                             
                                             <div class="col-md-6 col-lg-4 col-xxl-3">
                                                 <div class="form-group">
                                                     <label class="form-labl">Cell</label>
                                                     <div class="form-control-wrap">
-                                                        <select class="form-select js-select2" id="cells_id" name="cell_id" onchange="updatePageName();"
+                                                        <select class="form-select js-select2" id="cell_id" name="cell_id" onchange="updatePageName();"
                                                             data-placeholder="Select Cell">
                                                             <option value="">Select</option>
                                                             <?php
                                                                 if($ministry_id == 0){
                                                                     $parent  = $this->Crud->read_order('cells', 'name', 'asc');
                                                                 }
-                                                                if($ministry_id > 0 && $church_id <= 0){
+                                                                if($ministry_id > 0){
                                                                     $parent  = $this->Crud->read_single_order('ministry_id',  $ministry_id, 'cells', 'name', 'asc');
-
                                                                 }
                                                                 if($ministry_id > 0 && $church_id > 0){
                                                                     $parent  = $this->Crud->read_single_order('church_id',  $church_id, 'cells', 'name', 'asc');
-
                                                                 }
+
                                                                 if(!empty($parent)){
                                                                     foreach($parent as $p){
                                                                         $church = $this->Crud->read_field('id', $p->church_id, 'church', 'name');
@@ -263,7 +262,7 @@
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <div class="form-group">
-                                                <label for="name">*<?=translate_phrase('Attendance'); ?></label>
+                                                <label for="name">*<?=translate_phrase('Marked Attendance'); ?></label>
                                                 <div class="form-control-wrap">    
                                                     <div class="input-group">        
                                                         <input type="text" name="attendance" id="attendance" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" readonly placeholder="">        
@@ -274,32 +273,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-4 mb-3">
-                                            <div class="form-group">
-                                                <label for="name"><?=translate_phrase('New Convert'); ?></label>
-                                                <div class="form-control-wrap">    
-                                                    <div class="input-group">        
-                                                        <input type="text" id="new_convert" class="form-control" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" readonly name="new_convert" placeholder="">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="New Convert" pageSize="modal-xl" pageName="<?=site_url('accounts/creport/manage/new_convert/'.$celss); ?>" id="convertBtn">ADD</button>        
-                                                        </div>    
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-4 mb-3">
-                                            <div class="form-group">
-                                                <label for="name"><?=translate_phrase('First Timer'); ?></label>
-                                                <div class="form-control-wrap">    
-                                                    <div class="input-group">        
-                                                        <input type="text" readonly id="first_timer" name="first_timer" oninput="this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')" class="form-control" placeholder="">        
-                                                        <div class="input-group-append">            
-                                                            <button type="button"  class="btn btn-outline-primary btn-dim pop" pageTitle="First Timer" pageSize="modal-xl" pageName="<?=site_url('accounts/creport/manage/first_timer/'.$celss); ?>" id="timerBtn">ADD</button>        
-                                                        </div>    
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        
                                         <div class="col-sm-4 mb-3">
                                             <div class="form-group">
                                                 <label for="name">*<?=translate_phrase('Offering'); ?></label>
@@ -315,6 +289,18 @@
                                                 
                                             </div>
                                         </div>
+                                        <div class="col-sm-4 my-3">
+                                            <a href="javascript:;" id="firstTimerBtnz"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    title="Add First Timer"
+                                                    class="btn btn-block btn-dim btn-outline-info pop mt-3 mx-2"
+                                                    pageTitle="<?=translate_phrase('Add First Timer');?>"
+                                                    pageName="<?= site_url('accounts/creport/manage/timers'); ?>"
+                                                    pageSize="modal-xl">
+                                                    <em class="icon ni ni-plus-c"></em><span> Add First Timer</span>
+                                            </a>
+                                        </div>
+                                        
                                         <div class="col-sm-12 mb-3">
                                             <div class="form-group">
                                                 <label for="name"><?=translate_phrase('Note'); ?></label>
@@ -466,7 +452,7 @@
                 var dt = JSON.parse(data);
                 $('#report_id').val(dt.e_id);
                 $('#type').val(dt.e_type).change();;
-                $("#cells_id").val(dt.e_cell_id).change();
+                $('#cell_id').val(dt.e_cell_id);
                 $('#dates').val(dt.e_date);
                 $('#attendance').val(dt.e_attendance);
                 $('#new_convert').val(dt.e_new_convert);
@@ -481,17 +467,12 @@
                 var updatedPageName = url + "/" + dt.e_cell_id + "/" + dt.e_id;
                 markButton.setAttribute("pageName", updatedPageName);
 
-                var urls = site_url + 'accounts/creport/manage/new_convert';
-                var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
-                convertBtn.setAttribute("pageName", updatedPageName);
-                
+              
+                var offeringBtn = document.getElementById("offeringButton");
                 var urls = site_url + 'accounts/creport/manage/offering';
                 var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
                 offeringBtn.setAttribute("pageName", updatedPageName);
                 
-                var urls = site_url + 'accounts/creport/manage/first_timer';
-                var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
-                timerBtn.setAttribute("pageName", updatedPageName);
                 $('#bb_ajax_msg').html('');
                
             }
@@ -503,29 +484,27 @@
         var selectElement = document.getElementById("cells_id");
         var markButton = document.getElementById("markButton");
         var offeringBtn = document.getElementById("offeringButton");
-        var convertBtn = document.getElementById("convertBtn");
-        var timerBtn = document.getElementById("timerBtn");
+        var firstTimerBtn = document.getElementById("firstTimerBtnz");
         
         var selectedValue = selectElement.value;
-       
+
+        // Attendance URL
         var url = site_url + 'accounts/creport/manage/attendance';
         var updatedPageName = url + "/" + selectedValue;
-        markButton.setAttribute("pageName", updatedPageName);
+        if (markButton) markButton.setAttribute("pageName", updatedPageName);
 
-        var urls = site_url + 'accounts/creport/manage/new_convert';
-        var updatedPageName = urls + "/" + selectedValue;
-        convertBtn.setAttribute("pageName", updatedPageName);
-        
+        // Offering URL
         var urls = site_url + 'accounts/creport/manage/offering';
-        var updatedPageName = urls + "/" + selectedValue;
-        offeringBtn.setAttribute("pageName", updatedPageName);
-        
-        var urls = site_url + 'accounts/creport/manage/first_timer';
-        var updatedPageName = urls + "/" + selectedValue;
-        timerBtn.setAttribute("pageName", updatedPageName);
-                
-       
+        var updatedPageName2 = urls + "/" + selectedValue;
+        if (offeringBtn) offeringBtn.setAttribute("pageName", updatedPageName2);
+
+        // First Timer URL
+        var timerUrl = site_url + 'accounts/creport/manage/timers';
+        var updatedTimerUrl = timerUrl + "/" + selectedValue;
+        if (firstTimerBtn) firstTimerBtn.setAttribute("pageName", updatedTimerUrl);
     }
+
+
 
     function load(x, y) {
         var more = 'no';
@@ -593,7 +572,7 @@
                 var dt = JSON.parse(data);
                 
                 if(dt.level_status === true){
-                    var cellSelect = $('#cell_id');
+                    var cellSelect = $('#cell_idz');
                     cellSelect.empty(); 
                     cellSelect.append('<option value="all">All Cell</option>');
                     

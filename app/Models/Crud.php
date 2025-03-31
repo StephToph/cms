@@ -3136,6 +3136,8 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
+
+
     public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $region_id = '', $zone_id = '', $group_id = '', $church_id = '', $level = '') {
         $db = db_connect();
         $builder = $db->table('cell_report');
@@ -3153,7 +3155,7 @@ class Crud extends Model {
         if ($role != 'developer' && $role != 'administrator') {
             if ($role == 'ministry administrator') {
                 $builder->where('ministry_id', $ministry_id);
-            } elseif ( $role == 'church leader') {
+            } else {
                 $builder->where('church_id', $church_id_user);
             }
         }
