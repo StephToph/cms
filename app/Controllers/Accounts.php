@@ -4802,6 +4802,7 @@ class Accounts extends BaseController {
 					//When Adding Save in Session
 					if($this->request->getMethod() == 'post'){
 						$mark = $this->request->getPost('mark');
+						$convert = $this->request->getPost('convert');
 						$total = 0;
 						
 						if(empty($mark)){
@@ -4809,13 +4810,19 @@ class Accounts extends BaseController {
 							die;
 						} else{
 							$total = count($mark);
-							$this->session->set('cell_attendance', json_encode($mark));
-							echo $this->Crud->msg('success', 'Meeting Attendance Submitted');
+							 // Save attendance and converts to session
+							 $this->session->set('cell_attendance', json_encode($mark));
+							 $this->session->set('cell_converts', json_encode($convert)); // can be null or array
+					 		echo $this->Crud->msg('success', 'Meeting Attendance Submitted');
 							// echo json_encode($mark);
 							echo '<script> setTimeout(function() {
 								var jsonData = ' . json_encode($mark) . ';
 								var jsonString = JSON.stringify(jsonData);
 								$("#attendant").val(jsonString);
+								var jsonData = ' . json_encode($convert) . ';
+								var jsonString = JSON.stringify(jsonData);
+								$("#converts").val(jsonString);
+								
 								$("#attendance").val('.$total.');
 								$("#modal").modal("hide");
 							}, 2000); </script>';
@@ -5292,24 +5299,6 @@ class Accounts extends BaseController {
 								}
 							}
 							
-
-							if(!empty($converts)){
-								$ins['category'] = 'new_convert';
-								foreach($converts as $f => $f_value){
-									$ins['fullname'] = $f_value['fullname'];
-									$ins['email'] = $f_value['email'];
-									$ins['phone'] = $f_value['phone'];
-									$ins['dob'] = $f_value['dob'];
-									$ins['reg_date'] = date(fdate);
-
-									$ins_recs = $this->Crud->create('visitors', $ins);
-									if ($ins_recs) {
-										// Add the new ID to the array
-										$converts[$f]['id'] = $ins_recs;
-										$this->Crud->updates('id', $creport_id, 'cell_report', array('converts'=>json_encode($converts)));
-									}
-								}
-							}
 
 							$this->session->set('cell_attendance', '');
 							$this->session->set('cell_convert', '');

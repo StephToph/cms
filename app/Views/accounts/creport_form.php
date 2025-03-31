@@ -265,45 +265,56 @@ $this->Crud = new Crud();
 
                     $user = $this->Crud->read_single_order('cell_id', $param3, 'user', 'firstname', 'asc');
                     $attends = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'attendant'));
+                    $converts = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'converts'));
                     // print_r($attends);
                     if(!empty($user)){
                         foreach($user as $p){
-                            $sel = '';
-                            if(!empty($attends)){
-                                if(in_array($p->id, $attends)){
-                                    $sel = 'checked';
-                                }
+                            $attend_checked = '';
+                            $convert_checked = '';
+                    
+                            if (!empty($attends) && in_array($p->id, $attends)) {
+                                $attend_checked = 'checked';
                             }
+                    
+                            if (!empty($converts) && in_array($p->id, $converts)) {
+                                $convert_checked = 'checked';
+                            }
+                    
                            
                             $img = $this->Crud->image($p->img_id, 'big');
                             ?>
                             <tr>
                                 <td>
                                     <div class="user-card">
-										<div class="user-avatar ">
-											<img alt="" src="<?=site_url($img); ?>" height="40px"/>
-										</div>
-										<div class="user-info">
-											<span class="tb-lead"><?=ucwords($p->firstname.' '.$p->surname).' '.$p->phone; ?></span>
-										</div>
-									</div>
-                                </td>
-                                <td align="right"> 
-                                    <div class="custom-control custom-switch">    
-                                        <input type="checkbox" name="mark[]" class="custom-control-input" id="customSwitch<?=$p->id;?>" <?=$sel; ?> value="<?=$p->id;?>">    
-                                        <label class="custom-control-label" for="customSwitch<?=$p->id;?>">Mark</label>
+                                        <div class="user-avatar">
+                                            <img alt="" src="<?= site_url($img); ?>" height="40px"/>
+                                        </div>
+                                        <div class="user-info">
+                                            <span class="tb-lead"><?= ucwords($p->firstname.' '.$p->surname).' '.$p->phone; ?></span>
+                                        </div>
                                     </div>
-                                    
+                                </td>
+                                <td> 
+                                    <div class="custom-control custom-switch">    
+                                        <input type="checkbox" name="mark[]" class="custom-control-input" id="customSwitch<?= $p->id; ?>" <?= $attend_checked; ?> value="<?= $p->id; ?>">    
+                                        <label class="custom-control-label" for="customSwitch<?= $p->id; ?>">Mark</label>
+                                    </div>
+                                </td>
+                                <td> 
+                                    <div class="custom-control custom-switch">    
+                                        <input type="checkbox" name="convert[]" class="custom-control-input" id="customSwitchz<?= $p->id; ?>" <?= $convert_checked; ?> value="<?= $p->id; ?>">    
+                                        <label class="custom-control-label" for="customSwitchz<?= $p->id; ?>">New Convert</label>
+                                    </div>
                                 </td>
                             </tr>
                         <?php } ?>
-                        <tr>
-                            <td colspan="2" class="text-center">
-                                <button class="btn btn-primary bb_fo_btn" type="submit">
-                                    <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
-                                </button>
-                            </td>
-                        </tr> 
+                            <tr>
+                                <td colspan="2" class="text-center">
+                                    <button class="btn btn-primary bb_fo_btn" type="submit">
+                                        <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
+                                    </button>
+                                </td>
+                            </tr> 
                    <?php } else{ ?>
                     <tr>
                         <td colspan="2">No Member in Cell</td>
