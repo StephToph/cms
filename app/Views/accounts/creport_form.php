@@ -78,24 +78,37 @@ $this->Crud = new Crud();
                         </div>
                         
                         <div class="col-sm-3 mb-3">
-                            <label class="fw-bold">Attendance</label>
+                            <label class="fw-bold">Marked Attendance</label>
                         </div>
+                        <?php
+                            $decodedConverts = json_decode($r->converts, true); // decode as array
+                            $nattend = is_array($decodedConverts) ? count($decodedConverts) : 0;
+                            
+                            
+                            $first_timer = $this->Crud->check3('category','first_timer', 'source_type', 'cell', 'source_id', $r->id, 'visitors');
+                            $attendance = $r->attendance;
+                            if(empty($attendance)){
+                                $attendance = (int)$first_timer;
+                            }
+                            $convert = $this->Crud->check4('new_convert', 1, 'category','first_timer', 'source_type', 'cell', 'source_id', $r->id, 'visitors');
+                            $new_convert = (int)$convert + (int)$nattend;
+                        ?>
                         <div class="col-sm-9 mb-3">
-                            <p><?=$r->attendance; ?></p>
+                            <p><?=$attendance; ?></p>
                         </div>
                         
                         <div class="col-sm-3 mb-3">
                             <label class="fw-bold">First Timer</label>
                         </div>
                         <div class="col-sm-9 mb-3">
-                            <p><?=$r->first_timer; ?></p>
+                            <p><?=$first_timer; ?></p>
                         </div>
                         
                         <div class="col-sm-3 mb-3">
                             <label class="fw-bold">New Converts</label>
                         </div>
                         <div class="col-sm-9 mb-3">
-                            <p><?=$r->new_convert; ?></p>
+                            <p><?=$new_convert; ?></p>
                         </div>
                         
                         <div class="col-sm-3 mb-3">
@@ -189,21 +202,21 @@ $this->Crud = new Crud();
                         $general_response = '<div class="table-responsive"><table class="table table-hover">';
                         if (!empty($convert_member)) {
                             
-                            foreach ($convert_member as $q) {
+                            foreach ($convert_member as $q => $member_id) {
                                 
-                $status = strtolower($this->Crud->read_field2('member_id', $q->member_id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+                                $status = strtolower($this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'status'));
                                 // if ($status != 'present') continue;
                                 // If absent, fetch the reason (optional)
                                 $absent_reason = '';
                                 if ($status == 'absent') {
-                                    $absent_reason = $this->Crud->read_field2('member_id', $q->member_id, 'service_id', $service_report_id, 'service_attendance', 'reason');
+                                    $absent_reason = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'reason');
                                 }
 
-                                $surname = $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
-                                $othername = $this->Crud->read_field('id', $q->member_id, 'user', 'othername');
-                                $firstname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname');
-                                $email = $this->Crud->read_field('id', $q->member_id, 'user', 'email');
-                                $phone = $this->Crud->read_field('id', $q->member_id, 'user', 'phone');
+                                $surname = $this->Crud->read_field('id', $member_id, 'user', 'surname');
+                                $othername = $this->Crud->read_field('id', $member_id, 'user', 'othername');
+                                $firstname = $this->Crud->read_field('id', $member_id, 'user', 'firstname');
+                                $email = $this->Crud->read_field('id', $member_id, 'user', 'email');
+                                $phone = $this->Crud->read_field('id', $member_id, 'user', 'phone');
                             
                                 $general_response .= '
                                 <tr>
@@ -601,8 +614,8 @@ $this->Crud = new Crud();
             </div>
 
             <?php
-                $ministry_id = $this->Crud->read_field('id', $param3, 'cells', 'ministry_id');
-                $church_id = $this->Crud->read_field('id', $param3, 'cells', 'church_id');
+                $ministry_id = $this->Crud->read_field('id', $param3, 'cell_report', 'ministry_id');
+                $church_id = $this->Crud->read_field('id', $param3, 'cell_report', 'church_id');
                 $church = $this->Crud->read_field('id', $church_id, 'church', 'name');
                 $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
                 $country = $this->Crud->read_field('id', $country_id, 'country', 'name');

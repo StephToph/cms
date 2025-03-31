@@ -290,7 +290,7 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-4 my-3">
-                                            <a href="javascript:;" id="firstTimerBtnz"
+                                            <a href="javascript:;" style="display:none;" id="firstTimerBtnz"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     title="Add First Timer"
                                                     class="btn btn-block btn-dim btn-outline-info pop mt-3 mx-2"
@@ -412,7 +412,7 @@
         $('#show').toggle(500);
         $('#form').toggle(500);
         document.getElementById("bb_ajax_form").reset();
-        document.getElementById("cells_id").value = '';
+        document.getElementById("cell_id").value = '';
         document.getElementById("type").value = '';
         $('#prev').hide(500);
         // Toggle between initial and new info
@@ -467,7 +467,11 @@
                 var updatedPageName = url + "/" + dt.e_cell_id + "/" + dt.e_id;
                 markButton.setAttribute("pageName", updatedPageName);
 
-              
+               // First Timer URL
+                var timerUrl = site_url + 'accounts/creport/manage/timers';
+                var updatedTimerUrl = timerUrl + "/" + dt.e_cell_id + "/" + dt.e_id;
+                if (firstTimerBtn) firstTimerBtn.setAttribute("pageName", updatedTimerUrl);
+
                 var offeringBtn = document.getElementById("offeringButton");
                 var urls = site_url + 'accounts/creport/manage/offering';
                 var updatedPageName = urls + "/" + dt.e_cell_id + "/" + dt.e_id;
@@ -481,7 +485,7 @@
     }
 
     function updatePageName() {
-        var selectElement = document.getElementById("cells_id");
+        var selectElement = document.getElementById("cell_id");
         var markButton = document.getElementById("markButton");
         var offeringBtn = document.getElementById("offeringButton");
         var firstTimerBtn = document.getElementById("firstTimerBtnz");
