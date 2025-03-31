@@ -4985,7 +4985,7 @@ class Accounts extends BaseController {
 							$data['reg_date'] = $reg_date;
 							$data['finance'] = $this->Crud->read_single('service_id', $id, 'service_finance');
 							$data['member_attendance'] = $this->Crud->read_single('service_id', $id, 'service_attendance');
-							$data['convert_member'] = array();
+							$data['convert_member'] = json_decode($e->converts,true);
 							$data['guest_attendance'] = $this->Crud->read3('source_id', $e->id, 'source_type', 'cell', 'category', 'first_timer', 'visitors');
 							$data['convert_guest'] = $this->Crud->read4('new_convert', 1, 'source_id', $e->id, 'source_type', 'cell', 'category', 'first_timer', 'visitors');
 							
@@ -5133,7 +5133,9 @@ class Accounts extends BaseController {
 						$action = $by.' submitted First Timer ('.$upd_rec.') Record';
 						$this->Crud->activity('first_timer', $upd_rec, $action, $log_id);
 
-						echo '<script>location.reload(false);</script>';
+						echo '<script> setTimeout(function() {
+							$("#modal").modal("hide");load();
+						}, 2000); </script>';
 					} else {
 						echo $this->Crud->msg('info', translate_phrase('No Changes'));	
 					}
@@ -5244,8 +5246,6 @@ class Accounts extends BaseController {
 					$ins_data['type'] = $type;
 					$ins_data['date'] = $dates;
 					$ins_data['attendance'] = $attendance;
-					$ins_data['new_convert'] = $new_convert;
-					$ins_data['first_timer'] = $first_timer;
 					$ins_data['offering'] = $offering;
 					$ins_data['offering_givers'] = $offering_givers;
 					$ins_data['note'] = $note;
@@ -5274,31 +5274,6 @@ class Accounts extends BaseController {
 							$ins['ministry_id'] = $ministry_id;
 							$ins['church_id'] = $church_id;
 
-							if (!empty($first)) {
-								$ins['category'] = 'first_timer';
-							
-								foreach ($first as $f => $f_value) {
-									// Preparing data for insertion
-									$ins['fullname'] = $f_value['fullname'];
-									$ins['email'] = $f_value['email'];
-									$ins['phone'] = $f_value['phone'];
-									$ins['dob'] = $f_value['dob'];
-									$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
-									$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
-									$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
-							
-									// Inserting the record into 'visitors' table
-									$ins_recs = $this->Crud->create('visitors', $ins);
-							
-									// Assuming $ins_rec contains the newly inserted record ID
-									if ($ins_recs) {
-										// Add the new ID to the array
-										$first[$f]['id'] = $ins_recs;
-										$this->Crud->updates('id', $creport_id, 'cell_report', array('timers'=>json_encode($first)));
-									}
-								}
-							}
-							
 
 							$this->session->set('cell_attendance', '');
 							$this->session->set('cell_convert', '');
@@ -5342,59 +5317,7 @@ class Accounts extends BaseController {
 								$ins['church_id'] = $church_id;
 								$ins['visit_date'] = $dates;
 
-								if (!empty($first)) {
-									$ins['category'] = 'first_timer';
 								
-									foreach ($first as $f => $f_value) {
-										// Preparing data for insertion
-										$ins['fullname'] = $f_value['fullname'];
-										$ins['email'] = $f_value['email'];
-										$ins['phone'] = $f_value['phone'];
-										$ins['dob'] = $f_value['dob'];
-										$ins['invited_by'] = isset($f_value['invited_by']) ? $f_value['invited_by'] : null;  // Preventing undefined index
-										$ins['channel'] = isset($f_value['channel']) ? $f_value['channel'] : null;  // Preventing undefined index
-										$ins['reg_date'] = date('Y-m-d H:i:s');  // Format date properly
-								
-										// Inserting the record into 'visitors' table
-										if(!empty($first[$f]['id'])){
-											$this->Crud->updates('id', $first[$f]['id'], 'visitors', $ins);
-											$ins_recs = $first[$f]['id'];
-										} else{
-											$ins_recs = $this->Crud->create('visitors', $ins);
-										}
-										// Assuming $ins_rec contains the newly inserted record ID
-										if ($ins_recs) {
-											// Add the new ID to the array
-											$first[$f]['id'] = $ins_recs;
-											$this->Crud->updates('id', $ins_rec, 'cell_report', array('timers'=>json_encode($first)));
-										}
-									}
-								}
-								
-
-								if(!empty($converts)){
-									$ins['category'] = 'new_convert';
-									foreach($converts as $f => $f_value){
-										$ins['fullname'] = $f_value['fullname'];
-										$ins['email'] = $f_value['email'];
-										$ins['phone'] = $f_value['phone'];
-										$ins['dob'] = $f_value['dob'];
-										$ins['reg_date'] = date(fdate);
-										
-										if(!empty($first[$f]['id'])){
-											$this->Crud->updates('id', $first[$f]['id'], 'visitors', $ins);
-											$ins_recs = $first[$f]['id'];
-										} else{
-											$ins_recs = $this->Crud->create('visitors', $ins);
-										}
-										if ($ins_recs) {
-											// Add the new ID to the array
-											$converts[$f]['id'] = $ins_recs;
-											$this->Crud->updates('id', $ins_rec, 'cell_report', array('converts'=>json_encode($converts)));
-										}
-									}
-								}
-
 								$this->session->set('cell_attendance', '');
 								$this->session->set('cell_convert', '');
 								$this->session->set('cell_timers', '');
@@ -5826,10 +5749,23 @@ class Accounts extends BaseController {
 						$church_id = $q->church_id;
 						$attendance = $q->attendance;
 						$offering = $q->offering;
-						$new_convert = $q->new_convert;
+						$decodedConverts = json_decode($q->converts, true); // decode as array
+						$nattend = is_array($decodedConverts) ? count($decodedConverts) : 0;
+						
+						// echo $nattend;
 						$first_timer = $q->first_timer;
 						$date = date('d M Y', strtotime($q->date));
 						$reg_date = $q->reg_date;
+
+						
+						$first_timer = $this->Crud->check3('category','first_timer', 'source_type', 'cell', 'source_id', $q->id, 'visitors');
+						$attendance = $q->attendance;
+						if(empty($attendance)){
+							$attendance = (int)$first_timer;
+						}
+						$convert = $this->Crud->check4('new_convert', 1, 'category','first_timer', 'source_type', 'cell', 'source_id', $q->id, 'visitors');
+						$new_convert = (int)$convert + (int)$nattend;
+
 
 						$types = '';
 						if($type == 'wk1')$types = 'WK1 - Prayer and Planning';
@@ -5855,8 +5791,10 @@ class Accounts extends BaseController {
 								<li><a href="javascript:;" class="text-primary" onclick="edit_report('.$id.')"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Edit').'</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="javascript:;" class="text-success pop" pageTitle="View Report" pageName="' . site_url($mod . '/manage/report/' . $id) . '" pageSize="modal-xl"><em class="icon ni ni-eye"></em><span>'.translate_phrase('View').'</span></a></li>
-								
-								
+								<li> <a href="javascript:;"  id="firstTimerBtnz" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer" class="text-info pop"  pageTitle="'.translate_phrase('Add First Timer').'" pageName="'.site_url('accounts/creport/manage/timers/' . $id).'"  pageSize="modal-xl">
+										<em class="icon ni ni-plus-c"></em><span> First Timer</span>
+								</a>
+								</li>
 							';
 
 							}
