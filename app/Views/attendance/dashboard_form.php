@@ -629,7 +629,7 @@
 
             // Send AJAX to backend to fetch or create URL
             $.ajax({
-                url: "<?= site_url('accounts/timers/manage/link/generate') ?>", // Backend route
+                url: "<?= site_url('attendance/dashboard/manage/link/generate') ?>", // Backend route
                 type: "POST",
                 dataType: "json",
                 data: { church_id: churchId },

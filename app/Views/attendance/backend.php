@@ -125,7 +125,7 @@ header("Access-Control-Allow-Headers: Content-Type");
                         </div>
                         <div class="nk-header-tools">
                             <ul class="nk-quick-nav">
-                                
+                                <?php if($attend_type != 'guest'){?>
                                 <li class="dropdown user-dropdown order-sm-first"><a href="#" class="dropdown-toggle"
                                         data-bs-toggle="dropdown">
                                         <div class="user-toggle">
@@ -154,6 +154,7 @@ header("Access-Control-Allow-Headers: Content-Type");
                                         </div>
                                     </div>
                                 </li>
+                                <?php } ?>
                                 
                             </ul>
                         </div>
