@@ -953,9 +953,118 @@ class Attendance extends BaseController {
 		}
     }
 
+	public function timer($code='') {
+        // check login
+      
+        $mod = 'attendance/timer';
+        
+		$data['church_id'] = '';
+		if ($code) {
+            session()->set('invite_code', $code); // ✅ Save to session
+			$data['church_id'] = $this->Crud->read_field('first_timer_link', $code, 'church', 'id');
+
+        }
+		$data['code'] = $code;
+
+		if($this->request->getMethod() == 'post'){
+			$church_id = $this->request->getPost('church_id');
+			$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+		   
+
+			// echo $church_id;
+			// die;
+			$occurrence = 0;
+			$service = $this->request->getPost('service');
+			$invited_by = $this->request->getPost('invited_by');
+			$platform = $this->request->getPost('platform');
+			$channel = $this->request->getPost('channel');
+			$member_id = $this->request->getPost('member_id');
+			if($invited_by == 'Member'){
+				$channel = $member_id;
+			}
+			if($invited_by == 'Online'){
+				$channel = $platform;
+			}
+			
+			$service_report_id = 0;
+			// Get all service reports for today for the specified church
+			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+
+			if (!empty($query)) {
+				foreach ($query as $q) {
+					$occurrence++;
+
+					if ($occurrence == $service) {
+						$service_report_id = $q->id; // grab the ID of the N-th occurrence
+						break;
+					}
+				
+				}
+			}
+			$name = $this->request->getPost('firstname').' '.$this->request->getPost('surname');
+			$ins_data = [
+				'ministry_id'        => $ministry_id,
+				'channel'          	 => $channel,
+				'church_id'          => $church_id,
+				'title'              => $this->request->getPost('title'),
+				'invited_by'         => $this->request->getPost('invited_by'),
+				'fullname'           => $name,
+				'email'              => $this->request->getPost('email'),
+				'phone'              => $this->request->getPost('phone'),
+				'dob'                => $this->request->getPost('dob'),
+				'gender'             => $this->request->getPost('gender'),
+				'address'            => $this->request->getPost('address'),
+				'city'               => $this->request->getPost('city'),
+				'state'              => $this->request->getPost('state_id'),
+				'postal_code'        => $this->request->getPost('postal'),
+				'country'            => $this->request->getPost('country'),
+				'marital_status'     => $this->request->getPost('marital'),
+				'occupation'         => $this->request->getPost('occupation'),
+				'connect_method'     => $this->request->getPost('connection'),
+				'consider_joining'   => $this->request->getPost('joining') ? 1 : 0,
+				'baptised'           => $this->request->getPost('baptised') ? 1 : 0,
+				'wants_visit'        => $this->request->getPost('visit') ? 1 : 0,
+				'visit_time'         => $this->request->getPost('visit_time'),
+				'prayer_request'     => $this->request->getPost('prayer_request'),
+				'category'         	=> 'first_timer',
+				'source_type'         	=> 'service',
+				'source_id'         	=> $service_report_id,
+				'reg_date'           => date('Y-m-d H:i:s'),
+			];
+	
+
+			$upd_rec = $this->Crud->create('visitors', $ins_data);
+			if($upd_rec > 0) {
+				echo $this->Crud->msg('success', translate_phrase('First Timer Record Submitted'));
+
+				///// store activities
+				$by = $this->Crud->read_field('id', $upd_rec, 'user', 'firstname');
+				$code = $this->Crud->read_field('id', $upd_rec, 'visitors', 'fullname');
+				$action = $name.' submitted First Timer Record';
+				$this->Crud->activity('first_timer', $upd_rec, $action, $upd_rec);
+
+				echo '<script>location.reload(false);</script>';
+			} else {
+				echo $this->Crud->msg('info', translate_phrase('No Changes'));	
+			}
+			 
+			exit;	
+		}
+		$data['attend_type'] = 'guest';
+		$data['cell_id'] = '';
+		
+		$data['log_id'] = '0';
+
+        $data['current_language'] = $this->session->get('current_language');
+		$data['title'] = translate_phrase('First Timer').' - '.app_name;
+		$data['page_active'] = $mod;
+		return view('attendance/timer', $data);
+	
+    }
+
 	public function get_state($country=''){
 		$country_id = $this->Crud->read_field('name', $country, 'country', 'id');
-		$state = $this->Crud->read_single_order('country_id', $country_id, 'state', 'name', 'asc');
+		$state = $this->Crud->read_single_order('country_id', $country, 'state', 'name', 'asc');
 		$rezp = '';
 		if(!empty($state)){
 			foreach($state as $st){
