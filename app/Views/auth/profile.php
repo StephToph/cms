@@ -132,6 +132,19 @@
                                                             </span>
                                                         </div>
                                                     </div>
+                                                    <div class="data-item">
+                                                        <div class="data-col">
+                                                            <span class="data-label">QR Code</span>
+                                                            <span class="data-value">
+                                                                 <img src='<?= site_url($qrcode);?>' alt='QR Code' style='max-width:200px; margin-top:10px;' />
+                                                            </span>
+                                                        </div>
+                                                        <div class="data-col data-col-end">
+                                                            <span class="data-more disable">
+                                                                <em class="icon ni ni-lock-alt"></em>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div><!-- data-list -->
                                             </div>
                                         </div>
@@ -264,7 +277,7 @@
                                                             </div>
                                                         </div>
                                                     <?php endif; ?>
-
+                                                   
                                                     <div class="data-item">
                                                         <div class="data-col">
                                                             <span class="data-label">Facebook Account</span>
@@ -284,6 +297,7 @@
                                                             </span>
                                                         </div>
                                                     </div>
+                                                   
                                                 </div>
                                                 <!-- data-list -->
                                             </div>
