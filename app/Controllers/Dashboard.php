@@ -824,6 +824,7 @@ class Dashboard extends BaseController {
             }
         }
 
+
        
             $total_per = 0;
             $total_s = 0;
@@ -831,46 +832,42 @@ class Dashboard extends BaseController {
                 foreach($service as $u){
                    
                 }
+                $service_id = $u->id;
                 $type = $this->Crud->read_field('id', $u->type, 'service_type', 'name');
                 $service_date = $type.' - '.date('d F Y', strtotime($u->date));
-                $attend = $u->attendance;
-                $attendance = $u->attendant;
-                $attendant = json_decode($attendance, true);  // Decode JSON as an associative array
+                
+                $edit = $this->Crud->read2('status', 'present', 'service_id', $service_id, 'service_attendance');
+                $total =0;$guest=0;$member=0;
+                $male=0;$female=0;$children=0;
+                if(!empty($edit)) {
+                    foreach($edit as $e){
+                        $total++;$member++;
+                        $gender = strtolower($this->Crud->read_field('id', $e->member_id, 'user', 'gender'));
+                        $family_position = strtolower($this->Crud->read_field('id', $e->member_id, 'user', 'family_position'));
+                        if($gender == 'male')$male++;
+                        if($gender == 'female')$female++;
+                        if($family_position == 'child')$children++;
+                        
+                    }
+                    
+                    $guest = $this->Crud->check3('category','first_timer', 'source_type', 'service', 'source_id', $service_id, 'visitors');
+                    $total += (int)$guest;
 
-                if (!empty($attendant)) {
-                    // Check if 'male' index exists
-                    if (isset($attendant['male'])) {
-                        $male = $attendant['male'];
-                    } else {
-                        $male = 0;  // Default value if 'male' index does not exist
+                    $head = $this->Crud->read_field('id', $service_id, 'service_report', 'attendance');
+                    if(empty($head)){
+                        $head = $total;
                     }
-                
-                    // Check if 'female' index exists
-                    if (isset($attendant['female'])) {
-                        $female = $attendant['female'];
-                    } else {
-                        $female = 0;  // Default value if 'female' index does not exist
-                    }
-                
-                    // Check if 'children' index exists
-                    if (isset($attendant['children'])) {
-                        $children = $attendant['children'];
-                    } else {
-                        $children = 0;  // Default value if 'children' index does not exist
-                    }
-                
-                    $ft = $u->first_timer;
+
+                   
+                    $ft = $guest;
     
-                    $male_per = ((int)$male * 100)/(int)$attend;
-                    $female_per = ((int)$female * 100)/(int)$attend;
-                    $children_per = ((int)$children * 100)/(int)$attend;
-                    $ft_per = ((int)$ft * 100)/(int)$attend;
+                    $male_per = ((int)$male * 100)/(int)$total;
+                    $female_per = ((int)$female * 100)/(int)$total;
+                    $children_per = ((int)$children * 100)/(int)$total;
+                    $ft_per = ((int)$ft * 100)/(int)$total;
                     $total_per = $male_per + $female_per + $children_per + $ft_per;
                     $total_s = $male + $female + $children + $ft;
                 }
-                
-
-                // $female = 110;$children = 11;
             }
            
             $service_key .= '
