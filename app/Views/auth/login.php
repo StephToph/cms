@@ -106,7 +106,13 @@
                                 </div>
                             </div>
                             <div class="nk-block nk-auth-footer">
-                                
+                            <div class="nk-block-between">
+                                    <ul class="nav nav-sm">
+                                        <li class="nav-item"><a class="link link-primary fw-normal py-2 px-3"
+                                                href="<?=site_url('privacy'); ?>">Privacy Policy</a></li>
+                                        
+                                    </ul>
+                                </div>
                                 <div class="mt-3">
                                     <p>&copy; <?=date('Y').' '.app_name;?>. All Rights Reserved.</p>
                                 </div>
