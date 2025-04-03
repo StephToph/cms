@@ -5,7 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 use Firebase\JWT\JWT;
-
+use App\Libraries\Ciqrcode;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class Crud extends Model {
@@ -15,7 +15,7 @@ class Crud extends Model {
     public function __construct() {
         $this->session = \Config\Services::session();
         $this->session->start();
-		
+		$this->ciqrcode = new Ciqrcode();
         
     }
 

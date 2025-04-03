@@ -1464,20 +1464,30 @@ class Auth extends BaseController {
 	}
 	
 	public function qr_update(){
-		$id = '113';
-		// Generate content for the QR code (e.g. just user ID or a link)
-		$qr_content = 'USER-' . $id; // or something like base_url('user/profile/' . $id)
+		$query = $this->Crud->read('user');
+		foreach($query as $q){
+			// Generate QR content
+			$id = $q->id;
+			$qr_content = 'USER-00' . $id;
 
-		// Generate QR Code (assumes you have $this->Crud->qrcode($data))
-		$qr = $this->Crud->qrcode($qr_content);
-	
-		if (!$qr || empty($qr->path)) {
-			echo "QR generation failed.";
-			return;
+			// Generate QR
+			$qr = $this->Crud->qrcode($qr_content); // This should return an array
+
+			if (!$qr || empty($qr['path'])) {
+				echo "QR generation failed.";
+				
+			}
+
+			// Save to DB
+			$this->Crud->updates('id', $id, 'user', ['qrcode' => $qr['path']]);
+
 		}
-	
-		// Save QR code path to DB
-		$this->Crud->updates('id', $id, 'user', ['qr_code' => $qr->path]);
+		
+		// Optional: Return success and show QR
+		echo "QR Code generated and saved for user ID: <strong>$id</strong><br>";
+		echo "Content: <code>{$qr['content']}</code><br>";
+		echo "<img src='" . base_url($qr['path']) . "' alt='QR Code' style='max-width:200px; margin-top:10px;' />";
 	}
+
 
 }
