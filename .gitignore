@@ -18,3 +18,4 @@ application/logs/*
 /writable/
 /vendor/
 /vendor
+/assets/images/qr

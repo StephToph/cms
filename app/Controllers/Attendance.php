@@ -596,6 +596,7 @@ class Attendance extends BaseController {
 
 			// echo $cell_id;
 			$query = $this->Crud->read2_order('is_member', 1, 'church_id', $church_id, 'user', 'surname', 'asc');
+			$guest_query = $this->Crud->read2('guest', 1,  'service_id', $service_report_id,  'service_attendance');
 			$timer_query = $this->Crud->read3_order('source_type', 'service', 'source_id', $service_report_id,  'church_id', $church_id, 'visitors', 'fullname', 'asc');
 		
 			$response = '';
@@ -706,13 +707,47 @@ class Attendance extends BaseController {
 				}
 				
 			} 
+			if (!empty($guest_query)) {
+				foreach ($guest_query as $q) {
+					$firstname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname');
+					$surname = $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
+					$othername = $this->Crud->read_field('id', $q->member_id, 'user', 'othername');
+					$email = $this->Crud->read_field('id', $q->member_id, 'user', 'email');
+					$phone = $this->Crud->read_field('id', $q->member_id, 'user', 'phone');
+					$church_id = $this->Crud->read_field('id', $q->member_id, 'user', 'church_id');
+					$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+					
+					$status ='present';
+					$response .= '
+					<tr>
+						<td>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)).'<br><span class="small text-info">'.ucwords($church).'</span></td>
+						<td>'.$this->Crud->mask_email($email).'</td>
+						<td>'.$this->Crud->mask_phone($phone).'</td>
+						<td>Present</td>
+						<td>
+							<div class="custom-control custom-switch mb-1">
+								<input type="checkbox"
+									class="custom-control-input mark-convert-switch"
+									id="convertSwitch_'.$q->member_id.'" data-type="ft"
+									data-member-id="'.$q->member_id.'"
+									'.($q->new_convert == '1' ? 'checked' : '').'>
+								<label class="custom-control-label" for="convertSwitch_'.$q->member_id.'">New Convert</label>
+							</div>
+							<span id="con_resp_'.$q->member_id.'"></span>
+						</td>
+					</tr>';
+				
+					
+				}
+				
+			} 
 			$response .= '</table></div>';
 
 
 
 			$general_response .= '<div class="table-responsive"><table class="table table-hover">';
 			if (!empty($query)) {
-				
+				$general_response .= '<tr><td colspan="8"><h6 class="text-center">Member</h6></td></tr>';
 				foreach ($query as $q) {
 					
 					$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
@@ -740,6 +775,7 @@ class Attendance extends BaseController {
 				$general_response .= '<tr><td><div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div></td></tr>';
 			}
 			if (!empty($timer_query)) {
+				$general_response .= '<tr><td colspan="8"><h6  class="text-center">First Timer</h6></td></tr>';
 				
 				foreach ($timer_query as $q) {
 					$status = 'present';
@@ -758,6 +794,32 @@ class Attendance extends BaseController {
 				}
 				
 			}
+			if (!empty($guest_query)) {
+				$general_response .= '<tr><td colspan="8"><h6  class="text-center">Guest Member</h6></td></tr>';
+				
+				foreach ($guest_query as $q) {
+					$firstname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname');
+					$surname = $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
+					$othername = $this->Crud->read_field('id', $q->member_id, 'user', 'othername');
+					$email = $this->Crud->read_field('id', $q->member_id, 'user', 'email');
+					$phone = $this->Crud->read_field('id', $q->member_id, 'user', 'phone');
+					$church_id = $this->Crud->read_field('id', $q->member_id, 'user', 'church_id');
+					$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
+					
+					$status ='present';
+					$general_response .= '
+					<tr>
+						<td>' . ucwords(strtolower($firstname.' '.$othername.' '.$surname)).'<br><span class="small text-info">'.ucwords($church).'</span></td>
+						<td>'.$this->Crud->mask_email($email).'</td>
+						<td>'.$this->Crud->mask_phone($phone).'</td>
+						<td>Present</td>
+						
+					</tr>';
+				
+					
+				}
+				
+			}
 
 			$general_response .= '</table></div>
 				
@@ -765,7 +827,7 @@ class Attendance extends BaseController {
 		
 			
 			return $this->response->setJSON([
-				'membership' => $total_members,
+				'First Timership' => $total_members,
 				'present' => $present,
 				'absent' => $absent,
 				'male' => $male,
@@ -790,6 +852,137 @@ class Attendance extends BaseController {
 				return $this->response->setJSON(['status' => 'error']);
 			}
 		}
+		if ($param1 == 'verify_member') {
+			$member_id = $this->request->getPost('member_id');
+			$church_id = $this->request->getPost('church_id');
+			$service = $this->request->getPost('service_id');
+		
+			// Get all service reports for today for the specified church
+			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+		
+			$occurrence = 0;
+			$service_report_id = 0;
+		
+			if (!empty($query)) {
+				foreach ($query as $q) {
+					$occurrence++;
+		
+					if ($occurrence == $service) {
+						$service_report_id = $q->id;
+						break;
+					}
+				}
+			}
+		
+			if (empty($member_id) || empty($church_id) || empty($service_report_id)) {
+				return $this->response->setJSON([
+					'status' => 'error',
+					'message' => 'Missing data'
+				]);
+			}
+		
+			// Check if user exists
+			$member = $this->Crud->read_single('id', $member_id, 'user');
+		
+			if (empty($member)) {
+				return $this->response->setJSON([
+					'status' => 'error',
+					'message' => 'Member not found'
+				]);
+			}
+		
+			$member = $member[0];
+		
+			// Check if member belongs to church
+			$is_guest = ($member->church_id != $church_id) ? 1 : 0;
+		
+			// Check if already marked
+			$attendance_id = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
+		
+			if ($attendance_id > 0) {
+				return $this->response->setJSON([
+					'status' => 'warning',
+					'message' => 'Already marked attendance.'
+				]);
+			}
+		
+			$photo = !empty($member->img_id) ? base_url($member->img_id) : base_url('assets/images/avatar.png');
+		
+			return $this->response->setJSON([
+				'status' => 'ok',
+				'member' => [
+					'id' => $member->id,
+					'name' => ucwords(trim($member->surname . ' ' . $member->firstname)),
+					'email' => !empty($member->email) ? $this->Crud->mask_email($member->email) : '',
+					'phone' => !empty($member->phone) ? $this->Crud->mask_email($member->phone) : '',
+
+					'img' => $photo,
+					'guest' => $is_guest
+				]
+			]);
+		}
+		
+		
+		if ($param1 == 'mark_attendance') {
+			$member_id = $this->request->getPost('member_id');
+			$service_id = $this->request->getPost('service_id');
+			$church_id = $this->request->getPost('church_id');
+		
+			// Validate inputs
+			if (empty($member_id) || empty($service_id) || empty($church_id)) {
+				return $this->response->setJSON(['status' => 'error', 'message' => 'Invalid data']);
+			}
+		
+			// Get service report for today and target occurrence
+			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+			$occurrence = 0;
+			$service_report_id = 0;
+		
+			if (!empty($query)) {
+				foreach ($query as $q) {
+					$occurrence++;
+					if ($occurrence == $service_id) {
+						$service_report_id = $q->id;
+						break;
+					}
+				}
+			}
+		
+			if (empty($service_report_id)) {
+				return $this->response->setJSON(['status' => 'error', 'message' => 'Service report not found']);
+			}
+		
+			// Check if already marked
+			$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
+		
+			if ($exists > 0) {
+				return $this->response->setJSON(['status' => 'warning', 'message' => 'Already marked.']);
+			}
+		
+			// Check if user belongs to church
+			$member = $this->Crud->read_single('id', $member_id, 'user');
+			if (empty($member)) {
+				return $this->response->setJSON(['status' => 'error', 'message' => 'Member not found']);
+			}
+			$member = $member[0];
+		
+			$is_guest = ($member->church_id != $church_id) ? 1 : 0;
+		
+			// Insert attendance
+			$this->Crud->create('service_attendance', [
+				'member_id'  => $member_id,
+				'service_id' => $service_report_id,
+				'church_id'  => $church_id,
+				'status'     => 'present',
+				'guest'      => $is_guest
+			]);
+		
+			return $this->response->setJSON([
+				'status' => 'success',
+				'message' => $is_guest ? 'Marked as guest attendee' : 'Marked as present'
+			]);
+		}
+		
 
 		// manage record
 		if($param1 == 'manage') {

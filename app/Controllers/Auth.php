@@ -722,6 +722,7 @@ class Auth extends BaseController {
 
 		$data['user_no'] = $this->Crud->read_field('id', $log_id, 'user', 'user_no');
 		$data['email'] = $this->Crud->read_field('id', $log_id, 'user', 'email');
+		$data['qrcode'] = $this->Crud->read_field('id', $log_id, 'user', 'qrcode');
 		$data['surname'] = $this->Crud->read_field('id', $log_id, 'user', 'surname');
 		$data['firstname'] = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 		$data['othername'] = $this->Crud->read_field('id', $log_id, 'user', 'othername');
