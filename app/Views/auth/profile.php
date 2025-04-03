@@ -148,11 +148,14 @@
                                                 </div>
                                             </div>
                                             <?php } ?>
-                                            <!-- <div class="data-item">
+                                            <div class="data-item">
                                                 <div class="data-col">
-                                                    <span class="data-label">Pastor-in-Charge</span>
+                                                    <span class="data-label">Facebook Account</span>
                                                     <span class="data-value">
-                                                        <?=ucwords($this->Crud->read_field('id', $church_pastor, 'user', 'title').' '.$this->Crud->read_field('id', $church_pastor, 'user', 'firstname').' '.$this->Crud->read_field('id', $church_pastor, 'user', 'surnmae')); ?>
+                                                        <a href="<?= base_url('social/facebook') ?>" class="btn btn-priamry btn-facebook">
+                                                            <em class="icon ni ni-facebook-f"></em> Connect Facebook
+                                                        </a>
+
                                                     </span>
                                                 </div>
                                                 <div class="data-col data-col-end">
@@ -160,7 +163,7 @@
                                                         <em class="icon ni ni-lock-alt"></em>
                                                     </span>
                                                 </div>
-                                            </div> -->
+                                            </div>
                                         </div><!-- data-list -->
                                     </div><!-- .nk-block -->
                                 </div>
