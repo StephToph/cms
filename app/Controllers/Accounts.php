@@ -7064,34 +7064,9 @@ class Accounts extends BaseController {
 					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
 					
-
-					if ($send_type === 'date_range') {
-						$this->db = \Config\Database::connect();
-						$builder = $this->db->table('user');
-						$builder->where('is_member', 1);
-						if ($church_id > 0) {
-							$builder->where('church_id', $church_id);
-						} elseif ($ministry_id > 0 && $church_id <= 0) {
-							$builder->where('ministry_id', $ministry_id);
-						}
-						if (!empty($date_from) && !empty($date_to)) {
-							$builder->where('reg_date >=', $date_from);
-							$builder->where('reg_date <=', $date_to);
-						}
-						$query = $builder->get();
-						$smember = $query->getResult();
-					} else{
-						$smember = $this->Crud->read_single('is_member', 1, 'user');
+					$smember = $this->Crud->filter_memberz($log_id, $date_from, $date_to);
 					
-						if($church_id > 0){
-							$smember = $this->Crud->read2('church_id', $church_id, 'is_member', 1, 'user');
-						}
-						if($ministry_id > 0 && $church_id <= 0){
-							$smember = $this->Crud->read2('ministry_id', $ministry_id, 'is_member', 1, 'user');
-						}
 
-					}
-					
 					if (!empty($smember)) {
 						foreach ($smember as $mem) {
 							$firstname = $mem->firstname;
