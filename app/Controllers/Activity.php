@@ -9,7 +9,7 @@ class Activity extends BaseController {
 		// check session login
 		if($this->session->get('td_id') == ''){
 			$request_uri = uri_string();
-			$this->session->set('fls_redirect', $request_uri);
+			$this->session->set('td_redirect', $request_uri);
 			return redirect()->to(site_url('auth'));
 		} 
 		$log_id = $this->session->get('td_id');
