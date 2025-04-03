@@ -6822,7 +6822,13 @@ class Accounts extends BaseController {
 									$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
 
 									$user_no = 'CEAM-00'.$ins_rec;
+									$qr_content = 'USER-00' . $ins_rec;
 
+									// Generate QR
+									$qr = $this->Crud->qrcode($qr_content); // This should return an array
+
+									// Save to DB
+									$this->Crud->updates('id', $ins_rec, 'user', ['qrcode' => $qr['path']]);
 									$action = $by.' created Membership ('.$code.') Record';
 									$this->Crud->activity('user', $ins_rec, $action);
 									$name = ucwords($firstname.' '.$othername.' '.$surname);
@@ -7429,7 +7435,14 @@ class Accounts extends BaseController {
 							$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
 
 							$user_no = 'CEAM-00'.$ins_rec;
+							$qr_content = 'USER-00' . $ins_rec;
 
+							// Generate QR
+							$qr = $this->Crud->qrcode($qr_content); // This should return an array
+
+							// Save to DB
+							$this->Crud->updates('id', $ins_rec, 'user', ['qrcode' => $qr['path']]);
+									
 							$action = $by.' created Membership ('.$code.') Record';
 							$this->Crud->activity('user', $ins_rec, $action);
 							$name = ucwords($firstname.' '.$othername.' '.$lastname);
