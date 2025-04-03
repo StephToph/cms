@@ -52,7 +52,7 @@ class SocialAuthController extends BaseController
             $instagram_id = $ig_response['instagram_business_account']['id'] ?? null;
 
             // Store in DB — use your Crud logic here
-            $this->Crud->create_or_update('social_connect', [
+            $this->Crud->create('social_connect', [
                 'type' => 'member',
                 'type_id' => session()->get('td_id')
             ], [
