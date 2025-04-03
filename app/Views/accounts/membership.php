@@ -43,6 +43,11 @@
                                             <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
+                                                <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk QR Details" pageName="<?=site_url('accounts/membership/manage/bulk_qr'); ?>" pageSize="modal-md" pageTitle="Bulk QR Details" class="btn  btn-outline-danger pop btn-icon"><em class="icon ni ni-qr"></em></a>
+
+                                            </li><!-- li -->
+                                            <li class="btn-toolbar-sep"></li><!-- li -->
+                                            <li>
                                                 <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/membership/manage/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
 
                                             </li><!-- li -->

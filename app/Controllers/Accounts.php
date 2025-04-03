@@ -7023,11 +7023,103 @@ class Accounts extends BaseController {
 								$action = $by.' Sent a message to User ('.$code.')';
 								$this->Crud->activity('user', $user_id, $action);
 							} else {
-								$scount++;	
+								$fcount++;	
 							}
 
 						}
 					}
+					
+					if($scount == 0){
+						echo $this->Crud->msg('info', 'Try Again Later');
+					} else {
+						echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
+						echo '<script>location.reload(false);</script>';
+						
+					}
+
+					die;	
+				}
+			} elseif($param2 == 'bulk_qr'){
+				// prepare for edit
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['e_id'] = $e->id;
+						}
+					}
+				}
+			
+
+				if($this->request->getMethod() == 'post'){
+					$user_id = $this->request->getVar('edit_id');
+					$send_type = $this->request->getVar('send_type');
+					$date_from = $this->request->getVar('date_from');
+					$date_to = $this->request->getVar('date_to');
+					
+					
+					$scount = 0;
+					$fcount = 0;
+					
+					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+					
+
+					if ($send_type === 'date_range') {
+						$this->db = \Config\Database::connect();
+						$builder = $this->db->table('user');
+						$builder->where('is_member', 1);
+						if ($church_id > 0) {
+							$builder->where('church_id', $church_id);
+						} elseif ($ministry_id > 0 && $church_id <= 0) {
+							$builder->where('ministry_id', $ministry_id);
+						}
+						if (!empty($date_from) && !empty($date_to)) {
+							$builder->where('reg_date >=', $date_from);
+							$builder->where('reg_date <=', $date_to);
+						}
+						$query = $builder->get();
+						$smember = $query->getResult();
+					} else{
+						$smember = $this->Crud->read_single('is_member', 1, 'user');
+					
+						if($church_id > 0){
+							$smember = $this->Crud->read2('church_id', $church_id, 'is_member', 1, 'user');
+						}
+						if($ministry_id > 0 && $church_id <= 0){
+							$smember = $this->Crud->read2('ministry_id', $ministry_id, 'is_member', 1, 'user');
+						}
+
+					}
+					
+					if (!empty($smember)) {
+						foreach ($smember as $mem) {
+							$firstname = $mem->firstname;
+							$surname = $mem->surname;
+							$email = $mem->email;
+							$name = ucwords($firstname . ' ' . $surname);
+				
+							// ✅ Get QR code (assuming it's stored or generated)
+							$qr_code_url = site_url($mem->qrcode); // adjust as per actual path
+				
+							$subject = 'Member QR Code Information';
+							$message = 'Below is your QR code for attendance or access. Please keep it safe.';
+							$body = '
+								Dear ' . $name . ',<br><br>
+								' . $message . '<br><br>
+								<img src="' . $qr_code_url . '" alt="QR Code" width="150" height="150"><br><br>
+								God bless you!';
+				
+							// 🔁 Send Email
+							$upd_rec = $this->Crud->send_email($email, $subject, $body);
+							if ($upd_rec > 0) {
+								$scount++;
+							} else {
+								$fcount++;
+							}
+						}
+					}
+				
 					
 					if($scount == 0){
 						echo $this->Crud->msg('info', 'Try Again Later');
@@ -7715,6 +7807,7 @@ class Accounts extends BaseController {
 				$data['v_baptism'] = $this->Crud->read_field('id', $user_id, 'user', 'baptism');
 				$data['reg_date'] = date('F, d Y h:ia',strtotime($this->Crud->read_field('id', $user_id, 'user', 'reg_date')));
 				$data['v_email'] = $this->Crud->read_field('id', $user_id, 'user', 'email');
+				$data['qrcode'] = $this->Crud->read_field('id', $user_id, 'user', 'qrcode');
 
 				$v_img_id = $this->Crud->read_field('id', $user_id, 'user', 'img_id');
 				if(!empty($v_img_id)){
