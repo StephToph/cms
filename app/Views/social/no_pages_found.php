@@ -25,7 +25,7 @@
                     </div>
 
                     <div class="mt-4 text-muted small">
-                        Need help? Contact support at <a href="mailto:support@yourdomain.com">support@yourdomain.com</a>
+                        Need help? Contact support at <a href="mailto:support@loveworldbuddy.com">admin@loveworldbuddy.com</a>
                     </div>
                 </div>
             </div>

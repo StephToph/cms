@@ -251,45 +251,44 @@ $this->Crud = new Crud();
         tabsize: 2,
         focus: true
     });
-                        
+
     function downloadProductTemplate() {
-        // Display a loading message while processing
+        // Show loading state
         $('#bb_ajax_msg').html('<p class="text-info">Processing your request...</p>');
 
         $.ajax({
             url: site_url + 'accounts/membership/manage/upload/download',
             type: 'POST',
             xhrFields: {
-                responseType: 'blob' // Set response type to blob for file download
+                responseType: 'blob' // Important for binary file
             },
             success: function (data, status, xhr) {
-                // Extract filename from the Content-Disposition header
                 var disposition = xhr.getResponseHeader('Content-Disposition');
-                var filename = 'template.xlsx'; // Default filename
+                var filename = 'membership_upload_template.xlsx'; // Default fallback
+
                 if (disposition && disposition.indexOf('attachment') !== -1) {
-                    var matches = /filename[^;=\n]*=([\w.-]+)/.exec(disposition);
+                    var matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
                     if (matches != null && matches[1]) {
-                        filename = matches[1].trim();
+                        filename = matches[1].replace(/['"]/g, '').trim();
                     }
                 }
 
-                // Create a download link for the file
                 var blob = new Blob([data], { type: xhr.getResponseHeader('Content-Type') });
                 var link = document.createElement('a');
                 link.href = window.URL.createObjectURL(blob);
                 link.download = filename;
+                document.body.appendChild(link); // Required for Firefox
                 link.click();
+                document.body.removeChild(link);
 
-                // Update message for the user
+                // Show success
                 $('#bb_ajax_msg').html('<p class="text-success">Template downloaded successfully!</p>');
             },
             error: function (xhr, status, error) {
-                // Handle errors and update the message
                 $('#bb_ajax_msg').html('<p class="text-danger">Error: Unable to download the template. Please try again later.</p>');
             }
         });
     }
-
 
     function statea() {
         var country = $('#country_id').val();

@@ -5204,41 +5204,47 @@ class Crud extends Model {
 	//////////////////// END MODULE ///////////////////////
 
 	//Qr code///
-	public function qrcode($data=''){
-       
-        /* Data */
-        $hex_data   = bin2hex($data);
-        $save_name  = $hex_data . '.png';
+	public function qrcode($data = '')	{
+		if (empty($data)) {
+			return false;
+		}
 
-        /* QR Code File Directory Initialize */
-        $dir = 'assets/images/qr/profile';
-        if (! file_exists($dir)) {
-            mkdir($dir, 0775, true);
-        }
+		// Encode data to use as filename
+		$hex_data   = bin2hex($data);
+		$save_name  = $hex_data . '.png';
 
-        /* QR Configuration  */
-        $config['cacheable']    = true;
-        $config['imagedir']     = $dir;
-        $config['quality']      = true;
-        $config['size']         = '1024';
-        $config['black']        = [255, 255, 255];
-        $config['white']        = [255, 255, 255];
-        $this->ciqrcode->initialize($config);
+		// QR Code save directory
+		$dir = 'assets/images/qr/profile/';
+		$full_path = FCPATH . $dir;
+		if (!is_dir($full_path)) {
+			mkdir($full_path, 0775, true);
+		}
 
-        /* QR Data  */
-        $params['data']     = $data;
-        $params['level']    = 'L';
-        $params['size']     = 10;
-        $params['savename'] = FCPATH . $config['imagedir'] . $save_name;
+		// QR Code config
+		$config['cacheable']    = true;
+		$config['imagedir']     = $dir;
+		$config['quality']      = true;
+		$config['size']         = 1024;
+		$config['black']        = [0, 0, 0];      // fix: black foreground
+		$config['white']        = [255, 255, 255]; // white background
 
-        $this->ciqrcode->generate($params);
+		$this->ciqrcode->initialize($config);
 
-        /* Return Data */
-        return [
-            'content' => $data,
-            'file'    => $dir . $save_name,
-        ];
-    }
+		// QR code params
+		$params['data']     = $data;
+		$params['level']    = 'L';
+		$params['size']     = 10;
+		$params['savename'] = FCPATH . $dir . $save_name;
+
+		$this->ciqrcode->generate($params);
+
+		// Return info
+		return [
+			'content' => $data,
+			'path'    => $dir . $save_name,   // relative path
+			'url'     => base_url($dir . $save_name), // public URL
+		];
+	}
 
 	public function trade_duration($amount=0, $duration=''){
 		$pay = '0';

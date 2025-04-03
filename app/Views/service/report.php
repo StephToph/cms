@@ -443,7 +443,7 @@ $service_church_id = $this->session->get('service_church_id');
                                             <thead>
                                                 <tr>
                                                     <th width="250px;">MEMBER</th>
-                                                    
+                                        
                                                     <th>OFFERING</th>
                                                     <th>TITHE</th>
                                                     <th>THANKSGIVING</th>
