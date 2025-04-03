@@ -216,6 +216,12 @@
                                                             <span class="profile-ud-value"><?=$reg_date; ?></span>
                                                         </div>
                                                     </div>
+                                                    <div class="profile-ud-item">
+                                                        <div class="profile-ud wider">
+                                                            <span class="profile-ud-label"><?=translate_phrase('QR Code');?></span>
+                                                            <span class="profile-ud-value"> <img src='<?= site_url($qrcode);?>' alt='QR Code' style='max-width:200px; margin-top:10px;' /></span>
+                                                        </div>
+                                                    </div>
                                                 </div><!-- .profile-ud-list -->
                                             </div><!-- .nk-block -->
                                             

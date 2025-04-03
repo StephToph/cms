@@ -243,6 +243,48 @@ $this->Crud = new Crud();
             </div>
         </div>
     <?php } ?>
+    <?php if($param2 == 'bulk_qr') { ?>
+        <div class="row">
+            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
+        </div>
+        <div class="row">
+            <input type="hidden" name="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
+
+            <!-- Send Type Selector -->
+            <div class="col-sm-12 mb-2">
+                <div class="form-group">
+                    <label for="send_type"><?=translate_phrase('Send Type');?></label>
+                    <select class="form-control js-select2" id="send_type" name="send_type">
+                        <option value="manual"><?=translate_phrase('All Members');?></option>
+                        <option value="date_range"><?=translate_phrase('Send to Members Registered Within Date Range');?></option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Date Range Selection -->
+            <div class="col-sm-6 mb-2 send_type_field d-none" id="date_range_from">
+                <div class="form-group">
+                    <label for="date_from"><?=translate_phrase('Date From');?></label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" />
+                </div>
+            </div>
+
+            <div class="col-sm-6 mb-2 send_type_field d-none" id="date_range_to">
+                <div class="form-group">
+                    <label for="date_to"><?=translate_phrase('Date To');?></label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" />
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-sm-12 mt-3 text-center">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-send"></i> <?=translate_phrase('Send Message');?>
+                </button>
+            </div>
+        </div>
+
+    <?php } ?>
 <?php echo form_close(); ?>
 <script>
     $('.js-select2').select2();
@@ -251,7 +293,18 @@ $this->Crud = new Crud();
         tabsize: 2,
         focus: true
     });
-
+    $(document).ready(function() {
+        $('#send_type').on('change', function() {
+            var selected = $(this).val();
+            if (selected === 'manual') {
+                $('#manual_select').removeClass('d-none');
+                $('#date_range_from, #date_range_to').addClass('d-none');
+            } else if (selected === 'date_range') {
+                $('#manual_select').addClass('d-none');
+                $('#date_range_from, #date_range_to').removeClass('d-none');
+            }
+        }).trigger('change'); // Trigger change on page load
+    });
     function downloadProductTemplate() {
         // Show loading state
         $('#bb_ajax_msg').html('<p class="text-info">Processing your request...</p>');
