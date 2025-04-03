@@ -40,6 +40,7 @@ $routes->get('ministry', 'Ministry::index');
 $routes->get('prayers', 'Prayer::index');
 $routes->get('attend', 'Attendance::dashboard');
 $routes->get('attend_logout', 'Attendance::logout');
+$routes->get('privacy', 'Auth::privacy');
 $routes->get('first-timer/(:segment)', 'Attendance::timer/$1');
 
 /*

@@ -547,6 +547,16 @@ class Auth extends BaseController {
 		}
 	}
 
+	public function privacy($param1="", $param2="") {
+		// check login
+        $log_id = $this->session->get('td_id');
+
+		
+        
+        $data['current_language'] = $this->session->get('current_language');
+        $data['title'] = translate_phrase('Privacy Policy').' - '.app_name;
+        return view('auth/privacy', $data);
+    }
 
     ///// LOGOUT
     public function logout() {
