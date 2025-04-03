@@ -106,7 +106,7 @@
                                 </div>
                             </div>
                             <div class="nk-block nk-auth-footer">
-                            <div class="nk-block-between">
+                                <div class="nk-block-between">
                                     <ul class="nav nav-sm">
                                         <li class="nav-item"><a class="link link-primary fw-normal py-2 px-3"
                                                 href="<?=site_url('privacy'); ?>">Privacy Policy</a></li>
