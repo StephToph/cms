@@ -7,47 +7,32 @@ namespace App\Libraries;
 use QRcode;
 use QRimage;
 
-use function array_filter;
-use function count;
-use function define;
-use function defined;
-use function in_array;
-use function is_array;
-use function max;
-use function min;
-
-/**
- * PHP QR Code porting for Codeigniter
- *
- * @porting author    dwi.setiyadi@gmail.com
- * @original author    http://phpqrcode.sourceforge.net/
- */
-
 class Ciqrcode
 {
-    var $cacheable = true;
-    var $cachedir = WRITEPATH . 'cache/';
-    var $errorlog = WRITEPATH . 'logs/';
-    var $quality = true;
-    var $size = 1024;
+    public $cacheable = true;
+    public $cachedir = WRITEPATH . 'cache/';
+    public $errorlog = WRITEPATH . 'logs/';
+    public $quality = true;
+    public $size = 1024;
 
-    function __construct($config = [])
+    public function __construct(array $config = [])
     {
-        include APPPATH . '/ThirdParty/qrcode/qrconst.php';
-        include APPPATH . '/ThirdParty/qrcode/qrtools.php';
-        include APPPATH . '/ThirdParty/qrcode/qrspec.php';
-        include APPPATH . '/ThirdParty/qrcode/qrimage.php';
-        include APPPATH . '/ThirdParty/qrcode/qrinput.php';
-        include APPPATH . '/ThirdParty/qrcode/qrbitstream.php';
-        include APPPATH . '/ThirdParty/qrcode/qrsplit.php';
-        include APPPATH . '/ThirdParty/qrcode/qrrscode.php';
-        include APPPATH . '/ThirdParty/qrcode/qrmask.php';
-        include APPPATH . '/ThirdParty/qrcode/qrencode.php';
+        // Include all phpqrcode core files
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrconst.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrtools.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrspec.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrimage.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrinput.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrbitstream.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrsplit.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrrscode.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrmask.php';
+        include_once APPPATH . 'ThirdParty/phpqrcode/qrencode.php';
 
         $this->initialize($config);
     }
 
-    public function initialize($config = []): void
+    public function initialize(array $config = []): void
     {
         $this->cacheable = $config['cacheable'] ?? $this->cacheable;
         $this->cachedir = $config['cachedir'] ?? $this->cachedir;
@@ -55,106 +40,46 @@ class Ciqrcode
         $this->quality = $config['quality'] ?? $this->quality;
         $this->size = $config['size'] ?? $this->size;
 
-        // use cache - more disk reads but less CPU power, masks and format templates are stored there
-        if (! defined('QR_CACHEABLE')) {
-            define('QR_CACHEABLE', $this->cacheable);
+        defined('QR_CACHEABLE')       || define('QR_CACHEABLE', $this->cacheable);
+        defined('QR_CACHE_DIR')       || define('QR_CACHE_DIR', $this->cachedir);
+        defined('QR_LOG_DIR')         || define('QR_LOG_DIR', $this->errorlog);
+        defined('QR_FIND_FROM_RANDOM')|| define('QR_FIND_FROM_RANDOM', false);
+        defined('QR_PNG_MAXIMUM_SIZE')|| define('QR_PNG_MAXIMUM_SIZE', $this->size);
+
+        if (!defined('QR_FIND_BEST_MASK')) {
+            define('QR_FIND_BEST_MASK', $this->quality);
         }
 
-        // used when QR_CACHEABLE === true
-        if (! defined('QR_CACHE_DIR')) {
-            define('QR_CACHE_DIR', $this->cachedir);
+        if (!$this->quality && !defined('QR_DEFAULT_MASK')) {
+            define('QR_DEFAULT_MASK', 2); // Default fallback mask
         }
-
-        // default error logs dir
-        if (! defined('QR_LOG_DIR')) {
-            define('QR_LOG_DIR', $this->errorlog);
-        }
-
-        // if true, estimates best mask (spec. default, but extremally slow; set to false to significant performance boost but (propably) worst quality code
-        if ($this->quality) {
-            if (! defined('QR_FIND_BEST_MASK')) {
-                define('QR_FIND_BEST_MASK', true);
-            }
-        } else {
-            if (! defined('QR_FIND_BEST_MASK')) {
-                define('QR_FIND_BEST_MASK', false);
-            }
-
-            if (! defined('QR_DEFAULT_MASK')) {
-                define('QR_DEFAULT_MASK', $this->quality);
-            }
-        }
-
-        // if false, checks all masks available, otherwise value tells count of masks need to be checked, mask id are got randomly
-        if (! defined('QR_FIND_FROM_RANDOM')) {
-            define('QR_FIND_FROM_RANDOM', false);
-        }
-
-        // maximum allowed png image width (in pixels), tune to make sure GD and PHP can handle such big images
-        if (defined('QR_PNG_MAXIMUM_SIZE')) {
-            return;
-        }
-
-        define('QR_PNG_MAXIMUM_SIZE', $this->size);
     }
 
-    public function generate($params = [])
+    public function generate(array $params = [])
     {
-        if (
-            isset($params['black'])
-            && is_array($params['black'])
-            && count($params['black']) == 3
-            && array_filter($params['black'], 'is_int') === $params['black']
-        ) {
+        $params['data'] = $params['data'] ?? 'QR Code Library';
+
+        // Optional color configuration
+        if (!empty($params['black']) && is_array($params['black']) && count($params['black']) === 3) {
             QRimage::$black = $params['black'];
         }
 
-        if (
-            isset($params['white'])
-            && is_array($params['white'])
-            && count($params['white']) == 3
-            && array_filter($params['white'], 'is_int') === $params['white']
-        ) {
+        if (!empty($params['white']) && is_array($params['white']) && count($params['white']) === 3) {
             QRimage::$white = $params['white'];
         }
 
-        $params['data'] = $params['data'] ?? 'QR Code Library';
-        if (isset($params['savename'])) {
-            $level = 'L';
-            if (
-                isset($params['level']) && in_array(
-                    $params['level'],
-                    ['L', 'M', 'Q', 'H']
-                )
-            ) {
-                $level = $params['level'];
-            }
+        $level = in_array($params['level'] ?? 'L', ['L', 'M', 'Q', 'H']) ? $params['level'] : 'L';
+        $size = min(max((int) ($params['size'] ?? 4), 1), 10);
+        $margin = (int) ($params['margin'] ?? 2);
 
-            $size = 4;
-            if (isset($params['size'])) {
-                $size = min(max((int) $params['size'], 1), 10);
-            }
-
-            QRcode::png($params['data'], $params['savename'], $level, $size, 2);
-
+        // If save path provided
+        if (!empty($params['savename'])) {
+            QRcode::png($params['data'], $params['savename'], $level, $size, $margin);
             return $params['savename'];
-        } else {
-            $level = 'L';
-            if (
-                isset($params['level']) && in_array(
-                    $params['level'],
-                    ['L', 'M', 'Q', 'H']
-                )
-            ) {
-                $level = $params['level'];
-            }
-
-            $size = 4;
-            if (isset($params['size'])) {
-                $size = min(max((int) $params['size'], 1), 10);
-            }
-
-            QRcode::png($params['data'], null, $level, $size, 2);
         }
+
+        // Output directly
+        QRcode::png($params['data'], null, $level, $size, $margin);
+        return true;
     }
 }
