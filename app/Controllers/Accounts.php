@@ -7071,6 +7071,7 @@ class Accounts extends BaseController {
 						foreach ($smember as $mem) {
 							$firstname = $mem->firstname;
 							$surname = $mem->surname;
+							$title = $mem->title;
 							$church = $this->Crud->read_field('id', $mem->church_id, 'church', 'name');
 							$email = $mem->email;
 							$name = ucwords($firstname . ' ' . $surname);
@@ -7081,7 +7082,7 @@ class Accounts extends BaseController {
 							$subject = 'A Warm Welcome to '.ucwords($church).' - Here`s Your Access Pass';
 							$message = 'Below is your QR code for attendance or access. Please keep it safe.';
 							$body = '
-								Dear '.ucwords($firstname).',<br><br>
+								Dear '.ucwords(strtolower($title.' '.$firstname)).',<br><br>
 
 								Grace and peace to you!<br><br>
 								
