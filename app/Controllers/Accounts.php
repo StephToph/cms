@@ -6740,22 +6740,19 @@ class Accounts extends BaseController {
 
 				}
 			} elseif($param2 == 'upload'){ 
-				if($param3 == 'download'){
-					// Define the path to the file
+				if ($this->request->getMethod() == 'post' && $param3 === 'download') {
 					$filePath = FCPATH . 'assets/membership_template.xlsx';
-
-					// Check if the file exists
-					if (file_exists($filePath)) {
-						// Serve the file for download
+				
+					if (is_file($filePath)) {
 						return $this->response->download($filePath, null)
+							->setFileName('membership_upload_template.xlsx')
 							->setContentType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-					} else {
-						// Return a 404 error if the file is not found
-						return $this->response
-							->setStatusCode(404)
-							->setBody('File not found.');
 					}
+				
+					return $this->response->setStatusCode(404)->setBody('File not found.');
 				}
+				
+				
 				if($this->request->getMethod() == 'post'){
 					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
 					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');

@@ -1455,6 +1455,7 @@
 
             </td>
         `);
+        
     
         // Append the new row to the table body
         $('#tithe_table_resp').append(titheNewRow);

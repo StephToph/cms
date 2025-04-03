@@ -617,11 +617,15 @@ class Auth extends BaseController {
 
 		if($param1 == 'manage' && $param2 == 'personal'){
 			if($this->request->getMethod() == 'post') {
-				$lga_id = $this->request->getVar('lga_id');
 				$address = $this->request->getVar('address');
-				$password = $this->request->getVar('password');
-				$img_id = $this->request->getVar('img_id');
-	
+				$img_id     = $this->request->getVar('img_id');
+				$chat_handle = $this->request->getVar('chat_handle');
+			
+				// Name fields from the updated form
+				$surname     = $this->request->getVar('surname');
+				$firstname   = $this->request->getVar('firstname');
+				$othernames  = $this->request->getVar('othernames');
+			
 				//// Image upload
 				if(file_exists($this->request->getFile('pics'))) {
 					$path = 'assets/images/users/'.$log_id.'/';
@@ -631,20 +635,25 @@ class Auth extends BaseController {
 					if(!empty($getImg->path)) $img_id = $getImg->path;
 				}
 	
-				$datas['lga_id'] = $lga_id;
-				$datas['address'] = $address;
-				$datas['img_id'] = $img_id;
+				 // Prepare data for update
+				 $datas = [
+					'address'     => $address,
+					'img_id'      => $img_id,
+					'surname'     => $surname,
+					'firstname'   => $firstname,
+					'othername'  => $othernames,
+					'chat_handle' => $chat_handle,
+				];
 				if(!empty($password))$datas['password'] = md5($password);
 				
-				$add = $this->Crud->api('post', 'profile/update/'.$log_id, $datas);
+				$update = $this->Crud->updates('id', $log_id, 'user', $datas);
 				// echo $add;
-				$add = json_decode($add);
-				if($add->status == true){
-					echo $this->Crud->msg('success', translate_phrase($add->msg));
+				if($update > 0){
+					echo $this->Crud->msg('success', translate_phrase('User Profile Updated'));
 					echo '<script>window.location.replace("'.site_url('auth/profile').'");</script>';
 					
 				} else {
-					echo $this->Crud->msg($add->code, translate_phrase($add->msg));	
+					echo $this->Crud->msg('info', translate_phrase('No Changes'));	
 				}
 				
 				die;
@@ -711,8 +720,15 @@ class Auth extends BaseController {
 		}
 
 
+		$data['user_no'] = $this->Crud->read_field('id', $log_id, 'user', 'user_no');
 		$data['email'] = $this->Crud->read_field('id', $log_id, 'user', 'email');
+		$data['surname'] = $this->Crud->read_field('id', $log_id, 'user', 'surname');
+		$data['firstname'] = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+		$data['othername'] = $this->Crud->read_field('id', $log_id, 'user', 'othername');
 		$data['address'] = $this->Crud->read_field('id', $log_id, 'user', 'address');
+		$data['img_id'] = $this->Crud->read_field('id', $log_id, 'user', 'img_id');
+		$data['role_id'] = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		$data['is_admin'] = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
 		$data['chat_handle'] = $this->Crud->read_field('id', $log_id, 'user', 'chat_handle');
 		$data['fullname'] = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
        	$data['phone'] = $this->Crud->read_field('id', $log_id, 'user', 'phone');
@@ -1389,9 +1405,6 @@ class Auth extends BaseController {
 		
 	}
 
-	//bank account
-
-	//Qr code
     public function qrcode($data=''){
        
         /* Data */
@@ -1450,5 +1463,21 @@ class Auth extends BaseController {
 		}
 	}
 	
+	public function qr_update(){
+		$id = '113';
+		// Generate content for the QR code (e.g. just user ID or a link)
+		$qr_content = 'USER-' . $id; // or something like base_url('user/profile/' . $id)
+
+		// Generate QR Code (assumes you have $this->Crud->qrcode($data))
+		$qr = $this->Crud->qrcode($qr_content);
+	
+		if (!$qr || empty($qr->path)) {
+			echo "QR generation failed.";
+			return;
+		}
+	
+		// Save QR code path to DB
+		$this->Crud->updates('id', $id, 'user', ['qr_code' => $qr->path]);
+	}
 
 }
