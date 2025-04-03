@@ -7078,24 +7078,24 @@ class Accounts extends BaseController {
 							// ✅ Get QR code (assuming it's stored or generated)
 							$qr_code_url = site_url($mem->qrcode); // adjust as per actual path
 				
-							$subject = 'A Warm Welcome to '.ucwords($church).' – Here`s Your Access Pass';
+							$subject = 'A Warm Welcome to '.ucwords($church).' - Here`s Your Access Pass';
 							$message = 'Below is your QR code for attendance or access. Please keep it safe.';
 							$body = '
 								Dear '.ucwords($firstname).',<br><br>
 
 								Grace and peace to you!<br><br>
 								
-								Welcome to '.ucwords($church).' — a place where love abounds, faith grows, and your walk with God is nurtured. We are truly excited to have you as a vital part of our family.<br><br>
+								Welcome to '.ucwords($church).' - a place where love abounds, faith grows, and your walk with God is nurtured. We are truly excited to have you as a vital part of our family.<br><br>
 								
 								As part of our commitment to serving you better, we`ve introduced a smart and simple way to stay connected through our new digital platform. You now have access to your personalized QR Code, which you`ll use to easily mark your attendance during our services and special events.<br><br>
 								
-								🕊️ Why this matters:
+								Why this matters:
 								Your presence matters deeply to us. This small step helps us shepherd you more effectively, stay in touch, and continue to build a strong, united family of faith.<br><br>
 								
-								📲 Here is your personal QR Code:
+								Here is your personal QR Code:<br><br>
 								<img src="' . $qr_code_url . '" alt="QR Code" width="150" height="150"><br><br>
 								
-								Every time you attend church, simply scan your code — it’s quick, easy, and ensures you never miss a moment of connection.<br><br>
+								Every time you attend church, simply scan your code — it`s quick, easy, and ensures you never miss a moment of connection.<br><br>
 								
 								With love and blessings,<br><br>
 								
