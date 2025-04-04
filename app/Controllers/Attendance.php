@@ -1236,7 +1236,7 @@ class Attendance extends BaseController {
 								Digital Team
 								
 						';
-						$this->Crud->send_email($email, 'Membership Account', $body);
+						// $this->Crud->send_email($email, 'Membership Account', $body);
 
 						//Mark Attendance 
 						$service = $this->request->getPost('service'); // e.g., "Sunday Service"
@@ -1695,7 +1695,7 @@ class Attendance extends BaseController {
 						Digital Team
 						
 				';
-				$this->Crud->send_email($email, 'Membership Account', $body);
+				// $this->Crud->send_email($email, 'Membership Account', $body);
 
 				
 

@@ -51,7 +51,7 @@ $this->Crud = new Crud();
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Email'); ?></label>
-                    <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" required>
+                    <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" >
                 </div>
             </div>
 
@@ -64,8 +64,8 @@ $this->Crud = new Crud();
 
             <div class="col-sm-12 mb-3">
                 <div class="form-group">
-                    <label for="name">*<?=translate_phrase('Address'); ?></label>
-                    <input class="form-control" type="text" id="address" name="address" value="<?php if(!empty($e_address)) {echo $e_address;} ?>" required>
+                    <label for="name"><?=translate_phrase('Address'); ?></label>
+                    <input class="form-control" type="text" id="address" name="address" value="<?php if(!empty($e_address)) {echo $e_address;} ?>" >
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
@@ -94,7 +94,7 @@ $this->Crud = new Crud();
             <?php if ($role == 'developer' || $role == 'administrator') { ?>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="ministry_id">*<?= translate_phrase('Ministry'); ?></label>
+                    <label for="ministry_id"><?= translate_phrase('Ministry'); ?></label>
                     <select id="ministry_id" name="ministry_id" class="js-select2 ministry_select">
                         <option value="">Select</option>
                         <?php
@@ -110,7 +110,7 @@ $this->Crud = new Crud();
             </div>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
+                    <label for="regional_id"><?= translate_phrase('Region'); ?></label>
                     <select class="js-select2 regional_select" name="regional_id" id="regional_id">
                         <option value="">Select</option>
                     </select>
@@ -118,7 +118,7 @@ $this->Crud = new Crud();
             </div>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
+                    <label for="zonal_id"><?= translate_phrase('Zone'); ?></label>
                     <select class="js-select2 zonal_select" name="zonal_id" id="zonal_id">
                         <option value="">Select</option>
                     </select>
@@ -128,7 +128,7 @@ $this->Crud = new Crud();
             <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
+                    <label for="regional_id"><?= translate_phrase('Region'); ?></label>
                     <select class="js-select2 regional_select" name="regional_id" id="regional_id">
                         <?php
                             $ministryId = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
@@ -146,7 +146,7 @@ $this->Crud = new Crud();
             </div>
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
+                    <label for="zonal_id"><?= translate_phrase('Zone'); ?></label>
                     <select class="js-select2 zonal_select" name="zonal_id" id="zonal_id">
                         <option value="">Select</option>
                     </select>
