@@ -210,115 +210,7 @@ $this->Crud = new Crud();
 
 
                                             </div>
-                                            <script>
-                                                function speakText(text) {
-                                                    if ('speechSynthesis' in window) {
-                                                        const utterance = new SpeechSynthesisUtterance(text);
-                                                        utterance.lang = 'en-US';
-                                                        utterance.pitch = 1;
-                                                        utterance.rate = 1;
-                                                        speechSynthesis.speak(utterance);
-                                                    } else {
-                                                        alert('Sorry, your browser does not support text-to-speech.');
-                                                    }
-                                                }
-                                                speakText('Welcome!!');
-                                                $('#confirmMarkBtn').on('click', function () {
-                                                    const member_id = $('#mark_member_id').val();
-                                                    const service_id = $('#mark_service_id').val();
-                                                    const church_id = $('#mark_church_id').val();
-
-                                                    $('#qr_member_details').html('<p class="text-info">⏳ Marking attendance...</p>');
-
-                                                    $.post("<?= site_url('attendance/dashboard/mark_attendance') ?>", {
-                                                        member_id: member_id,
-                                                        service_id: service_id,
-                                                        church_id: church_id
-                                                    }, function (res) {
-                                                        $('#qr_member_details').html(`<p class="text-${res.status === 'success' ? 'success' : 'warning'} fw-bold">${res.message}</p>`);
-                                                        speakText(res.message.replace(/<[^>]*>?/gm, '').trim());
-                                                        setTimeout(() => {
-                                                            
-                                                            const modal = bootstrap.Modal.getInstance(document.getElementById('qrConfirmModal'));
-                                                            modal.hide();
-                                                            restartScanner();
-                                                        }, 2000);
-                                                    }).fail(function () {
-                                                        $('#qr_member_details').html('<p class="text-danger">❌ Error marking attendance</p>');
-                                                    });
-                                                });
-
-                                                function onScanSuccess(decodedText) {
-                                                    if (decodedText.startsWith("USER-")) {
-                                                        const memberId = decodedText.replace("USER-", "");
-                                                        const service_id = $('#service').val() || $('#service_select').val();
-                                                        const church_id = $('#church_id').val();
-
-                                                        html5QrcodeScanner.clear();
-                                                        $('#scan_result').html(`<p class="text-info">🔍 Verifying member ID: ${memberId}...</p>`);
-
-                                                        $.post("<?= site_url('attendance/dashboard/verify_member') ?>", {
-                                                            member_id: memberId,
-                                                            service_id: service_id,
-                                                            church_id: church_id
-                                                        }, function (res) {
-                                                            if (res.status === 'ok') {
-                                                                const m = res.member;
-
-                                                                $('#qr_member_details').html(`
-                                                                    <img src="${m.img}" class="rounded-circle mb-3" style="width:100px;height:100px;object-fit:cover;" />
-                                                                    <h5 class="mb-1">${m.name}</h5>
-                                                                    <p class="mb-1 text-muted">${m.email}</p>
-                                                                    <p class="mb-1 text-muted">${m.phone}</p>
-                                                                    <input type="hidden" id="mark_member_id" value="${m.id}">
-                                                                    <input type="hidden" id="mark_service_id" value="${service_id}">
-                                                                    <input type="hidden" id="mark_church_id" value="${church_id}">
-                                                                `);
-                                                                speakText("Member Confirmed, Please Click Button to Mark Attendance");
-                                                        
-                                                                const modal = new bootstrap.Modal(document.getElementById('qrConfirmModal'));
-                                                                modal.show();
-
-
-                                                            } else {
-                                                                speakText(res.message.replace(/<[^>]*>?/gm, '').trim());
-                                                                $('#scan_result').html(`<p class="text-danger">❌ ${res.message}</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Try Again</button>`);
-                                                            }
-                                                        }).fail(function () {
-                                                            $('#scan_result').html(`<p class="text-danger">❌ Failed to verify member.</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Retry</button>`);
-                                                        });
-                                                    }
-                                                }
-
-                                                function confirmAttendance(memberId, service_id, church_id) {
-                                                    $('#scan_result').html('⏳ Marking attendance...');
-
-                                                    $.post("<?= site_url('attendance/dashboard/mark_attendance') ?>", {
-                                                        member_id: memberId,
-                                                        service_id: service_id,
-                                                        church_id: church_id
-                                                    }, function (res) {
-                                                        const statusClass = res.status === 'success' ? 'text-success' : 'text-warning';
-                                                        $('#scan_result').html(`<p class="${statusClass}">✅ ${res.message}</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Scan Next</button>`);
-                                                    }).fail(function () {
-                                                        $('#scan_result').html(`<p class="text-danger">❌ Error while marking attendance.</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Retry</button>`);
-                                                    });
-                                                }
-
-                                                function restartScanner() {
-                                                    $('#scan_result').html('');
-                                                    html5QrcodeScanner.render(onScanSuccess);
-                                                }
-
-
-                                                const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-                                                    fps: 10,
-                                                    qrbox: 250
-                                                });
-                                                html5QrcodeScanner.render(onScanSuccess);
-
-                                                
-                                            </script>
+                                            
                                         <?php } ?>
 
                                         <?php if($attend_type == 'cell' ){?>
@@ -721,5 +613,115 @@ $this->Crud = new Crud();
     });
 
 </script>   
+<?php if($attend_type == 'usher' || $attend_type == 'admin'){?>
+    <script>
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.pitch = 1;
+                utterance.rate = 1;
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Sorry, your browser does not support text-to-speech.');
+            }
+        }
+        speakText('Welcome!!');
+        $('#confirmMarkBtn').on('click', function () {
+            const member_id = $('#mark_member_id').val();
+            const service_id = $('#mark_service_id').val();
+            const church_id = $('#mark_church_id').val();
 
+            $('#qr_member_details').html('<p class="text-info">⏳ Marking attendance...</p>');
+
+            $.post("<?= site_url('attendance/dashboard/mark_attendance') ?>", {
+                member_id: member_id,
+                service_id: service_id,
+                church_id: church_id
+            }, function (res) {
+                $('#qr_member_details').html(`<p class="text-${res.status === 'success' ? 'success' : 'warning'} fw-bold">${res.message}</p>`);
+                speakText(res.message.replace(/<[^>]*>?/gm, '').trim());
+                setTimeout(() => {
+                    
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('qrConfirmModal'));
+                    modal.hide();
+                    restartScanner();
+                }, 2000);
+            }).fail(function () {
+                $('#qr_member_details').html('<p class="text-danger">❌ Error marking attendance</p>');
+            });
+        });
+
+        function onScanSuccess(decodedText) {
+            if (decodedText.startsWith("USER-")) {
+                const memberId = decodedText.replace("USER-", "");
+                const service_id = $('#service').val() || $('#service_select').val();
+                const church_id = $('#church_id').val();
+
+                html5QrcodeScanner.clear();
+                $('#scan_result').html(`<p class="text-info">🔍 Verifying member ID: ${memberId}...</p>`);
+
+                $.post("<?= site_url('attendance/dashboard/verify_member') ?>", {
+                    member_id: memberId,
+                    service_id: service_id,
+                    church_id: church_id
+                }, function (res) {
+                    if (res.status === 'ok') {
+                        const m = res.member;
+
+                        $('#qr_member_details').html(`
+                            <img src="${m.img}" class="rounded-circle mb-3" style="width:100px;height:100px;object-fit:cover;" />
+                            <h5 class="mb-1">${m.name}</h5>
+                            <p class="mb-1 text-muted">${m.email}</p>
+                            <p class="mb-1 text-muted">${m.phone}</p>
+                            <input type="hidden" id="mark_member_id" value="${m.id}">
+                            <input type="hidden" id="mark_service_id" value="${service_id}">
+                            <input type="hidden" id="mark_church_id" value="${church_id}">
+                        `);
+                        speakText("Member Confirmed, Please Click Button to Mark Attendance");
+                
+                        const modal = new bootstrap.Modal(document.getElementById('qrConfirmModal'));
+                        modal.show();
+
+
+                    } else {
+                        speakText(res.message.replace(/<[^>]*>?/gm, '').trim());
+                        $('#scan_result').html(`<p class="text-danger">❌ ${res.message}</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Try Again</button>`);
+                    }
+                }).fail(function () {
+                    $('#scan_result').html(`<p class="text-danger">❌ Failed to verify member.</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Retry</button>`);
+                });
+            }
+        }
+
+        function confirmAttendance(memberId, service_id, church_id) {
+            $('#scan_result').html('⏳ Marking attendance...');
+
+            $.post("<?= site_url('attendance/dashboard/mark_attendance') ?>", {
+                member_id: memberId,
+                service_id: service_id,
+                church_id: church_id
+            }, function (res) {
+                const statusClass = res.status === 'success' ? 'text-success' : 'text-warning';
+                $('#scan_result').html(`<p class="${statusClass}">✅ ${res.message}</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Scan Next</button>`);
+            }).fail(function () {
+                $('#scan_result').html(`<p class="text-danger">❌ Error while marking attendance.</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Retry</button>`);
+            });
+        }
+
+        function restartScanner() {
+            $('#scan_result').html('');
+            html5QrcodeScanner.render(onScanSuccess);
+        }
+
+
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+            fps: 10,
+            qrbox: 250
+        });
+        html5QrcodeScanner.render(onScanSuccess);
+
+        
+    </script>
+<?php } ?>
 <?= $this->endSection(); ?>

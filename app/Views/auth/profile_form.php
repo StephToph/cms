@@ -123,6 +123,134 @@ $this->Crud = new Crud();
     <?php } ?>
     
     
+    <?php if ($param2 == 'cell') { ?>
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="bb_ajax_msg"></div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <input type="hidden" name="cell_id" value="<?php if (!empty($e_id)) {
+                echo $e_id;
+            } ?>" />
+           
+
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?= translate_phrase('Name'); ?></label>
+                    <input class="form-control" type="text" id="name" name="name"
+                        value="<?php if (!empty($cell)) {
+                            echo $cell;
+                        } ?>" required>
+                </div>
+            </div>
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?= translate_phrase('Location'); ?></label>
+                    <input class="form-control" type="text" id="location" name="location"
+                        value="<?php if (!empty($cell_location)) {
+                            echo $cell_location;
+                        } ?>" required>
+                </div>
+            </div>
+
+            <div class="col-sm-12 mb-3">
+                <div class="form-group">
+                    <label for="name">*<?= translate_phrase('Phone'); ?></label>
+                    <input class="form-control" type="text" id="phone" name="phone"
+                        value="<?php if (!empty($cell_phone)) {
+                            echo $cell_phone;
+                        } ?>">
+                </div>
+            </div>
+
+        </div>
+        <div id="containers">
+        <?php
+            if (!empty($cell_time)) {
+                // Decode JSON to associative array
+                $cell_time_data = is_array($cell_time) ? $cell_time : json_decode($cell_time, true);
+
+                if (!empty($cell_time_data) && is_array($cell_time_data)) {
+                    $a = 0;
+                    foreach ($cell_time_data as $k => $val) {
+                        $r_val = ($a === 0) ? 'style="display:none;"' : '';
+                        $req = ($a === 0) ? 'required' : '';
+                        ?>
+                        <div class="row">
+                            <div class="col-sm-4 mb-3">
+                                <div class="form-group">
+                                    <label for="day">*<?= translate_phrase('Meeting Day'); ?></label>
+                                    <select class="form-control" name="days[]" <?= $req; ?>>
+                                        <option value="">Select</option>
+                                        <?php
+                                        $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+                                        foreach ($days as $day): ?>
+                                            <option value="<?= $day; ?>" <?= ($k == $day) ? 'selected' : ''; ?>><?= $day; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-8 mb-3">
+                                <label for="time">*<?= translate_phrase('Meeting Time'); ?></label>
+                                <div class="form-group input-group">
+                                    <input class="form-control" type="time" name="times[]" value="<?= esc($val); ?>" <?= $req; ?>>
+                                    <button <?= $r_val; ?> class="btn btn-icon btn-outline-danger deleteBtns" type="button">
+                                        <i class="icon ni ni-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                        $a++;
+                    }
+                }
+            } else { ?>
+            <div class="row">
+                <div class="col-sm-4 mb-3">
+                    <div class="form-group">
+                        <label for="name">*<?= translate_phrase('Meeting Day'); ?></label>
+                        <select class="form-control" name="days[]" required>
+                            <option value="">Select</option>
+                            <option value="Sunday">Sunday</option>
+                            <option value="Monday">Monday</option>
+                            <option value="Tuesday">Tuesday</option>
+                            <option value="Wednesday">Wednesday</option>
+                            <option value="Thursday">Thursday</option>
+                            <option value="Friday">Friday</option>
+                            <option value="Saturday">Saturday</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-8 mb-3">
+                    <label for="name">*<?= translate_phrase('Meeting Time'); ?></label>
+                    <div class="form-group input-group">
+                        <input class="form-control" type="time" id="location" name="times[]" required>
+                        <button style="display:none;" class="btn btn-icon btn-outline-danger deleteBtns" type="button"><i
+                                class="icon ni ni-trash"></i> </button>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+        </div>
+        <div class="col-sm-12 mb-3 text-center">
+            <button id="addMores" class="btn btn-ico btn-outline-info" type="button"><i class="icon ni ni-plus-c"></i>
+                <span><?= translate_phrase('Add More Days'); ?></span></button>
+        </div>
+
+
+        <div class="row">
+
+            <div class="col-sm-12 text-center mt-3">
+                <button class="btn btn-primary bb_fo_btn" type="submit">
+                    <i class="icon ni ni-save"></i> <?= translate_phrase('Save Record'); ?>
+                </button>
+            </div>
+        </div>
+    <?php } ?>
 <?php echo form_close(); ?>
     <script src="<?=site_url();?>assets/js/jsform.js"></script>
     <script>
