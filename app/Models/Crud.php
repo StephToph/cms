@@ -2481,6 +2481,7 @@ class Crud extends Model {
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
 		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+
 		if(!empty($switch_id)){
             $church_type = $this->read_field('id', $switch_id, 'church', 'type');
             if($church_type == 'region'){
@@ -2503,20 +2504,25 @@ class Crud extends Model {
 			$church_id = $switch_id;
 		
         }
-		if($role != 'developer' && $role != 'administrator'){
+
+		if($role == 'ministry administrator'){
 			$builder->where('ministry_id', $ministry_id);
+		} else {
+			if($role == 'regional manager'){
+				$builder->where('regional_id', $church_id);
+			}
+			if($role == 'zonal manager'){
+				$builder->where('zonal_id', $church_id);
+			}
+			if($role == 'group manager'){
+				$builder->where('group_id', $church_id);
+			}
+			if($role == 'church leader'){
+				$builder->where('church_id', $church_id);
+			}
 		} 
 
-		if($role == 'regional manager'){
-			$builder->where('regional_id', $church_id);
-		}
-		if($role == 'zonal manager'){
-			$builder->where('zonal_id', $church_id);
-		}
-		if($role == 'group manager'){
-			$builder->where('group_id', $church_id);
-		}
-
+		
 		$builder->where('type', $type);
         if(!empty($search)) {
             $builder->like('name', $search);
