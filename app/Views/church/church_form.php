@@ -276,6 +276,7 @@ $this->Crud = new Crud();
                     if (data.length === 0) {
                         $('#group_id').append('<option value="">No Group found</option>'); // display a message if no regions are found
                     } else {
+                        $('#group_id').append('<option value="">Select Group</option>'); 
                         $.each(data, function(index, region) {
                             var selected = '';
                             if (region.id === eGroupId) {
@@ -330,7 +331,7 @@ $this->Crud = new Crud();
                     success: function(data) {
                         $('#zonal_id').empty();
                         if (data.length === 0) {
-                            $('#zonal_id').append('<option value="">No Zones found</option>'); // display a message if no regions are found
+                            $('#zonal_id').append('<option value="0">No Zones found</option>'); // display a message if no regions are found
                         } else {
                             $('#zonal_id').append('<option value="">Select Zone</option>');
                             $.each(data, function(index, region) {
@@ -361,6 +362,7 @@ $this->Crud = new Crud();
                         if (data.length === 0) {
                             $('#group_id').append('<option value="">No Group Church found</option>'); // display a message if no regions are found
                         } else {
+                            $('#group_id').append('<option value="0">Select Group</option>'); 
                             $.each(data, function(index, region) {
                                 $('#group_id').append('<option value="' + region.id + '">' + region.name + '</option>');
                             });
