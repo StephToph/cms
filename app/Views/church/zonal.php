@@ -144,7 +144,7 @@
                                                 <th>Email</th>
                                                 <th>Phone</th>
                                                 <th>Role</th>
-                                                <th>Address</th>
+                                               
                                                 <th>Date</th>
                                                 <th></th>
                                             </tr>

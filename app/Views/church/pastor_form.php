@@ -35,7 +35,7 @@
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label>Title</label>
-                    <select class="form-select" name="title" id="title" data-placeholder="Select Title" required>
+                    <select class="js-select2 js-select2" name="title" id="title" data-placeholder="Select Title" required>
                         <option value=" ">Select Title</option>
                         <option value="Mr." <?php if(!empty($e_title)){if($e_title ==  'Mr.'){echo 'selected';}}; ?>>Mr.</option>
                         <option value="Mrs." <?php if(!empty($e_title)){if($e_title ==  'Mrs.'){echo 'selected';}}; ?>>Mrs.</option>
@@ -83,7 +83,7 @@
                 <div class="form-group">
                     <label >Role</label>
                     <div class="form-control-wrap">
-                        <select class="form-select" id="role_id" name="role_id"
+                        <select class="js-select2" id="role_id" name="role_id"
                             data-placeholder="Select Role Role">
                             <option value="">Select</option>
                             <?php
@@ -126,7 +126,7 @@
             <div class="col-sm-6">
                 <div class="form-group">
                     <label for="activate"><?=translate_phrase('Active Status');?></label>
-                    <select class="form-select" id="activate" name="activate" required>
+                    <select class="js-select2" id="activate" name="activate" required>
                         <option value="1" <?php if(!empty($e_activate)){if($e_activate == 1){echo 'selected';}} ?>><?=translate_phrase('Active');?></option>
                         <option value="0" <?php if($param2 == 'edit' && empty($e_activate)){if($e_activate == 0){echo 'selected';}} ?>><?=translate_phrase('Disable');?></option>
                     </select>
@@ -164,6 +164,6 @@
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script>
     $(function() {
-        $('.js-select2').select2();
+        
     });
 </script>

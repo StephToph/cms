@@ -71,7 +71,7 @@ $this->Crud = new Crud();
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Country'); ?></label>
-                    <select id="country_id" name="country_id" class="js-select2">
+                    <select id="country_i" name="country_id" class="js-select2">
                         
                         <option value="">Select</option>
                         <?php

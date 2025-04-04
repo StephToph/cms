@@ -19,9 +19,9 @@
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <h3 class="nk-block-title page-title"><?=translate_phrase('Church Assembly');?></h3>
+                            <h3 class="nk-block-title page-title"><?=translate_phrase('Service Center');?></h3>
                             <div class="nk-block-des text-soft">
-                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=('church(es).');?></p>
+                                <p><?=translate_phrase('You have total');?> <span id="counta"></span> <?=('center(s).');?></p>
                             </div>
                         </div><!-- .nk-block-head-content -->
                     </div><!-- .nk-block-between -->
@@ -42,7 +42,7 @@
                                             <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
-                                                <a href="javascript:;" pageTitle="Add Church" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('church/church/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
+                                                <a href="javascript:;" pageTitle="Add Service Center" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('church/center/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
                                            <?php } ?>
                                         </ul><!-- .btn-toolbar -->
@@ -83,7 +83,7 @@
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
                             <h3 class="nk-block-title page-title" id="church_title">
-                                <?= translate_phrase('Church Administrator'); ?></h3>
+                                <?= translate_phrase('Service Center'); ?></h3>
                             <div class="nk-block-des text-soft">
                                 <p><?= ('You have total'); ?> <span id="admin_counta">0</span> <?= ('admin.'); ?></p>
                             </div>
@@ -413,7 +413,7 @@
         //alert(status);
 
         $.ajax({
-            url: site_url + 'church/church/load' + methods,
+            url: site_url + 'church/center/load' + methods,
             type: 'post',
             data: { search: search },
             success: function (data) {
