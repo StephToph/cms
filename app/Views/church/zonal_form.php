@@ -50,14 +50,14 @@ $this->Crud = new Crud();
 
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="name">*<?=translate_phrase('Email'); ?></label>
+                    <label for="name"><?=translate_phrase('Email'); ?></label>
                     <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>">
                 </div>
             </div>
 
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="name">*<?=translate_phrase('Phone'); ?></label>
+                    <label for="name"><?=translate_phrase('Phone'); ?></label>
                     <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>">
                 </div>
             </div>
@@ -71,7 +71,7 @@ $this->Crud = new Crud();
 
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
-                    <label for="name">*<?=translate_phrase('Country'); ?></label>
+                    <label for="name"><?=translate_phrase('Country'); ?></label>
                     <select id="country_i" name="country_id" class="js-select2">
                         
                         <option value="">Select</option>
