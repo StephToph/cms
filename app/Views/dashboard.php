@@ -427,53 +427,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="card card-bordered h-100">
-                                <div class="card-inner mb-n2">
-                                    <div class="card-title-group">
-                                        <div class="card-title ">
-                                            <h6 class="title"><?=translate_phrase('Cell Report'); ?></h6>
-                                        </div>
-                                        <div class="card-tools align-end mb-2">
-                                            <ul class="card-tools-nav">
-                                                <li class="active"><a href="<?=site_url('activity'); ?>"><span><?=translate_phrase('All'); ?></span></a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                   
-                                </div>
-                                <div class="nk-tb-list is-loose traffic-channel-table" id="cell_data">
-                                    
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-5">
-                            <div class="card card-bordered h-100">
-                                <div class="card-inner">
-                                    <div class="card-title-group">
-                                        <div class="card-title">
-                                            <h6 class="title"><?=translate_phrase('Service Attendance Chart');?></h6>
-                                            <p id="service_date"> </p>
-                                        </div>
-                                        <div class="card-tools">
-                                            <div class="drodown">
-                                                <a href="javascript:;" class="btn btn-sm btn-outline-light btn-white"  data-bs-toggle="dropdown"><?=translate_phrase('VIEW MORE');?></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="traffic-channel">
-                                        <div class="traffic-channel-doughnut-ck"><canvas class="analytics-doughnut"
-                                                id="BookingData"></canvas>
-                                        </div>
-                                        <div class="traffic-channel-group g-2" id="service_key">
-                                            
-                                           
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
+                       <div class="col-md-12">
                             <div class="card card-bordered h-100">
                                 <div class="card-inner">
                                     <div class="card-title-group pb-3 g-2">
@@ -531,6 +485,55 @@
                                 </div>
                             </div>
                         </div>
+                        <?php if($role != 'cell leader' && $role != 'cell executive' && $role != 'assistant cell leader'){?>
+                            <div class="col-md-6">
+                                <div class="card card-bordered h-100">
+                                    <div class="card-inner mb-n2">
+                                        <div class="card-title-group">
+                                            <div class="card-title ">
+                                                <h6 class="title"><?=translate_phrase('Cell Report'); ?></h6>
+                                            </div>
+                                            <div class="card-tools align-end mb-2">
+                                                <ul class="card-tools-nav">
+                                                    <li class="active"><a href="<?=site_url('activity'); ?>"><span><?=translate_phrase('All'); ?></span></a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    
+                                    </div>
+                                    <div class="nk-tb-list is-loose traffic-channel-table" id="cell_data">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                       
+                        <div class="col-md-6">
+                            <div class="card card-bordered h-100">
+                                <div class="card-inner">
+                                    <div class="card-title-group">
+                                        <div class="card-title">
+                                            <h6 class="title"><?=translate_phrase('Service Attendance Chart');?></h6>
+                                            <p id="service_date"> </p>
+                                        </div>
+                                        <div class="card-tools">
+                                            <div class="drodown">
+                                                <a href="javascript:;" class="btn btn-sm btn-outline-light btn-white"  data-bs-toggle="dropdown"><?=translate_phrase('VIEW MORE');?></a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="traffic-channel">
+                                        <div class="traffic-channel-doughnut-ck"><canvas class="analytics-doughnut"
+                                                id="BookingData"></canvas>
+                                        </div>
+                                        <div class="traffic-channel-group g-2" id="service_key">
+                                            
+                                           
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php } ?>
                         <div class="col-md-6">
                             <div class="card card-bordered card-full">
                                 <div class="card-inner-group">
