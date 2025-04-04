@@ -42,6 +42,7 @@ $routes->get('attend', 'Attendance::dashboard');
 $routes->get('attend_logout', 'Attendance::logout');
 $routes->get('privacy', 'Auth::privacy');
 $routes->get('first-timer/(:segment)', 'Attendance::timer/$1');
+$routes->get('member/(:segment)', 'Attendance::member/$1');
 $routes->get('social/facebook', 'SocialAuthController::facebook');
 $routes->get('social/facebook/callback', 'SocialAuthController::facebookCallback');
 

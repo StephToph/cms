@@ -1490,6 +1490,235 @@ class Attendance extends BaseController {
 	
     }
 
+	public function member($code='') {
+        // check login
+      
+        $mod = 'attendance/member';
+        
+		$data['church_id'] = '';
+		if ($code) {
+            session()->set('invite_code', $code); // ✅ Save to session
+			$data['church_id'] = $this->Crud->read_field('first_timer_link', $code, 'church', 'id');
+
+        }
+		$data['code'] = $code;
+	
+		if($this->request->getMethod() == 'post'){
+			$membership_id = htmlspecialchars(trim($this->request->getVar('membership_id')), ENT_QUOTES, 'UTF-8');
+			$firstname = htmlspecialchars(trim($this->request->getVar('firstname')), ENT_QUOTES, 'UTF-8');
+			$lastname  = htmlspecialchars(trim($this->request->getVar('lastname')), ENT_QUOTES, 'UTF-8');
+			$othername  = htmlspecialchars(trim($this->request->getVar('othername')), ENT_QUOTES, 'UTF-8');
+			$gender  = htmlspecialchars(trim($this->request->getVar('gender')), ENT_QUOTES, 'UTF-8');
+			$email  = htmlspecialchars(trim($this->request->getVar('email')), ENT_QUOTES, 'UTF-8');
+			$phone  = htmlspecialchars(trim($this->request->getVar('phone')), ENT_QUOTES, 'UTF-8');
+			$dob  = htmlspecialchars(trim($this->request->getVar('dob')), ENT_QUOTES, 'UTF-8');
+			$archive       = htmlspecialchars(trim($this->request->getVar('archive')), ENT_QUOTES, 'UTF-8');
+			$chat_handle   = htmlspecialchars(trim($this->request->getVar('chat_handle')), ENT_QUOTES, 'UTF-8');
+			$address       = htmlspecialchars(trim($this->request->getVar('address')), ENT_QUOTES, 'UTF-8');
+			$family_status = htmlspecialchars(trim($this->request->getVar('family_status')), ENT_QUOTES, 'UTF-8');
+			$family_position = htmlspecialchars(trim($this->request->getVar('family_position')), ENT_QUOTES, 'UTF-8');
+			$parent_id     = htmlspecialchars(trim($this->request->getVar('parent_id')), ENT_QUOTES, 'UTF-8');
+			$dept_id                = $this->request->getVar('dept_id'); // array, handle separately below
+			$dept_role_id           = $this->request->getVar('dept_role_id'); // array, handle separately below
+			$cell_id                = htmlspecialchars(trim($this->request->getVar('cell_id')), ENT_QUOTES, 'UTF-8');
+			$spouse_id              = htmlspecialchars(trim($this->request->getVar('spouse_id')), ENT_QUOTES, 'UTF-8');
+			$cell_role_id           = htmlspecialchars(trim($this->request->getVar('cell_role_id')), ENT_QUOTES, 'UTF-8');
+			$title                  = htmlspecialchars(trim($this->request->getVar('title')), ENT_QUOTES, 'UTF-8');
+			$password               = htmlspecialchars(trim($this->request->getVar('password')), ENT_QUOTES, 'UTF-8');
+			$marriage_anniversary   = htmlspecialchars(trim($this->request->getVar('marriage_anniversary')), ENT_QUOTES, 'UTF-8');
+			$job_type               = htmlspecialchars(trim($this->request->getVar('job_type')), ENT_QUOTES, 'UTF-8');
+			$employer_address       = htmlspecialchars(trim($this->request->getVar('employer_address')), ENT_QUOTES, 'UTF-8');
+			$baptism                = htmlspecialchars(trim($this->request->getVar('baptism')), ENT_QUOTES, 'UTF-8');
+			$foundation_school      = htmlspecialchars(trim($this->request->getVar('foundation_school')), ENT_QUOTES, 'UTF-8');
+			$foundation_weeks       = htmlspecialchars(trim($this->request->getVar('foundation_weeks')), ENT_QUOTES, 'UTF-8');
+			$church_id              = htmlspecialchars(trim($this->request->getVar('church_id')), ENT_QUOTES, 'UTF-8');
+			$img_id                 = htmlspecialchars(trim($this->request->getVar('img_id')), ENT_QUOTES, 'UTF-8');
+
+			
+
+			$sanitized_dept_id = [];
+			if (is_array($dept_id)) {
+				foreach ($dept_id as $id) {
+					$sanitized_dept_id[] = htmlspecialchars(trim($id), ENT_QUOTES, 'UTF-8');
+				}
+			}
+
+			$sanitized_dept_role_id = [];
+			if (is_array($dept_role_id)) {
+				foreach ($dept_role_id as $key => $val) {
+					$clean_key = htmlspecialchars(trim($key), ENT_QUOTES, 'UTF-8');
+					$clean_val = htmlspecialchars(trim($val), ENT_QUOTES, 'UTF-8');
+					$sanitized_dept_role_id[$clean_key] = $clean_val;
+				}
+			}
+
+
+
+			$is_usher = 0;
+			$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
+			if(in_array($usher_id, $dept_id))$is_usher = 1;
+			
+			//// Image upload
+			if(file_exists($this->request->getFile('pics'))) {
+				$path = 'assets/images/users/';
+				$file = $this->request->getFile('pics');
+				$getImg = $this->Crud->img_upload($path, $file);
+				
+				if(!empty($getImg->path)) $img_id = $getImg->path;
+			}
+			$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+			$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+			$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+			$group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+			$ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+			
+			// echo $baptism;
+			// die;
+			$ins_data['title'] = $title;
+			$ins_data['firstname'] = $firstname;
+			$ins_data['othername'] = $othername;
+			$ins_data['surname'] = $lastname;
+			$ins_data['is_usher'] = $is_usher;
+			$ins_data['email'] = $email;
+			$ins_data['phone'] = $phone;
+			$ins_data['gender'] = $gender;
+			$ins_data['address'] = $address;
+			$ins_data['parent_id'] = $parent_id;
+			$ins_data['img_id'] = $img_id;
+			$ins_data['spouse_id'] = $spouse_id;
+			$ins_data['marriage_anniversary'] = $marriage_anniversary;
+			$ins_data['job_type'] = $job_type;
+			$ins_data['is_member'] = 1;
+			$ins_data['employer_address'] = $employer_address;
+			$ins_data['baptism'] = $baptism;
+			$ins_data['foundation_school'] = $foundation_school;
+			$ins_data['foundation_weeks'] = $foundation_weeks;
+			$ins_data['chat_handle'] = $chat_handle;
+			$ins_data['dob'] = $dob;
+			$ins_data['family_status'] = $family_status;
+			$ins_data['family_position'] = $family_position;
+			$ins_data['parent_id'] = $parent_id;
+			$ins_data['dept_id'] = json_encode($sanitized_dept_id);
+			$ins_data['dept_role'] = json_encode($sanitized_dept_role_id);
+			$ins_data['ministry_id'] = $ministry_id;
+			$ins_data['church_id'] = $church_id;
+			$ins_data['church_type'] = $church_type;
+			$ins_data['regional_id'] = $regional_id;
+			$ins_data['zonal_id'] = $zonal_id;
+			$ins_data['group_id'] = $group_id;
+			$ins_data['cell_id'] = $cell_id;
+			$ins_data['cell_role'] = $cell_role_id;
+			$ins_data['is_member'] = 1;
+
+			
+			if($password) { $ins_data['password'] = md5($password); }
+			$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+			$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+			$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+			$cell_role = $this->Crud->read_field('id', $cell_role_id, 'access_role', 'name');
+			if($cell_role == 'Cell Leader' || $cell_role == 'Assistant Cell Leader'){
+				$role_id = $cell_role_id;
+				$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+				if(!empty($cells)){
+					foreach($cells as $cm){
+						if($cm->cell_role == $cell_role_id){
+							$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+						}
+					}
+				}
+			}
+			if($cell_role == 'Cell Executive'){
+				$role_id = $cell_role_id;
+				$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+				if(!empty($cells)){
+					$a = 0;
+					foreach($cells as $cm){
+						if($cm->cell_role == $cell_role_id){
+							$a++;
+							if($a > 5){
+								$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+							}
+							
+						}
+
+					}
+				}
+			}
+			$ins_data['role_id'] = $role_id;
+				
+			
+			$ins_data['activate'] = 1;
+			$ins_data['reg_date'] = date(fdate);
+			$ins_rec = $this->Crud->create('user', $ins_data);
+			if($ins_rec > 0) {
+				if(!empty($spouse_id)){
+					$this->Crud->updates('id', $spouse_id, 'user', array('spouse_id'=>$ins_rec, 'family_status'=>'married'));
+				}
+				///// store activities
+				$by = $this->Crud->read_field('id', $ins_rec, 'user', 'firstname');
+				$code = $this->Crud->read_field('id', $ins_rec, 'user', 'surname');
+				$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
+
+				$user_no = 'CEAM-00'.$ins_rec;
+				$qr_content = 'USER-00' . $ins_rec;
+
+				// Generate QR
+				$qr = $this->Crud->qrcode($qr_content); // This should return an array
+				$qr_code_url = site_url($qr['path']); // adjust as per actual path
+		
+				// Save to DB
+				$this->Crud->updates('id', $ins_rec, 'user', ['qrcode' => $qr['path']]);
+				$church = $this->Crud->read_field('id', $church_id,'church', 'name');
+				$action = $by.' created Membership ('.$code.') Record';
+				$this->Crud->activity('user', $ins_rec, $action);
+				$name = ucwords($firstname.' '.$othername.' '.$lastname);
+				$body = '
+					Dear '.ucwords(strtolower($title.' '.$firstname)).',<br><br>
+
+						Grace and peace to you!<br><br>
+						
+						Welcome to '.ucwords($church).' - a place where love abounds, faith grows, and your walk with God is nurtured. We are truly excited to have you as a vital part of our family.<br><br>
+						
+						As part of our commitment to serving you better, we`ve introduced a smart and simple way to stay connected through our new digital platform. You now have access to your personalized QR Code, which you`ll use to easily mark your attendance during our services and special events.<br><br>
+						
+						Why this matters:
+						Your presence matters deeply to us. This small step helps us shepherd you more effectively, stay in touch, and continue to build a strong, united family of faith.<br><br>
+						
+						Here is your personal QR Code:<br><br>
+						<img src="' . $qr_code_url . '" alt="QR Code" width="150" height="150"><br><br>
+						
+						Every time you attend church, simply scan your code — it`s quick, easy, and ensures you never miss a moment of connection.<br><br>
+						
+						With love and blessings,<br><br>
+						
+						'.ucwords($church).'
+						Digital Team
+						
+				';
+				$this->Crud->send_email($email, 'Membership Account', $body);
+
+				
+
+				echo $this->Crud->msg('success', 'Membership Created! Thank You!.');
+				
+				echo '<script>location.reload(false);</script>';
+			} else {
+				echo $this->Crud->msg('danger', 'Please try later');	
+			}	
+			die;	
+		}
+		$data['attend_type'] = 'guest';
+		$data['cell_id'] = '';
+		
+		$data['log_id'] = '0';
+
+        $data['current_language'] = $this->session->get('current_language');
+		$data['title'] = translate_phrase('Membership').' - '.app_name;
+		$data['page_active'] = $mod;
+		return view('attendance/member', $data);
+	
+    }
+
 	public function get_state($country=''){
 		$country_id = $this->Crud->read_field('name', $country, 'country', 'id');
 		$state = $this->Crud->read_single_order('country_id', $country, 'state', 'name', 'asc');

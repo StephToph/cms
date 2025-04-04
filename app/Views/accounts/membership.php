@@ -56,6 +56,11 @@
                                                 <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Membership Bulk Upload" pageName="<?=site_url('accounts/membership/manage/upload'); ?>" pageSize="modal-md" pageTitle="Upload Membership" class="btn  btn-outline-success pop btn-icon"><em class="icon ni ni-upload-cloud"></em></a>
 
                                             </li><!-- li -->
+                                            <li>
+                                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="New member Link" class="float-right btn btn-outline-dark btn-icon pop" pageTitle="<?=translate_phrase('New member Link');?>" pageName="<?php echo base_url('accounts/membership/manage/link'); ?>" pageSize="modal-md">
+                                                    <em class="icon ni ni-user"></em>
+                                                </a>
+                                            </li>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="<?=site_url('accounts/membership/manages'); ?>" pageTitle="Add Membership" data-toggle="tooltip" data-bs-placement="top" title="Create New Membership"  class="btn btn-outline-primary btn-icon" pageName=""><em class="icon ni ni-plus-c"></em></a>

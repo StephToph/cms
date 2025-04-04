@@ -7045,6 +7045,33 @@ class Accounts extends BaseController {
 
 					die;	
 				}
+			} elseif($param2 == 'link'){ 
+				if($param3 == 'generate') {
+					$churchId = $this->request->getPost('church_id');
+
+					if (!$churchId) {
+						return $this->output->set_content_type('application/json')
+							->set_output(json_encode(['success' => false, 'message' => 'Church ID required']));
+					}
+				
+					$link = $this->Crud->read_field('id', $churchId, 'church', 'first_timer_link');
+					
+					if(empty($link)){
+						// Generate new unique code (e.g., random 8-character slug)
+						$link = $this->Crud->generateUniqueCode();
+					
+						// Save in database
+						$this->Crud->updates('id', $churchId, 'church', ['first_timer_link' => $link]);
+					
+					}
+					
+					if ($link) {
+						echo json_encode(['success' => true, 'url' => site_url('member/' . $link)]);
+					} else {
+						echo json_encode(['success' => false, 'message' => 'Failed to generate link']);
+					}
+					die;
+				} 
 			} elseif($param2 == 'bulk_qr'){
 				// prepare for edit
 				if($param3) {
