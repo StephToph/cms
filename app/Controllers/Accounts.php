@@ -6755,10 +6755,19 @@ class Accounts extends BaseController {
 				
 				if($this->request->getMethod() == 'post'){
 					$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					$cell_id = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
 					$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
 					$file = $this->request->getFile('csv_file');
 					$records = $this->Crud->processFile($file);
 					// $record = json_decode($records);
+					
+					$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+					$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+      
+
+					function clean($input) {
+						return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+					}
 
 					if ($file->isValid()) {
 						$filePath = WRITEPATH . 'assets/uploads/' . $file->getName();
@@ -6772,48 +6781,59 @@ class Accounts extends BaseController {
 
 							$success= 0;$failed= 0;$exist=0;
 							foreach($records as $dt => $val){
-								$firstname = $val['firstname'];
-								$othername = $val['othername'];
-								$surname = $val['surname'];
-								$email = strtolower($val['email']);
-								$address = strtolower($val['address']);
-								$phone = $val['phone'];
-								$dob = $val['dob'];
-								$marital_status = $val['marital_status'];
-								$marriage_anniversary = $val['marriage_anniversary'];
-								$title = $val['title'];
-								$gender = $val['gender'];
-								$chat_handle = $val['chat_handle'];
-								$job = $val['job'];
-								$foundation_school = $val['foundation_school'];
-								$baptism = $val['baptism'];
-								$employer_address = $val['employer_address'];
 
-								$ins_data['title'] = ucwords($title);
-								$ins_data['firstname'] = $firstname;
-								$ins_data['othername'] = $othername;
-								$ins_data['surname'] = $surname;
-								$ins_data['email'] = $email;
-								$ins_data['is_member'] = 1;
-								$ins_data['phone'] = '0'.$phone;
-								$ins_data['gender'] = ucwords($gender);
-								$ins_data['address'] = $address;
-								$ins_data['marriage_anniversary'] = $marriage_anniversary;
-								$ins_data['job_type'] = $job;
-								$ins_data['employer_address'] = $employer_address;
-								$ins_data['baptism'] = strtolower($baptism);
-								$ins_data['foundation_school'] = strtolower($foundation_school);
-								$ins_data['chat_handle'] = strtolower($chat_handle);
-								$ins_data['dob'] = $dob;
-								$ins_data['church_id'] = $church_id;
-								$ins_data['ministry_id'] = $ministry_id;
-								$ins_data['family_status'] = strtolower($marital_status);
+								// Sanitize all fields
+								$firstname            = clean($val['firstname'] ?? '');
+								$othername            = clean($val['othername'] ?? '');
+								$surname              = clean($val['surname'] ?? '');
+								$email                = strtolower(clean($val['email'] ?? ''));
+								$address              = strtolower(clean($val['address'] ?? ''));
+								$phone                = preg_replace('/[^0-9]/', '', $val['phone'] ?? ''); // Keep numbers only
+								$dob                  = clean($val['dob'] ?? '');
+								$marital_status       = strtolower(clean($val['marital_status'] ?? ''));
+								$marriage_anniversary = clean($val['marriage_anniversary'] ?? '');
+								$title                = ucwords(clean($val['title'] ?? ''));
+								$gender               = ucwords(clean($val['gender'] ?? ''));
+								$chat_handle          = strtolower(clean($val['chat_handle'] ?? ''));
+								$job                  = clean($val['job'] ?? '');
+								$foundation_school    = strtolower(clean($val['foundation_school'] ?? ''));
+								$baptism              = strtolower(clean($val['baptism'] ?? ''));
+								$employer_address     = clean($val['employer_address'] ?? '');
+
+								
+
+								// Prepare data for insertion
+								$ins_data = [
+									'title'              => $title,
+									'firstname'          => $firstname,
+									'othername'          => $othername,
+									'surname'            => $surname,
+									'email'              => $email,
+									'is_member'          => 1,
+									'phone'              => '0' . ltrim($phone, '0'), // Normalize phone to start with 0
+									'gender'             => $gender,
+									'address'            => $address,
+									'marriage_anniversary' => $marriage_anniversary,
+									'job_type'           => $job,
+									'employer_address'   => $employer_address,
+									'baptism'            => $baptism,
+									'foundation_school'  => $foundation_school,
+									'chat_handle'        => $chat_handle,
+									'dob'                => $dob,
+									'church_id'          => (int) $church_id,
+									'ministry_id'        => (int) $ministry_id,
+									'family_status'      => $marital_status,
+									'role_id'            => (int) $this->Crud->read_field('name', 'Member', 'access_role', 'id'),
+									'activate'           => 1,
+									'reg_date'           => date(fdate)
+								];
+
 								$ins_data['password'] = md5($surname);
-					
-								$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
-								$ins_data['role_id'] = $role_id;
-								$ins_data['activate'] = 1;
-								$ins_data['reg_date'] = date(fdate);
+								if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+									$ins_data['cell_id'] = $cell_id;
+									$ins_data['cell_role'] = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+								}
+
 								$ins_rec = $this->Crud->create($table, $ins_data);
 								if($ins_rec > 0) {
 									///// store activities
@@ -6841,11 +6861,10 @@ class Accounts extends BaseController {
 											Membership ID: '.$user_no.'<br>
 											Email: '.$email.'<br>
 											Phone: '.$phone.'<br>
-											Password: '.$surname.'<br><br>
 											Do not disclose your Login credentials with anyone to avoid unauthorized access.
 											
 									';
-									$this->Crud->send_email($email, 'Membership Account', $body);
+									// $this->Crud->send_email($email, 'Membership Account', $body);
 									$success++;
 								} else {
 									$failed++;
@@ -7509,7 +7528,7 @@ class Accounts extends BaseController {
 									Do not disclose your Login credentials with anyone to avoid unauthorized access.
 									
 							';
-							$this->Crud->send_email($email, 'Membership Account', $body);
+							// $this->Crud->send_email($email, 'Membership Account', $body);
 
 
 							echo $this->Crud->msg('success', 'Membership Created');
