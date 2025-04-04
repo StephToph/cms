@@ -6700,7 +6700,7 @@ class Accounts extends BaseController {
 						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
 						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
 						$body = '
-							Dear '.$title.' ' . $name . ', <br><br>
+							Dear '.$title.' ' . $firstname . ', <br><br>
 								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
     							Below are your Account Details:<br><br>
 
@@ -6720,6 +6720,7 @@ class Accounts extends BaseController {
 								<p>Best regards,<br>
 								
 						';
+						$data['body'] = $body;
 						if ($this->request->getMethod() == 'post') {
 							$head = 'Welcome to ' . $ministry . ' - Set Your Password';
 							$email_status = $this->Crud->send_email($email, $head, $body);
