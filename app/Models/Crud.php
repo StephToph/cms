@@ -3334,6 +3334,8 @@ class Crud extends Model {
         $db->close();
         return $query->getResult();
     }
+
+	
 	public function filter_service_report($limit='', $offset='', $search='', $log_id, $switch_id='') {
         $db = db_connect();
         $builder = $db->table('service_report');
@@ -3371,11 +3373,12 @@ class Crud extends Model {
 			$church_id = $switch_id;
 		
 		}
+
         // Apply filters based on user role
         if ($role != 'developer' && $role != 'administrator') {
             if ($role == 'ministry administrator') {
                 $builder->where('ministry_id', $ministry_id);
-            } elseif ( $role == 'church leader') {
+            } else {
                 $builder->where('church_id', $church_id_user);
             }
         }

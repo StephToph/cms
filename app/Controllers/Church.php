@@ -1489,8 +1489,8 @@ class Church extends BaseController{
 	}
 
 	
-	public function center($param1 = '', $param2 = '', $param3 = '')
-	{
+
+	public function center($param1 = '', $param2 = '', $param3 = ''){
 		// check session login
 		if ($this->session->get('td_id') == '') {
 			$request_uri = uri_string();
@@ -1991,31 +1991,48 @@ class Church extends BaseController{
 						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
 						$church_id = $this->Crud->read_field('id', $admin_id, 'user', 'church_id');
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 
 						$name = ucwords($firstname . ' ' . $othername . ' ' . $surname);
 						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
-						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
+						$link = '<p><a href="' . htmlspecialchars($church) . '">Set Your Password</a></p>';
 						$body = '
-							Dear ' . $name . ', <br><br>
-								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
-    							Below are your Account Details:<br><br>
+							Dear ' . esc($name) . ', <br><br>
 
-								Website: ' . site_url() . '
-								Membership ID: ' . $user_no . '<br>
-								Email: ' . $email . '<br>
-								Phone: ' . $phone . '<br>
-								
-								<p>To ensure the security of your account, please set your password by clicking the link below:</p>
-    
+							<p>A ' . esc(ucwords($roles)) . ' account has been created for you on the <strong>' . esc(ucwords($church)) . '</strong> New Digital platform.</p>
 
+							<p><strong>Below are your Account Details:</strong></p>
+
+							Website: <a href="' . site_url() . '" target="_blank">' . site_url() . '</a><br>
+							Membership ID: ' . esc($user_no) . '<br>
+							Email: ' . esc($email) . '<br>
+							Phone: ' . esc($phone) . '<br>
+							Reset Link: <a href="' . $reset_link . '" target="_blank">' . $reset_link . '</a><br><br>
+
+							<p>To ensure the security of your account, please set your password by clicking the button below:</p>
+
+							<p style="margin: 20px 0;">
+								<a href="' . $reset_link . '" style="background-color: #1E90FF; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px;" target="_blank">Set Password</a>
+							</p>
+
+							<p>If the button above doesn\'t work, you can copy and paste the link below into your browser:</p>
+
+							<div style="padding:10px; background:#f5f5f5; border:1px solid #ddd; word-break:break-all; font-family:monospace; font-size:14px;">
 								' . $link . '
+							</div>
 
-								<p>This link will direct you to a secure page where you can choose your own password. If you encounter any issues or have questions, please feel free to contact our support team.</p>
-								<p><strong>Important:</strong> Do not disclose your login credentials to anyone to avoid unauthorized access.</p>
-								<p>Welcome aboard, and we look forward to your participation!</p>
-								<p>Best regards,<br>
-								
+							<p>This link will direct you to a secure page where you can choose your own password.</p>
+
+							<p><strong>Important:</strong> Do not disclose your login credentials to anyone to avoid unauthorized access.</p>
+
+							<p>Welcome aboard, and we look forward to your participation!</p>
+
+							<p>Best regards,<br>
+							The Digital Team</p>
 						';
+
+
+						$data['body'] = $body;
 						if ($this->request->getMethod() == 'post') {
 							$head = 'Welcome to ' . $ministry . ' - Set Your Password';
 							$email_status = $this->Crud->send_email($email, $head, $body);
@@ -2239,14 +2256,14 @@ class Church extends BaseController{
 
 						if (!empty($switch_id)) {
 							$all_btn = '
-								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								<li><a href="javascript:;"  pageSize="modal-lg" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
 						} else {
 							$all_btn = '
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $fullname . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $fullname . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>' . translate_phrase('Delete') . '</span></a></li>
-								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								<li><a href="javascript:;" pageSize="modal-lg" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
 							';
 
