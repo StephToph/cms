@@ -638,6 +638,7 @@ class Dashboard extends BaseController {
         if(!empty($parts)){
             $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
             $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+            $cell_id = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
             if(!empty($switch_id)){
                 $church_id = $switch_id;
                 $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
@@ -645,12 +646,16 @@ class Dashboard extends BaseController {
             foreach($parts as $p){
                 $paid = 0;
                 if($role !=  'administrator' && $role != 'developer'){
-                    if($church_id > 0){
-                        $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'church_id', $church_id, 'partners_history');
-               
-                    } else {
-                        $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'ministry_id', $ministry_id, 'partners_history');
-               
+                    if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+                        $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'cell_id', $cell_id, 'partners_history');
+                    } else{
+                        if($church_id > 0){
+                            $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'church_id', $church_id, 'partners_history');
+                
+                        } else {
+                            $partners = $this->Crud->date_range3($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'ministry_id', $ministry_id, 'partners_history');
+                
+                        }
                     }
                 } else {
                     $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'partnership_id', $p->id, 'partners_history');
@@ -695,32 +700,46 @@ class Dashboard extends BaseController {
         }
 
         $student_array = array();
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        // echo $role;
         if($role != 'developer' && $role != 'administrator'){
-            if($church_id > 0){
-                $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'church_id', $church_id, 'user');
-                $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'church_id', $church_id, 'visitors');
-                $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'church_id', $church_id, 'user');
-                $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'church_id', $church_id, 'visitors');
-                $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'church_id', $church_id, 'user');
-                $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'church_id', $church_id, 'visitors');
-                
+            if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+                $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'cell_id', $celss, 'cell_report');
+                $cell_offering = 0;
+                if (!empty($service_report)) {
+                    foreach ($service_report as $u) {
+                        $cell_offering += (float)$u->offering;
+                        // echo $u->offering;
+                        $first_timer += $u->first_timer;
+                        $new_convert += $u->new_convert;
+                    }
+                }
+                // echo $end_date;
+                $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'cell_id', $celss, 'user');
+                $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'cell_id', $celss, 'user');
+                $pvisitors = 0;$svisitors = 0;$gvisitors = 0;
+                $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'cell_id', $celss, 'user');
+               
             } else {
-                $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'ministry_id', $ministry_id, 'user');
-                $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'ministry_id', $ministry_id, 'visitors');
-                $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'ministry_id', $ministry_id, 'user');
-                $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'ministry_id', $ministry_id, 'visitors');
-                $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'ministry_id', $ministry_id, 'user');
-                $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'ministry_id', $ministry_id, 'visitors');
-        
+                if($church_id > 0){
+                    $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'church_id', $church_id, 'user');
+                    $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'church_id', $church_id, 'visitors');
+                    $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'church_id', $church_id, 'user');
+                    $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'church_id', $church_id, 'visitors');
+                    $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'church_id', $church_id, 'user');
+                    $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'church_id', $church_id, 'visitors');
+                    
+                } else {
+                    $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'ministry_id', $ministry_id, 'user');
+                    $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'ministry_id', $ministry_id, 'visitors');
+                    $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'ministry_id', $ministry_id, 'user');
+                    $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'ministry_id', $ministry_id, 'visitors');
+                    $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'ministry_id', $ministry_id, 'user');
+                    $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'ministry_id', $ministry_id, 'visitors');
+            
+                }
             }
-        }  elseif($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
-            $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'cell_id', $celss, 'user');
-            $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'cell_id', $celss, 'visitors');
-            $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'cell_id', $celss, 'user');
-            $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'cell_id', $celss, 'visitors');
-            $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'cell_id', $celss, 'user');
-            $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'cell_id', $celss, 'visitors');
-        } else {
+        }  else {
             $pmembers = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'user');
             $pvisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'visitors');
             $smembers = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'user');
@@ -729,7 +748,8 @@ class Dashboard extends BaseController {
             $gvisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'visitors');
         
         }
-
+        // echo $role;
+        // print_r($service_report);
         $prospective += $pmembers;
         $prospective += $pvisitors;
         $student += $smembers;
@@ -748,7 +768,7 @@ class Dashboard extends BaseController {
         $resp['first_timer'] = number_format($first_timer);
         $resp['new_convert'] = number_format($new_convert);
         $resp['offering'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($offering),2);
-        $resp['cell_offering'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($cell_offering),2);
+        $resp['cell_offering'] = $this->session->get('currency').number_format(($cell_offering),2);
         $resp['partnership'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($partnership),2);
         $resp['partnership_part'] = number_format($partnership_part);
         $resp['partnership_list'] = ($partnership_list);
@@ -816,6 +836,7 @@ class Dashboard extends BaseController {
         $male_per = 0;$female_per = 0;$children_per=0;$ft_per=0;$nc_per=0;
         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $cell_id = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
         if(!empty($switch_id)){
             $church_id = $switch_id;
             $ministry_id = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
