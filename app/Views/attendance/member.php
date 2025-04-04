@@ -20,7 +20,7 @@ $this->Crud = new Crud();
                                     $type_id = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'type');
                                     $type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
                                 ?>
-                                <h3 class="nk-block-title page-title"><?=ucwords('Membership Form'); ?></h3>
+                                <h3 class="nk-block-title page-title"><?=ucwords(ucwords($church).' Membership Form'); ?></h3>
                                 
                             </div>
                         </div>

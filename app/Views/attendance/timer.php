@@ -17,10 +17,11 @@ $this->Crud = new Crud();
                             <div class="nk-block-head-content">
                                 <?php
                                 
+
                                     $type_id = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'type');
                                     $type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
                                 ?>
-                                <h3 class="nk-block-title page-title"><?=ucwords('First Timer Form'); ?></h3>
+                                <h3 class="nk-block-title page-title"><?=ucwords(ucwords($church).' First Timer Form'); ?></h3>
                                 
                             </div>
                         </div>
@@ -33,11 +34,12 @@ $this->Crud = new Crud();
                                         <div class="card-inner">
                                             <div class="card-title-group">
                                                 <div class="card-title">
-                                                    <h6 class="title my-1"><?=translate_phrase('First Timer');?></h6>
+                                                    <h6 class="title my-1"><?=translate_phrase(' First Timer Form');?></h6>
                                                 </div>
                                                 <div class="card-tools"></a>
                                                 </div>
                                             </div>
+
                                         </div>
                                         <div class="row p-3">
                                             <?php echo form_open_multipart('attendance/timer', array('id'=>'bb_ajax_form', 'class'=>'row')); ?>
