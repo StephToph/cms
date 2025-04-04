@@ -7317,7 +7317,18 @@ class Accounts extends BaseController {
 					$ministry_id = $this->request->getVar('ministry_id');
 					$church_id = $this->request->getVar('church_id');
 					$img_id = $this->request->getVar('img_id');
-	
+					
+					
+					$dept_role = [];
+					foreach ($dept_role_id as $dept_id => $role_id) {
+						$dept_role[] = $role_id;
+					}
+
+
+					$is_usher = 0;
+					$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
+					if(in_array($usher_id, $dept_id))$is_usher = 1;
+
 					//// Image upload
 					if(file_exists($this->request->getFile('pics'))) {
 						$path = 'assets/images/users/';
@@ -7339,6 +7350,7 @@ class Accounts extends BaseController {
 					$ins_data['surname'] = $lastname;
 					$ins_data['email'] = $email;
 					$ins_data['phone'] = $phone;
+					$ins_data['is_usher'] = $is_usher;
 					$ins_data['gender'] = $gender;
 					$ins_data['address'] = $address;
 					$ins_data['is_archive'] = $archive;
@@ -7357,8 +7369,8 @@ class Accounts extends BaseController {
 					$ins_data['family_status'] = $family_status;
 					$ins_data['family_position'] = $family_position;
 					$ins_data['parent_id'] = $parent_id;
-					$ins_data['dept_id'] = $dept_id;
-					$ins_data['dept_role'] = $dept_role_id;
+					$ins_data['dept_id'] = json_encode($dept_id);
+					$ins_data['dept_role'] = json_encode($dept_role_id);
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_id'] = $church_id;
 					$ins_data['church_type'] = $church_type;
@@ -7689,7 +7701,6 @@ class Accounts extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
-								<li><a href="javascript:;" class="text-dark pop" pageTitle="Leader ' . $name . '" pageName="' . site_url($mod . '/manage/leaders/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leader').'</span></a></li>
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								

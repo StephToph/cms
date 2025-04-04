@@ -50,6 +50,8 @@ class Attendance extends BaseController {
 							// Optional: apply it immediately
 							date_default_timezone_set($timezone);
 						}
+
+						// echo date('y-m-d');
 						if($is_admin > 0 || $role == 'Administrator' || $role == 'Developer'){
 							$attend_type = 'admin';
 						}
@@ -143,7 +145,7 @@ class Attendance extends BaseController {
 		$data['param1'] = $param1;
 		$data['param2'] = $param2;
 		$data['param3'] = $param3;
-		$data['form_link'] = $form_link;
+		$data['form_link'] = rtrim($form_link, '/');
 		
 
 
@@ -1042,6 +1044,227 @@ class Attendance extends BaseController {
 					}
 					die;
 				} 
+			} elseif($param2 == 'member'){
+				
+				if($this->request->getMethod() == 'post'){
+					$membership_id = $this->request->getVar('membership_id');
+					$firstname = $this->request->getVar('firstname');
+					$lastname = $this->request->getVar('lastname');
+					$othername = $this->request->getVar('othername');
+					$gender = $this->request->getVar('gender');
+					$email = $this->request->getVar('email');
+					$phone = $this->request->getVar('phone');
+					$dob = $this->request->getVar('dob');
+					$archive = $this->request->getVar('archive');
+					$chat_handle = $this->request->getVar('chat_handle');
+					$address = $this->request->getVar('address');
+					$family_status = $this->request->getVar('family_status');
+					$family_position = $this->request->getVar('family_position');
+					$parent_id = $this->request->getVar('parent_id');
+					$dept_id = $this->request->getVar('dept_id');
+					$dept_role_id = $this->request->getVar('dept_role_id');
+					$parent_id = $this->request->getVar('parent_id');
+					$cell_id = $this->request->getVar('cell_id');
+					$spouse_id = $this->request->getVar('spouse_id');
+					$cell_role_id = $this->request->getVar('cell_role_id');
+					$title = $this->request->getVar('title');
+					$password = $this->request->getVar('password');
+					$marriage_anniversary = $this->request->getVar('marriage_anniversary');
+					$job_type = $this->request->getVar('job_type');
+					$employer_address = $this->request->getVar('employer_address');
+					$baptism = $this->request->getVar('baptism');
+					$foundation_school = $this->request->getVar('foundation_school');
+					$foundation_weeks = $this->request->getVar('foundation_weeks');
+					$ministry_id = $this->request->getVar('ministry_id');
+					$church_id = $this->request->getVar('church_id');
+					$img_id = $this->request->getVar('img_id');
+					
+
+					$dept_role = [];
+					foreach ($dept_role_id as $dept_i => $role_id) {
+						$dept_role[] = $role_id;
+					}
+
+
+					$is_usher = 0;
+					$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
+					if(in_array($usher_id, $dept_id))$is_usher = 1;
+					
+					//// Image upload
+					if(file_exists($this->request->getFile('pics'))) {
+						$path = 'assets/images/users/';
+						$file = $this->request->getFile('pics');
+						$getImg = $this->Crud->img_upload($path, $file);
+						
+						if(!empty($getImg->path)) $img_id = $getImg->path;
+					}
+					$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+					$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+					$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+					$group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+					
+					// echo $baptism;
+					// die;
+					$ins_data['title'] = $title;
+					$ins_data['firstname'] = $firstname;
+					$ins_data['othername'] = $othername;
+					$ins_data['surname'] = $lastname;
+					$ins_data['is_usher'] = $is_usher;
+					$ins_data['email'] = $email;
+					$ins_data['phone'] = $phone;
+					$ins_data['gender'] = $gender;
+					$ins_data['address'] = $address;
+					$ins_data['parent_id'] = $parent_id;
+					$ins_data['img_id'] = $img_id;
+					$ins_data['spouse_id'] = $spouse_id;
+					$ins_data['marriage_anniversary'] = $marriage_anniversary;
+					$ins_data['job_type'] = $job_type;
+					$ins_data['is_member'] = 1;
+					$ins_data['employer_address'] = $employer_address;
+					$ins_data['baptism'] = $baptism;
+					$ins_data['foundation_school'] = $foundation_school;
+					$ins_data['foundation_weeks'] = $foundation_weeks;
+					$ins_data['chat_handle'] = $chat_handle;
+					$ins_data['dob'] = $dob;
+					$ins_data['family_status'] = $family_status;
+					$ins_data['family_position'] = $family_position;
+					$ins_data['parent_id'] = $parent_id;
+					$ins_data['dept_id'] = json_encode($dept_id);
+					$ins_data['dept_role'] = json_encode($dept_role_id);
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['church_type'] = $church_type;
+					$ins_data['regional_id'] = $regional_id;
+					$ins_data['zonal_id'] = $zonal_id;
+					$ins_data['group_id'] = $group_id;
+					$ins_data['cell_id'] = $cell_id;
+					$ins_data['cell_role'] = $cell_role_id;
+					$ins_data['is_member'] = 1;
+					if($password) { $ins_data['password'] = md5($password); }
+					$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+					$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+					$cell_role = $this->Crud->read_field('id', $cell_role_id, 'access_role', 'name');
+					if($cell_role == 'Cell Leader' || $cell_role == 'Assistant Cell Leader'){
+						$role_id = $cell_role_id;
+						$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+						if(!empty($cells)){
+							foreach($cells as $cm){
+								if($cm->cell_role == $cell_role_id){
+									$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+								}
+							}
+						}
+					}
+					if($cell_role == 'Cell Executive'){
+						$role_id = $cell_role_id;
+						$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+						if(!empty($cells)){
+							$a = 0;
+							foreach($cells as $cm){
+								if($cm->cell_role == $cell_role_id){
+									$a++;
+									if($a > 5){
+										$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+									}
+									
+								}
+
+							}
+						}
+					}
+					$ins_data['role_id'] = $role_id;
+						
+					
+					$ins_data['activate'] = 1;
+					$ins_data['reg_date'] = date(fdate);
+					$ins_rec = $this->Crud->create('user', $ins_data);
+					if($ins_rec > 0) {
+						if(!empty($spouse_id)){
+							$this->Crud->updates('id', $spouse_id, 'user', array('spouse_id'=>$ins_rec, 'family_status'=>'married'));
+						}
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $ins_rec, 'user', 'surname');
+						$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
+
+						$user_no = 'CEAM-00'.$ins_rec;
+						$qr_content = 'USER-00' . $ins_rec;
+
+						// Generate QR
+						$qr = $this->Crud->qrcode($qr_content); // This should return an array
+						$qr_code_url = site_url($qr['path']); // adjust as per actual path
+				
+						// Save to DB
+						$this->Crud->updates('id', $ins_rec, 'user', ['qrcode' => $qr['path']]);
+						$church = $this->Crud->read_field('id', $church_id,'church', 'name');
+						$action = $by.' created Membership ('.$code.') Record';
+						$this->Crud->activity('user', $ins_rec, $action);
+						$name = ucwords($firstname.' '.$othername.' '.$lastname);
+						$body = '
+							Dear '.ucwords(strtolower($title.' '.$firstname)).',<br><br>
+
+								Grace and peace to you!<br><br>
+								
+								Welcome to '.ucwords($church).' - a place where love abounds, faith grows, and your walk with God is nurtured. We are truly excited to have you as a vital part of our family.<br><br>
+								
+								As part of our commitment to serving you better, we`ve introduced a smart and simple way to stay connected through our new digital platform. You now have access to your personalized QR Code, which you`ll use to easily mark your attendance during our services and special events.<br><br>
+								
+								Why this matters:
+								Your presence matters deeply to us. This small step helps us shepherd you more effectively, stay in touch, and continue to build a strong, united family of faith.<br><br>
+								
+								Here is your personal QR Code:<br><br>
+								<img src="' . $qr_code_url . '" alt="QR Code" width="150" height="150"><br><br>
+								
+								Every time you attend church, simply scan your code — it`s quick, easy, and ensures you never miss a moment of connection.<br><br>
+								
+								With love and blessings,<br><br>
+								
+								'.ucwords($church).'
+								Digital Team
+								
+						';
+						$this->Crud->send_email($email, 'Membership Account', $body);
+
+						//Mark Attendance 
+						$service = $this->request->getPost('service'); // e.g., "Sunday Service"
+						// Get all service reports for today for the specified church
+						$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
+
+						// Target occurrence number (you can calculate or pass it from frontend)
+						$occurrence = 0;
+						$service_report_id = 0;
+
+						if (!empty($query)) {
+							foreach ($query as $q) {
+								$occurrence++;
+
+								if ($occurrence == $service) {
+									$service_report_id = $q->id; // grab the ID of the N-th occurrence
+									break;
+								}
+							
+							}
+						}
+						// Do DB logic here, example:
+						$this->Crud->create('service_attendance',[
+							'member_id' => $ins_rec,
+							'service_id' => $service_report_id,
+							'church_id' => $church_id,
+							'status' => 'present'
+						]);
+
+						echo $this->Crud->msg('success', 'Membership Created!<br>Service Attendance!<br> Thank You!.');
+						
+						echo '<script>location.reload(false);</script>';
+					} else {
+						echo $this->Crud->msg('danger', 'Please try later');	
+					}	
+				
+				
+
+					die;	
+				}
 			} else {
 				
 				if($this->request->getMethod() == 'post'){

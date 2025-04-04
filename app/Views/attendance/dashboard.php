@@ -24,65 +24,59 @@ $this->Crud = new Crud();
                                 <p><?=date('Y-m-d'); ?></p>
                             </div>
                         </div>
-                        <div class="nk-block-head-content">
-                            <div class="toggle-wrap nk-block-tools-toggle">
-                                <a href="#" class="btn btn-icon btn-trigger toggle-expand me-n1" data-target="pageMenu">
-                                    <em class="icon ni ni-more-v"></em>
-                                </a>
-                                <div class="toggle-expand-content" data-content="pageMenu">
-                                    <div class="nk-block-tools g-3">
-                                        <div class="row ">
-                                        <?php 
-                                            $service_count = $this->Crud->check3('status', 0, 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
-                                            if($service_count > 1){
-                                                if($attend_type == 'cell'){
-                                                    echo  '<div class="col-sm-3 mb-3">
-                                                        <select class="js-select2" data-search="on" name="service"  id="service_select" >';
-                                                            for ($i=0; $i < $service_count; $i++) { 
-                                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
-                                                            }
-
-                                                        echo '</select>
-                                                    </div>';
-                                                } else {
-                                                    echo  '<li>
-                                                        <select class="js-select2" data-search="on" name="service" id="service">';
-                                                            for ($i=0; $i < $service_count; $i++) { 
-                                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
-                                                            }
-
-                                                        echo '</select>
-                                                    </li>';
-                                                }
-                                           
-                                        } else{
-                                            echo '<input type="hidden" id="service" value="1">
-                                            <input type="hidden" id="service_select" value="1">';
-                                        }
-                                        
-                                        if($attend_type == 'admin'){?>
-                                            <div class="col-sm-4 mb-3">
-                                                <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim  mx-2 btn-outline-primary"><em
-                                                        class="icon ni ni-reports"></em><span>Analytics</span></a>
-                                            </div>
-                                        <?php } ?>
-                                        <div class="col-sm-3 mb-3">
-                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-outline-info pop mx-2" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
-                                                <em class="icon ni ni-plus-c"></em><span> FT</span>
-                                            </a>
-                                        </div>
-                                        <div class="col-sm-3 mb-3">
-                                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-white pop  ml-2" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
-                                                    class="icon ni ni-qr"></em><span> QR</span></a>
-                                        </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
                 <div class="nk-block">
+                    <div class="row ">
+                        <?php 
+                            $service_count = $this->Crud->check3('status', 0, 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
+                            if($service_count > 1){
+                                if($attend_type == 'cell'){
+                                    echo  '<div class="col-sm-3 mb-3">
+                                        <select class="js-select2" data-search="on" name="service"  id="service_select" >';
+                                            for ($i=0; $i < $service_count; $i++) { 
+                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
+                                            }
+
+                                        echo '</select>
+                                    </div>';
+                                } else {
+                                    echo  '<div class="col-sm-3 mb-3">
+                                        <select class="js-select2" data-search="on" name="service" id="service">';
+                                            for ($i=0; $i < $service_count; $i++) { 
+                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
+                                            }
+
+                                        echo '</select>
+                                    </div>';
+                                }
+                            
+                        } else{
+                            echo '<input type="hidden" id="service" value="1">
+                            <input type="hidden" id="service_select" value="1">';
+                        }
+                        
+                        if($attend_type == 'admin'){?>
+                            <div class="col-sm-2 mb-3">
+                                <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-block mx-2 btn-outline-primary"><em
+                                        class="icon ni ni-reports"></em><span>Analytics</span></a>
+                            </div>
+                        <?php } ?>
+                        <div class="col-sm-2 mb-3">
+                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-block  btn-outline-info pop mx-2" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
+                                <em class="icon ni ni-plus-c"></em><span> First Timer</span>
+                            </a>
+                        </div>
+                        <div class="col-sm-2 mb-3">
+                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="New membership" class="float-right btn btn-outline-danger btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('New membership');?>" pageName="<?php echo site_url('attendance/dashboard/manage/member'); ?>" pageSize="modal-xl"><em
+                                    class="icon ni ni-user"></em><span> New Member</span></a>
+                        </div>
+                        <div class="col-sm-2 mb-3">
+                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
+                                    class="icon ni ni-qr"></em><span>First Timer QR</span></a>
+                        </div>
+                    </div>
                     <div class="row g-gs">
                         <div class="col-12" id="analytics" style="display:none;">
                             <div class="row">
@@ -331,6 +325,7 @@ $this->Crud = new Crud();
             
                     const modal = new bootstrap.Modal(document.getElementById('qrConfirmModal'));
                     modal.show();
+
 
                 } else {
                     speakText(res.message.replace(/<[^>]*>?/gm, '').trim());

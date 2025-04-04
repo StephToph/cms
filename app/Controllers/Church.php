@@ -1255,8 +1255,8 @@ class Church extends BaseController{
 						die;
 					}
 					if (empty($group_id)) {
-						echo $this->Crud->msg('warning', 'Please select Group Church');
-						die;
+						// echo $this->Crud->msg('warning', 'Please select Group Church');
+						// die;
 					}
 
 
@@ -1703,7 +1703,6 @@ class Church extends BaseController{
 					$ins_data['phone'] = $phone;
 					$ins_data['activate'] = $activate;
 					$ins_data['title'] = $title;
-					$ins_data['address'] = $address;
 					$ins_data['role_id'] = $urole_id;
 					if ($password) {
 						$ins_data['password'] = md5($password);
@@ -1728,9 +1727,9 @@ class Church extends BaseController{
 							echo $this->Crud->msg('info', translate_phrase('No Changes'));
 						}
 					} else {
-						if ($this->Crud->check('email', $email, $table) > 0 || $this->Crud->check('phone', $phone, $table) > 0) {
-							echo $this->Crud->msg('warning', ('Email and/or Phone Already Exist'));
-						} else {
+						// if ($this->Crud->check('email', $email, $table) > 0 || $this->Crud->check('phone', $phone, $table) > 0) {
+						// 	echo $this->Crud->msg('warning', ('Email and/or Phone Already Exist'));
+						// } else {
 							$ins_data['ministry_id'] = $ministry_id;
 							$ins_data['church_id'] = $church_id;
 							$ins_data['church_type'] = $church_type;
@@ -1755,7 +1754,7 @@ class Church extends BaseController{
 							} else {
 								echo $this->Crud->msg('danger', translate_phrase('Please try later'));
 							}
-						}
+						// }
 					}
 					exit;
 				}
