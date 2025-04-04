@@ -597,7 +597,7 @@
                     let options = '<option value="">Select Role</option>';
                     if (response.length > 0) {
                         response.forEach(role => {
-                            options += `<option value="${role.id}">${role.name}</option>`;
+                            options += `<option value="${role.name}">${role.name}</option>`;
                         });
                     }
 

@@ -51,7 +51,7 @@ $this->Crud = new Crud();
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Email'); ?></label>
-                    <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" required>
+                    <input class="form-control" type="email" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>">
                 </div>
             </div>
 
@@ -65,7 +65,7 @@ $this->Crud = new Crud();
             <div class="col-sm-12 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Address'); ?></label>
-                    <input class="form-control" type="text" id="address" name="address" value="<?php if(!empty($e_address)) {echo $e_address;} ?>" required>
+                    <input class="form-control" type="text" id="address" name="address" value="<?php if(!empty($e_address)) {echo $e_address;} ?>" >
                 </div>
             </div>
             <div class="col-sm-6 mb-3">
@@ -153,6 +153,7 @@ $this->Crud = new Crud();
                     </select>
                 </div>
             </div>
+            
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
@@ -190,6 +191,7 @@ $this->Crud = new Crud();
     <?php } ?>
 <?php echo form_close(); ?>
 <script>
+    $('.js-select2').select2();
     $('.js-select2').select2();
     function readURL(input, id) {
 		if (input.files && input.files[0]) {

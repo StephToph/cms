@@ -32,7 +32,7 @@
 
         <div class="row">
             <input type="hidden" name="user_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
-            <div class="col-sm-12 mb-3">
+            <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label>Title</label>
                     <select class="js-select2" name="title" id="title" data-placeholder="Select Title" required>
@@ -76,21 +76,6 @@
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Phone');?></label>
                     <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>" required>
-                </div>
-            </div>
-
-            <div class="col-sm-12 mb-3">
-                <div class="form-group">
-                    <label for="name">*<?=translate_phrase('Address');?></label>
-                    <input class="form-control" type="text" id="address" name="address" value="<?php if(!empty($e_address)) {echo $e_address;} ?>">
-                </div>
-            </div>
-
-
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="password"><?php if(!empty($e_id)) { echo translate_phrase('Reset Password'); } else { echo translate_phrase('*Password'); } ?></label>
-                    <input class="form-control" type="text" id="password" name="password" <?php if(empty($e_id)) { echo 'required'; } ?>>
                 </div>
             </div>
 

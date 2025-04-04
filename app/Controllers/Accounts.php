@@ -7286,38 +7286,60 @@ class Accounts extends BaseController {
 				} 
 
 				if($this->request->getMethod() == 'post'){
-					$membership_id = $this->request->getVar('membership_id');
-					$firstname = $this->request->getVar('firstname');
-					$lastname = $this->request->getVar('lastname');
-					$othername = $this->request->getVar('othername');
-					$gender = $this->request->getVar('gender');
-					$email = $this->request->getVar('email');
-					$phone = $this->request->getVar('phone');
-					$dob = $this->request->getVar('dob');
-					$archive = $this->request->getVar('archive');
-					$chat_handle = $this->request->getVar('chat_handle');
-					$address = $this->request->getVar('address');
-					$family_status = $this->request->getVar('family_status');
-					$family_position = $this->request->getVar('family_position');
-					$parent_id = $this->request->getVar('parent_id');
-					$dept_id = $this->request->getVar('dept_id');
-					$dept_role_id = $this->request->getVar('dept_role_id');
-					$parent_id = $this->request->getVar('parent_id');
-					$cell_id = $this->request->getVar('cell_id');
-					$spouse_id = $this->request->getVar('spouse_id');
-					$cell_role_id = $this->request->getVar('cell_role_id');
-					$title = $this->request->getVar('title');
-					$password = $this->request->getVar('password');
-					$marriage_anniversary = $this->request->getVar('marriage_anniversary');
-					$job_type = $this->request->getVar('job_type');
-					$employer_address = $this->request->getVar('employer_address');
-					$baptism = $this->request->getVar('baptism');
-					$foundation_school = $this->request->getVar('foundation_school');
-					$foundation_weeks = $this->request->getVar('foundation_weeks');
-					$ministry_id = $this->request->getVar('ministry_id');
-					$church_id = $this->request->getVar('church_id');
-					$img_id = $this->request->getVar('img_id');
-	
+					$membership_id = htmlspecialchars(trim($this->request->getVar('membership_id')), ENT_QUOTES, 'UTF-8');
+					$firstname = htmlspecialchars(trim($this->request->getVar('firstname')), ENT_QUOTES, 'UTF-8');
+					$lastname  = htmlspecialchars(trim($this->request->getVar('lastname')), ENT_QUOTES, 'UTF-8');
+					$othername  = htmlspecialchars(trim($this->request->getVar('othername')), ENT_QUOTES, 'UTF-8');
+					$gender  = htmlspecialchars(trim($this->request->getVar('gender')), ENT_QUOTES, 'UTF-8');
+					$email  = htmlspecialchars(trim($this->request->getVar('email')), ENT_QUOTES, 'UTF-8');
+					$phone  = htmlspecialchars(trim($this->request->getVar('phone')), ENT_QUOTES, 'UTF-8');
+					$dob  = htmlspecialchars(trim($this->request->getVar('dob')), ENT_QUOTES, 'UTF-8');
+					$archive       = htmlspecialchars(trim($this->request->getVar('archive')), ENT_QUOTES, 'UTF-8');
+					$chat_handle   = htmlspecialchars(trim($this->request->getVar('chat_handle')), ENT_QUOTES, 'UTF-8');
+					$address       = htmlspecialchars(trim($this->request->getVar('address')), ENT_QUOTES, 'UTF-8');
+					$family_status = htmlspecialchars(trim($this->request->getVar('family_status')), ENT_QUOTES, 'UTF-8');
+					$family_positio= htmlspecialchars(trim($this->request->getVar('family_position')), ENT_QUOTES, 'UTF-8');
+					$parent_id     = htmlspecialchars(trim($this->request->getVar('parent_id')), ENT_QUOTES, 'UTF-8');
+					$dept_id                = $this->request->getVar('dept_id'); // array, handle separately below
+					$dept_role_id           = $this->request->getVar('dept_role_id'); // array, handle separately below
+					$cell_id                = htmlspecialchars(trim($this->request->getVar('cell_id')), ENT_QUOTES, 'UTF-8');
+					$spouse_id              = htmlspecialchars(trim($this->request->getVar('spouse_id')), ENT_QUOTES, 'UTF-8');
+					$cell_role_id           = htmlspecialchars(trim($this->request->getVar('cell_role_id')), ENT_QUOTES, 'UTF-8');
+					$title                  = htmlspecialchars(trim($this->request->getVar('title')), ENT_QUOTES, 'UTF-8');
+					$password               = htmlspecialchars(trim($this->request->getVar('password')), ENT_QUOTES, 'UTF-8');
+					$marriage_anniversary   = htmlspecialchars(trim($this->request->getVar('marriage_anniversary')), ENT_QUOTES, 'UTF-8');
+					$job_type               = htmlspecialchars(trim($this->request->getVar('job_type')), ENT_QUOTES, 'UTF-8');
+					$employer_address       = htmlspecialchars(trim($this->request->getVar('employer_address')), ENT_QUOTES, 'UTF-8');
+					$baptism                = htmlspecialchars(trim($this->request->getVar('baptism')), ENT_QUOTES, 'UTF-8');
+					$foundation_school      = htmlspecialchars(trim($this->request->getVar('foundation_school')), ENT_QUOTES, 'UTF-8');
+					$foundation_weeks       = htmlspecialchars(trim($this->request->getVar('foundation_weeks')), ENT_QUOTES, 'UTF-8');
+					$ministry_id            = htmlspecialchars(trim($this->request->getVar('ministry_id')), ENT_QUOTES, 'UTF-8');
+					$church_id              = htmlspecialchars(trim($this->request->getVar('church_id')), ENT_QUOTES, 'UTF-8');
+					$img_id                 = htmlspecialchars(trim($this->request->getVar('img_id')), ENT_QUOTES, 'UTF-8');
+
+					
+
+					$sanitized_dept_id = [];
+					if (is_array($dept_id)) {
+						foreach ($dept_id as $id) {
+							$sanitized_dept_id[] = htmlspecialchars(trim($id), ENT_QUOTES, 'UTF-8');
+						}
+					}
+
+					$sanitized_dept_role_id = [];
+					if (is_array($dept_role_id)) {
+						foreach ($dept_role_id as $key => $val) {
+							$clean_key = htmlspecialchars(trim($key), ENT_QUOTES, 'UTF-8');
+							$clean_val = htmlspecialchars(trim($val), ENT_QUOTES, 'UTF-8');
+							$sanitized_dept_role_id[$clean_key] = $clean_val;
+						}
+					}
+
+				
+					$is_usher = 0;
+					$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
+					if(in_array($usher_id, $dept_id))$is_usher = 1;
+
 					//// Image upload
 					if(file_exists($this->request->getFile('pics'))) {
 						$path = 'assets/images/users/';
@@ -7339,6 +7361,7 @@ class Accounts extends BaseController {
 					$ins_data['surname'] = $lastname;
 					$ins_data['email'] = $email;
 					$ins_data['phone'] = $phone;
+					$ins_data['is_usher'] = $is_usher;
 					$ins_data['gender'] = $gender;
 					$ins_data['address'] = $address;
 					$ins_data['is_archive'] = $archive;
@@ -7357,8 +7380,8 @@ class Accounts extends BaseController {
 					$ins_data['family_status'] = $family_status;
 					$ins_data['family_position'] = $family_position;
 					$ins_data['parent_id'] = $parent_id;
-					$ins_data['dept_id'] = $dept_id;
-					$ins_data['dept_role'] = $dept_role_id;
+					$ins_data['dept_id'] = json_encode($dept_id);
+					$ins_data['dept_role'] = json_encode($dept_role_id);
 					$ins_data['ministry_id'] = $ministry_id;
 					$ins_data['church_id'] = $church_id;
 					$ins_data['church_type'] = $church_type;
@@ -7689,7 +7712,6 @@ class Accounts extends BaseController {
 								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>'.translate_phrase('Delete').'</span></a></li>
 								<li><a href="' . site_url($mod . '/view/' . $id) . '" class="text-success" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-eye"></em><span>'.translate_phrase('View Profile').'</span></a></li>
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
-								<li><a href="javascript:;" class="text-dark pop" pageTitle="Leader ' . $name . '" pageName="' . site_url($mod . '/manage/leaders/' . $id) . '"><em class="icon ni ni-user-add"></em><span>'.translate_phrase('Leader').'</span></a></li>
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
 								
