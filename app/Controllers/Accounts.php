@@ -965,11 +965,11 @@ class Accounts extends BaseController {
 			} else {
 				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
 
-				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, 'first_timer', 0, 0, 0);
+				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, 'first_timer', 0, 0, 0, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, 'first_timer', 0, 0, 0);
+				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, 'first_timer', 0, 0, 0, $switch_id);
 				$data['count'] = $counts;
 				
 
@@ -1408,11 +1408,11 @@ class Accounts extends BaseController {
 			} else {
 				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
 
-				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, 'new_convert', $start_date, $end_date);
+				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, 'new_convert', 0, 0, 0, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, 'new_convert', $start_date, $end_date);
+				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, 'new_convert', 0, 0, 0, $switch_id);
 				$data['count'] = $counts;
 				
 
@@ -1843,11 +1843,11 @@ class Accounts extends BaseController {
 			} else {
 				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
 
-				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, '', '', 1);
+				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, '', '', 1, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, '', '', 1);
+				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, '', '', 1, $switch_id);
 				$data['count'] = $counts;
 				
 
@@ -1889,7 +1889,7 @@ class Accounts extends BaseController {
 						
 
 						$follow_up = $this->Crud->check('visitor_id', $id, 'follow_up');
-
+						$cell = '';
 						if($source_type == 'service'){
 							$cell_id = $this->Crud->read_field('id', $source_id, 'cell_report', 'cell_id');
 							$cell = '';
@@ -2280,11 +2280,11 @@ class Accounts extends BaseController {
 			} else {
 				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
 
-				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, '', 0, 0, 1);
+				$all_rec = $this->Crud->filter_visitors('', '', $log_id, $search, '', 0, 0, 1, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, '', 0, 0, 1);
+				$query = $this->Crud->filter_visitors($limit, $offset, $log_id, $search, '', 0, 0, 1, $switch_id);
 				$data['count'] = $counts;
 				
 
@@ -7750,6 +7750,7 @@ class Accounts extends BaseController {
 								<li><a href="' . site_url($mod . '/partnership/' . $id) . '" class="text-primary" pageTitle="View ' . $name . '" pageSize="modal-lg" pageName=""><em class="icon ni ni-link"></em><span>'.translate_phrase('Partnership Records').'</span></a></li>
 								<li><a href="javascript:;" class="text-primary pop" pageTitle="Send Message to ' . $name . '" pageName="' . site_url($mod . '/manage/message/' . $id) . '"><em class="icon ni ni-chat-circle"></em><span>'.translate_phrase('Send Message').'</span></a></li>
 								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-share"></em> <span>Send Login</span></a></li>
+								<li><a href="javascript:;" pageTitle="Send Login" id="send_btn"  class="text-success pop" pageName="' . site_url($mod . '/manage/admin_send/' . $id) . '"><em class="icon ni ni-qr"></em> <span>Send QR Code</span></a></li>
 								
 							';
 							} else {
