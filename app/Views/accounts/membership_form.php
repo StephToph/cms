@@ -331,7 +331,7 @@ $this->Crud = new Crud();
         </div>
         <div class="row">
             <input type="hidden" name="edit_id" value="<?php if(!empty($e_id)){echo $e_id;} ?>" />
-
+        
             <!-- Send Type Selector -->
             <div class="col-sm-12 mb-2">
                 <div class="form-group">

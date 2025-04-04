@@ -3248,6 +3248,7 @@ class Church extends BaseController{
 	{
 		$log_id = $this->session->get('td_id');
 
+		
 		$church_id = $this->request->getPost('church_id');
 		if (empty($church_id)) {
 			echo $this->Crud->msg('danger', 'Invalid Church');

@@ -496,11 +496,11 @@ class Service extends BaseController {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_service_schedule('', '', $search, $log_id);
+				$all_rec = $this->Crud->filter_service_schedule('', '', $search, $log_id, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_service_schedule($limit, $offset, $search, $log_id);
+				$query = $this->Crud->filter_service_schedule($limit, $offset, $search, $log_id, $switch_id);
 				$data['count'] = $counts;
 
 				if (!empty($query)) {
@@ -4449,17 +4449,18 @@ class Service extends BaseController {
 			';
 			$a = 1;
 
+
             //echo $status;
 			$log_id = $this->session->get('td_id');
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
 				
-				$all_rec = $this->Crud->filter_service_report('', '', $search, $log_id);
+				$all_rec = $this->Crud->filter_service_report('', '', $search, $log_id,  $switch_id,);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_service_report($limit, $offset, $search, $log_id);
+				$query = $this->Crud->filter_service_report($limit, $offset, $search, $log_id,  $switch_id,);
 				$data['count'] = $counts;
 				
 
