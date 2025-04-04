@@ -39,7 +39,7 @@
                                     
                                     if ($ministry_id > 0) { ?>
                                         <input type="hidden" name="ministry_id"  id="ministry_id"  value="<?php echo $ministry_id; ?>">
-                                        <input type="hidden" name="church_id" value="<?php echo $church_id; ?>">
+                                        <input type="hidden" name="church_id"  id="church_id" value="<?php echo $church_id; ?>">
                                 <?php } else { ?>
                                     <div class="col-md-6 col-lg-4 col-xxl-3 ">
                                         <div class="form-group">
@@ -65,57 +65,56 @@
                                         </div>
                                     </div>
 
-                                <?php } ?>
-
-                                <?php if ($roles != 'Church Leader') { ?>
-                                    <div class="col-md-6 col-lg-4 col-xxl-3">
-                                        <div class="form-group">
-                                            <label  class="form-label">Church Level</label>
-                                            <select class="js-select2" data-search="on" name="level" id="level">
-                                                <option value="">Select Church Level</option>
-                                                <?php
-                                                    
-                                                    $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
-                                                    $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
-
-                                                    if($log_church_type == 'region'){
+                                    <?php if ($roles != 'Church Leader') { ?>
+                                        <div class="col-md-6 col-lg-4 col-xxl-3">
+                                            <div class="form-group">
+                                                <label  class="form-label">Church Level</label>
+                                                <select class="js-select2" data-search="on" name="level" id="level">
+                                                    <option value="">Select Church Level</option>
+                                                    <?php
                                                         
-                                                ?>
-                                                
-                                                    <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
-                                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
-                                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
-                                                <?php } elseif($log_church_type == 'zone'){?>
-                                                
-                                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
-                                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                                        $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
+                                                        $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
 
-                                                <?php } elseif($log_church_type == 'group'){?>
-                                                
-                                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                                        if($log_church_type == 'region'){
+                                                            
+                                                    ?>
+                                                    
+                                                        <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
+                                                        <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                                        <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                                    <?php } elseif($log_church_type == 'zone'){?>
+                                                    
+                                                        <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                                        <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
 
-                                                <?php } else{?>
-                                                    <option value="region" <?php if(!empty($e_level)){if($e_level == 'region'){echo 'selected';}} ?>>Regional Church</option>
-                                                    <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
-                                                    <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
-                                                    <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
-                                                <?php } ?>
-                                                
-                                            </select>
+                                                    <?php } elseif($log_church_type == 'group'){?>
+                                                    
+                                                        <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+
+                                                    <?php } else{?>
+                                                        <option value="region" <?php if(!empty($e_level)){if($e_level == 'region'){echo 'selected';}} ?>>Regional Church</option>
+                                                        <option value="zone" <?php if(!empty($e_level)){if($e_level == 'zone'){echo 'selected';}} ?>>Zonal Church</option>
+                                                        <option value="group" <?php if(!empty($e_level)){if($e_level == 'group'){echo 'selected';}} ?>>Group Church</option>
+                                                        <option value="church" <?php if(!empty($e_level)){if($e_level == 'church'){echo 'selected';}} ?>>Church Assembly</option>
+                                                    <?php } ?>
+                                                    
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
+                                        
                                     
-                                
-                                    <div class="col-md-6 col-lg-4 col-xxl-3" id="church_div" style="display:none;">
-                                        <div class="form-group">
-                                            <label  class="form-label">Church</label>
-                                            <select class="js-select2" data-search="on" name="church_id" id="church_id">
-                                                <option value="">Select</option>
+                                        <div class="col-md-6 col-lg-4 col-xxl-3" id="church_div" style="display:none;">
+                                            <div class="form-group">
+                                                <label  class="form-label">Church</label>
+                                                <select class="js-select2" data-search="on" name="church_id" id="church_id">
+                                                    <option value="">Select</option>
 
-                                            </select>
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
+                                    <?php } ?>
                                 <?php } ?>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Title</label>
@@ -310,7 +309,7 @@
                                         
                                     }
                                 ?>
-                                <div class="col-12" >
+                               <div class="col-12" style="display: none;" id="dept_display">
                                     <div class="row" id="dept_roles_container"></div>
                                 </div>
 
@@ -438,6 +437,9 @@
                                         <input class="form-control" type="text" id="password" name="password">
                                     </div>
                                 </div>
+                                <?php
+                                    if($role != ''){}
+                                ?>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Move to Archive</label>
                                         <div class="form-control-wrap">
@@ -579,6 +581,7 @@
     ?>
     
     function dept_role() {
+        $('#dept_display').hide(500);
         const dept_ids = $('#dept_id').val(); // Get selected departments
         const container = $('#dept_roles_container');
         container.empty(); // Clear current role fields
@@ -593,7 +596,7 @@
                 data: { dept_id: dept_id },
                 success: function(response) {
                     // Assume response is an array of role objects { id, name }
-
+                    $('#dept_display').show(500);
                     let options = '<option value="">Select Role</option>';
                     if (response.length > 0) {
                         response.forEach(role => {
