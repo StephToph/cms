@@ -3247,7 +3247,7 @@ class Crud extends Model {
     }
 
 
-    public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $region_id = '', $zone_id = '', $group_id = '', $church_id = '', $level = '') {
+    public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $region_id = '', $zone_id = '', $group_id = '', $church_id = '', $level = '', $switch_id = '') {
         $db = db_connect();
         $builder = $db->table('cell_report');
     
@@ -3256,14 +3256,40 @@ class Crud extends Model {
     
         // Retrieve user details
         $role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+        $cell_id = $this->read_field('id', $log_id, 'user', 'cell_id');
         $ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
         $church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
         $role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-    
+		
+		
+		if(!empty($switch_id)){
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			if($church_type == 'region'){
+				$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+				$role = 'regional manager';
+			}
+			if($church_type == 'zone'){
+				$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+				$role = 'zonal manager';
+			}
+			if($church_type == 'group'){
+				$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+				$role = 'group manager';
+			}
+			if($church_type == 'church'){
+				$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+				$role = 'church leader';
+			}
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id_user = $switch_id;
+		
+		}
         // Apply filters based on user role
         if ($role != 'developer' && $role != 'administrator') {
             if ($role == 'ministry administrator') {
                 $builder->where('ministry_id', $ministry_id);
+			} elseif($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+				$builder->where('cell_id', $cell_id);
             } else {
                 $builder->where('church_id', $church_id_user);
             }
@@ -3335,7 +3361,7 @@ class Crud extends Model {
         return $query->getResult();
     }
 
-	
+
 	public function filter_service_report($limit='', $offset='', $search='', $log_id, $switch_id='') {
         $db = db_connect();
         $builder = $db->table('service_report');

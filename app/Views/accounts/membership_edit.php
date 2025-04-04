@@ -313,7 +313,7 @@
                                     <div class="row" id="dept_roles_container"></div>
                                 </div>
 
-                               
+                               <?php if($role != 'cell leader' && $role != 'cell executive' && $role != 'assistant cell leader'){ ?>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Cell</label>
                                         <div class="form-control-wrap">
@@ -348,6 +348,12 @@
                                         </div>
                                     </div>
                                 </div>
+                                <?php } else{ 
+                                    $e_cell_id = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+                                    ?>
+                                    <input type="hidden" name="cell_id" id="cell_id" value="<?php if(!empty($e_cell_id)){echo $e_cell_id;}?>">
+                                <?php } ?>
+
                                 <div class="col-md-6 col-lg-4 col-xxl-3" id="cell_resp">
                                     <div class="form-group">
                                         <label class="form-label">Cell Role</label>
@@ -438,7 +444,7 @@
                                     </div>
                                 </div>
                                 <?php
-                                    if($role != ''){}
+                                    if($role != 'cell leader' && $role != 'cell executive' && $role != 'assistant cell leader'){
                                 ?>
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Move to Archive</label>
@@ -451,6 +457,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <?php } ?>
                                 <div class="mb-2 col-md-6 col-lg-4 col-xxl-3">
                                     <label for="img-upload" class="pointer text-center" style="width:50%;">
                                         <input type="hidden" name="img_id" value="<?php if(!empty($e_img_id)){echo $e_img_id;} ?>" />

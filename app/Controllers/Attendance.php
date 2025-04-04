@@ -56,12 +56,12 @@ class Attendance extends BaseController {
 							$attend_type = 'admin';
 						}
 						
-						if($role == 'Assistant Cell Leader' || $role == 'Cell Leader' || $role == 'Cell Executive'){
-							$attend_type = 'cell';
-						}
-
 						if($is_usher > 0){
 							$attend_type = 'usher';
+						}
+
+						if($role == 'Assistant Cell Leader' || $role == 'Cell Leader' || $role == 'Cell Executive'){
+							$attend_type = 'cell';
 						}
 
 						// echo $attend_type;

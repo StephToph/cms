@@ -5721,9 +5721,6 @@ class Accounts extends BaseController {
 
 			
 			$items = '
-				<!-- .nk-tb-item -->
-		
-				
 			';
 			$a = 1;
 
@@ -5732,12 +5729,13 @@ class Accounts extends BaseController {
 			if(!$log_id) {
 				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
 			} else {
-				
-				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id, $level);
+				$switch_id = $this->session->get('switch_church_id');
+        
+				$all_rec = $this->Crud->filter_cell_report('', '', $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id, $level, $switch_id);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id, $level);
+				$query = $this->Crud->filter_cell_report($limit, $offset, $search, $log_id, $start_date, $end_date, $cell_id, $meeting_type, $region_id, $zone_id, $group_id, $church_id, $level, $switch_id);
 				$data['count'] = $counts;
 				
 
@@ -7344,7 +7342,7 @@ class Accounts extends BaseController {
 					$chat_handle   = htmlspecialchars(trim($this->request->getVar('chat_handle')), ENT_QUOTES, 'UTF-8');
 					$address       = htmlspecialchars(trim($this->request->getVar('address')), ENT_QUOTES, 'UTF-8');
 					$family_status = htmlspecialchars(trim($this->request->getVar('family_status')), ENT_QUOTES, 'UTF-8');
-					$family_positio= htmlspecialchars(trim($this->request->getVar('family_position')), ENT_QUOTES, 'UTF-8');
+					$family_position= htmlspecialchars(trim($this->request->getVar('family_position')), ENT_QUOTES, 'UTF-8');
 					$parent_id     = htmlspecialchars(trim($this->request->getVar('parent_id')), ENT_QUOTES, 'UTF-8');
 					$dept_id                = $this->request->getVar('dept_id'); // array, handle separately below
 					$dept_role_id           = $this->request->getVar('dept_role_id'); // array, handle separately below
