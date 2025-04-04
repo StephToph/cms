@@ -103,6 +103,7 @@
             <div class="col-sm-12">
                 <div id="copyBody" style=""><?=($body); ?></div>
             </div>
+            
 
             <div class="col-sm-12 text-center">
                 <input type="hidden" name="admin_id" value="<?php if(!empty($param3)){echo $param3;} ?>" />
