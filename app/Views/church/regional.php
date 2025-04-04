@@ -152,7 +152,7 @@ $switch_id = $this->session->get('switch_church_id');
                                                 <th>Email</th>
                                                 <th>Phone</th>
                                                 <th>Role</th>
-                                                <th>Address</th>
+                                               
                                                 <th>Date</th>
                                                 <th></th>
                                             </tr>

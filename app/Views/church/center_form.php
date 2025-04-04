@@ -71,7 +71,7 @@ $this->Crud = new Crud();
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Country'); ?></label>
-                    <select id="country_i" name="country_id" class="js-select2">
+                    <select class="js-select2 form-select" id="country_i" name="country_id">
                         
                         <option value="">Select</option>
                         <?php
@@ -92,85 +92,101 @@ $this->Crud = new Crud();
                 </div>
             </div>
             <?php if ($role == 'developer' || $role == 'administrator') { ?>
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="ministry_id">*<?= translate_phrase('Ministry'); ?></label>
-                    <select id="ministry_id" name="ministry_id" class="js-select2 ministry_select">
-                        <option value="">Select</option>
-                        <?php
-                            $ministries = $this->Crud->read_order('ministry', 'name', 'asc');
-                            foreach ($ministries as $ministry) {
-                                $selected = '';
-                                if(!empty($e_ministry_id))$selected = ($e_ministry_id == $ministry->id) ? 'selected' : '';
-                                echo '<option value="' . $ministry->id . '" ' . $selected . '>' . ucwords($ministry->name) . '</option>';
-                            }
-                        ?>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
-                    <select class="js-select2 regional_select" name="regional_id" id="regional_id">
-                        <option value="">Select</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
-                    <select class="js-select2 zonal_select" name="zonal_id" id="zonal_id">
-                        <option value="">Select</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="zonal_id">*<?= translate_phrase('Group'); ?></label>
-                    <select class="js-select2 zonal_select" name="group_id" id="group_id">
-                        <option value="">Select</option>
-                    </select>
-                </div>
-            </div>
-        <?php } else { ?>
-            <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
-                    <select class="js-select2 regional_select" name="regional_id" id="regional_id">
-                        <option value="">Select Region</option>
-                        <?php
-                            $ministryId = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                            $regions = $this->Crud->read2_order('ministry_id', $ministryId, 'type', 'region', 'church', 'name', 'asc');
-                            foreach ($regions as $region) {
-                                $selected = '';
-                                if(!empty($e_regional_id)){
-                                    $selected = ($e_regional_id == $region->id) ? 'selected' : '';
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="ministry_id">*<?= translate_phrase('Ministry'); ?></label>
+                        <select id="ministry_id" name="ministry_id" class="js-select2 ministry_select">
+                            <option value="">Select</option>
+                            <?php
+                                $ministries = $this->Crud->read_order('ministry', 'name', 'asc');
+                                foreach ($ministries as $ministry) {
+                                    $selected = '';
+                                    if(!empty($e_ministry_id))$selected = ($e_ministry_id == $ministry->id) ? 'selected' : '';
+                                    echo '<option value="' . $ministry->id . '" ' . $selected . '>' . ucwords($ministry->name) . '</option>';
                                 }
-                                echo '<option value="' . $region->id . '" ' . $selected . '>' . ucwords($region->name) . '</option>';
-                            }
-                        ?>
-                    </select>
+                            ?>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
-                    <select class="js-select2 zonal_select" name="zonal_id" id="zonal_id">
-                        <option value="">Select</option>
-                    </select>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
+                        <select class="js-select2 regional_select" name="regional_id" id="regional_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="col-sm-6 mb-3">
-                <div class="form-group">
-                    <label for="zonal_id">*<?= translate_phrase('Group'); ?></label>
-                    <select class="js-select2 zonal_select" name="group_id" id="group_id">
-                        <option value="">Select</option>
-                    </select>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
+                        <select class="js-select2 zonal_select" name="zonal_id" id="zonal_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        <?php } ?>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="zonal_id">*<?= translate_phrase('Group'); ?></label>
+                        <select class="js-select2 zonal_select" name="group_id" id="group_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="zonal_id">*<?= translate_phrase('Church'); ?></label>
+                        <select class="js-select2 zonal_select" name="church_id" id="church_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+            <?php } else { ?>
+                <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $log_id, 'user', 'ministry_id'); ?>">
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="regional_id">*<?= translate_phrase('Region'); ?></label>
+                        <select class="js-select2 regional_select" name="regional_id" id="regional_id">
+                            <option value="">Select Region</option>
+                            <?php
+                                $ministryId = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+                                $regions = $this->Crud->read2_order('ministry_id', $ministryId, 'type', 'region', 'church', 'name', 'asc');
+                                foreach ($regions as $region) {
+                                    $selected = '';
+                                    if(!empty($e_regional_id)){
+                                        $selected = ($e_regional_id == $region->id) ? 'selected' : '';
+                                    }
+                                    echo '<option value="' . $region->id . '" ' . $selected . '>' . ucwords($region->name) . '</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="zonal_id">*<?= translate_phrase('Zone'); ?></label>
+                        <select class="js-select2 zonal_select" name="zonal_id" id="zonal_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="zonal_id">*<?= translate_phrase('Group'); ?></label>
+                        <select class="js-select2 zonal_select" name="group_id" id="group_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <div class="form-group">
+                        <label for="zonal_id">*<?= translate_phrase('Church'); ?></label>
+                        <select class="js-select2 zonal_select" name="church_id" id="church_id">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
 
            
         </div>
@@ -191,8 +207,6 @@ $this->Crud = new Crud();
     <?php } ?>
 <?php echo form_close(); ?>
 <script>
-    $('.js-select2').select2();
-    $('.js-select2').select2();
     function readURL(input, id) {
 		if (input.files && input.files[0]) {
 			var reader = new FileReader();
@@ -211,6 +225,7 @@ $this->Crud = new Crud();
         var eRegionId = <?php if(!empty($e_regional_id)){?> '<?=$e_regional_id?>'<?php } else {?> ''<?php }?>;
         var eZonalId = <?php if(!empty($e_zonal_id)){?> '<?=$e_zonal_id?>'<?php } else {?> ''<?php }?>;
         var eGroupId = <?php if(!empty($e_group_id)){?> '<?=$e_group_id?>'<?php } else {?> ''<?php }?>;
+        var eChurchId = <?php if(!empty($e_church_id)){?> '<?=$e_church_id?>'<?php } else {?> ''<?php }?>;
         
         if (eRegionId !== '') {
             var ministryId = $('#ministry_id').val();
@@ -276,12 +291,38 @@ $this->Crud = new Crud();
                     if (data.length === 0) {
                         $('#group_id').append('<option value="">No Group found</option>'); // display a message if no regions are found
                     } else {
+                        $('#group_id').append('<option value="0">Select Group Church</option>');
                         $.each(data, function(index, region) {
                             var selected = '';
                             if (region.id === eGroupId) {
                                 selected = 'selected';
                             }
                             $('#group_id').append('<option value="' + region.id + '" ' + selected + '>' + region.name + '</option>');
+                        });
+                    }
+                }
+            });
+        
+        }
+
+        if (eZonalId !== '') {
+            $.ajax({
+                type: 'POST',
+                url: '<?=site_url('church/get_church')?>', // replace with your controller and function
+                data: {zonal_id: eZonalId},
+                dataType: 'json',
+                success: function(data) {
+                    $('#church_id').empty();
+                    if (data.length === 0) {
+                        $('#church_id').append('<option value="">No Church found</option>'); // display a message if no regions are found
+                    } else {
+                        $('#church_id').append('<option value="0">Select Church</option>');
+                        $.each(data, function(index, region) {
+                            var selected = '';
+                            if (region.id === eChurchId) {
+                                selected = 'selected';
+                            }
+                            $('#church_id').append('<option value="' + region.id + '" ' + selected + '>' + region.name + '</option>');
                         });
                     }
                 }
@@ -350,6 +391,8 @@ $this->Crud = new Crud();
             if (zonalId === '') {
                 $('#group_id').empty();
                 $('#group_id').append('<option value="">Select</option>'); // reset to default option
+                $('#church_id').empty();
+                $('#church_id').append('<option value="">Select</option>'); // reset to default option
             } else {
                 $.ajax({
                     type: 'POST',
@@ -361,8 +404,27 @@ $this->Crud = new Crud();
                         if (data.length === 0) {
                             $('#group_id').append('<option value="">No Group Church found</option>'); // display a message if no regions are found
                         } else {
+                            $('#group_id').append('<option value="0">Select Group Church</option>');
                             $.each(data, function(index, region) {
                                 $('#group_id').append('<option value="' + region.id + '">' + region.name + '</option>');
+                            });
+                        }
+                    }
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: '<?=site_url('church/get_church')?>', // replace with your controller and function
+                    data: {zonal_id: zonalId},
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#church_id').empty();
+                        if (data.length === 0) {
+                            $('#church_id').append('<option value="">No Church found</option>'); // display a message if no regions are found
+                        } else { 
+                            $('#church_id').append('<option value="0">Select Church</option>');
+                           
+                            $.each(data, function(index, region) {
+                                $('#church_id').append('<option value="' + region.id + '">' + region.name + '</option>');
                             });
                         }
                     }
@@ -372,6 +434,8 @@ $this->Crud = new Crud();
         });
         
         $('#zonal_id').trigger('change');
+
+     
     });
 
 </script>

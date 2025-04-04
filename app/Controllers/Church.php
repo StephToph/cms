@@ -1488,6 +1488,400 @@ class Church extends BaseController{
 		}
 	}
 
+	
+	public function center($param1 = '', $param2 = '', $param3 = '')
+	{
+		// check session login
+		if ($this->session->get('td_id') == '') {
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		}
+
+		$mod = 'church/center';
+		$switch_id = $this->session->get('switch_church_id');
+
+		$log_id = $this->session->get('td_id');
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		if (!empty($switch_id)) {
+			$church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+			if ($church_type == 'region') {
+				$role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'zone') {
+				$role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'group') {
+				$role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+			}
+			if ($church_type == 'church') {
+				$role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+			}
+		}
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$role_c = $this->Crud->module($role_id, $mod, 'create');
+		$role_r = $this->Crud->module($role_id, $mod, 'read');
+		$role_u = $this->Crud->module($role_id, $mod, 'update');
+		$role_d = $this->Crud->module($role_id, $mod, 'delete');
+		if ($role_r == 0) {
+			return redirect()->to(site_url('dashboard'));
+		}
+		$data['log_id'] = $log_id;
+		$data['role'] = $role;
+		$data['role_c'] = $role_c;
+
+
+		$table = 'church';
+		$form_link = site_url($mod);
+		if ($param1) {
+			$form_link .= '/' . $param1;
+		}
+		if ($param2) {
+			$form_link .= '/' . $param2 . '/';
+		}
+		if ($param3) {
+			$form_link .= $param3;
+		}
+
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+		$data['current_language'] = $this->session->get('current_language');
+
+		// manage record
+		if ($param1 == 'manage') {
+			// prepare for delete
+			if ($param2 == 'delete') {
+				if ($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+
+					if ($this->request->getMethod() == 'post') {
+						$del_id = $this->request->getVar('d_dept_id');
+						///// store activities
+						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+						$code = $this->Crud->read_field('id', $del_id, 'church', 'name');
+						$action = $by . ' deleted Service Center (' . $code . ') Record';
+
+						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
+
+							$this->Crud->activity('user', $del_id, $action);
+							echo $this->Crud->msg('success', 'Service Center Deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;
+					}
+				}
+			} else {
+				// prepare for edit
+				if ($param2 == 'edit') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id'] = $e->id;
+								$data['e_name'] = $e->name;
+								$data['e_email'] = $e->email;
+								$data['e_phone'] = $e->phone;
+								$data['e_address'] = $e->address;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_regional_id'] = $e->regional_id;
+								$data['e_zonal_id'] = $e->zonal_id;
+								$data['e_group_id'] = $e->group_id;
+								$data['e_church_id'] = $e->church_id;
+								$data['e_country_id'] = $e->country_id;
+								$data['e_img'] = $e->logo;
+							}
+						}
+					}
+				}
+
+				if ($this->request->getMethod() == 'post') {
+					$dept_id = $this->request->getVar('dept_id');
+					$name = $this->request->getVar('name');
+					$email = $this->request->getVar('email');
+					$phone = $this->request->getVar('phone');
+					$address = $this->request->getVar('address');
+					$regional_id = $this->request->getVar('regional_id');
+					$zonal_id = $this->request->getVar('zonal_id');
+					$group_id = $this->request->getVar('group_id');
+					$church_id = $this->request->getVar('church_id');
+					$img_id = $this->request->getVar('img');
+					$ministry_id = $this->request->getVar('ministry_id');
+					$country_id = $this->request->getVar('country_id');
+
+
+					//// Image upload
+					if (file_exists($this->request->getFile('pics'))) {
+						if (!empty($img_id)) {
+							unlink(FCPATH . $img_id);
+						}
+						$path = 'assets/images/ministry/';
+						$file = $this->request->getFile('pics');
+						$getImg = $this->Crud->img_upload($path, $file);
+
+						if (!empty($getImg->path))
+							$img_id = $getImg->path;
+					}
+
+					if (empty($regional_id)) {
+						echo $this->Crud->msg('warning', 'Please select Regional Church');
+						die;
+					}
+
+					if (empty($zonal_id)) {
+						echo $this->Crud->msg('warning', 'Please select Zonal Church');
+						die;
+					}
+					if (empty($group_id)) {
+						// echo $this->Crud->msg('warning', 'Please select Group Church');
+						// die;
+					}
+					if (empty($church_id)) {
+						// echo $this->Crud->msg('warning', 'Please select Church Assembly');
+						// die;
+					}
+
+
+					$ins_data['name'] = $name;
+					$ins_data['email'] = $email;
+					$ins_data['address'] = $address;
+					$ins_data['phone'] = $phone;
+					$ins_data['type'] = 'center';
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['regional_id'] = $regional_id;
+					$ins_data['zonal_id'] = $zonal_id;
+					$ins_data['group_id'] = $group_id;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['country_id'] = $country_id;
+					if (!empty($img_id) || !empty($getImg->path))
+						$ins_data['logo'] = $img_id;
+
+					// do create or update
+					if ($dept_id) {
+						$upd_rec = $this->Crud->updates('id', $dept_id, $table, $ins_data);
+						if ($upd_rec > 0) {
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $dept_id, 'church', 'name');
+							$action = $by . ' updated Service Center (' . $code . ') Record';
+							$this->Crud->activity('church', $dept_id, $action);
+
+							echo $this->Crud->msg('success', 'Service Center Updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No Changes');
+						}
+					} else {
+						if ($this->Crud->check('name', $name, $table) > 0) {
+							echo $this->Crud->msg('warning', 'Service Center Already Exist');
+						} else {
+
+							$ins_data['reg_date'] = date(fdate);
+							$ins_rec = $this->Crud->create($table, $ins_data);
+							if ($ins_rec > 0) {
+								///// store activities
+								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_rec, 'church', 'name');
+								$action = $by . ' created Service Center (' . $code . ') Record';
+								$this->Crud->activity('church', $ins_rec, $action);
+
+								echo $this->Crud->msg('success', 'Service Center Created');
+								echo '<script>location.reload(false);</script>';
+							} else {
+								echo $this->Crud->msg('danger', 'Please try later');
+							}
+						}
+					}
+
+					die;
+				}
+			}
+		}
+
+		// record listing
+		if ($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+			if (empty($limit)) {
+				$limit = $rec_limit;
+			}
+			if (empty($offset)) {
+				$offset = 0;
+			}
+
+			$search = $this->request->getPost('search');
+
+			$items = '
+				
+			';
+			$a = 1;
+
+			//echo $status;
+			$log_id = $this->session->get('td_id');
+			if (!$log_id) {
+				$item = '<div class="text-center text-muted">' . translate_phrase('Session Timeout! - Please login again') . '</div>';
+			} else {
+				$type = 'center';
+				$all_rec = $this->Crud->filter_church('', '', $log_id, $search, $type);
+				// $all_rec = json_decode($all_rec);
+				if (!empty($all_rec)) {
+					$counts = count($all_rec);
+				} else {
+					$counts = 0;
+				}
+
+				$query = $this->Crud->filter_church($limit, $offset, $log_id, $search, $type);
+				$data['count'] = $counts;
+
+
+				if (!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$name = $q->name;
+						$email = $q->email;
+						$phone = $q->phone;
+						$logo = $q->logo;
+						$address = $q->address;
+						$ministry_id = $q->ministry_id;
+						$regional_id = $q->regional_id;
+						$zonal_id = $q->zonal_id;
+						$group_id = $q->group_id;
+						$church_id = $q->church_id;
+						$reg_date = date('d/m/Y h:iA', strtotime($q->reg_date));
+						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
+						$country = $this->Crud->read_field('id', $q->country_id, 'country', 'name');
+						$mins = '';
+
+						if (!empty($regional_id))
+							$mins .= ' ' . ucwords(strtolower($this->Crud->read_field('id', $regional_id, 'church', 'name'))) . ' Region';
+						if (!empty($zonal_id))
+							$mins .= '<br>&#8594; ' . ucwords(strtolower($this->Crud->read_field('id', $zonal_id, 'church', 'name'))) . ' Zone';
+						if (!empty($group_id))
+							$mins .= '<br>&#8594; ' . ucwords(strtolower($this->Crud->read_field('id', $group_id, 'church', 'name') )). ' Group';
+						if (!empty($church_id))
+							$mins .= '<br>&#8594; ' . ucwords(strtolower($this->Crud->read_field('id', $church_id, 'church', 'name') )). ' Church';
+
+						if (!empty($logo)) {
+							$img = '<img height="40px" src="' . site_url($logo) . '">';
+						} else {
+							$img = $this->Crud->image_name($name);
+						}
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							if (!empty($switch_id)) {
+								$all_btn = '
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int) $id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Admin') . '</span></a></li>
+								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Pastors') . '</span></a></li>
+								
+								
+							';
+							} else {
+								$all_btn = '
+								<li><a href="javascript:;" class="text-primary pop" pageTitle="Edit ' . $name . '" pageName="' . site_url($mod . '/manage/edit/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>' . translate_phrase('Edit') . '</span></a></li>
+								<li><a href="javascript:;" class="text-danger pop" pageTitle="Delete ' . $name . '" pageName="' . site_url($mod . '/manage/delete/' . $id) . '"><em class="icon ni ni-trash-alt"></em><span>' . translate_phrase('Delete') . '</span></a></li>
+								<li><a href="javascript:;" onclick="church_admin(\'' . addslashes(ucwords($name)) . '\', ' . (int) $id . ');" class="text-info" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Admin') . '</span></a></li>
+								<li><a href="javascript:;" onclick="church_pastor(\'' . addslashes(ucwords($name)) . ' Region\', ' . (int) $id . ');" class="text-dark" ><em class="icon ni ni-user-add"></em><span>' . translate_phrase('Pastors') . '</span></a></li>
+								<li><a href="javascript:;" onclick="church_login(' . (int) $id . ');" class="text-secondary" ><em class="icon ni ni-signin"></em><span>' . translate_phrase('Login to Church') . '</span></a></li>
+								
+							';
+							}
+
+						}
+
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-avatar">            
+											' . $img . '      
+										</div>        
+										<div class="user-name">            
+											<span class="tb-lead">' . ucwords($name) . '</span>    <br>
+										<span class="tb-lead">' . ucwords($ministry) . '</span>                        
+										</div>    
+									</div>  
+								</td>
+								<td>
+									<span class="small">' . $email . '</span><br>
+									<span class="small">' . $phone . '</span>
+								</td>
+								<td><span class="small">' . $address . '</span><br>
+								<span class="small">' . $country . '</span></td>
+								<td><span class="small">' . $mins . '</span></td>
+								<td>
+									<div class="drodown">
+										<a href="#" class="dropdown-toggle btn btn-icon btn-trigger" data-bs-toggle="dropdown"><em class="icon ni ni-more-h"></em></a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<ul class="link-list-opt no-bdr">
+												' . $all_btn . '
+											</ul>
+										</div>
+									</div>
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+
+			}
+
+			if (empty($item)) {
+				$resp['item'] = $items . '
+					<Tr><td colspan="8"><div class="text-center text-muted">
+						<br/><br/><br/>
+						<i class="ni ni-home-alt" style="font-size:150px;"></i><br/><br/>' . translate_phrase('No Service Center Returned') . '
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if ($offset >= 25) {
+					$resp['item'] = $item;
+				}
+
+			}
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if ($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if ($param1 == 'manage') { // view for form data posting
+			return view($mod . '_form', $data);
+		} else { // view for main page
+
+			$data['title'] = translate_phrase('Service Center') . ' - ' . app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+	}
+
 
 	public function administrator($param1 = '', $param2 = '', $param3 = '')
 	{
@@ -1691,6 +2085,10 @@ class Church extends BaseController{
 						$urole_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
 
 					}
+					if ($church_type == 'center') {
+						$urole_id = $this->Crud->read_field('name', 'Center Manager', 'access_role', 'id');
+
+					}
 
 					if (empty($title) || $title == ' ') {
 						echo $this->Crud->msg('danger', 'Select Title');
@@ -1874,7 +2272,6 @@ class Church extends BaseController{
 								<td><span class=" ">' . $email . '</span></td>
 								<td><span class=" ">' . $phone . '</span></td>
 								<td><span class=" ">' . $u_role . '</span></td>
-								<td><span class=" ">' . ucwords($address) . '</span></td>
 								<td><span class="tb-amount ">' . $reg_date . ' </span></td>
 								<td>
 									<div class="drodown">
@@ -2922,6 +3319,22 @@ class Church extends BaseController{
 			return;
 		} else {
 			$regions = $this->Crud->read2_order('type', 'group', 'zonal_id', $zonal_id, 'church', 'name', 'asc');
+			$data = array();
+			foreach ($regions as $region) {
+				$data[] = array('id' => $region->id, 'name' => $region->name);
+			}
+			echo json_encode($data);
+		}
+	}
+
+	public function get_church()
+	{
+		$zonal_id = $this->request->getPost('zonal_id');
+		if (empty($zonal_id)) {
+			echo json_encode(array()); // return an empty array if ministry_id is empty
+			return;
+		} else {
+			$regions = $this->Crud->read2_order('type', 'church', 'zonal_id', $zonal_id, 'church', 'name', 'asc');
 			$data = array();
 			foreach ($regions as $region) {
 				$data[] = array('id' => $region->id, 'name' => $region->name);
