@@ -1387,10 +1387,11 @@ class Attendance extends BaseController {
         $mod = 'attendance/timer';
         
 		$data['church_id'] = '';
+		$data['church'] = '';
 		if ($code) {
             session()->set('invite_code', $code); // ✅ Save to session
 			$data['church_id'] = $this->Crud->read_field('first_timer_link', $code, 'church', 'id');
-
+			$data['church'] = $this->Crud->read_field('first_timer_link', $code, 'church', 'name');
         }
 		$data['code'] = $code;
 
@@ -1496,12 +1497,14 @@ class Attendance extends BaseController {
         $mod = 'attendance/member';
         
 		$data['church_id'] = '';
+		$data['church'] = '';
 		if ($code) {
             session()->set('invite_code', $code); // ✅ Save to session
 			$data['church_id'] = $this->Crud->read_field('first_timer_link', $code, 'church', 'id');
-
+			$data['church'] = $this->Crud->read_field('first_timer_link', $code, 'church', 'name');
         }
 		$data['code'] = $code;
+
 	
 		if($this->request->getMethod() == 'post'){
 			$membership_id = htmlspecialchars(trim($this->request->getVar('membership_id')), ENT_QUOTES, 'UTF-8');
