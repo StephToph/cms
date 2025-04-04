@@ -69,8 +69,8 @@ $this->Crud = new Crud();
                             </a>
                         </div>
                         <div class="col-sm-2 mb-3">
-                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="New membership" class="float-right btn btn-outline-danger btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('New membership');?>" pageName="<?php echo site_url('attendance/dashboard/manage/member'); ?>" pageSize="modal-xl"><em
-                                    class="icon ni ni-user"></em><span> New Member</span></a>
+                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add membership" class="float-right btn btn-outline-danger btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('Add membership');?>" pageName="<?php echo site_url('attendance/dashboard/manage/member'); ?>" pageSize="modal-xl"><em
+                                    class="icon ni ni-user"></em><span> Add Member</span></a>
                         </div>
                         <div class="col-sm-2 mb-3">
                             <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em

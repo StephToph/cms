@@ -132,8 +132,8 @@ $this->Crud = new Crud();
 
 
         <div class="row">
-            <input type="hidden" name="cell_id" value="<?php if (!empty($e_id)) {
-                echo $e_id;
+            <input type="hidden" name="cell_id" value="<?php if (!empty($cell_id)) {
+                echo $cell_id;
             } ?>" />
            
 
@@ -183,7 +183,7 @@ $this->Crud = new Crud();
                             <div class="col-sm-4 mb-3">
                                 <div class="form-group">
                                     <label for="day">*<?= translate_phrase('Meeting Day'); ?></label>
-                                    <select class="form-control" name="days[]" <?= $req; ?>>
+                                    <select class="js-select2" name="days[]" <?= $req; ?>>
                                         <option value="">Select</option>
                                         <?php
                                         $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -213,7 +213,7 @@ $this->Crud = new Crud();
                 <div class="col-sm-4 mb-3">
                     <div class="form-group">
                         <label for="name">*<?= translate_phrase('Meeting Day'); ?></label>
-                        <select class="form-control" name="days[]" required>
+                        <select class="js-select2" name="days[]" required>
                             <option value="">Select</option>
                             <option value="Sunday">Sunday</option>
                             <option value="Monday">Monday</option>
