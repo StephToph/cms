@@ -6689,6 +6689,7 @@ class Accounts extends BaseController {
 						$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
 						$othername = $this->Crud->read_field('id', $admin_id, 'user', 'othername');
 						$user_no = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
+						$title = $this->Crud->read_field('id', $admin_id, 'user', 'title');
 						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
 						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
 						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
@@ -6699,7 +6700,7 @@ class Accounts extends BaseController {
 						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
 						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
 						$body = '
-							Dear ' . $name . ', <br><br>
+							Dear '.$title.' ' . $name . ', <br><br>
 								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
     							Below are your Account Details:<br><br>
 
