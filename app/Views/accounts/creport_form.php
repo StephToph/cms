@@ -364,7 +364,7 @@ $this->Crud = new Crud();
                 $guest_list = (array)$converts->guest_list;
             }
           
-            $first = json_decode($this->Crud->read_field('id', $param4, 'cell_report', 'timers'));
+            $first = ($this->Crud->read2('source_type', 'cell', 'source_id', $param4, 'visitors'));
             
         }
         ?>
@@ -396,11 +396,11 @@ $this->Crud = new Crud();
                     <tbody>
                         <?php 
                            if($param3 && !empty((array)$first)){
-                                foreach($first as $mm => $val){
+                                foreach($first as $mm){
                                     $vals = 0;
                                     if(!empty($guest_list)){
                                         foreach($guest_list as $guest => $amount){
-                                            if($guest == strtoupper($val->fullname)){
+                                            if($guest == strtoupper($mm->fullname)){
                                                 $vals = $amount;
                                                 // echo $vals.' ';
                                             }
@@ -410,10 +410,10 @@ $this->Crud = new Crud();
                                     ?>
                                     
                                 <tr>
-                                    <td><span class="text-muted"><?=ucwords($val->fullname); ?></span> <input type="hidden" name="guests[]" value="<?=strtoupper($val->fullname); ?>"></td>
+                                    <td><span class="text-muted"><?=ucwords($mm->fullname); ?></span> <input type="hidden" name="guests[]" value="<?=strtoupper($mm->fullname); ?>"></td>
                                 
                                     <td>
-                                        <input type="text" class="form-control guest_offerings" name="guest_offerings[]" id="offering_<?php echo $val->fullname; ?>" value="<?=$vals; ?>" oninput="guest_offerings();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')">
+                                        <input type="text" class="form-control guest_offerings" name="guest_offerings[]" id="offering_<?php echo $mm->fullname; ?>" value="<?=$vals; ?>" oninput="guest_offerings();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')">
 
                                     </td>
                                 </tr>

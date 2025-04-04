@@ -66,7 +66,8 @@
                                             <option value="wk4" >WK4 - Fellowship / Outreach</option>
                                         </select>
                                     </div>
-                                    <?php 
+
+                                    <?php if($role != 'cell executive' && $role != 'cell leader' && $role != 'assistant cell leader'){ 
                                         $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
                                         if ($ministry_id <= 0) { ?>
                                         <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
@@ -161,6 +162,7 @@
                                         </select>
                                     </div>
 
+                                    <?php } ?>
                                 </div>
 
                                 <div class="card-inner table-responsive p-0">
@@ -468,6 +470,8 @@
                 markButton.setAttribute("pageName", updatedPageName);
 
                // First Timer URL
+               var firstTimerBtn = document.getElementById("firstTimerBtn");
+               
                 var timerUrl = site_url + 'accounts/creport/manage/timers';
                 var updatedTimerUrl = timerUrl + "/" + dt.e_cell_id + "/" + dt.e_id;
                 if (firstTimerBtn) firstTimerBtn.setAttribute("pageName", updatedTimerUrl);
