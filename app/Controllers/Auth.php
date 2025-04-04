@@ -710,6 +710,123 @@ class Auth extends BaseController {
 				die;
 			}
 		}
+		if($param1 == 'manage' && $param2 == 'cell'){
+			$church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+			$ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
+			$cell_id = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+		
+			$data['cell'] = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+			$data['cell_phone'] = $this->Crud->read_field('id', $cell_id, 'cells', 'phone');
+			$data['cell_location'] = $this->Crud->read_field('id', $cell_id, 'cells', 'location');
+			$data['cell_time'] = ($this->Crud->read_field('id', $cell_id, 'cells', 'time'));
+
+			
+			if($this->request->getMethod() == 'post'){
+				$user_id = $this->request->getVar('edit_id');
+				$message = $this->request->getVar('message');
+				$member_id = $this->request->getVar('member_id');
+				$cell_id = $this->request->getVar('cell_id');
+				$type = $this->request->getVar('type');
+				$subject = $this->request->getVar('subject');
+				
+				if(empty($cell_id)){
+					echo $this->Crud-msg('danger', 'Select Cell you want to send Message to');
+					die;
+				}
+
+				
+				$scount = 0;
+				$fcount = 0;
+				
+				$ins_data['subject'] = $subject;
+				$ins_data['message'] = $message;
+				$ins_data['from_id'] = $log_id;
+				$ins_data['reg_date'] = date(fdate);
+
+				$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+				$cell_leader = $this->Crud->read_field('name', 'Cell Leader', 'access_role', 'id');
+				$cell_leader_assist = $this->Crud->read_field('name', 'Assistant Cell Leader', 'access_role', 'id');
+				$cell_executive = $this->Crud->read_field('name', 'Cell Executive', 'access_role', 'id');
+
+				if(!empty($cell_id)){
+					foreach($cell_id as $cell){
+						$ministry_id = $this->Crud->read_field('id', $cell, 'cells', 'ministry_id');
+						$church_id = $this->Crud->read_field('id', $cell, 'cells', 'church_id');
+
+						// echo $cell.' ';
+						$all_members = [];
+						$executives = [];
+						$memberss = $this->Crud->filter_cell_members('', '',$log_id, 'all', '', $cell);
+
+						if(!empty($memberss)){
+							foreach($memberss as $mem){
+								$name = $mem->firstname.' '.$mem->surname;
+								$all_members[] = $mem->id;
+								if($mem->cell_role != $cell_member){
+									$executives[] = $mem->id;
+								}
+								
+							}
+						}
+						
+						$ins_data['cell_id'] = $cell;
+						$ins_data['church_id'] = $church_id;
+						$ins_data['ministry_id'] = $ministry_id;
+
+						if($type == 'false'){
+							$members = $executives;
+						}
+						if($type == 'true'){
+							$members = $all_members;
+						}
+
+						if(!empty($members)){
+							foreach($members as $member){
+								// echo $member.' ';
+								$firstname = $this->Crud->read_field('id', $member, 'user', 'firstname');
+								$surname = $this->Crud->read_field('id', $member, 'user', 'surname');
+								$email = $this->Crud->read_field('id', $member, 'user', 'email');
+								
+								$ins_data['to_id'] = $member;
+							
+								
+								// do create or update
+								$upd_rec = $this->Crud->create('message', $ins_data);
+								if($upd_rec > 0) {
+									$scount++;
+									$this->Crud->notify($log_id, $member, $message, 'message', $upd_rec);
+									$name = ucwords($firstname.' '.$surname);
+										$body = '
+											Dear '.$name.', <br><br>
+										'.$message;
+										$this->Crud->send_email($email, ucwords($subject), $body);
+
+									///// store activities
+									$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+									$code = $this->Crud->read_field('id', $member, 'user', 'firstname');
+									$action = $by.' Sent a message to User ('.$code.')';
+									$this->Crud->activity('user', $member, $action);
+								} else {
+									$scount++;	
+								}
+							}
+						}
+
+					}
+				}
+				
+				if($scount == 0){
+					echo $this->Crud->msg('info', 'Try Again Later');
+					echo $this->Crud->msg('danger', $fcount.' Message Failed');
+				} else {
+					echo $this->Crud->msg('success', $scount.' Message Sent.<br>'.$fcount.' Message Failed');
+					echo '<script>location.reload(false);</script>';
+					
+				}
+
+				die;	
+			}
+		}
 		
 
 
