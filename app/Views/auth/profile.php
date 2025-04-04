@@ -41,6 +41,11 @@
                                                 <em class="icon ni ni-home"></em><span>Church</span>
                                             </a> 
                                         </li>
+                                        <li class="nav-item"> 
+                                            <a class="nav-link" data-bs-toggle="tab" href="#cellPreview" role="tab">
+                                                <em class="icon ni ni-home"></em><span>Cell</span>
+                                            </a> 
+                                        </li>
                                     </ul>
 
                                     <!-- Tab Content -->
@@ -305,6 +310,62 @@
                                                 <!-- data-list -->
                                             </div>
                                         </div>
+
+
+                                         <!-- Facebook Preview -->
+                                         <div class="tab-pane fade" id="cellPreview" role="tabpanel">
+                                            <div class="nk-block">
+                                            <?php
+                                                $normalized_role = strtolower(trim($role));
+                                                $can_edit_church = in_array($normalized_role, ['cell leader', 'cell executive', 'assistant cell leader']);
+                                                ?>
+
+
+                                                <div class="nk-data data-list data-list-s2">
+                                                <?php
+                                                    $cell_time_display = '';
+
+                                                    $cell_time_data = json_decode($cell_time, true);
+                                                    if (!empty($cell_time_data) && is_array($cell_time_data)) {
+                                                        $times = [];
+                                                        foreach ($cell_time_data as $day => $time) {
+                                                            $times[] = ucwords($day) . ' - ' . date('h:iA', strtotime($time));
+                                                        }
+                                                        $cell_time_display = implode(', ', $times); // e.g. Saturday - 10:00, Sunday - 3:00 PM
+                                                    }
+
+                                                    $fields = [
+                                                        ['label' => 'Cell', 'value' => ucwords($cell)],
+                                                        ['label' => 'Cell Address', 'value' => ucwords($cell_location)],
+                                                        ['label' => 'Cell Phone', 'value' => ucwords($cell_phone)],
+                                                        ['label' => 'Cell Time', 'value' => $cell_time_display],
+                                                    ];
+                                                    
+
+                                                    foreach ($fields as $field): ?>
+                                                        <?php if ($can_edit_church): ?>
+                                                            <div class="data-item pop" pageTitle="<?= translate_phrase('Manage Profile'); ?>" pageSize="modal-md" pageName="<?= site_url('auth/profile/manage/cell'); ?>">
+                                                        <?php else: ?>
+                                                            <div class="data-item">
+                                                        <?php endif; ?>
+                                                            <div class="data-col">
+                                                                <span class="data-label"><?= $field['label']; ?></span>
+                                                                <span class="data-value"><?= $field['value']; ?></span>
+                                                            </div>
+                                                            <div class="data-col data-col-end">
+                                                                <span class="data-more <?= $can_edit_church ? '' : 'disable' ?>">
+                                                                    <em class="icon ni <?= $can_edit_church ? 'ni-forward-ios' : 'ni-lock-alt' ?>"></em>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                   
+                                                   
+                                                </div>
+                                                <!-- data-list -->
+                                            </div>
+                                        </div>
+                                        
                                     </div>
                                     <!-- .nk-block -->
                                 </div>

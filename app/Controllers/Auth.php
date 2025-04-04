@@ -727,9 +727,15 @@ class Auth extends BaseController {
 		$data['firstname'] = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
 		$data['othername'] = $this->Crud->read_field('id', $log_id, 'user', 'othername');
 		$data['address'] = $this->Crud->read_field('id', $log_id, 'user', 'address');
-		$data['img_id'] = $this->Crud->read_field('id', $log_id, 'user', 'img_id');
+		$data['img_id'] = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
 		$data['role_id'] = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
 		$data['is_admin'] = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
+		$data['cell_id'] = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+		$cell_id = $this->Crud->read_field('id', $log_id, 'user', 'cell_id');
+		$data['cell'] = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+		$data['cell_phone'] = $this->Crud->read_field('id', $cell_id, 'cells', 'phone');
+		$data['cell_location'] = $this->Crud->read_field('id', $cell_id, 'cells', 'location');
+		$data['cell_time'] = $this->Crud->read_field('id', $cell_id, 'cells', 'time');
 		$data['chat_handle'] = $this->Crud->read_field('id', $log_id, 'user', 'chat_handle');
 		$data['fullname'] = $this->Crud->read_field('id', $log_id, 'user', 'firstname').' '.$this->Crud->read_field('id', $log_id, 'user', 'surname');
        	$data['phone'] = $this->Crud->read_field('id', $log_id, 'user', 'phone');
