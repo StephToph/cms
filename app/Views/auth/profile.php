@@ -136,7 +136,10 @@
                                                         <div class="data-col">
                                                             <span class="data-label">QR Code</span>
                                                             <span class="data-value">
-                                                                 <img src='<?= site_url($qrcode);?>' alt='QR Code' style='max-width:200px; margin-top:10px;' />
+                                                                <?php if (!empty($qrcode)): ?>
+                                                                    <img src="<?= site_url($qrcode); ?>" alt="QR Code" style="max-width:200px; margin-top:10px;" />
+                                                                <?php endif; ?>
+
                                                             </span>
                                                         </div>
                                                         <div class="data-col data-col-end">
