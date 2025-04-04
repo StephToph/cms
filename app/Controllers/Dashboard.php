@@ -455,7 +455,7 @@ class Dashboard extends BaseController {
         // print_r($service_report);
 
         if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
-            $membership = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'cell_id', $celss, 'user');
+            $membership = $this->Crud->check('cell_id', $celss, 'user');
         }
 
         
@@ -713,6 +713,13 @@ class Dashboard extends BaseController {
                 $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'ministry_id', $ministry_id, 'visitors');
         
             }
+        }  elseif($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+            $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'cell_id', $celss, 'user');
+            $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'cell_id', $celss, 'visitors');
+            $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'cell_id', $celss, 'user');
+            $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'cell_id', $celss, 'visitors');
+            $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'cell_id', $celss, 'user');
+            $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'cell_id', $celss, 'visitors');
         } else {
             $pmembers = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'user');
             $pvisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'visitors');
