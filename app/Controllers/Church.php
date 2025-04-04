@@ -1981,6 +1981,7 @@ class Church extends BaseController{
 						$roles = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
 						$othername = $this->Crud->read_field('id', $admin_id, 'user', 'othername');
 						$user_no = $this->Crud->read_field('id', $admin_id, 'user', 'user_no');
+						$title = $this->Crud->read_field('id', $admin_id, 'user', 'title');
 						$email = $this->Crud->read_field('id', $admin_id, 'user', 'email');
 						$phone = $this->Crud->read_field('id', $admin_id, 'user', 'phone');
 						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
@@ -1992,7 +1993,7 @@ class Church extends BaseController{
 						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
 						$link = '<p><a href="' .$reset_link . '">Set Your Password</a></p>';
 						$body = '
-							Dear ' . esc($name) . ', <br><br>
+							Dear ' . esc($title.' '.$name) . ', <br><br>
 
 							<p>A ' . esc(ucwords($roles)) . ' account has been created for you on the <strong>' . esc(ucwords($church)) . '</strong> New Digital platform.</p>
 
@@ -2226,6 +2227,7 @@ class Church extends BaseController{
 					foreach ($query as $q) {
 						$id = $q->id;
 						$fullname = $q->firstname . ' ' . $q->surname;
+						$title = $q->title;
 						$email = $q->email;
 						$phone = $q->phone;
 						$address = $q->address;
@@ -2275,7 +2277,7 @@ class Church extends BaseController{
 											<img alt="" src="' . site_url($img) . '" height="40px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead"><b>' . ucwords($fullname) . ' </b><span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<span class="tb-lead"><b>'.$title.' ' . ucwords($fullname) . ' </b><span class="dot dot-' . $a_color . ' ms-1"></span></span>
 											<br>
 											
 										</div>
@@ -2669,6 +2671,7 @@ class Church extends BaseController{
 						$fullname = $q->firstname . ' ' . $q->surname;
 						$email = $q->email;
 						$phone = $q->phone;
+						$title = $q->title;
 						$address = $q->address;
 						$img = $this->Crud->image($q->img_id, 'big');
 						$activate = $q->activate;
@@ -2714,7 +2717,7 @@ class Church extends BaseController{
 											<img alt="" src="' . site_url($img) . '" height="40px"/>
 										</div>
 										<div class="user-info">
-											<span class="tb-lead"><b>' . ucwords($fullname) . '</b> <span class="dot dot-' . $a_color . ' ms-1"></span></span>
+											<span class="tb-lead"><b>'.$title.' ' . ucwords($fullname) . '</b> <span class="dot dot-' . $a_color . ' ms-1"></span></span>
 										</div>
 									</div>
 								</td>
