@@ -2021,6 +2021,7 @@ class Crud extends Model {
 		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
 		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$cell_id = $this->read_field('id', $log_id, 'user', 'cell_id');
 		$church_type = $this->read_field('id', $log_id, 'user', 'church_type');
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
 
@@ -2052,6 +2053,9 @@ class Crud extends Model {
 		if($role != 'developer' && $role != 'administrator'){
 			if($role == 'ministry administrator'){
 				$builder->where('ministry_id', $ministry_id);
+			} else if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){
+				$builder->where('cell_id', $cell_id);
+			
 			} else {
 				if($church_type == 'region'){
 					$builder->where('regional_id', $church_id);

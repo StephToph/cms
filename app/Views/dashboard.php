@@ -282,6 +282,24 @@
                                 </div>
                             </div>
                         <?php } else {?>
+                            <div class="col-md-3">
+                                <div class="card card-bordered  card-full">
+                                    <div class="card-inner">
+                                        <div class="card-title-group align-start mb-0">
+                                            <div class="card-title">
+                                                <h6 class="title"><?=translate_phrase('Total Membership'); ?></h6>
+                                            </div>
+                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
+                                                    data-bs-toggle="tooltip" data-bs-placement="left"
+                                                    title="<?=translate_phrase('Total Membership'); ?>"></em>
+                                                </div>
+                                        </div>
+                                        <div class="card-amount"><span class="amount" id="membership"> 0 <span
+                                                    class="currency currency-usd"></span></span></div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div class="card card-bordered card-full">
                                     <div class="card-inner">
@@ -355,24 +373,6 @@
                                         </div>
                                     </div>
                                     </a>
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="card card-bordered  card-full">
-                                    <div class="card-inner">
-                                        <div class="card-title-group align-start mb-0">
-                                            <div class="card-title">
-                                                <h6 class="title"><?=translate_phrase('Total Membership'); ?></h6>
-                                            </div>
-                                            <div class="card-tools"><em class="card-hint icon ni ni-help-fill"
-                                                    data-bs-toggle="tooltip" data-bs-placement="left"
-                                                    title="<?=translate_phrase('Total Membership'); ?>"></em>
-                                                </div>
-                                        </div>
-                                        <div class="card-amount"><span class="amount" id="membership"> 0 <span
-                                                    class="currency currency-usd"></span></span></div>
-                                        
-                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-3">
