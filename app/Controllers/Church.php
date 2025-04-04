@@ -1995,7 +1995,7 @@ class Church extends BaseController{
 
 						$name = ucwords($firstname . ' ' . $othername . ' ' . $surname);
 						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
-						$link = '<p><a href="' . htmlspecialchars($church) . '">Set Your Password</a></p>';
+						$link = '<p><a href="' .$reset_link . '">Set Your Password</a></p>';
 						$body = '
 							Dear ' . esc($name) . ', <br><br>
 
