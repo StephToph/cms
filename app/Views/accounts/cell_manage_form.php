@@ -52,7 +52,7 @@ $this->session = \Config\Services::session();
 
                 <div class="col-sm-12 mb-3">
                     <div class="form-group">
-                        <label for="name">*<?= translate_phrase('Church Members'); ?></label>
+                        <label for="name">*<?= translate_phrase('Church Members '); ?></label>
                         <select class="js-select2" data-search="on" multiple name="members[]" id="member_id">
                             <option value="">Select Members</option>
                             <?php
@@ -73,6 +73,7 @@ $this->session = \Config\Services::session();
                             }
                             ?>
                         </select>
+                        <span class="text-danger small"><?= translate_phrase('Church Members not Assigned'); ?></span>
                     </div>
                 </div>
             <?php } else{  ?>

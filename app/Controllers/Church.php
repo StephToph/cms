@@ -288,8 +288,7 @@ class Church extends BaseController{
 									  		' . $img . '      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span> <br>
-											<span class="">' . ucwords($ministry) . '</span>        
+											<span class="tb-lead">' . ucwords($name) . '</span>     
 										</div>    
 									</div>  
 								</td>
@@ -648,8 +647,7 @@ class Church extends BaseController{
 										' . $img . '      
 									</div>        
 									<div class="user-name">            
-										<span class="tb-lead">' . ucwords($name) . '</span>   <br>
-										<span class="tb-lead">' . ucwords($ministry) . '</span>              
+										<span class="tb-lead">' . ucwords($name) . '</span>  
 									</div>    
 								</div>  
 							</td>
@@ -1029,8 +1027,7 @@ class Church extends BaseController{
 											' . $img . '      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span> <br>
-										<span class="tb-lead">' . ucwords($ministry) . '</span>                   
+											<span class="tb-lead">' . ucwords($name) . '</span> 
 										</div>    
 									</div>  
 								</td>
@@ -1416,8 +1413,7 @@ class Church extends BaseController{
 											' . $img . '      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span>    <br>
-										<span class="tb-lead">' . ucwords($ministry) . '</span>                        
+											<span class="tb-lead">' . ucwords($name) . '</span>                      
 										</div>    
 									</div>  
 								</td>
@@ -1810,8 +1806,7 @@ class Church extends BaseController{
 											' . $img . '      
 										</div>        
 										<div class="user-name">            
-											<span class="tb-lead">' . ucwords($name) . '</span>    <br>
-										<span class="tb-lead">' . ucwords($ministry) . '</span>                        
+											<span class="tb-lead">' . ucwords($name) . '</span>                       
 										</div>    
 									</div>  
 								</td>

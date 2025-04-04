@@ -114,11 +114,15 @@
                                                     onclick="church_back();"><em
                                                         class="icon ni ni-curve-down-left"></em></a>
                                             </li><!-- li -->
+                                            <li class="btn-toolbar-sep"></li><!-- li -->
+                                            <li>
+                                                <a href="<?=site_url('accounts/membership/manages'); ?>" pageTitle="Add Membership" data-toggle="tooltip" data-bs-placement="top" title=" Add Membership"  class="btn btn-outline-primary btn-icon" pageName=""><em class="icon ni ni-user"></em></a>
+                                            </li>
                                             <?php if(empty($switch_id)){?>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
                                             <li>
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="Add Member" pageTitle="Add Member"
+                                                    title="Add Member to Cell" pageTitle="Add Member to Cell"
                                                     class="btn btn-outline-primary btn-icon pop"
                                                     pageName="<?= site_url('accounts/cell/manage_member'); ?>"><em
                                                         class="icon ni ni-plus-c"></em></a>
