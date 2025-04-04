@@ -3248,7 +3248,7 @@ class Church extends BaseController{
 	{
 		$log_id = $this->session->get('td_id');
 
-		
+
 		$church_id = $this->request->getPost('church_id');
 		if (empty($church_id)) {
 			echo $this->Crud->msg('danger', 'Invalid Church');
@@ -3274,9 +3274,10 @@ class Church extends BaseController{
 			$action = $by . ' Logged out of Church (' . $code . ') Account';
 			$this->Crud->activity('user', $church_id, $action);
 
-			$this->session->set('switch_church_id', '');
-			echo '<script>window.location.replace("' . site_url('dashboard') . '");</script>';
+			
 		}
+		$this->session->set('switch_church_id', '');
+		echo '<script>window.location.replace("' . site_url('dashboard') . '");</script>';
 	}
 
 	public function get_region()

@@ -3585,35 +3585,36 @@ class Crud extends Model {
     			$builder->where('ministry_id', $ministry_id);
     		} else {
     		     // Determine the churches based on the user's role
-				$church_ids = [$church_id]; // Start with the user's church
-				if ($role == 'regional manager') {
-					// Fetch zonal and group churches under the regional church
-					$zonal_churches = $this->get_sub_church_ids($church_id, 'zone');
-					$group_churches = $this->get_sub_church_ids($church_id, 'group');
-					$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
+				// $church_ids = [$church_id]; // Start with the user's church
+				// if ($role == 'regional manager') {
+				// 	// Fetch zonal and group churches under the regional church
+				// 	$zonal_churches = $this->get_sub_church_ids($church_id, 'zone');
+				// 	$group_churches = $this->get_sub_church_ids($church_id, 'group');
+				// 	$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
 					
-					$church_ids = array_merge($church_ids, $zonal_churches, $group_churches, $assembly_churches);
-				} 
+				// 	$church_ids = array_merge($church_ids, $zonal_churches, $group_churches, $assembly_churches);
+				// } 
 				
-				if ($role == 'zonal manager') {
-					// Fetch group churches under the zonal church
-					$group_churches = $this->get_sub_church_ids($church_id, 'group');
-					$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
+				// if ($role == 'zonal manager') {
+				// 	// Fetch group churches under the zonal church
+				// 	$group_churches = $this->get_sub_church_ids($church_id, 'group');
+				// 	$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
 					
-					$church_ids = array_merge($church_ids, $group_churches, $assembly_churches);
-				}
+				// 	$church_ids = array_merge($church_ids, $group_churches, $assembly_churches);
+				// }
 
-				if ($role == 'group manager') {
-					// Fetch group churches under the zonal church
-					$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
+				// if ($role == 'group manager') {
+				// 	// Fetch group churches under the zonal church
+				// 	$assembly_churches = $this->get_sub_church_ids($church_id, 'church');
 					
-					$church_ids = array_merge($church_ids, $assembly_churches);
-				}
-			
+				// 	$church_ids = array_merge($church_ids, $assembly_churches);
+				// }
+				
+    			$builder->where('church_id', $church_id);
 				// Filter by church IDs
-				if (!empty($church_ids)) {
-					$builder->whereIn('church_id', $church_ids);
-				}
+				// if (!empty($church_ids)) {
+				// 	$builder->whereIn('church_id', $church_ids);
+				// }
 
     		}
 			
