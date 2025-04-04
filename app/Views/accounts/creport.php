@@ -447,6 +447,7 @@
         // $(this).attr('onclick', currentInfo.onclick);
         $(this).find('em').removeClass().addClass('icon ni ' + currentInfo.iconClass);
 
+
         $.ajax({
             url: site_url + 'accounts/creport/edit/' + id,
             type: 'get',
