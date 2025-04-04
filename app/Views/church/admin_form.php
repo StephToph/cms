@@ -68,14 +68,14 @@
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Email');?></label>
-                    <input class="form-control" type="text" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" required>
+                    <input class="form-control" type="text" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" >
                 </div>
             </div>
 
             <div class="col-sm-6 mb-3">
                 <div class="form-group">
                     <label for="name">*<?=translate_phrase('Phone');?></label>
-                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>" required>
+                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>" >
                 </div>
             </div>
 
@@ -98,22 +98,33 @@
         </div>
     <?php } ?>
     <?php if($param2 == 'admin_send') { ?>
+       
         <div class="row">
-            <div class="col-sm-12"><div id="bb_ajax_msg"></div></div>
-        </div>
+            <div class="col-sm-12">
+                <div id="copyBody" style=""><?=($body); ?></div>
+            </div>
 
-        <div class="row">
             <div class="col-sm-12 text-center">
-                <h3><b><?=translate_phrase('Are you sure?');?></b></h3>
                 <input type="hidden" name="admin_id" value="<?php if(!empty($param3)){echo $param3;} ?>" />
             </div>
             
-            <div class="col-sm-12 text-center">
-                <button class="btn btn-success text-uppercase" type="submit">
-                    <em class="icon ni ni-share-alt"></em> <span><?=('Yes - Send Login Details');?></span>
+            <div class="col-sm-6 text-center mt-4">
+                <button class="btn btn-primary text-uppercase" type="button" id="copyBtn">
+                    <em class="icon ni ni-pen"></em> <span><?=('Copy Login Details');?></span>
                 </button>
             </div>
+
+            <div class="col-sm-6 text-center mt-4">
+                <button class="btn btn-success text-uppercase" type="submit">
+                    <em class="icon ni ni-share-alt"></em> <span><?=('Send Login Details');?></span>
+                </button>
+                
+            </div>
         </div>
+        <div class="row">
+            <div class="col-sm-12 my-4"><div id="bb_ajax_msg"></div></div>
+        </div>
+
     <?php } ?>
 <?php echo form_close(); ?>
 
@@ -121,5 +132,47 @@
 <script>
     $(function() {
         $('.js-select2').select2();
+    });
+</script>
+<script>
+     $(document).ready(function() {
+        $('#copyBtn').on('click', function() {
+            const content = document.getElementById('copyBody').innerText.trim();
+
+            // Use the Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(content).then(function() {
+                    showCopySuccess();
+                }).catch(function(err) {
+                    fallbackCopyText(content); // fallback if permission denied
+                });
+            } else {
+                fallbackCopyText(content); // fallback for non-secure context or unsupported
+            }
+        });
+
+        function fallbackCopyText(text) {
+            let textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                alert('Copy failed. Please try manually.');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showCopySuccess() {
+            $('#bb_ajax_msg').html('<div class="alert alert-success">Login details copied to clipboard!</div>');
+            setTimeout(() => {
+                $('#bb_ajax_msg').fadeOut('slow', function () {
+                    $(this).html('').show();
+                });
+            }, 2000);
+        }
     });
 </script>
