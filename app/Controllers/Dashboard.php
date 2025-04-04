@@ -714,6 +714,18 @@ class Dashboard extends BaseController {
         
             }
         }  elseif($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
+            $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'cell_id', $celss, 'cell_report');
+            $cell_offering = 0;
+            if (!empty($service_report)) {
+                foreach ($service_report as $u) {
+                    $cell_offering += (float)$u->offering;
+                    $tithe += (float)$u->tithe;
+    
+                    $first_timer += $u->first_timer;
+                    $new_convert += $u->new_convert;
+                }
+            }
+           
             $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'cell_id', $celss, 'user');
             $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'cell_id', $celss, 'visitors');
             $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'cell_id', $celss, 'user');
@@ -729,7 +741,8 @@ class Dashboard extends BaseController {
             $gvisitors = $this->Crud->date_check1($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'visitors');
         
         }
-
+        echo $role;
+        // print_r($service_report);
         $prospective += $pmembers;
         $prospective += $pvisitors;
         $student += $smembers;
@@ -748,7 +761,7 @@ class Dashboard extends BaseController {
         $resp['first_timer'] = number_format($first_timer);
         $resp['new_convert'] = number_format($new_convert);
         $resp['offering'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($offering),2);
-        $resp['cell_offering'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($cell_offering),2);
+        $resp['cell_offering'] = $this->session->get('currency').number_format(($cell_offering),2);
         $resp['partnership'] = $this->session->get('currency').number_format($this->Crud->cur_exchange($partnership),2);
         $resp['partnership_part'] = number_format($partnership_part);
         $resp['partnership_list'] = ($partnership_list);

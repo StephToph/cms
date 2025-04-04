@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="green">
     <!-- Fav Icon  -->
-    <link rel="shortcut icon" href="<?=site_url(); ?>assets/new_logo.png">
+    <link rel="shortcut icon" href="<?=site_url(); ?>assets/new_logo1.png">
     <!-- Page Title  -->
     <title><?=$title; ?></title>
     <!-- StyleSheets  -->
@@ -143,7 +143,7 @@
                                 </div>
                             </div>
                         </div>
-                            <div class="nk-split-content nk-split-stretch" style="flex-shrink: 0 !important; background-image: url(<?=site_url('assets/logo1.jpg'); ?>);
+                        <div class="nk-split-content nk-split-stretch d-none d-md-block" style="flex-shrink: 0 !important; background-image: url(<?=site_url('assets/bg.webp'); ?>);
                             background-position: center;
                             background-color: rgba(0, 0, 0, 0.5);
                             background-size: cover;

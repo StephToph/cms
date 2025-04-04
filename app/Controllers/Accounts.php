@@ -6852,7 +6852,7 @@ class Accounts extends BaseController {
 									$this->Crud->activity('user', $ins_rec, $action);
 									$name = ucwords($firstname.' '.$othername.' '.$surname);
 									$body = '
-										Dear '.$name.', <br><br>
+										Dear '.$title.' '.$name.', <br><br>
 											A Membership Account Has been Created with This Email on Chrsit Embassy  Platform;<br>
 											Below are your login Credentials:<br><br>
 
@@ -7515,7 +7515,7 @@ class Accounts extends BaseController {
 							$this->Crud->activity('user', $ins_rec, $action);
 							$name = ucwords($firstname.' '.$othername.' '.$lastname);
 							$body = '
-								Dear '.$name.', <br><br>
+								Dear '.$title.' '.$name.', <br><br>
 									A Membership Account Has been Created with This Email on Chrsit Embassy  Platform;<br>
 									Below are your login Credentials:<br><br>
 
