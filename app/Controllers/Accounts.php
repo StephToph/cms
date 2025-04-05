@@ -1121,6 +1121,261 @@ class Accounts extends BaseController {
 	}
 
 	
+	public function monitoring($param1='', $param2='', $param3='') {
+		// check session login
+		if($this->session->get('td_id') == ''){
+			$request_uri = uri_string();
+			$this->session->set('td_redirect', $request_uri);
+			return redirect()->to(site_url('auth'));
+		} 
+
+        $mod = 'accounts/monitoring';
+		$switch_id = $this->session->get('switch_church_id');
+        $log_id = $this->session->get('td_id');
+        $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+
+        if(!empty($switch_id)){
+            $church_type = $this->Crud->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_id = $this->Crud->read_field('name', 'Regional Manager', 'access_role', 'id');
+            }
+            if($church_type == 'zone'){
+                $role_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
+            }
+            if($church_type == 'group'){
+                $role_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
+            }
+            if($church_type == 'church'){
+                $role_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+            }
+            $church_id = $switch_id ;
+        }
+        $role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+        $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $role_c = $this->Crud->module($role_id, $mod, 'create');
+        $role_r = $this->Crud->module($role_id, $mod, 'read');
+        $role_u = $this->Crud->module($role_id, $mod, 'update');
+        $role_d = $this->Crud->module($role_id, $mod, 'delete');
+        if($role_r == 0){
+            return redirect()->to(site_url('dashboard'));	
+        }
+        $data['log_id'] = $log_id;
+        $data['role'] = $role;
+        $data['role_c'] = $role_c;
+       
+        $data['current_language'] = $this->session->get('current_language');
+		$table = 'user';
+		$form_link = site_url($mod);
+		if($param1){$form_link .= '/'.$param1;}
+		if($param2){$form_link .= '/'.$param2.'/';}
+		if($param3){$form_link .= $param3;}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = $form_link;
+		
+		
+		// manage record
+		if($param1 == 'manage') {
+			// prepare for delete
+			if($param2 == 'remove') {
+				if($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if(!empty($edit)) {
+						foreach($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+					
+					if($_POST){
+						$del_id = $this->request->getPost('d_id');
+						$code = $this->Crud->read_field('id', $del_id, 'user', 'firstname');
+						if($this->Crud->updates('id', $del_id, $table, ['is_monitoring'=>0]) > 0) {
+							echo $this->Crud->msg('success', translate_phrase('Monitor Removed'));
+
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by.' removed Attendance Monitor ('.$code.')';
+							$this->Crud->activity('user', $del_id, $action);
+
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', translate_phrase('Please try later'));
+						}
+						exit;	
+					}
+				}
+			} else {
+				// prepare for edit
+				if($param2 == 'edit') {
+					if($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if(!empty($edit)) {
+							foreach($edit as $e) {
+								$data['e_id'] = $e->id;
+								
+							}
+						}
+					}
+				} 
+
+				if ($this->request->getMethod() === 'post') {
+					$edit_id = $this->request->getPost('edit_id'); // visitor ID
+					$monitor_ids = $this->request->getPost('monitor'); // array of member IDs
+				
+					$ins_data['is_monitoring'] = 1;
+				
+					if (is_array($monitor_ids)) {
+						foreach ($monitor_ids as $member_id) {
+							$upd_rec = $this->Crud->updates('id', $member_id, 'user', $ins_data);
+							// Log activity
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$action = $by . ' is made an Attendance Monitor';
+							$this->Crud->activity('user', $edit_id, $action);
+		
+						}
+					}
+						
+					if($upd_rec > 0) {
+						echo $this->Crud->msg('success', translate_phrase('Attendance Monitoring Record Updated'));
+						echo '<script>location.reload(false);</script>';
+					} else {
+						echo $this->Crud->msg('info', translate_phrase('No Changes'));
+					}
+					
+				
+					exit;
+				}
+				
+				
+			}
+		}
+
+		// record listing
+		if($param1 == 'load') {
+			$limit = $param2;
+			$offset = $param3;
+
+			$rec_limit = 50;
+			$item = '';
+            if(empty($limit)) {$limit = $rec_limit;}
+			if(empty($offset)) {$offset = 0;}
+			
+			$search = $this->request->getPost('search');
+
+			if(empty($ref_status))$ref_status = 0;
+			$items = ' ';
+			$a = 1;
+
+            //echo $status;
+			$log_id = $this->session->get('td_id');
+			if(!$log_id) {
+				$item = '<div class="text-center text-muted">'.translate_phrase('Session Timeout! - Please login again').'</div>';
+			} else {
+				$role_id = $this->Crud->read_field('name', 'Administrator', 'access_role', 'id');
+
+				$all_rec = $this->Crud->filter_monitoring('', '', $log_id, $search, $switch_id);
+                // $all_rec = json_decode($all_rec);
+				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
+
+				$query = $this->Crud->filter_monitoring($limit, $offset, $log_id, $search, $switch_id);
+				$data['count'] = $counts;
+				
+
+				if(!empty($query)) {
+					foreach ($query as $q) {
+						$id = $q->id;
+						$firstname = $q->firstname;
+						$othername = $q->othername;
+						$surname = $q->surname;
+						$is_monitoring = $q->is_monitoring;
+						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+						
+						
+						$fullname = $firstname.' '.$othername.' '.$surname;
+						$reg_date = date('M d, Y h:ia', strtotime($q->reg_date));
+						
+						
+
+						// add manage buttons
+						if ($role_u != 1) {
+							$all_btn = '';
+						} else {
+							$all_btn = '
+								<a href="javascript:;" class="btn btn-primary pop" pageTitle="Remove ' . $fullname . '" pageName="' . site_url($mod . '/manage/remove/' . $id) . '"><em class="icon ni ni-edit-alt"></em><span>'.translate_phrase('Remove from Monitoring').'</span></a>
+							';
+						}
+
+						$item .= '
+							<tr>
+								<td>
+									<div class="user-card">
+										<div class="user-info">
+											<span class="tb-lead">' . ucwords($fullname) . ' </span>
+										</div>
+									</div>
+								</td>
+								<td>' . ucwords(strtolower($church)) . '</td>
+								<td align="right">
+									' . $all_btn . '
+										
+								</td>
+							</tr>
+							
+						';
+						$a++;
+					}
+				}
+				
+			}
+			
+			if(empty($item)) {
+				$resp['item'] = $items.'
+					<tr><td colspan="8">
+					<div class="text-center text-muted col-sm-12">
+						<br/><br/>
+						<i class="icon ni ni-users " style="font-size:120px;"></i><br/>No Monitoring Returned
+					</div></td></tr>
+				';
+			} else {
+				$resp['item'] = $items . $item;
+				if($offset >= 25){
+					$resp['item'] = $item;
+				}
+				
+			}
+
+			$resp['count'] = $counts;
+
+			$more_record = $counts - ($offset + $rec_limit);
+			$resp['left'] = $more_record;
+
+			if($counts > ($offset + $rec_limit)) { // for load more records
+				$resp['limit'] = $rec_limit;
+				$resp['offset'] = $offset + $limit;
+			} else {
+				$resp['limit'] = 0;
+				$resp['offset'] = 0;
+			}
+
+			echo json_encode($resp);
+			die;
+		}
+
+		if($param1 == 'manage') { // view for form data posting
+			return view($mod.'_form', $data);
+		} else { // view for main page
+			
+			$data['title'] = translate_phrase('Attendance Monitoring').' - '.app_name;
+			$data['page_active'] = $mod;
+			return view($mod, $data);
+		}
+	}
+
+	
 	public function converts($param1='', $param2='', $param3='') {
 		// check session login
 		if($this->session->get('td_id') == ''){

@@ -37,7 +37,7 @@ class Attendance extends BaseController {
 						$id = $this->Crud->read_field($type, $email, 'user', 'id');
 						$church_id = $this->Crud->read_field('id', $id, 'user', 'church_id');
 						$is_admin = $this->Crud->read_field('id', $id, 'user', 'is_admin');
-						$is_usher = $this->Crud->read_field('id', $id, 'user', 'is_usher');
+						$is_monitoring = $this->Crud->read_field('id', $id, 'user', 'is_monitoring');
 						$role_id = $this->Crud->read_field('id', $id, 'user', 'role_id');
 						$role = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
 						
@@ -56,8 +56,8 @@ class Attendance extends BaseController {
 							$attend_type = 'admin';
 						}
 						
-						if($is_usher > 0){
-							$attend_type = 'usher';
+						if($is_monitoring > 0){
+							$attend_type = 'monitoring';
 						}
 
 						if($role == 'Assistant Cell Leader' || $role == 'Cell Leader' || $role == 'Cell Executive'){
@@ -1097,12 +1097,6 @@ class Attendance extends BaseController {
 						}
 					}
 
-
-
-					$is_usher = 0;
-					$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
-					if(in_array($usher_id, $dept_id))$is_usher = 1;
-					
 					//// Image upload
 					if(file_exists($this->request->getFile('pics'))) {
 						$path = 'assets/images/users/';
@@ -1122,7 +1116,6 @@ class Attendance extends BaseController {
 					$ins_data['firstname'] = $firstname;
 					$ins_data['othername'] = $othername;
 					$ins_data['surname'] = $lastname;
-					$ins_data['is_usher'] = $is_usher;
 					$ins_data['email'] = $email;
 					$ins_data['phone'] = $phone;
 					$ins_data['gender'] = $gender;
@@ -1556,12 +1549,6 @@ class Attendance extends BaseController {
 				}
 			}
 
-
-
-			$is_usher = 0;
-			$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
-			if(in_array($usher_id, $dept_id))$is_usher = 1;
-			
 			//// Image upload
 			if(file_exists($this->request->getFile('pics'))) {
 				$path = 'assets/images/users/';
@@ -1582,7 +1569,6 @@ class Attendance extends BaseController {
 			$ins_data['firstname'] = $firstname;
 			$ins_data['othername'] = $othername;
 			$ins_data['surname'] = $lastname;
-			$ins_data['is_usher'] = $is_usher;
 			$ins_data['email'] = $email;
 			$ins_data['phone'] = $phone;
 			$ins_data['gender'] = $gender;
