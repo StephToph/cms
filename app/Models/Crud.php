@@ -3084,6 +3084,7 @@ class Crud extends Model {
 		}
 		if($role != 'developer' && $role != 'administrator'){
 			$builder->where('church_id', $church_id);
+			$builder->orWhere('link', $church_id);
 		} else {
 			if(!empty($church_idz) && $church_idz != 'all') $builder->where('church_id', $church_idz);
 		}
