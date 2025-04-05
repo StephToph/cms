@@ -383,6 +383,7 @@ class Service extends BaseController {
 								$data['e_weekly_days'] = $e->weekly_days;
 								$data['e_monthly_type'] = $e->monthly_type;
 								$data['e_monthly_dates'] = $e->monthly_dates;
+								$data['e_link'] = $e->link;
 								$data['e_monthly_weeks'] = $e->monthly_weeks;
 								$data['e_monthly_weekdays'] = $e->monthly_weekdays;
 								$data['e_yearly_date'] = $e->yearly_date;
@@ -393,82 +394,136 @@ class Service extends BaseController {
 					}
 				}
 
-				// Handle form post
-				if ($this->request->getMethod() == 'post') {
-					$type_id = $this->request->getVar('type_id');
-
-					$church_id = $this->request->getVar('church_id');
-					// Common fields
-					$ins_data['ministry_id'] = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
-					$ins_data['church_id'] = $this->request->getVar('church_id');
-					$ins_data['type_id'] = $this->request->getVar('type');
-					$ins_data['type'] = $this->request->getVar('service_type');
-					$ins_data['recurrence_pattern'] = $this->request->getVar('recurring_pattern');
-					$ins_data['service_date'] = $this->request->getVar('service_date');
-					$ins_data['start_date'] = $this->request->getVar('start_date');
-					$ins_data['occurrences'] = $this->request->getVar('occurrences');
-					$ins_data['start_time'] = date('H:i:s', strtotime($this->request->getVar('start_time')));
-					$ins_data['end_time'] = date('H:i:s', strtotime($this->request->getVar('end_time')));
-
-					// Weekly recurrence (checkbox array to CSV)
-					$weekly_days = $this->request->getVar('weekly_days');
-					$ins_data['weekly_days'] = is_array($weekly_days) ? implode(',', $weekly_days) : null;
-
-					// Monthly recurrence
-					$ins_data['monthly_type'] = $this->request->getVar('monthly_type');
-					$ins_data['monthly_dates'] = $this->request->getVar('monthly_dates');
-
-					$monthly_weeks = $this->request->getVar('monthly_weeks');
-					$monthly_weekdays = $this->request->getVar('monthly_weekdays');
-					$ins_data['monthly_weeks'] = is_array($monthly_weeks) ? implode(',', $monthly_weeks) : null;
-					$ins_data['monthly_weekdays'] = is_array($monthly_weekdays) ? implode(',', $monthly_weekdays) : null;
-
-					// Yearly
-					$ins_data['yearly_date'] = $this->request->getVar('yearly_date');
-
-					// CREATE or UPDATE
-					if ($type_id) {
-						$upd_rec = $this->Crud->updates('id', $type_id, $table, $ins_data);
-						if ($upd_rec > 0) {
-							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$type_idz = $this->Crud->read_field('id', $type_id, $table, 'type_id');
-							$code = $this->Crud->read_field('id', $type_idz, 'service_type', 'name');
-							$action = $by . ' updated Service Schedule for Service (' . $code . ')';
-							$this->Crud->activity('service', $type_id, $action);
-
-							echo $this->Crud->msg('success', 'Service Schedule Updated');
-							echo '<script>
-								load_schedule("","");
-								$("#modal").modal("hide");
-							</script>';
+				if ($this->request->getMethod() === 'post') {
+					$table = 'td_service_schedule';
+					$type_id = $this->request->getVar('type_id'); // schedule ID if editing
+					$church_id = $this->request->getVar('church_id'); // schedule ID if editing
+					$log_id = session('log_id'); // current user ID
+				
+					$creator_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+					$scope = $this->request->getVar('scope_type');
+					$churches = [];
+					
+					// echo $church_id;
+					// die;
+					// Get all input fields
+					$ins_data = [
+						'type_id'            => $this->request->getVar('type'),
+						'type'               => $this->request->getVar('service_type'),
+						'recurrence_pattern' => $this->request->getVar('recurring_pattern'),
+						'service_date'       => $this->request->getVar('service_date') ?: null,
+						'start_date'         => $this->request->getVar('start_date') ?: null,
+						'occurrences'        => $this->request->getVar('occurrences') ?: 0,
+						'start_time'         => date('H:i:s', strtotime($this->request->getVar('start_time'))),
+						'end_time'           => date('H:i:s', strtotime($this->request->getVar('end_time'))),
+						'weekly_days'        => is_array($this->request->getVar('weekly_days')) ? implode(',', $this->request->getVar('weekly_days')) : null,
+						'monthly_type'       => $this->request->getVar('monthly_type'),
+						'monthly_dates'      => $this->request->getVar('monthly_dates'),
+						'monthly_weeks'      => is_array($this->request->getVar('monthly_weeks')) ? implode(',', $this->request->getVar('monthly_weeks')) : null,
+						'monthly_weekdays'   => is_array($this->request->getVar('monthly_weekdays')) ? implode(',', $this->request->getVar('monthly_weekdays')) : null,
+						'yearly_date'        => $this->request->getVar('yearly_date') ?: null,
+						'reg_date'           => date('Y-m-d H:i:s'),
+						'link'  => $church_id
+					];
+				
+					// Determine churches based on scope
+					if ($scope === 'own') {
+						$church_id = $this->request->getVar('my_church_id');
+						$churches[] = $church_id;
+						$ins_data['church_id'] = $church_id;
+						$ins_data['ministry_id'] = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+					} elseif ($scope === 'all') {
+						$church_id = $creator_church_id;
+						$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+						if ($church_type === 'region') {
+							$ref_col = 'regional_id';
+						} elseif ($church_type === 'zone') {
+							$ref_col = 'zonal_id';
+						} elseif ($church_type === 'group') {
+							$ref_col = 'group_id';
 						} else {
-							echo $this->Crud->msg('info', 'No Changes');
+							$ref_col = 'church_id';
 						}
-					} else {
-						if ($this->Crud->check3('start_time', $ins_data['start_time'], 'church_id', $ins_data['church_id'],'type_id', $ins_data['type_id'], $table) > 0) {
-							echo $this->Crud->msg('warning', 'Service Schedule Already Exists');
+						
+						$all_churches = $this->Crud->read_single_order($ref_col, $church_id, 'church', 'id', 'asc');
+						$churches = array_column($all_churches, 'id');
+					} elseif ($scope === 'selected') {
+						$churches = $this->request->getVar('selected_churches') ?? [];
+					}
+				
+					// 🔁 Update Logic
+					if ($type_id) {
+						$updated = false;
+				
+						if ($scope === 'own') {
+							$upd = $this->Crud->updates('id', $type_id, $table, $ins_data);
+							if ($upd > 0) {
+								$updated = true;
+								$name = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+								$code = $this->Crud->read_field('id', $ins_data['type_id'], 'service_type', 'name');
+								$action = $name . ' updated service schedule for ' . $code;
+								$this->Crud->activity('service', $type_id, $action);
+							}
 						} else {
-							$ins_rec = $this->Crud->create($table, $ins_data);
-							if ($ins_rec > 0) {
-								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-								$type_id = $this->Crud->read_field('id', $ins_rec, $table, 'type_id');
-								$code = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
-								$action = $by . ' created Service Schedule for Service(' . $code . ')';
-								$this->Crud->activity('service', $ins_rec, $action);
-
-								echo $this->Crud->msg('success', 'Service Schedule Created');
-								echo '<script>
-								load_schedule("","");
-								$("#modal").modal("hide");
-							</script>';
-							} else {
-								echo $this->Crud->msg('danger', 'Please try later');
+							$related_schedules = $this->Crud->read2_order(
+								'link', $church_id,
+								'type_id', $ins_data['type_id'],
+								$table, 'id', 'asc'
+							);
+				
+							foreach ($related_schedules as $rec) {
+								$upd = $this->Crud->updates('id', $rec->id, $table, $ins_data);
+								if ($upd > 0) {
+									$updated = true;
+									$code = $this->Crud->read_field('id', $rec->type_id, 'service_type', 'name');
+									$action = $this->Crud->read_field('id', $log_id, 'user', 'firstname') . ' updated schedule for ' . $code . ' (Church ID: ' . $rec->church_id . ')';
+									$this->Crud->activity('service', $rec->id, $action);
+								}
 							}
 						}
+				
+						if ($updated) {
+							echo $this->Crud->msg('success', 'Service schedule(s) updated');
+						} else {
+							echo $this->Crud->msg('info', 'No changes were made');
+						}
+				
+						echo '<script>load_schedule("",""); $("#modal").modal("hide");</script>';
+						die;
 					}
-
+				
+					// 🆕 Create Logic
+					$inserted = false;
+					foreach ($churches as $church_id) {
+						$data = $ins_data;
+						$data['church_id'] = $church_id;
+						$data['ministry_id'] = $this->Crud->read_field('id', $church_id, 'church', 'ministry_id');
+				
+						// Prevent duplicates
+						$exists = $this->Crud->check3('start_time', $data['start_time'], 'church_id', $church_id, 'type_id', $data['type_id'], $table);
+						if ($exists > 0) {
+							continue;
+						}
+				
+						$rec_id = $this->Crud->create($table, $data);
+						if ($rec_id > 0) {
+							$inserted = true;
+							$code = $this->Crud->read_field('id', $data['type_id'], 'service_type', 'name');
+							$name = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$this->Crud->activity('service', $rec_id, "$name created schedule for $code (Church ID: $church_id)");
+						}
+					}
+				
+					if ($inserted) {
+						echo $this->Crud->msg('success', 'Service schedule(s) created successfully');
+						echo '<script>load_schedule("",""); $("#modal").modal("hide");</script>';
+					} else {
+						echo $this->Crud->msg('warning', 'All schedules already existed');
+					}
+				
 					die;
 				}
+				
 
 			}
 		}
@@ -478,7 +533,7 @@ class Service extends BaseController {
 			$limit = $param2;
 			$offset = $param3;
 
-			$rec_limit = 25;
+			$rec_limit = 50;
 			$item = '';
             if(empty($limit)) {$limit = $rec_limit;}
 			if(empty($offset)) {$offset = 0;}

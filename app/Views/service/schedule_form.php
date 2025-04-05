@@ -205,9 +205,50 @@ $this->Crud = new Crud();
                 <input type="text" class="form-control date-picker"  value="<?php if(!empty($e_yearly_date)){echo $e_yearly_date;} ?>" name="yearly_date">
             </div>
 
-           
+            <?php if($param2 == ''){ if($role != 'center manager'){?>
+            <!-- Schedule Scope Selector -->
+            <div class="col-sm-12 mb-3">
+                <label><strong>Schedule Scope</strong></label><br>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input  schedule-scope" type="radio" name="scope_type" value="own" checked>
+                    <label class="form-check-label">Only My Church</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input  schedule-scope" type="radio" name="scope_type" value="all">
+                    <label class="form-check-label">All Churches Under my Church</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input  schedule-scope" type="radio" name="scope_type" value="selected">
+                    <label class="form-check-label">Select Churches</label>
+                </div>
+            </div>
 
-           
+            <!-- Selected Churches Multi-Select -->
+            <div class="col-sm-12 mb-3" id="select_churches_wrapper" style="display: none;">
+                <label>Select Churches</label>
+                <?php 
+                    $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                    $church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+                    $ty = 'regional_id';
+                    if($church_type == 'zone'){
+                        $ty = 'zonal_id';
+                    }
+                    if($church_type == 'group'){
+                        $ty = 'group_id';
+                    }
+                    if($church_type == 'church'){
+                        $ty = 'church_id';
+                    }
+                ?>
+                <select class="form-control js-select2" name="selected_churches[]" multiple>
+                    <?php foreach ($this->Crud->read_single_order($ty, $church_id, 'church', 'name', 'asc') as $ch): ?>
+                        <option value="<?= $ch->id ?>"><?= ucwords($ch->name . ' - ' . $ch->type) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
+            <input type="hidden" name="my_church_id" value="<?= $this->Crud->read_field('id', $log_id, 'user', 'church_id') ?>">
+            <?php } }?>
             <div class="col-sm-12 text-center mt-3">
                 <button class="btn btn-primary bb_fo_btn" type="submit">
                     <i class="icon ni ni-save"></i> <?=translate_phrase('Save Record');?>
@@ -217,7 +258,20 @@ $this->Crud = new Crud();
     <?php } ?>
 <?php echo form_close(); ?>
 <script>
-    $(document).ready(function () {
+    $(document).ready(function() {
+        $('.schedule-scope').on('change', function() {
+            const selectedScope = $(this).val();
+
+            if (selectedScope === 'selected') {
+                $('#select_churches_wrapper').slideDown(500);
+            } else {
+                $('#select_churches_wrapper').slideUp(500);
+            }
+        });
+
+        // Optional: Trigger default state on load
+        $('.schedule-scope:checked').trigger('change');
+    
         function toggleServiceTypeFields() {
             const type = $('#service_type').val();
 
