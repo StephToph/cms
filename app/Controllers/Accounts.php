@@ -7440,70 +7440,250 @@ class Accounts extends BaseController {
 						if(!empty($edit)) {
 							foreach($edit as $e) {
 								$data['e_id'] = $e->id;
-								$data['e_location'] = $e->location;
-								$data['e_name'] = $e->name;
-								$data['e_roles'] = json_decode($e->roles);
-								$data['e_time'] = json_decode($e->time);
+								$data['e_firstname'] = $e->firstname;
+								$data['e_lastname'] = $e->surname;
+								$data['e_gender'] = $e->gender;
+								$data['e_othername'] = $e->othername;
+								$data['e_email'] = $e->email;
+								$data['e_archive'] = $e->is_archive;
+								$data['e_title'] = $e->title;
+								$data['e_phone'] = $e->phone;
+								$data['e_address'] = $e->address;
+								$data['e_gender'] = $e->gender;
+								$data['e_marriage_anniversary'] = $e->marriage_anniversary;
+								$data['e_job_type'] = $e->job_type;
+								$data['e_employer_address'] = $e->employer_address;
+								$data['e_baptism'] = $e->baptism;
+								$data['e_foundation_school'] = $e->foundation_school;
+								$data['e_foundation_weeks'] = $e->foundation_weeks;
+								$data['e_chat_handle'] = $e->chat_handle;
+								$data['e_dob'] = $e->dob;
+								$data['e_family_status'] = $e->family_status;
+								$data['e_family_position'] = $e->family_position;
+								$data['e_parent_id'] = $e->parent_id;
+								$data['e_spouse_id'] = $e->spouse_id;
+								$data['e_cell_id'] = $e->cell_id;
+								$data['e_cell_role'] = $e->cell_role;
+								$data['e_dept_id'] = $e->dept_id;
+								$data['e_dept_role'] = $e->dept_role;
+								$data['e_parent_id'] = $e->parent_id;
+								$data['e_ministry_id'] = $e->ministry_id;
+								$data['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+								$data['e_church_id'] = $e->church_id;
+								$data['e_img_id'] = $e->img_id;
+								
 							}
 						}
 					}
 				} 
 
 				if($this->request->getMethod() == 'post'){
-					$cell_id = $this->request->getVar('cell_id');
-					$name = $this->request->getVar('name');
-					$roles = $this->request->getVar('roles');
-					$location = $this->request->getVar('location');
-					$times = $this->request->getVar('times');
-					$days = $this->request->getVar('days');
+					$membership_id = htmlspecialchars(trim($this->request->getVar('membership_id')), ENT_QUOTES, 'UTF-8');
+					$firstname = htmlspecialchars(trim($this->request->getVar('firstname')), ENT_QUOTES, 'UTF-8');
+					$lastname  = htmlspecialchars(trim($this->request->getVar('lastname')), ENT_QUOTES, 'UTF-8');
+					$othername  = htmlspecialchars(trim($this->request->getVar('othername')), ENT_QUOTES, 'UTF-8');
+					$gender  = htmlspecialchars(trim($this->request->getVar('gender')), ENT_QUOTES, 'UTF-8');
+					$email  = htmlspecialchars(trim($this->request->getVar('email')), ENT_QUOTES, 'UTF-8');
+					$phone  = htmlspecialchars(trim($this->request->getVar('phone')), ENT_QUOTES, 'UTF-8');
+					$dob  = htmlspecialchars(trim($this->request->getVar('dob')), ENT_QUOTES, 'UTF-8');
+					$archive       = htmlspecialchars(trim($this->request->getVar('archive')), ENT_QUOTES, 'UTF-8');
+					$chat_handle   = htmlspecialchars(trim($this->request->getVar('chat_handle')), ENT_QUOTES, 'UTF-8');
+					$address       = htmlspecialchars(trim($this->request->getVar('address')), ENT_QUOTES, 'UTF-8');
+					$family_status = htmlspecialchars(trim($this->request->getVar('family_status')), ENT_QUOTES, 'UTF-8');
+					$family_position= htmlspecialchars(trim($this->request->getVar('family_position')), ENT_QUOTES, 'UTF-8');
+					$parent_id     = htmlspecialchars(trim($this->request->getVar('parent_id')), ENT_QUOTES, 'UTF-8');
+					$dept_id                = $this->request->getVar('dept_id'); // array, handle separately below
+					$dept_role_id           = $this->request->getVar('dept_role_id'); // array, handle separately below
+					$cell_id                = htmlspecialchars(trim($this->request->getVar('cell_id')), ENT_QUOTES, 'UTF-8');
+					$spouse_id              = htmlspecialchars(trim($this->request->getVar('spouse_id')), ENT_QUOTES, 'UTF-8');
+					$cell_role_id           = htmlspecialchars(trim($this->request->getVar('cell_role_id')), ENT_QUOTES, 'UTF-8');
+					$title                  = htmlspecialchars(trim($this->request->getVar('title')), ENT_QUOTES, 'UTF-8');
+					$password               = htmlspecialchars(trim($this->request->getVar('password')), ENT_QUOTES, 'UTF-8');
+					$marriage_anniversary   = htmlspecialchars(trim($this->request->getVar('marriage_anniversary')), ENT_QUOTES, 'UTF-8');
+					$job_type               = htmlspecialchars(trim($this->request->getVar('job_type')), ENT_QUOTES, 'UTF-8');
+					$employer_address       = htmlspecialchars(trim($this->request->getVar('employer_address')), ENT_QUOTES, 'UTF-8');
+					$baptism                = htmlspecialchars(trim($this->request->getVar('baptism')), ENT_QUOTES, 'UTF-8');
+					$foundation_school      = htmlspecialchars(trim($this->request->getVar('foundation_school')), ENT_QUOTES, 'UTF-8');
+					$foundation_weeks       = htmlspecialchars(trim($this->request->getVar('foundation_weeks')), ENT_QUOTES, 'UTF-8');
+					$ministry_id            = htmlspecialchars(trim($this->request->getVar('ministry_id')), ENT_QUOTES, 'UTF-8');
+					$church_id              = htmlspecialchars(trim($this->request->getVar('church_id')), ENT_QUOTES, 'UTF-8');
+					$img_id                 = htmlspecialchars(trim($this->request->getVar('img_id')), ENT_QUOTES, 'UTF-8');
+
 					
-					$time = [];
-					for($i=0;$i < count($days);$i++ ){
-						$day = $days[$i];
-						// echo $day;
-						$time[$day] = $times[$i];
+
+					$sanitized_dept_id = [];
+					if (is_array($dept_id)) {
+						foreach ($dept_id as $id) {
+							$sanitized_dept_id[] = htmlspecialchars(trim($id), ENT_QUOTES, 'UTF-8');
+						}
 					}
-					// print_r($time);
-					// print_r($days);
-					// die;
-					$ins_data['name'] = $name;
-					$ins_data['roles'] = json_encode($roles);
-					$ins_data['location'] = $location;
-					$ins_data['time'] = json_encode($time);
+
+					$sanitized_dept_role_id = [];
+					if (is_array($dept_role_id)) {
+						foreach ($dept_role_id as $key => $val) {
+							$clean_key = htmlspecialchars(trim($key), ENT_QUOTES, 'UTF-8');
+							$clean_val = htmlspecialchars(trim($val), ENT_QUOTES, 'UTF-8');
+							$sanitized_dept_role_id[$clean_key] = $clean_val;
+						}
+					}
+
+				
+					$is_usher = 0;
+					$usher_id = $this->Crud->read_field('name', 'Usher', 'dept', 'id');
+					if(in_array($usher_id, $dept_id))$is_usher = 1;
+
+					//// Image upload
+					if(file_exists($this->request->getFile('pics'))) {
+						$path = 'assets/images/users/';
+						$file = $this->request->getFile('pics');
+						$getImg = $this->Crud->img_upload($path, $file);
+						
+						if(!empty($getImg->path)) $img_id = $getImg->path;
+					}
+					$church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+					$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+					$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+					$group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
 					
+					// echo $baptism;
+					// die;
+					$ins_data['title'] = $title;
+					$ins_data['firstname'] = $firstname;
+					$ins_data['othername'] = $othername;
+					$ins_data['surname'] = $lastname;
+					$ins_data['email'] = $email;
+					$ins_data['phone'] = $phone;
+					$ins_data['is_usher'] = $is_usher;
+					$ins_data['gender'] = $gender;
+					$ins_data['address'] = $address;
+					$ins_data['is_archive'] = $archive;
+					$ins_data['parent_id'] = $parent_id;
+					$ins_data['img_id'] = $img_id;
+					$ins_data['spouse_id'] = $spouse_id;
+					$ins_data['marriage_anniversary'] = $marriage_anniversary;
+					$ins_data['job_type'] = $job_type;
+					$ins_data['is_member'] = 1;
+					$ins_data['employer_address'] = $employer_address;
+					$ins_data['baptism'] = $baptism;
+					$ins_data['foundation_school'] = $foundation_school;
+					$ins_data['foundation_weeks'] = $foundation_weeks;
+					$ins_data['chat_handle'] = $chat_handle;
+					$ins_data['dob'] = $dob;
+					$ins_data['family_status'] = $family_status;
+					$ins_data['family_position'] = $family_position;
+					$ins_data['parent_id'] = $parent_id;
+					$ins_data['dept_id'] = json_encode($dept_id);
+					$ins_data['dept_role'] = json_encode($dept_role_id);
+					$ins_data['ministry_id'] = $ministry_id;
+					$ins_data['church_id'] = $church_id;
+					$ins_data['church_type'] = $church_type;
+					$ins_data['regional_id'] = $regional_id;
+					$ins_data['zonal_id'] = $zonal_id;
+					$ins_data['group_id'] = $group_id;
+					$ins_data['cell_id'] = $cell_id;
+					$ins_data['cell_role'] = $cell_role_id;
+					$ins_data['is_member'] = 1;
+					$ins_data['profile_update'] = 1;
+					if($password) { $ins_data['password'] = md5($password); }
+					$role_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+					$member_id = $this->Crud->read_field('name', 'Member', 'access_role', 'id');
+					$cell_member = $this->Crud->read_field('name', 'Cell Member', 'access_role', 'id');
+					$cell_role = $this->Crud->read_field('id', $cell_role_id, 'access_role', 'name');
+					if($cell_role == 'Cell Leader' || $cell_role == 'Assistant Cell Leader'){
+						$role_id = $cell_role_id;
+						$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+						if(!empty($cells)){
+							foreach($cells as $cm){
+								if($cm->cell_role == $cell_role_id){
+									$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+								}
+							}
+						}
+					}
+					if($cell_role == 'Cell Executive'){
+						$role_id = $cell_role_id;
+						$cells = $this->Crud->read2('cell_id', $cell_id, 'cell_role !=', $cell_member, 'user');
+						if(!empty($cells)){
+							$a = 0;
+							foreach($cells as $cm){
+								if($cm->cell_role == $cell_role_id){
+									$a++;
+									if($a > 5){
+										$this->Crud->updates('id', $cm->id, 'user', array('role_id'=>$member_id, 'cell_role'=>$cell_member));
+									}
+									
+								}
+
+							}
+						}
+					}
+					$ins_data['role_id'] = $role_id;
+						
 					// do create or update
-					if($cell_id) {
-						$upd_rec = $this->Crud->updates('id', $cell_id, $table, $ins_data);
+					if($membership_id) {
+						if(!empty($spouse_id)){
+							$this->Crud->updates('id', $spouse_id, $table, array('spouse_id'=>$membership_id, 'family_status'=>'married'));
+						}
+						$upd_rec = $this->Crud->updates('id', $membership_id, $table, $ins_data);
 						if($upd_rec > 0) {
 							///// store activities
 							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-							$code = $this->Crud->read_field('id', $cell_id, 'dept', 'name');
-							$action = $by.' updated Department ('.$code.') Record';
-							$this->Crud->activity('user', $cell_id, $action);
+							$code = $this->Crud->read_field('id', $membership_id, 'user', 'firstname');
+							$action = $by.' updated Membership ('.$code.') Record';
+							$this->Crud->activity('user', $membership_id, $action);
 
-							echo $this->Crud->msg('success', 'Record Updated');
-							echo '<script>location.reload(false);</script>';
+							echo $this->Crud->msg('success', 'Membership Updated');
+							echo '<script>window.location.replace("'.site_url('accounts/membership').'");</script>';
 						} else {
 							echo $this->Crud->msg('info', 'No Changes');	
 						}
 					} else {
-						if($this->Crud->check('name', $name, $table) > 0) {
-							echo $this->Crud->msg('warning', 'Record Already Exist');
-						} else {
-							$ins_rec = $this->Crud->create($table, $ins_data);
-							if($ins_rec > 0) {
-								///// store activities
-								$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-								$code = $this->Crud->read_field('id', $ins_rec, 'dept', 'name');
-								$action = $by.' created Department ('.$code.') Record';
-								$this->Crud->activity('user', $ins_rec, $action);
+						$ins_data['activate'] = 1;
+						$ins_data['reg_date'] = date(fdate);
+						$ins_rec = $this->Crud->create($table, $ins_data);
+						if($ins_rec > 0) {
+							if(!empty($spouse_id)){
+								$this->Crud->updates('id', $spouse_id, $table, array('spouse_id'=>$ins_rec, 'family_status'=>'married'));
+							}
+							///// store activities
+							$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
+							$code = $this->Crud->read_field('id', $ins_rec, 'user', 'surname');
+							$this->Crud->updates('id', $ins_rec, 'user', array('user_no'=>'CEAM-00'.$ins_rec));
 
-								echo $this->Crud->msg('success', 'Record Created');
-								echo '<script>location.reload(false);</script>';
-							} else {
-								echo $this->Crud->msg('danger', 'Please try later');	
-							}	
-						}
+							$user_no = 'CEAM-00'.$ins_rec;
+							$qr_content = 'USER-00' . $ins_rec;
+
+							// Generate QR
+							$qr = $this->Crud->qrcode($qr_content); // This should return an array
+
+							// Save to DB
+							$this->Crud->updates('id', $ins_rec, 'user', ['qrcode' => $qr['path']]);
+									
+							$action = $by.' created Membership ('.$code.') Record';
+							$this->Crud->activity('user', $ins_rec, $action);
+							$name = ucwords($firstname.' '.$othername.' '.$lastname);
+							$body = '
+								Dear '.$title.' '.$name.', <br><br>
+									A Membership Account Has been Created with This Email on Chrsit Embassy  Platform;<br>
+									Below are your login Credentials:<br><br>
+
+									Website: '.site_url().'
+									Membership ID: '.$user_no.'<br>
+									Email: '.$email.'<br>
+									Phone: '.$phone.'<br>
+									Password: '.$password.'<br><br>
+									Do not disclose your Login credentials with anyone to avoid unauthorized access.
+									
+							';
+							// $this->Crud->send_email($email, 'Membership Account', $body);
+
+
+							echo $this->Crud->msg('success', 'Membership Created');
+							echo '<script>window.location.replace("'.site_url('accounts/membership').'");</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');	
+						}	
+					
 					}
 
 					die;	

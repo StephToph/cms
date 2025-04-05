@@ -519,9 +519,13 @@
     </div>
     <?php 
         $is_admin = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
+        $is_member = $this->Crud->read_field('id', $log_id, 'user', 'is_member');
+        $profile_update = $this->Crud->read_field('id', $log_id, 'user', 'profile_update');
         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
         $state_id = $this->Crud->read_field('id', $church_id, 'church', 'state_id');
-        $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');?>
+        $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
+        
+        ?>
 
 
     <div class="modal fade" id="pinModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="pinModalLabel" aria-hidden="true">
@@ -714,6 +718,21 @@
             });
         });
         $(document).ready(function () {
+            <?php
+                if ($profile_update == 0 && $is_member == 1) {
+                    echo '
+                        $(".modal-dialog").addClass("modal-xl");
+                        $(".modal-center .modal-title").html("Update Profile");
+                        $(".modal-center .modal-body").html("<div class=\"col-sm-12 text-center\"><div class=\"spinner-border\" role=\"status\"><span class=\"visually-hidden\">Loading...</span></div><br>Loading Please Wait..</div>");
+                        $(".modal-center .modal-body").load("' . site_url('accounts/membership/manage/edit/'.$log_id) . '");
+	                    $(".modal-center").modal("show");
+                        $("#modal").modal({backdrop: "static", keyboard: false});
+                         
+                        // Remove close buttons
+                        $(".modal .close").hide();
+                       ';
+                }
+            ?>
             <?php 
             $hasTransactionPin = ($is_admin > 0 && $state_id == 0) ? 'true' : 'false'; 
             ?>
