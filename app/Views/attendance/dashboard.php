@@ -186,7 +186,7 @@ $this->Crud = new Crud();
                                         <input type="hidden" id="church_id" value="<?=$church_id; ?>">
                                         <input type="hidden" id="cell_id" value="<?=$cell_id; ?>">
                                             
-                                        <?php if($attend_type == 'usher' || $attend_type == 'admin'){?>
+                                        <?php if($attend_type == 'monitoring' || $attend_type == 'admin'){?>
                                             <div class="col-md-8 my-2">
                                                 <div class="form-control-wrap p-2"> 
                                                     <label class="name">Enter Name/Email</label>   
@@ -225,7 +225,7 @@ $this->Crud = new Crud();
                                 
                             </div>
                         </div>
-                        <?php if($attend_type == 'admin' || $attend_type == 'usher'){?>
+                        <?php if($attend_type == 'admin' || $attend_type == 'monitoring'){?>
                             <div class="col-md-12 mb-3" id="general_response">
                                 <!-- dynamic content appears here -->
                             </div>
@@ -613,7 +613,7 @@ $this->Crud = new Crud();
     });
 
 </script>   
-<?php if($attend_type == 'usher' || $attend_type == 'admin'){?>
+<?php if($attend_type == 'monitoring' || $attend_type == 'admin'){?>
     <script>
         function speakText(text) {
             if ('speechSynthesis' in window) {

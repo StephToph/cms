@@ -2010,7 +2010,107 @@ class Crud extends Model {
 	}
 
     /// filter user
-    public function filter_members($log_id, $start_date='', $end_date='', $switch_id='') {
+    public function filter_monitoring($limit='', $offset='', $log_id, $search='', $switch_id='') {
+        $db = db_connect();
+        $builder = $db->table('user');
+
+        // build query
+		$builder->orderBy('id', 'DESC');
+		
+		$role_id = $this->read_field('name', 'Member', 'access_role', 'id');
+		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$cell_id = $this->read_field('id', $log_id, 'user', 'cell_id');
+		$church_type = $this->read_field('id', $log_id, 'user', 'church_type');
+		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
+
+
+		if(!empty($switch_id)){
+            $church_type = $this->read_field('id', $switch_id, 'church', 'type');
+            if($church_type == 'region'){
+                $role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
+				$role = 'regional manager';
+            }
+            if($church_type == 'zone'){
+                $role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
+				$role = 'zonal manager';
+            }
+            if($church_type == 'group'){
+                $role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
+				$role = 'group manager';
+            }
+            if($church_type == 'church'){
+                $role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
+				$role = 'church leader';
+            }
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id = $switch_id;
+		
+        }
+
+
+		if($role != 'developer' && $role != 'administrator'){
+			if($role == 'ministry administrator'){
+				$builder->where('ministry_id', $ministry_id);
+			} else if($role == 'cell executive' || $role == 'cell leader' || $role == 'assistant cell leader'){
+				$builder->where('cell_id', $cell_id);
+			
+			} else {
+				if($church_type == 'region'){
+					$builder->where('regional_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'zone'){
+					$builder->where('zonal_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'group'){
+					$builder->where('group_id', $church_id);
+					$builder->orWhere('church_id', $church_id);
+				}
+				if($church_type == 'church'){
+					$builder->where('church_id', $church_id);
+				}
+				
+			}
+			
+		} 
+		
+		// $builder->where('role_id', $role_id);
+		$builder->where('is_member', 1);
+		$builder->where('is_monitoring', 1);
+        
+		if(!empty($search)) {
+            $builder->groupStart()
+				->like('surname', $search)
+				->orLike('email', $search)
+				->orLike('firstname', $search)
+				->orLike('chat_handle', $search)
+				->orLike('othername', $search)
+				->orLike('user_no', $search)
+				->orLike('phone', $search)
+				->groupEnd();
+        }
+        
+		
+		
+		
+        // limit query
+        if($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} else if($limit) {
+			$query = $builder->get($limit);
+		} else {
+            $query = $builder->get();
+        }
+
+        // return query
+        return $query->getResult();
+        $db->close();
+    }
+
+	public function filter_members($log_id, $start_date='', $end_date='', $switch_id='') {
         $db = db_connect();
         $builder = $db->table('user');
 
