@@ -39,14 +39,14 @@
     if (empty($log_user_img) && !file_exists($log_user_img)) {
         $log_user_img = 'assets/images/avatar.png';
     }
-    $logo = 'assets/new_logo1.png';
+  
     $min_title = $title;
     if($ministry_id > 0){
         $logo = $ministry_logo;
         $min_title = str_replace('C M S', $ministry, $title);
         // define('app_name', $ministry);
     }
-
+  $logo = 'assets/new_logo1.png';
     $currence = 'ESP ';
     $default_cur = $this->Crud->read_field('id', $church_id, 'church', 'default_currency');
     $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
@@ -88,10 +88,13 @@
     
     <link rel="stylesheet" href="<?php echo site_url(); ?>assets/css/editors/summernote.css">
     
+    <link rel="stylesheet" href="<?=site_url(); ?>assets/css/shepherd.css" />
+    <script src="<?=site_url(); ?>assets/js/shepherd.min.js"></script>
 </head>
 
 
-<body class="nk-body bg-lighter npc-general has-sidebar ">
+<body data-page="<?= strtolower($page_active) ?? 'dashboard' ?>" data-user-role="<?=$role ?>" class="nk-body bg-lighter npc-general has-sidebar ">
+   
     <style>
         td, th {
             white-space: nowrap;           /* Prevent text from wrapping to the next line */
@@ -233,7 +236,7 @@
                                 <li class="nk-menu-item has-sub">
                                     <a class="nk-menu-link nk-menu-toggle" href="javascript:;">
                                         <span class="nk-menu-icon"><em class="icon ni ni-setting-alt-fill"></em></span>
-                                        <span class="nk-menu-text"><?=translate_phrase('Access Roles'); ?></span>
+                                        <span class="nk-menu-text"><?=translate_phrase('Platform Settings'); ?></span>
                                     </a>
                                     <ul class="nk-menu-sub">
                                         
@@ -245,6 +248,9 @@
                                         </li>
                                         <li class="nk-menu-item <?php if($page_active=='access') {echo 'active';} ?>">
                                             <a href="<?php echo site_url('settings/access'); ?>" class="nk-menu-link"><?=translate_phrase('Access CRUD'); ?></a>
+                                        </li>
+                                        <li class="nk-menu-item <?php if($page_active=='tour') {echo 'active';} ?>">
+                                            <a href="<?php echo site_url('settings/tour'); ?>" class="nk-menu-link"><?=translate_phrase('Tour Guide'); ?></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -322,7 +328,7 @@
                                             </ul>
                                         </div>
                                     </li><!-- .dropdown -->
-                                    <li class="dropdown user-dropdown">
+                                    <li class="dropdown user-dropdown" id="user-profile">
                                         <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                                             <div class="user-toggle">
                                                 <div class="user-avatar sm">
@@ -436,6 +442,30 @@
                 <?=$this->renderSection('content');?>
         
                 <!-- content @e -->
+                <?php if ($role == 'developer' || $role == 'administrator'): ?>
+        
+                    <!-- Trigger Button -->
+                    <button id="showSelectorDropdown" class="btn btn-outline-primary btn-sm"
+                            style="position: fixed; bottom: 100px; right: 20px; z-index: 9999;">
+                        <i class="fas fa-bullseye-pointer"></i> Pick Element by ID
+                    </button>
+                    
+                    <!-- Floating Selector Chooser -->
+                    <div id="selectorDropdownBox" 
+                        style="display: none; position: fixed; bottom: 70px; right: 20px; z-index: 9999; background: #fff; border: 1px solid #ccc; padding: 10px; border-radius: 5px; width: 300px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                        
+                        <label for="elementSelectorDropdown" class="form-label"><strong>Select Element with ID:</strong></label>
+                        <select id="elementSelectorDropdown" class="form-control mb-2">
+                            <option value="">-- Select an element --</option>
+                        </select>
+
+                        <input type="text" id="selectedElementResult" class="form-control mb-2" placeholder="Selected #id" readonly />
+
+                        <button class="btn btn-success btn-sm" id="copySelectorId">Copy</button>
+                        <button class="btn btn-secondary btn-sm" id="closeSelectorDropdown">Close</button>
+                    </div>
+                <?php endif; ?>
+
                 <div class="nk-footer nk-footer-fluid bg-lighter">
                     <div class="container-xl wide-lg">
                         <div class="nk-footer-wrap">
@@ -471,9 +501,13 @@
                                     </li>
                                 </ul>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
+
+               
+
                 <div id="bb_ajax_msgs"></div>
                     <!-- Chat icon at the bottom-right corner -->
                 <div id="chat-icon" class="position-fixed text-white d-flex justify-content-center align-items-center rounded-circle shadow"  onclick="toggleChat()"  style="width: 60px; height: 60px; bottom: 20px; right: 20px; cursor: pointer;   background-image: url('<?=site_url('assets/angel-logo.png'); ?>');  background-size: 50%;background-repeat: no-repeat; background-position: center; background-color: #eee; border: 2px solid blue;">
@@ -517,6 +551,7 @@
             </div>
         </div>
     </div>
+
     <?php 
         $is_admin = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
         $is_member = $this->Crud->read_field('id', $log_id, 'user', 'is_member');
@@ -601,7 +636,59 @@
   
     <script src="<?=site_url(); ?>assets/js/bundle.js"></script>
     <script src="<?=site_url(); ?>assets/js/scriptse5ca.js?v=<?=time(); ?>"></script>
-    
+      
+    <script>
+        $(document).ready(function () {
+            // 🔘 Show the element picker
+            $('#showSelectorDropdown').on('click', function () {
+                const $dropdown = $('#elementSelectorDropdown');
+                $dropdown.empty().append('<option value="">-- Select an element --</option>');
+
+                // 🕵️ Find all visible elements with IDs
+                $('[id]').each(function () {
+                    const id = $(this).attr('id');
+                    if (id && id.trim().length > 0) {
+                        const tagName = this.tagName.toLowerCase();
+                        const label = `${tagName}#${id}`;
+                        $dropdown.append(`<option value="#${id}">${label}</option>`);
+                    }
+                });
+
+                $('#selectorDropdownBox').show();
+            });
+
+            // ✏️ When user selects an item
+            $('#elementSelectorDropdown').on('change', function () {
+                const selected = $(this).val();
+                $('#selectedElementResult').val(selected);
+            });
+
+            // 📋 Copy selected selector to clipboard
+            $('#copySelectorId').on('click', function () {
+                const input = document.getElementById('selectedElementResult');
+                if (input.value.trim() === '') {
+                    alert('Please select an element first.');
+                    return;
+                }
+
+                input.select();
+                input.setSelectionRange(0, 99999); // For mobile
+
+                try {
+                    const successful = document.execCommand('copy');
+                    alert(successful ? 'Selector copied to clipboard!' : 'Failed to copy selector.');
+                } catch (err) {
+                    alert('Error copying to clipboard.');
+                }
+            });
+
+            // ❌ Close the selector box
+            $('#closeSelectorDropdown').on('click', function () {
+                $('#selectorDropdownBox').hide();
+            });
+        });
+    </script>
+
     <script>
       
          var site_url = '<?=site_url(); ?>';
@@ -689,10 +776,120 @@
             }
         }
 
+        function debounce(func, delay) {
+            let timeout;
+            return function () {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
+
     </script>
-    
-       
     <script>
+       $(document).ready(function () {
+            const page = $('body').data('page') || 'dashboard';
+            const tourKey = `tour_completed_${page}`;
+
+            // Run tour only if not already completed
+            if (!localStorage.getItem(tourKey)) {
+                $.get(site_url + 'settings/tours/steps/' + page, function (res) {
+                    if (!res.status || !res.data || res.data.length === 0) {
+                        console.log('[Tour] No steps returned for page:', page);
+                        return;
+                    }
+
+                    const steps = res.data;
+
+                    const tour = new Shepherd.Tour({
+                        useModalOverlay: true,
+                        defaultStepOptions: {
+                            cancelIcon: { enabled: false },
+                            scrollTo: {
+                                behavior: 'smooth',
+                                block: 'center'
+                            }
+                        }
+                    });
+
+                    tour.on('start', () => document.body.classList.add('tour-active'));
+                    tour.on('complete', () => document.body.classList.remove('tour-active'));
+                    tour.on('cancel', () => document.body.classList.remove('tour-active'));
+                    tour.on('hide', () => document.body.classList.remove('tour-active'));
+
+                    // ✅ Use .addStep with unique step ID to avoid overlapping
+                    steps.forEach((step, i) => {
+                        tour.addStep({
+                            id: `step-${i}`,
+                            title: step.title,
+                            text: step.content,
+                            attachTo: {
+                                element: step.selector,
+                                on: step.placement || 'bottom'
+                            },
+                            buttons: [
+                                ...(i > 0 ? [{
+                                    text: 'Back',
+                                    action: tour.back
+                                }] : []),
+                                ...(i < steps.length - 1 ? [{
+                                    text: 'Next',
+                                    action: () => {
+                                        Shepherd.activeTour.getCurrentStep()?.hide(); // ✅ fix overlap
+                                        tour.next();
+                                    }
+                                }] : [{
+                                    text: 'Finish',
+                                    action: () => {
+                                        localStorage.setItem(`tour_completed_${page}`, 'true');
+                                        Shepherd.activeTour.getCurrentStep()?.hide(); // ✅ fix if last step persists
+                                        tour.complete();
+                                    }
+                                }])
+                            ]
+                        });
+
+                    });
+                    setTimeout(() => tour.start(), 500);
+                   
+                });
+              
+            }
+        });
+
+        $(document).ready(function () {
+            let inactivityTime = 1800000; // 10 minutes in milliseconds
+            let logoutTimer;
+
+            function resetTimer() {
+                clearTimeout(logoutTimer);
+                logoutTimer = setTimeout(autoLogout, inactivityTime);
+            }
+
+            function autoLogout() {
+                // AJAX call to destroy session before redirecting
+                $.ajax({
+                    url: "<?= site_url('auth/logout') ?>", // CI4 logout route
+                    type: "POST",
+                    success: function () {
+                        window.location.href = "<?= site_url('auth/login') ?>";
+                    },
+                    error: function () {
+                        // fallback just in case
+                        window.location.href = "<?= site_url('auth/login') ?>";
+                    }
+                });
+            }
+
+            // Reset timer on user activity
+            $(document).on('mousemove click keypress scroll', function () {
+                resetTimer();
+            });
+
+            // Initial call
+            resetTimer();
+        });
         $(document).ready(function () {
             $('#country_id').on('change', function () {
                 var countryId = $(this).val();
@@ -874,4 +1071,5 @@
         </script>
     <?php } ?>
     <div class="js-preloader">    <div class="loading-animation tri-ring"></div></div>
+    
 </html>

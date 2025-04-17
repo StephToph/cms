@@ -599,7 +599,7 @@
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label">Title</label>
-                    <select class="js-select2" name="title" id="title" data-placeholder="Select Title" required>
+                    <select class="js-select2" name="title" id="title" data-placeholder="Select Title" >
                         <option value="">Select Title</option>
                         <option value="Mr." <?php if(!empty($e_title)){if($e_title ==  'Mr.'){echo 'selected';}}; ?>>Mr.</option>
                         <option value="Mrs." <?php if(!empty($e_title)){if($e_title ==  'Mrs.'){echo 'selected';}}; ?>>Mrs.</option>
@@ -647,7 +647,7 @@
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label">Gender</label>
-                    <select class="js-select2" name="gender" id="gender" data-placeholder="Select Gender" required>
+                    <select class="js-select2" name="gender" id="gender" data-placeholder="Select Gender" >
                         <option value="">Select Gender</option>
                         <option value="male" <?php if(!empty($e_gender)){if($e_gender ==  'male'){echo 'selected';}}; ?>>Male</option>
                         <option value="female" <?php if(!empty($e_gender)){if($e_gender ==  'female'){echo 'selected';}}; ?>>Female</option>
@@ -670,13 +670,13 @@
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label" for="name">*<?=translate_phrase('Address');?></label>
-                    <input class="form-control" type="text" id="address" name="address"required>
+                    <input class="form-control" type="text" id="address" name="address">
                 </div>
             </div>
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label" for="name">*<?=translate_phrase('City');?></label>
-                    <input class="form-control" type="text" id="city" name="city"  required>
+                    <input class="form-control" type="text" id="city" name="city"  >
                 </div>
             </div>
             <div class="col-sm-4">
@@ -717,7 +717,7 @@
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label">Marital Status</label>
-                    <select class="js-select2" name="marital" id="marital" data-placeholder="Select Marital Status" required>
+                    <select class="js-select2" name="marital" id="marital" data-placeholder="Select Marital Status" >
                         <option value="">Select Marital Status</option>
                         <option value="married">Married</option>
                         <option value="single" >Single</option>
@@ -1025,7 +1025,7 @@
             var spouse_id = '<?= !empty($e_spouse_id) ? $e_spouse_id : ""; ?>';
 
             $.ajax({
-                url: site_url + 'accounts/membership/get_spouse/' + churchId + '/' + ministryId,
+                url: site_url + 'attendance/records/get_spouse/' + churchId + '/' + ministryId,
                 type: 'get',
                 success: function (data) {
                     try {

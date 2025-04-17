@@ -51,7 +51,7 @@
                                             </li>
                                             <?php if(empty($switch_id)){?>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
-                                                <li>
+                                                <li id="type-btn">
                                                     <a href="javascript:;" pageTitle="Add Type" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('service/type/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
                                                 </li><!-- li -->
                                            <?php } ?>

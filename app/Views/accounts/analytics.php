@@ -8,6 +8,7 @@
     <?=$title;?>
 <?=$this->endSection();?>
 
+
 <?=$this->section('content');?>
 <div class="nk-content" >
     <div class="container-fluid mt-3">
@@ -26,18 +27,61 @@
                     </div><!-- .nk-block-between -->
                 </div><!-- .nk-block-head -->
                 <div class="nk-block-head nk-block-head-sm row" style="display:none" id="filter_resp">
-                    <div class="col-sm-6 row">
-                        <div class="col-sm-6">
-                            <input type="date" class="form-control" name="start_date" id="start_date" oninput="loads()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('START DATE');?>">
-                            <span class="text-danger">Start Date</span>
+                    
+                    <form id="filterForm">
+                        <div class="row g-3 align-center">
+                            <div class="col-sm-4 row">
+                                <div class="col-sm-6">
+                                    <input type="date" class="form-control" name="start_date" id="start_date" oninput="loads()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('START DATE');?>">
+                                    <span class="text-danger">Start Date</span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <input type="date" class="form-control" name="end_date" id="end_date" oninput="loads()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('END DATE');?>">
+                                    <span class="text-danger">End Date</span>
+                                    
+                                </div>
+                                <div class="col-md-12" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
+                            </div>
+                            <!-- <div class="col-md-3 mb-3">
+                                <div class="form-control-wrap">
+                                    <select class="js-select2" data-search="on" id="filterType" onchange="load();" name="type">
+                                        <option value="all">All Types</option>
+                                        <?php
+                                            $service_types = $this->Crud->read_order('service_type', 'name', 'asc'); 
+                                            foreach($service_types as $stype): ?>
+                                            <option value="<?= $stype->id; ?>"><?= esc($stype->name); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <span class="text-danger small">Service Types</span>
+                            </div> -->
+                            <div class="col-sm-2 mb-3">
+                                <select class="form-control js-select2"  data-search="on" id="church_scope" name="church_scope" onchange="toggleChurchScope(this.value)">
+                                    <option value="all">All Churches</option>
+                                    <?php if (!empty($church_id)) { ?><option value="own">My Church</option><?php } ?>
+                                    <option value="selected">Selected Churches</option>
+                                </select>
+                                <span class="text-danger small">Church Filter Type</span>
+                            </div>
+
+                            <!-- Multi-select churches -->
+                            <div class="col-sm-3 mb-3" id="selected_church_container" style="display:none;">
+                                <select class="form-control js-select2"  data-search="on" id="selected_churches" name="selected_churches" multiple onchange="load();">
+                                    <!-- Dynamically populated -->
+                                </select>
+                                <span class="text-danger small">Select Churches</span>
+                            </div>
+
+                            <!-- Dynamic Cell Dropdown -->
+                            <div class="col-sm-3 mb-3" id="cell_container">
+                                <select class="form-control js-select2"  data-search="on" id="cell_id" name="cell_id" onchange="load();">
+                                    
+                                </select>
+                                <span class="text-danger small">Select Cell</span>
+                            </div>
+
                         </div>
-                        <div class="col-sm-6">
-                            <input type="date" class="form-control" name="end_date" id="end_date" oninput="loads()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('END DATE');?>">
-                            <span class="text-danger">End Date</span>
-                            
-                        </div>
-                        <div class="col-md-12" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
-                    </div>
+                    </form>
                 </div><!-- .nk-block-head -->
                 <div class="nk-block">
                     <div class="card card-bordered card-stretch">
@@ -82,8 +126,80 @@
 <script>
     $(function() {
         load('', '');
+
+        toggleChurchScope('all');
     });
    
+    function toggleChurchScope(scope) {
+        const $selectedChurchContainer = $('#selected_church_container');
+        const $selectedChurches = $('#selected_churches');
+        const $cellSelect = $('#cell_id');
+
+        if (scope === 'selected') {
+            $selectedChurchContainer.show();
+
+            // Fetch church list only once
+            if ($selectedChurches.children().length === 0) {
+                $.ajax({
+                    url: "<?= site_url('service/fetch_scope_churches') ?>",
+                    method: 'GET',
+                    success: function (res) {
+                        $selectedChurches.empty();
+                        $.each(res, function (i, church) {
+                            $selectedChurches.append(`<option value="${church.id}">${church.name} (${church.type})</option>`);
+                        });
+                        $selectedChurches.select2();
+                    }
+                });
+            }
+
+            // Bind change event to fetch cells dynamically when church selection changes
+            $selectedChurches.off('change').on('change', function () {
+                const selected = $(this).val();
+                if (selected.length > 0) {
+                    $.ajax({
+                        url: "<?= site_url('service/analytics/records/fetch_cells_by_churches') ?>",
+                        method: 'POST',
+                        data: { church_ids: selected },
+                        success: function (res) {
+                            $cellSelect.empty();
+                            $cellSelect.append(`<option value="all">-- All Cell --</option>`); // default option
+                            $.each(res, function (i, cell) {
+                                $cellSelect.append(`<option value="${cell.id}">${cell.name} (Church ID: ${cell.church})</option>`);
+                            });
+                        }
+                    });
+                } else {
+                    $cellSelect.empty();
+                }
+            });
+
+        } else {
+            $selectedChurchContainer.hide();
+            $selectedChurches.val(null).trigger('change');
+
+            // 🔁 Fetch cells for "own" or "all" scope
+            $.ajax({
+                url: "<?= site_url('service/analytics/records/fetch_cells_by_scope') ?>",
+                method: 'POST',
+                data: { scope: scope },
+                success: function(res) {
+                    $cellSelect.empty();
+                    $cellSelect.append(`<option value="all">-- All Cell --</option>`); // default option
+
+                    $.each(res, function(index, cell) {
+                        $cellSelect.append(`
+                            <option value="${cell.cell_id}">
+                                ${cell.cell_name} (Church ID: ${cell.church})
+                            </option>
+                        `);
+                    });
+                },
+            });
+        }
+    }
+
+    
     function loads() {
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
@@ -115,18 +231,26 @@
         }
 
        
+       
+        // Collect form filter values
         var search = $('#search').val();
-        var member_id = $('#member_id').val();
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
-
-        //alert(status);
+        var church_scope = $('#church_scope').val();
+        var selected_churches = $('#selected_churches').val(); // array
+        var cell_id = $('#cell_id').val();
 
         $.ajax({
             url: site_url + 'accounts/analytics/load' + methods,
             type: 'post',
-            data: { search: search, start_date:start_date,end_date:end_date },
-            success: function (data) {
+            data: {
+            search: search,
+                start_date: start_date,
+                end_date: end_date,
+                church_scope: church_scope,
+                selected_churches: selected_churches,
+                cell_id: cell_id
+            },success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
                     $('#load_data').html(dt.item);

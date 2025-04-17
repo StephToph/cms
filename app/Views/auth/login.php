@@ -98,12 +98,7 @@
                                     <div class="form-group"><button class="btn btn-lg btn-primary btn-block">Sign
                                             in</button></div>
                                 </form>
-                                
-                                <div class="text-center mt-5">
-                                    <a class="fw-500" href="<?=site_url('prayer'); ?>">
-                                        Join Prayer Cloud?
-                                    </a>
-                                </div>
+                               
                             </div>
                             <div class="nk-block nk-auth-footer">
                                 <div class="nk-block-between">

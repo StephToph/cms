@@ -16,7 +16,7 @@ $this->Crud = new Crud();
                         <div class="nk-block-between">
                             <div class="nk-block-head-content">
                                 <?php
-                                
+
                                     $type_id = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'type');
                                     $type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
                                 ?>
@@ -39,7 +39,24 @@ $this->Crud = new Crud();
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row p-3">
+                                        <div class="row p-3" id="registration-form">
+                                            <div class="col-sm-12 mb-3"  >
+                                                <div class="form-group">
+                                                    <input type="email" name="email" class="form-control" 
+                                                        id="email" value="<?php if(!empty($e_email)){echo $e_email;} ?>" 
+                                                        placeholder="Email Address" onblur="checkEmailExistence()" required>
+                                                        <span id="email-check-msg" class="text-success small d-block"></span>
+                                                        <div id="existing-member-info" style="display:none;" class="my-2 row">
+                                                            <strong id="existing-name" class="d-block"></strong>
+                                                            <span id="existing-email"></span> |
+                                                            <span id="existing-phone"></span><br>
+                                                           
+                                                        </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row p-3 family_form" id="registration-form-wrapper" style="display:none;">
                                             <?php echo form_open_multipart('attendance/member', array('id'=>'bb_ajax_form', 'class'=>'row')); ?>
                                             
                                                 <?php if(empty($code) || empty($church_id)) : ?>
@@ -64,6 +81,7 @@ $this->Crud = new Crud();
                                                     </div>
                                                 <?php else : ?>
                                                     <input type="hidden" id="church_id" name="church_id" value="<?=$church_id; ?>">
+                                                    <input type="hidden" id="ministry_id" name="ministry_id" value="<?=$this->Crud->read_field('id', $church_id, 'church', 'ministry_id'); ?>">
                                                     
                                                 <?php endif ?>
                                             
@@ -226,6 +244,7 @@ $this->Crud = new Crud();
                                                             <label class="form-label" for="password">Company</label>
                                                             <input class="form-control" type="text" id="employer_address" name="employer_address" value="<?php if(!empty($e_employer_address)){echo $e_employer_address;}?>">
                                                         </div>
+                                                        
                                                     </div>
                                                     <div class="col-md-6 mb-3 col-lg-4 col-xxl-3">
                                                         <div class="form-group"><label class="form-label">Department</label>
@@ -370,6 +389,68 @@ $this->Crud = new Crud();
                                             </form>
                                             <div class="col-12 my-2 text-center" id="bb_ajax_msg"></div>
                                         </div>
+                                        <div class="row p-3" id="welcome-card" style="display:none;">
+                                            <div class="col-12 text-center p-3">
+                                                <h3 class="text-success">🎉 Welcome to the <span id="welcome-church"></span> Family!</h3>
+                                                <p id="welcome-name" class="fw-bold fs-5"></p>
+                                                <p>Here is a copy of your qrcode for easy attendance capture. An email has also being sent to you with your login details. Thank you</p>
+                                                <p id="welcome-userno" class="fw-semibold text-primary"></p>
+                                                <div class="text-center my-4">
+                                                    <button class="btn btn-warning" id="show-password-form">
+                                                        <i class="mdi mdi-lock"></i> Set Password Now
+                                                    </button>
+                                                </div>
+
+                                                <div id="password-set-form" class="row justify-content-center" style="display: none;">
+                                                    <input type="hidden" id="user_id"/>
+                                                    <div class="col-md-4 mb-3">
+                                                        <input type="password" class="form-control" id="new-password" placeholder="Enter New Password">
+                                                    </div>
+                                                    <div class="col-md-4 mb-3">
+                                                        <input type="password" class="form-control" id="confirm-password" placeholder="Confirm Password">
+                                                    </div>
+                                                    <div class="col-md-3 mb-3">
+                                                        <button class="btn btn-success w-100" id="submit-password">
+                                                            <i class="mdi mdi-check"></i> Save Password
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-12 text-center" id="password-msg"></div>
+                                                </div>
+
+                                                <div class="my-3">
+                                                    <img id="welcome-qr" src="" style="max-width: 200px;" alt="QR Code" />
+                                                </div>
+                                                <div class="row my-4 text-center">
+                                                    <div class="col-12 col-sm-6 col-md-3 mb-2">
+                                                        <a id="download-qr" class="btn btn-outline-dark w-100" download>
+                                                            <i class="mdi mdi-download"></i> Download QR
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-12 col-sm-6 col-md-2 mb-2">
+                                                        <a id="share-qr" class="btn btn-outline-primary w-100" target="_blank">
+                                                            <i class="mdi mdi-facebook"></i> Share on Facebook
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-12 col-sm-6 col-md-2 mb-2">
+                                                        <a id="share-whatsapp" class="btn btn-outline-success w-100" target="_blank">
+                                                            <i class="mdi mdi-whatsapp"></i> Share on WhatsApp
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-12 col-sm-6 col-md-2 mb-2">
+                                                        <a id="share-twitter" class="btn btn-outline-info w-100" target="_blank">
+                                                            <i class="mdi mdi-twitter"></i> Share on Twitter
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-12 col-sm-6 col-md-3 mb-2">
+                                                        <a id="share-twitter" class="btn btn-outline-danger w-100" target="_blank">
+                                                            <i class="mdi mdi-twitter"></i> New Member
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
                                     </div>
                                     
                                 </div>
@@ -387,104 +468,216 @@ $this->Crud = new Crud();
 
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script>
-   function readURL(input, id) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    if(id != 'vid') {
-                        $('#' + id).attr('src', e.target.result);
-                    } else {
-                        $('#' + id).show(500);
-                    }
-                }
-                reader.readAsDataURL(input.files[0]);
+    $(document).ready(function() {
+        // Toggle password form
+        $('#show-password-form').on('click', function () {
+            $('#password-set-form').slideToggle();
+        });
+
+        // Submit password logic
+        $('#submit-password').on('click', function () {
+            const user_no = $('#user_id').val().trim();
+            const password = $('#new-password').val().trim();
+            const confirmPassword = $('#confirm-password').val().trim();
+
+            if (!password || !confirmPassword) {
+                $('#password-msg').html('<div class="text-danger">Both fields are required.</div>');
+                return;
             }
-        }
-        
-        $("#img-upload").change(function(){
-            readURL(this, 'img0');
-        });
-        $(function() {
-            $('#family_status').on('change', function(){
-                var selectedValue = $(this).val();
-                if(selectedValue === 'married') {
-                    $('.marriedDiv').show(500);
-                } else {
-                    $('.marriedDiv').hide(500);
-                }
-            });
-            $('#foundation_school').on('change', function () {
-                var selectedType = $(this).val();
-                if (selectedType == '1') {
-                    $('#foundation_resp').show(500);
-                } else{
-                    $('#foundation_resp').hide(500);
-                }
-                
-            });
-            $('#foundation_school').trigger('change');
 
-            $('.increase').on('click', function() {
-                let spinner = $('#spinner');
-                let currentValue = parseInt(spinner.val());
-                let max = parseInt(spinner.attr('max'));
+            if (password.length < 6) {
+                $('#password-msg').html('<div class="text-danger">Password must be at least 6 characters.</div>');
+                return;
+            }
 
-                if (!isNaN(currentValue) && currentValue < max) {
-                    spinner.val(currentValue + 1);
-                }
-            });
+            if (password !== confirmPassword) {
+                $('#password-msg').html('<div class="text-danger">Passwords do not match.</div>');
+                return;
+            }
 
-            // Decrease button functionality
-            $('.decrease').on('click', function() {
-                let spinner = $('#spinner');
-                let currentValue = parseInt(spinner.val());
-                let min = parseInt(spinner.attr('min'));
-
-                if (!isNaN(currentValue) && currentValue > min) {
-                    spinner.val(currentValue - 1);
-                }
-            });
-
-            $('#spinner').on('input', function() {
-                let value = parseInt($(this).val());
-
-                // If input is not a number, set it to 0
-                if (isNaN(value)) {
-                    $(this).val(0);
-                    return;
-                }
-
-                // Ensure the value is between 0 and 7
-                if (value < 0) {
-                    $(this).val(0);
-                } else if (value > 7) {
-                    $(this).val(7);
-                }
-            });
-
-            // Prevent entering non-numeric characters
-            $('#spinner').on('keypress', function(e) {
-                let keyCode = e.which;
-
-                // Allow only numbers (keycode for 0-9 is between 48 and 57)
-                if (keyCode < 48 || keyCode > 57) {
-                    e.preventDefault();
-                }
-            });
-        });
-        function cell_role(cell){
-            var cell_id = $('#cell_id').val();
+            // AJAX to backend route (replace URL accordingly)
             $.ajax({
-                url: site_url + 'accounts/membership/get_cell_role/' + cell_id+ '/'+ cell,
-                type: 'get',
-                success: function (data) {
-                    var dt = JSON.parse(data);
-                    $('#cell_role_id').html(dt.list);
-                    $('#bb_ajax_msg').html(dt.script);
-                    
+                url: "<?= site_url('auth/set_password') ?>",
+                type: "POST",
+                data: {
+                    user_no: user_no,
+                    password: passwordß
+                },
+                success: function(res) {
+                    if (res.status === true) {
+                        $('#password-msg').html('<div class="text-success">Password set successfully! Redirecting...</div>');
+                        $('#password-set-form').fadeOut();
+
+                        // Redirect after short delay
+                        setTimeout(function() {
+                            window.location.href = "<?= site_url('logout') ?>"; // Change this to your target URL
+                        }, 2000); // 2-second delay
+                    } else {
+                        $('#password-msg').html('<div class="text-danger">' + res.message + '</div>');
+                    }
+                },
+                error: function() {
+                    $('#password-msg').html('<div class="text-danger">Something went wrong. Try again.</div>');
                 }
             });
+        });
+    });
+
+    function checkEmailExistence() {
+        let email = $('#email').val().trim();
+        let churchId = $('#church_id').val();
+
+        let isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (isValidEmail && email.length > 5) {
+            $.ajax({
+                url: '<?= site_url('attendance/check_email_full') ?>', // new endpoint
+                method: 'POST',
+                data: { email: email, church_id: churchId },
+                success: function(res) {
+                    if (res.status === 'exists') {
+                        let html = '';
+
+                        res.data.forEach((item) => {
+                            html += `
+                                <div class="border p-2 rounded mb-2 justify-content-between d-flex">
+                                    <strong>${item.name}</strong> | 
+                                    <span>${item.masked_email}</span> | <span>${item.masked_phone}</span>
+                                </div>
+                            `;
+                        });
+                        html += `<div class="text-center"><button class="btn btn-primary" onclick="showFamilyForm()">Add Family Member</button></div>`;
+                        $('#existing-member-info').html(html).show(500);
+                        $('#email-check-msg').html('<span class="text-danger">Matching records found. You can add your Child(ren) with same Email by selecting Child in Family Position.</span>');
+                        $('#registration-form-wrapper').hide(500);
+                        $('.bb_form_bt').hide();
+                    } else {
+                        $('#existing-member-info').hide(300).html('');
+                        $('#email-check-msg').html('No record found. You can continue registration.');
+                        $('#registration-form-wrapper').show(500);
+                        $('.bb_form_bt').show(500);
+                    }
+                },
+                error: function() {
+                    $('#email-check-msg').html('Could not check email.');
+                    $('#existing-member-info').hide(500);
+                }
+            });
+        } else {
+            $('#email-check-msg').html('<span class="text-danger">Please enter a valid email address.</span>');
+            $('#existing-member-info').hide(500);
+            $('#registration-form-wrapper').hide(500);
         }
+    }
+
+    
+    function showFamilyForm() {
+        $('#email-check-msg').hide();
+        $('#existing-member-info').hide(300);
+        $('#registration-form-wrapper').show(500); // show the hidden form
+        $('.bb_form_bt').show(500); // show submit button
+    }
+
+    $('#email').on('blur, input', function () {
+        checkEmailExistence();
+    });
+   function readURL(input, id) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                if(id != 'vid') {
+                    $('#' + id).attr('src', e.target.result);
+                } else {
+                    $('#' + id).show(500);
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $("#img-upload").change(function(){
+        readURL(this, 'img0');
+    });
+    $(function() {
+        $('#family_status').on('change', function(){
+            var selectedValue = $(this).val();
+            if(selectedValue === 'married') {
+                $('.marriedDiv').show(500);
+            } else {
+                $('.marriedDiv').hide(500);
+            }
+        });
+        $('#foundation_school').on('change', function () {
+            var selectedType = $(this).val();
+            if (selectedType == '1') {
+                $('#foundation_resp').show(500);
+            } else{
+                $('#foundation_resp').hide(500);
+            }
+            
+        });
+        $('#foundation_school').trigger('change');
+
+        $('.increase').on('click', function() {
+            let spinner = $('#spinner');
+            let currentValue = parseInt(spinner.val());
+            let max = parseInt(spinner.attr('max'));
+
+            if (!isNaN(currentValue) && currentValue < max) {
+                spinner.val(currentValue + 1);
+            }
+        });
+
+        // Decrease button functionality
+        $('.decrease').on('click', function() {
+            let spinner = $('#spinner');
+            let currentValue = parseInt(spinner.val());
+            let min = parseInt(spinner.attr('min'));
+
+            if (!isNaN(currentValue) && currentValue > min) {
+                spinner.val(currentValue - 1);
+            }
+        });
+
+        $('#spinner').on('input', function() {
+            let value = parseInt($(this).val());
+
+            // If input is not a number, set it to 0
+            if (isNaN(value)) {
+                $(this).val(0);
+                return;
+            }
+
+            // Ensure the value is between 0 and 7
+            if (value < 0) {
+                $(this).val(0);
+            } else if (value > 7) {
+                $(this).val(7);
+            }
+        });
+
+        // Prevent entering non-numeric characters
+        $('#spinner').on('keypress', function(e) {
+            let keyCode = e.which;
+
+            // Allow only numbers (keycode for 0-9 is between 48 and 57)
+            if (keyCode < 48 || keyCode > 57) {
+                e.preventDefault();
+            }
+        });
+    });
+    function cell_role(cell){
+        var cell_id = $('#cell_id').val();
+        $.ajax({
+            url: site_url + 'accounts/membership/get_cell_role/' + cell_id+ '/'+ cell,
+            type: 'get',
+            success: function (data) {
+                var dt = JSON.parse(data);
+                $('#cell_role_id').html(dt.list);
+                $('#bb_ajax_msg').html(dt.script);
+                
+            }
+        });
+    }
 
         function posit(){
             var position = $('#family_position').val();
@@ -509,7 +702,7 @@ $this->Crud = new Crud();
             var spouse_id = '<?= !empty($e_spouse_id) ? $e_spouse_id : ""; ?>';
 
             $.ajax({
-                url: site_url + 'accounts/membership/get_spouse/' + churchId + '/' + ministryId,
+                url: site_url + 'attendance/records/get_spouse/' + churchId + '/' + ministryId,
                 type: 'get',
                 success: function (data) {
                     try {

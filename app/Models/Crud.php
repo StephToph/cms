@@ -474,6 +474,22 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
 	}
+
+	public function read_in($field, $values, $table) {
+		// Ensure the values are passed as an array
+		if (!is_array($values)) {
+			$values = explode(',', $values);
+		}
+	
+		$db = db_connect();
+        $builder = $db->table($table);
+		// Add the WHERE IN condition
+		$builder->whereIn($field, $values);
+	
+		// Execute the query and return the result
+		return $builder->get()->getResultArray();
+	}
+	
     
 	public function read5($field, $value, $field2, $value2, $field3, $value3,$field4, $value4,$field5, $value5, $table, $limit='', $offset='') {
 		$db = db_connect();
@@ -2109,6 +2125,189 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
+	public function fetch_cells_by_scope($log_id, $church_id = null, $scope = 'own') {
+		$cells = [];
+	
+		$logged_in_church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$logged_in_role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $logged_in_role_id, 'access_role', 'name'));
+		$church_type = $this->read_field('id', $logged_in_church_id, 'church', 'type');
+	
+		if ($scope == 'own') {
+			$church_id = $logged_in_church_id;
+		}
+	
+		if (empty($church_id)) {
+			$church_id = $logged_in_church_id;
+		}
+	
+		if (!$church_type) {
+			$church_type = $this->read_field('id', $church_id, 'church', 'type');
+		}
+	
+		if ($role != 'developer' && $role != 'administrator') {
+			if ($role == 'ministry administrator') {
+				$ministry_id = $this->read_field('id', $church_id, 'church', 'ministry_id');
+				$cells = $this->read_single_order('ministry_id', $ministry_id, 'cells', 'name', 'asc');
+			} elseif (in_array($role, ['cell executive', 'cell leader', 'assistant cell leader'])) {
+				$cells = $this->read_single_order('cell_id', $church_id, 'cells', 'name', 'asc');
+			} else {
+				$churches[] = (object)['id' => $church_id]; 
+				if ($church_type == 'region') {
+					$churches = $this->read_single('regional_id', $church_id, 'church');
+				} elseif ($church_type == 'zone') {
+					$churches = $this->read_single('zonal_id', $church_id, 'church');
+				} elseif ($church_type == 'group') {
+					$churches = $this->read_single('group_id', $church_id, 'church');
+				} elseif ($church_type == 'church') {
+					$churches = $this->read_single('church_id', $church_id, 'church'); // wrap in object to keep consistency
+				} else {
+					
+				}
+	
+				foreach ($churches as $church) {
+					$church_cells = $this->read_single_order('church_id', $church->id, 'cells', 'name', 'asc');
+					foreach ($church_cells as $cell) {
+						$cells[] = (object)[
+							'church_id' => $church->id,
+							'church' => $church->name,
+							'cell_id'   => $cell->id,
+							'cell_name' => $cell->name
+						];
+					}
+				}
+	
+				return $cells;
+			}
+		} else {
+			// Developer or admin
+			$cells = $this->read_single_order('church_id', $church_id, 'cells', 'name', 'asc');
+		}
+	
+		// If not already formatted, map it
+		$formatted_cells = array_map(function ($cell) {
+			return [
+				'church_id' => $cell->church_id,
+				'church' => $this->read_field('id', $cell->church_id, 'church', 'name'),
+				'cell_id'   => $cell->id,
+				'cell_name' => $cell->name
+			];
+		}, $cells);
+	
+		return $formatted_cells;
+	}
+	
+	public function fetch_marked_by_users($log_id, $church_id = null, $marked_type = 'admin', $scope = 'own') {
+		$users = [];
+		
+		// Fetch logged-in church and role info
+		$logged_in_church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$logged_in_role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $logged_in_role_id, 'access_role', 'name'));
+		$church_type = $this->read_field('id', $logged_in_church_id, 'church', 'type');
+		
+		// Determine church ID based on scope
+		if ($scope == 'own') {
+			$church_id = $logged_in_church_id;  // Use the logged-in church
+		}$churches = [];
+		
+		if ($scope == 'selected' && !empty($church_id)) {
+			// Use the provided church_id in case of 'selected'
+			$churches = is_array($church_id) ? $church_id : [$church_id];
+		} elseif ($scope == 'all') {
+			// Fetch all churches under the logged-in church, including the logged-in church itself
+			$churches = [];
+			$churches[] = (object)[
+				'id' => $logged_in_church_id,
+				'name' => $this->read_field('id', $logged_in_church_id, 'church', 'name')
+			];
+	
+			if ($church_type == 'region') {
+				// Get all churches within the region
+				$churches_in_region = $this->read_single('regional_id', $logged_in_church_id, 'church');
+				$churches = array_merge($churches, $churches_in_region);
+			} elseif ($church_type == 'zone') {
+				// Get all churches within the zone
+				$churches_in_zone = $this->read_single('zonal_id', $logged_in_church_id, 'church');
+				$churches = array_merge($churches, $churches_in_zone);
+			} elseif ($church_type == 'group') {
+				// Get all churches within the group
+				$churches_in_group = $this->read_single('group_id', $logged_in_church_id, 'church');
+				$churches = array_merge($churches, $churches_in_group);
+			} elseif ($church_type == 'church') {
+				// Only the logged-in church
+				$churches[] = (object)[
+					'id' => $logged_in_church_id,
+					'name' => $this->read_field('id', $logged_in_church_id, 'church', 'name')
+				];
+			}
+		}
+	
+		// Determine role and fetch users based on marked_type
+		if ($role != 'developer' && $role != 'administrator') {
+			// Fetch users based on the marked type (monitoring, cell leader, or church admin)
+			if ($marked_type == 'monitoring') {
+				// Fetch users with the monitoring role
+				$users = $this->read_single_order('is_monitoring', '1', 'user', 'firstname', 'asc');
+			} elseif ($marked_type == 'cell') {
+				// Fetch users with the cell leader role
+				$users = $this->read_single_order('role', 'cell_leader', 'user', 'firstname', 'asc');
+			} elseif ($marked_type == 'church_admin') {
+				// Fetch users with the church admin role
+				$users = $this->read_single_order('role', 'church_admin', 'user', 'firstname', 'asc');
+			} else {
+				// Return empty if role is not recognized
+				return [];
+			}
+			
+			// Combine the results from different churches
+			foreach ($churches as $church) {
+				$church_id = $church->id;
+				$church_name = $church->name;
+				$church_users = $this->read_single_order('church_id', $church_id, 'user', 'firstname', 'asc');
+				
+				foreach ($church_users as $user) {
+					$users[] = (object)[
+						'church_id' => $church_id,
+						'church' => $church_name,
+						'user_id' => $user->id,
+						'user_name' => $user->firstname.' '.$user->surname,
+						'role' => $user->role_id
+					];
+				}
+			}
+		} else {
+			// For developers or administrators, fetch all users within the selected churches
+			foreach ($churches as $church) {
+				$church_id = $church->id;
+				$church_name = $church->name;
+				$church_users = $this->read_single_order('church_id', $church_id, 'user', 'name', 'asc');
+				foreach ($church_users as $user) {
+					$users[] = (object)[
+						'church_id' => $church_id,
+						'church' => $church_name,
+						'user_id' => $user->id,
+						'user_name' => $user->name,
+						'role' => $user->role
+					];
+				}
+			}
+		}
+		
+		// If not already formatted, map the users to include church details
+		$formatted_users = array_map(function ($user) {
+			return [
+				'church_id' => $user->church_id,
+				'church' => $this->read_field('id', $user->church_id, 'church', 'name'),
+				'user_id' => $user->user_id,
+				'user_name' => $user->firstname.' '.$user->surname,
+				'role' => $this->read_field('id', $user->role_id, 'access_role', 'name'),
+			];
+		}, $users);
+	
+		return $formatted_users;
+	}
+	
 
 	public function filter_members($log_id, $start_date='', $end_date='', $switch_id='') {
         $db = db_connect();
@@ -2246,14 +2445,11 @@ class Crud extends Model {
         return $query->getResult();
         $db->close();
     }
-
-    public function filter_membership($limit='', $offset='', $log_id, $search='', $switch_id='', $include_sub_churches='false', $archive='') {
-        $db = db_connect();
-        $builder = $db->table('user');
-
-        // build query
+	public function filter_membership($limit = '', $offset = '', $log_id, $search = '', $switch_id = '', $include_sub_churches = 'false', $archive = '', $church_scope = '', $selected_churches = [], $filter_cell_id = '') {
+		$db = db_connect();
+		$builder = $db->table('user');
 		$builder->orderBy('id', 'DESC');
-		
+	
 		$role_id = $this->read_field('name', 'Member', 'access_role', 'id');
 		$role_ids = $this->read_field('id', $log_id, 'user', 'role_id');
 		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
@@ -2261,59 +2457,102 @@ class Crud extends Model {
 		$cell_id = $this->read_field('id', $log_id, 'user', 'cell_id');
 		$church_type = $this->read_field('id', $log_id, 'user', 'church_type');
 		$role = strtolower($this->read_field('id', $role_ids, 'access_role', 'name'));
-		if(!empty($switch_id)){
-            $church_type = $this->read_field('id', $switch_id, 'church', 'type');
-            if($church_type == 'region'){
-                $role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
-				$role = 'regional manager';
-            }
-            if($church_type == 'zone'){
-                $role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
-				$role = 'zonal manager';
-            }
-            if($church_type == 'group'){
-                $role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
-				$role = 'group manager';
-            }
-            if($church_type == 'church'){
-                $role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
-				$role = 'church leader';
-            }
-			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+	
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
 			$church_id = $switch_id;
-		
-        }
-		if($role != 'developer' && $role != 'administrator'){
-			if($role == 'ministry administrator'){
-    			$builder->where('ministry_id', $ministry_id);
-			} else if($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
-				$builder->where('cell_id', $cell_id);
-    		}  else {
-    		    if($church_type == 'region'){
-					$builder->where('regional_id', $church_id);
-					$builder->orWhere('church_id', $church_id);
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+	
+			switch ($church_type) {
+				case 'region':
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role = 'church leader';
+					break;
+			}
+		}
+	
+		// Scope filters
+		if ($church_scope === 'selected' && !empty($selected_churches)) {
+			$builder->whereIn('church_id', $selected_churches);
+		} elseif ($church_scope === 'own' && !empty($church_id)) {
+			$builder->where('church_id', $church_id);
+		} elseif ($church_scope === 'all' && !empty($church_id)) {
+			$church_type = $this->read_field('id', $church_id, 'church', 'type');
+			$sub_churches = [$church_id];
+	
+			switch ($church_type) {
+				case 'region':
+					$records = $this->read_single('regional_id', $church_id, 'church');
+					break;
+				case 'zone':
+					$records = $this->read_single('zonal_id', $church_id, 'church');
+					break;
+				case 'group':
+					$records = $this->read_single('group_id', $church_id, 'church');
+					break;
+				default:
+					$records = [];
+					break;
+			}
+	
+			if (!empty($records)) {
+				$sub_ids = array_map(fn($r) => $r->id, $records);
+				$sub_churches = array_merge($sub_churches, $sub_ids);
+			}
+	
+			$builder->whereIn('church_id', $sub_churches);
+		} else {
+			if (!in_array($role, ['developer', 'administrator'])) {
+				if ($role == 'ministry administrator') {
+					$builder->where('ministry_id', $ministry_id);
+				} elseif (in_array($role, ['cell leader', 'cell executive', 'assistant cell leader'])) {
+					$builder->where('cell_id', $cell_id);
+				} else {
+					switch ($church_type) {
+						case 'region':
+							$builder->groupStart()
+								->where('regional_id', $church_id)
+								->orWhere('church_id', $church_id)
+								->groupEnd();
+							break;
+						case 'zone':
+							$builder->groupStart()
+								->where('zonal_id', $church_id)
+								->orWhere('church_id', $church_id)
+								->groupEnd();
+							break;
+						case 'group':
+							$builder->groupStart()
+								->where('group_id', $church_id)
+								->orWhere('church_id', $church_id)
+								->groupEnd();
+							break;
+						case 'church':
+							$builder->where('church_id', $church_id);
+							break;
+					}
 				}
-				if($church_type == 'zone'){
-					$builder->where('zonal_id', $church_id);
-					$builder->orWhere('church_id', $church_id);
-				}
-				if($church_type == 'group'){
-					$builder->where('group_id', $church_id);
-					$builder->orWhere('church_id', $church_id);
-				}
-				if($church_type == 'church'){
-					$builder->where('church_id', $church_id);
-				}
-
-    		}
-			
-		} 
-		
+			}
+		}
+	
+		// Cell filter override
+		if (!empty($filter_cell_id) && $filter_cell_id != 'all') {
+			$builder->where('cell_id', $filter_cell_id);
+		}
+	
 		$builder->where('is_member', 1);
 		$builder->where('is_archive', $archive);
-
-        if(!empty($search)) {
-            $builder->groupStart()
+	
+		if (!empty($search)) {
+			$builder->groupStart()
 				->like('surname', $search)
 				->orLike('email', $search)
 				->orLike('firstname', $search)
@@ -2322,23 +2561,20 @@ class Crud extends Model {
 				->orLike('user_no', $search)
 				->orLike('phone', $search)
 				->groupEnd();
-        }
-
-		
-        // limit query
-        if($limit && $offset) {
+		}
+	
+		if ($limit && $offset) {
 			$query = $builder->get($limit, $offset);
-		} else if($limit) {
+		} elseif ($limit) {
 			$query = $builder->get($limit);
 		} else {
-            $query = $builder->get();
-        }
-
-        // return query
-        return $query->getResult();
-        $db->close();
-    }
-
+			$query = $builder->get();
+		}
+	
+		return $query->getResult();
+		$db->close();
+	}
+	
     public function filter_member_attendance($search='', $church_id='') {
         $db = db_connect();
         $builder = $db->table('user');
@@ -3203,8 +3439,134 @@ class Crud extends Model {
         $db->close();
     }
 
-	
-	public function filter_cell($limit='', $offset='', $search='', $log_id) {
+	public function get_all_churches_under($church_id, $church_type)	{
+		$mapping = [
+			'zone' => 'zonal_id',
+			'region' => 'regional_id',
+			'group' => 'group_id',
+			'church' => 'church_id',
+			'national' => 'national_id',
+			'global' => 'global_id'
+		];
+
+		if (!isset($mapping[$church_type])) {
+			return []; // No mapping for this type
+		}
+
+		$column = $mapping[$church_type];
+		$db = db_connect();
+        $builder = $db->table('church');
+		$builder->select('id');
+		$builder->where($column, $church_id);
+		$query = $builder->get();
+
+		$result = [];
+		foreach ($query->getResult() as $row) {
+			$result[] = $row->id;
+		}
+
+		return $result;
+	}
+
+
+	public function filter_service_analytics($limit = '', $offset = '', $log_id = '', $date = '', $service_type = '', $scope = '', $church_idz = '', $cell_id = '', $marked_type = '', $marked_by = '', $switch_id = '')	{
+		$db = db_connect();
+		$builder = $db->table('service_attendance');
+		$builder->select('service_attendance.*, service_report.date, church.name as church_name, church.type as church_type');
+		$builder->join('service_report', 'service_report.id = service_attendance.service_id', 'left');
+		$builder->join('church', 'church.id = service_attendance.church_id', 'left');
+		$builder->orderBy('service_attendance.id', 'desc');
+
+		// Logged in user details
+		$church_id = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+
+		// Switch context if provided
+		if (!empty($switch_id)) {
+			$church_id = $switch_id;
+		}
+
+		// 📅 Filter by service date
+		if (!empty($date)) {
+			$builder->where('service_report.date', $date);
+		}
+
+		// 🔢 Filter by service type (replacing old occurrence logic)
+		if (!empty($service_type) && $service_type != 'all') {
+			$builder->where('service_report.type', $service_type);
+		}
+
+		// 🧠 Scope logic
+		if ($scope == 'own') {
+			$builder->where('church.id', $church_id);
+
+		} elseif ($scope == 'selected' && !empty($church_idz)) {
+			if (!is_array($church_idz)) {
+				$church_idz = explode(',', $church_idz);
+			}
+			$builder->whereIn('church.id', $church_idz);
+
+		} elseif ($scope == 'all') {
+			// Get church type of current user's church
+			$church_type = $this->read_field('id', $church_id, 'church', 'type');
+			$church_ids = [$church_id];
+			$sub_churches = [];
+
+			// Fetch subordinate churches
+			if ($church_type == 'region') {
+				$sub_churches = $this->read_single('regional_id', $church_id, 'church');
+			} elseif ($church_type == 'zone') {
+				$sub_churches = $this->read_single('zonal_id', $church_id, 'church');
+			} elseif ($church_type == 'group') {
+				$sub_churches = $this->read_single('group_id', $church_id, 'church');
+			} elseif ($church_type == 'church') {
+				$sub_churches = $this->read_single('church_id', $church_id, 'church');
+			}
+
+			if (!empty($sub_churches)) {
+				$sub_ids = array_map(function ($c) {
+					return is_array($c) ? $c['id'] : $c->id;
+				}, $sub_churches);
+
+				$church_ids = array_merge($church_ids, $sub_ids);
+			}
+
+			$builder->whereIn('church.id', $church_ids);
+		}
+
+		// 🧩 Filter by cell members
+		if (!empty($cell_id) && $cell_id !== 'all') {
+			$member_ids = $db->table('user')
+				->select('id')
+				->where('cell_id', $cell_id)
+				->get()
+				->getResultArray();
+
+			$member_ids = array_column($member_ids, 'id');
+
+			if (!empty($member_ids)) {
+				$builder->whereIn('service_attendance.member_id', $member_ids);
+			} else {
+				$builder->where('service_attendance.member_id', 0); // Return no results
+			}
+		}
+
+		// ✅ Pagination
+		if (is_numeric($limit) && is_numeric($offset)) {
+			$query = $builder->get($limit, $offset);
+		} elseif (is_numeric($limit)) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+
+		$result = $query->getResult();
+		$db->close();
+		return $result;
+	}
+
+		public function filter_cell($limit='', $offset='', $search='', $log_id) {
         $db = db_connect();
         $builder = $db->table('cells');
 
@@ -3351,6 +3713,36 @@ class Crud extends Model {
         $db->close();
     }
 
+	public function mailgun($to,$subject,$msg,$church='') {
+		$ch = curl_init();
+		if(empty($church))$church = 'My Church Connect Pal';
+		$body = [
+            'from'    => $church.'<noreply@mg.mychurchconnectpal.com>', // ✅ Required
+            'to'      => $to,                            // ✅ Required
+            'subject' => $subject,
+            'html'    => $msg
+        ];
+
+		$mailgun_domain = 'mg.mychurchconnectpal.com';
+
+		$link = 'https://api.mailgun.net/v3/'.$mailgun_domain.'/messages';
+		$mailgun_key = $this->read_field('name', 'mailgun', 'setting', 'value');
+
+		
+		curl_setopt($ch, CURLOPT_URL, $link);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, CURLOPT_USERPWD, 'api' . ':' . $mailgun_key);
+
+		$result = curl_exec($ch);
+		if (curl_errno($ch)) {
+			echo 'Error:' . curl_error($ch);
+		}
+		curl_close($ch);
+
+		return $result;
+	}
 
     public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $region_id = '', $zone_id = '', $group_id = '', $church_id = '', $level = '', $switch_id = '') {
         $db = db_connect();
@@ -3466,68 +3858,120 @@ class Crud extends Model {
         return $query->getResult();
     }
 
-
-	public function filter_service_report($limit='', $offset='', $search='', $log_id, $switch_id='') {
-        $db = db_connect();
-        $builder = $db->table('service_report');
-
-        // build query
+	public function filter_service_report($limit = '', $offset = '', $search = '', $log_id, $switch_id = '', $date = '', $type = '', $church_scope = '', $selected_churches = [], $cell_id = ''){
+		$db = db_connect();
+		$builder = $db->table('service_report');
 		$builder->orderBy('date', 'desc');
-		
-        if(!empty($search)) {
-            $builder->like('type', $search);
-        }
-		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
-        $ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
-        $church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
-        $role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-
-		if(!empty($switch_id)){
-			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
-			if($church_type == 'region'){
-				$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
-				$role = 'regional manager';
-			}
-			if($church_type == 'zone'){
-				$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
-				$role = 'zonal manager';
-			}
-			if($church_type == 'group'){
-				$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
-				$role = 'group manager';
-			}
-			if($church_type == 'church'){
-				$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
-				$role = 'church leader';
-			}
-			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
-			$church_id = $switch_id;
-		
+	
+		// Search filter
+		if (!empty($search)) {
+			$builder->groupStart()
+				->like('type', $search)
+				->orLike('attendance', $search)
+				->groupEnd();
 		}
-
-        // Apply filters based on user role
-        if ($role != 'developer' && $role != 'administrator') {
-            if ($role == 'ministry administrator') {
-                $builder->where('ministry_id', $ministry_id);
-            } else {
-                $builder->where('church_id', $church_id_user);
-            }
-        }
+	
+		// User and role details
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+	
+		// If switch is used, override role context
+		if (!empty($switch_id)) {
+			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
+			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
+			$church_id_user = $switch_id;
+	
+			switch ($church_type) {
+				case 'region':
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role = 'church leader';
+					break;
+			}
+		}
+	
+		// Date filter
+		if (!empty($date)) {
+			$builder->where('date', $date);
+		}
+	
+		// Type filter
+		if (!empty($type) && $type != 'all') {
+			$builder->where('type', $type);
+		}
+	
+		// Cell filter
+		// if (!empty($cell_id) && $cell_id != 'all') {
+		// 	$builder->where('cell_id', $cell_id);
+		// }
+	
+		// Filter by church scope
+		if ($church_scope === 'selected' && !empty($selected_churches)) {
+			$builder->whereIn('church_id', $selected_churches);
+		} elseif ($church_scope === 'own' && !empty($church_id_user)) {
+			$builder->where('church_id', $church_id_user);
+		} elseif ($church_scope === 'all' && !empty($church_id_user)) {
+			$church_type = $this->read_field('id', $church_id_user, 'church', 'type');
+			$sub_churches = [$church_id_user]; // Always include the user's own church
 		
-        // limit query
-        if($limit && $offset) {
+			// Fetch subordinate churches
+			switch ($church_type) {
+				case 'region':
+					$records = $this->read_single('regional_id', $church_id_user, 'church');
+					break;
+				case 'zone':
+					$records = $this->read_single('zonal_id', $church_id_user, 'church');
+					break;
+				case 'group':
+					$records = $this->read_single('group_id', $church_id_user, 'church');
+					break;
+				case 'church':
+					$records = $this->read_single('church_id', $church_id_user, 'church');
+					break;
+				case 'center':
+				default:
+					$records = []; // no children, just self
+					break;
+			}
+		
+			// Append subordinate IDs without overwriting
+			if (!empty($records)) {
+				$sub_churches = array_merge($sub_churches, array_map(fn($rec) => $rec->id, $records));
+			}
+		
+			// Apply the final filter
+			$builder->whereIn('church_id', $sub_churches);
+		} else {
+			// Default fallback if no scope is passed
+			if (!in_array($role, ['developer', 'administrator'])) {
+				if ($role === 'ministry administrator') {
+					$builder->where('ministry_id', $ministry_id);
+				} 
+			}
+		}
+	
+		// Execute the query
+		if ($limit && $offset) {
 			$query = $builder->get($limit, $offset);
-		} else if($limit) {
+		} elseif ($limit) {
 			$query = $builder->get($limit);
 		} else {
-            $query = $builder->get();
-        }
-
-        // return query
-        return $query->getResult();
-        $db->close();
-    }
-
+			$query = $builder->get();
+		}
+	
+		return $query->getResult();
+	}
+	
+	
 	public function filter_partnership($limit='', $offset='', $search='') {
         $db = db_connect();
         $builder = $db->table('partnership');
@@ -5594,82 +6038,97 @@ class Crud extends Model {
 	}
 	
 	
-	
 	public function processFile($file)
 	{
-		// Load the Excel reader library
+		// Increase memory and execution time limits
+		ini_set('memory_limit', '512M');      // or more if needed
+		set_time_limit(300);                  // 5 minutes max execution time
+
+		// Load the Excel reader
 		$reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+		$reader->setReadDataOnly(true); // ✅ Ignore styles, charts, etc.
 
-		// Load the spreadsheet from the uploaded file
+		// Load spreadsheet from uploaded file
 		$spreadsheet = $reader->load($file->getTempName());
-
-		// Get the active sheet
 		$sheet = $spreadsheet->getActiveSheet();
-
-		// Get the highest row number (assuming data starts from the first row)
 		$highestRow = $sheet->getHighestRow();
-
-		// Get the data from each row
 
 		$data = [];
 		$status = false;
+
 		for ($row = 1; $row <= $highestRow; ++$row) {
-			
-			$firstname = $sheet->getCellByColumnAndRow(1, $row)->getValue();
-			$othername = $sheet->getCellByColumnAndRow(2, $row)->getValue();
-			$surname = $sheet->getCellByColumnAndRow(3, $row)->getValue();
-			$email = $sheet->getCellByColumnAndRow(4, $row)->getValue();
-			$phone = $sheet->getCellByColumnAndRow(5, $row)->getValue();
-			$address = $sheet->getCellByColumnAndRow(6, $row)->getValue();
-			$dobCellValue = $sheet->getCellByColumnAndRow(7, $row)->getValue();
-			$marital_status = $sheet->getCellByColumnAndRow(8, $row)->getValue();
+			$firstname            = $sheet->getCellByColumnAndRow(1, $row)->getValue();
+			$othername            = $sheet->getCellByColumnAndRow(2, $row)->getValue();
+			$surname              = $sheet->getCellByColumnAndRow(3, $row)->getValue();
+			$email                = $sheet->getCellByColumnAndRow(4, $row)->getValue();
+			$phone                = $sheet->getCellByColumnAndRow(5, $row)->getValue();
+			$address              = $sheet->getCellByColumnAndRow(6, $row)->getValue();
+			$dobCellValue         = $sheet->getCellByColumnAndRow(7, $row)->getValue();
+			$marital_status       = $sheet->getCellByColumnAndRow(8, $row)->getValue();
 			$marriage_anniversary = $sheet->getCellByColumnAndRow(9, $row)->getValue();
-			$title = $sheet->getCellByColumnAndRow(10, $row)->getValue();
-			$gender = $sheet->getCellByColumnAndRow(11, $row)->getValue();
-			$chat_handle = $sheet->getCellByColumnAndRow(12, $row)->getValue();
-			$job = $sheet->getCellByColumnAndRow(13, $row)->getValue();
-			$foundation_school = $sheet->getCellByColumnAndRow(14, $row)->getValue();
-			$baptism = $sheet->getCellByColumnAndRow(15, $row)->getValue();
-			$employer_address = $sheet->getCellByColumnAndRow(16, $row)->getValue();
-			// echo $firstname.' '.$othername.'<br>';
+			$title                = $sheet->getCellByColumnAndRow(10, $row)->getValue();
+			$gender               = $sheet->getCellByColumnAndRow(11, $row)->getValue();
+			$chat_handle          = $sheet->getCellByColumnAndRow(12, $row)->getValue();
+			$job                  = $sheet->getCellByColumnAndRow(13, $row)->getValue();
+			$foundation_school    = $sheet->getCellByColumnAndRow(14, $row)->getValue();
+			$baptism              = $sheet->getCellByColumnAndRow(15, $row)->getValue();
+			$employer_address     = $sheet->getCellByColumnAndRow(16, $row)->getValue();
+			$family_position      = $sheet->getCellByColumnAndRow(17, $row)->getValue();
+			$cell			      = $sheet->getCellByColumnAndRow(18, $row)->getValue();
 
-			if($row == 1){
-				if (strtolower($firstname) == 'firstname' && strtolower($othername) == 'othername' && strtolower($surname) == 'surname' && strtolower($email) == 'email' && strtolower($phone) == 'phone' && strtolower($address) == 'address' && strtolower($marital_status) == 'marital-status'&& strtolower($marriage_anniversary) == 'marriage-anniversary'&& strtolower($title) == 'title'&& strtolower($gender) == 'gender'&& strtolower($chat_handle) == 'chat-handle'&& strtolower($job) == 'job'&& strtolower($foundation_school) == 'foundation-school'&& strtolower($baptism) == 'baptism'&& strtolower($employer_address) == 'employer-address'&& strtolower($dobCellValue) == 'dob') {
+			// Header validation
+			if ($row == 1) {
+				$expectedHeaders = [
+					'firstname', 'othername', 'surname', 'email', 'phone', 'address',
+					'dob', 'marital-status', 'marriage-anniversary', 'title', 'gender',
+					'chat-handle', 'job', 'foundation-school', 'baptism',
+					'employer-address', 'family-position', 'cell'
+				];
 
-					// echo $state.' '.$email.' '.$sub_sub_cate.' '.$phone.'<br>';
-					$status = true;
-					continue;
+				$actualHeaders = [
+					strtolower($firstname), strtolower($othername), strtolower($surname),
+					strtolower($email), strtolower($phone), strtolower($address),
+					strtolower($dobCellValue), strtolower($marital_status),
+					strtolower($marriage_anniversary), strtolower($title),
+					strtolower($gender), strtolower($chat_handle), strtolower($job),
+					strtolower($foundation_school), strtolower($baptism),
+					strtolower($employer_address), strtolower($family_position), strtolower($cell)
+				];
+
+				if ($actualHeaders !== $expectedHeaders) {
+					return ['error' => 'Invalid Excel headers. Please use the correct template.'];
 				}
+
+				$status = true;
+				continue;
 			}
 
-			$dobFormatted = $this->convertExcelDate($dobCellValue);
-			
-			if ($status == true) {
-				// Add the data to the array
+			if ($status) {
+				$dobFormatted = $this->convertExcelDate($dobCellValue);
+				$marriageFormatted = $this->convertExcelDate($marriage_anniversary);
+
 				$data[] = [
-					'firstname' => $firstname,
-					'othername' => $othername,
-					'surname' => $surname,
-					'email' => $email,
-					'phone' => $phone,
-					'address' => $address,
-					'dob' => $dobFormatted,
-					'marital_status' => $marital_status,
-					'marriage_anniversary' => $this->convertExcelDate($marriage_anniversary),
-					'title' => $title,
-					'gender' => $gender,
-					'chat_handle' => $chat_handle,
-					'job' => $job,
-					'foundation_school' => $foundation_school,
-					'baptism' => $baptism,
-					'employer_address' => $employer_address,
+					'firstname'            => trim($firstname),
+					'othername'            => trim($othername),
+					'surname'              => trim($surname),
+					'email'                => strtolower(trim($email)),
+					'phone'                => preg_replace('/[^0-9]/', '', $phone),
+					'address'              => trim($address),
+					'dob'                  => $dobFormatted,
+					'marital_status'       => strtolower(trim($marital_status)),
+					'marriage_anniversary' => $marriageFormatted,
+					'title'                => ucwords(trim($title)),
+					'gender'               => ucwords(trim($gender)),
+					'chat_handle'          => strtolower(trim($chat_handle)),
+					'job'                  => trim($job),
+					'foundation_school'    => strtolower(trim($foundation_school)),
+					'baptism'              => strtolower(trim($baptism)),
+					'employer_address'     => trim($employer_address),
+					'family_position'      => strtolower(trim($family_position)),
+					'cell'   			   => strtolower(trim($cell)),
 				];
 			}
-		
 		}
-
-		// Your logic to upload the data to the database
-		// $this->uploadToDatabase($data);
 
 		return $data;
 	}
@@ -5741,30 +6200,39 @@ class Crud extends Model {
 
         return $excelContent;
     }
-
-	public function get_sub_churches($id){
+	public function get_sub_churches($id)
+	{
 		$sub_churches = [];
-
+	
 		$church_type = $this->read_field('id', $id, 'church', 'type');
-		$type = '';
-		if($church_type == 'region'){
-			$church = $this->read_single('regional_id', $id, 'church');
+	
+		switch (strtolower($church_type)) {
+			case 'region':
+				$churches = $this->read_single('regional_id', $id, 'church');
+				break;
+			case 'zone':
+				$churches = $this->read_single('zonal_id', $id, 'church');
+				break;
+			case 'group':
+				$churches = $this->read_single('group_id', $id, 'church');
+				break;
+			case 'center':
+			case 'church':
+				$churches = $this->read_single('church_id', $id, 'church');
+				break;
+			default:
+				$churches = [];
 		}
-		if($church_type == 'zone'){
-			$church = $this->read_single('zonal_id', $id, 'church');
-		}
-		if($church_type == 'group'){
-			$church = $this->read_single('group_id', $id, 'church');
-		}
-
-		if(!empty($church)){
-			foreach($church as $c){
+	
+		if (!empty($churches)) {
+			foreach ($churches as $c) {
 				$sub_churches[] = $c->id;
 			}
 		}
-
+	
 		return $sub_churches;
 	}
+	
 
 
 	////////////////////////JITZI/////////////////////////////////

@@ -31,7 +31,7 @@
                                 <div class="toggle-expand-content" data-content="more-options">
                                     <ul class="nk-block-tools g-3">
                                         
-                                        <li>
+                                        <li id="add-btn">
                                             <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Attendance Monitor" class="float-right btn btn-primary btn-lg btn-icon pop" pageTitle="<?=translate_phrase('Attendance Monitor');?>" pageName="<?php echo base_url('accounts/monitoring/manage'); ?>" pageSize="modal-md">
                                                 <em class="icon ni ni-user"></em>
                                             </a>

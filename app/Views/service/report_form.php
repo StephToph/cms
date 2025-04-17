@@ -332,19 +332,20 @@ $this->session = \Config\Services::session();
             </div>
             <div class="col-sm-4 mb-3">
                 <label>First Timer</label>
-                <input class="form-control" id="guest" type="text" name="guest" readonly value="<?=$timer_count; ?>">
+                <input class="form-control" id="guest" type="text" name="guest" readonly value="0">
             </div>
+            
             <div class="col-sm-4 mb-3">
                 <label>Male</label>
-                <input class="form-control" id="male" type="text" name="male"  value="<?=$timer_male; ?>">
+                <input class="form-control" id="male" type="text" name="male"  value="0">
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Female</label>
-                <input class="form-control" id="female" type="text" name="female"  value="<?=$timer_female; ?>">
+                <input class="form-control" id="female" type="text" name="female"  value="0">
             </div>
             <div class="col-sm-4 mb-3">
                 <label>Children</label>
-                <input class="form-control" id="children" type="text" name="children"  value="<?=$timer_child; ?>">
+                <input class="form-control" id="children" type="text" name="children"  value="0">
             </div>
         </div>
         <hr>

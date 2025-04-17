@@ -1521,6 +1521,24 @@ class Auth extends BaseController {
 			echo '<script>location.reload(false);</script>';
 		}
 	}
+
+	public function set_password()
+	{
+		$user_no = $this->request->getPost('user_no');
+		$password = $this->request->getPost('password');
+
+		$user = $this->Crud->read_single('id', $user_no, 'user');
+
+		if (!$user) {
+			return $this->response->setJSON(['status' => false, 'message' => 'User not found.']);
+		}
+
+		$update = $this->Crud->updates('id', $user_no, 'user', [
+			'password' => md5($password) // or use password_hash for better security
+		]);
+
+		return $this->response->setJSON(['status' => true, 'message' => 'Password updated successfully.']);
+	}
 	
 	public function qr_update(){
 		$query = $this->Crud->read('user');

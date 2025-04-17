@@ -154,9 +154,7 @@
         $('#form').hide(500);
         $('#attendance_view').hide(500);
         $('#mark_attendance_view').hide(500);
-        $('#offering_view').hide(500);
-        $('#tithe_view').hide(500);
-        $('#new_convert_view').hide(500);
+         $('#new_convert_view').hide(500);
         $('#first_timer_view').hide(500);
         $('#attendance_prev').hide(500);
         $('#add_btn').show(500);
@@ -232,26 +230,35 @@
 
     }
 
-
-    function attendance_report(id){
-        $('#attendance_msg').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+    function attendance_report(id) {
         $('#show').hide(500);
         $('#add_btn').hide(500);
         $('#attendance_view').show(500);
         $('#attendance_prev').show(500);
         loadMetrics(id);
-        // Update the Add First Timer link dynamically
+        $('#member_id').val('');    
+        var markMemberBTN = document.getElementById("markMemberBTN");
+        if (markMemberBTN) {
+            markMemberBTN.setAttribute("data-service-id", id); // store the service ID
+        }
+        // $('#memberAttendance').hide(500);
+        // $('#member_response').show(500);
+        // $('#metric_response').show(500);
+        
         var firstTimerBtn = document.getElementById("firstTimerBtnz");
         if (firstTimerBtn) {
-            let baseUrl = site_url+"service/report/manage/timers";
+            let baseUrl = site_url + "service/report/manage/timers";
             firstTimerBtn.setAttribute("pageName", baseUrl + "/" + id);
         }
+    
+        // ❌ BUG: missing $ for jQuery selector
+        $('#attendance_id').val(id); // ✅ Fix here
+    
         $.ajax({
-            url: site_url + 'service/report/manage/attendance/' + id,
+            url: site_url + 'service/recordz/attendance/' + id,
             type: 'get',
             success: function (data) {
                 var dt = JSON.parse(data);
-                $('#attendance_id').val(dt.attendance_id)
                 $('#total_attendance').val(dt.total_attendance);
                 $('#head_count').val(dt.head_count);
                 $("#member_attendance").val(dt.member_attendance);
@@ -259,13 +266,56 @@
                 $('#male_attendance').val(dt.male_attendance);
                 $('#female_attendance').val(dt.female_attendance);
                 $('#children_attendance').val(dt.children_attendance);
+                $('#attendance_mzg').html('');
 
-                $('#attendance_msg').html(''); 
-                
+                 // ✅ Dynamically update the button's data-service-id
+                $('#markMemberBTN').attr('data-service-id', id);
+
+                // ✅ Automatically trigger the button
+                // $('#markMemberBTN').trigger('click');
             }
         });
-       
     }
+    
+    function get_memberz(btn) {
+        const $attendance = $('#memberAttendance');
+        const $response = $('#member_response');
+        const $metric = $('#metric_response');
+    
+        // Toggle visibility
+        if ($attendance.is(':visible')) {
+            $attendance.slideUp(300);
+            $response.slideDown(300);
+            $metric.slideDown(300);
+        } else {
+            $attendance.slideDown(300);
+            $response.slideUp(300);
+            $metric.slideUp(300);
+    
+            // Show loading spinner
+            $attendance.html(`
+                <div class="col-sm-12 text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `);
+    
+            const service = $(btn).data('service-id');
+    
+            $.ajax({
+                url: site_url + 'service/report/get_member',
+                type: 'post',
+                data: { service: service },
+                success: function (data) {
+                    const dt = JSON.parse(data);
+                    $attendance.html(dt.response);
+                }
+            });
+        }
+    }
+    
+    
 
     function loadMetrics(serviceNumber) {
         $.ajax({
@@ -324,7 +374,7 @@
                         $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
                         // $this.prop('disabled', true); // ✅ disable the switch
                         let defaultService = $('#service').val();
-                        loadMetrics(service_id); 
+                        attendance_report(service_id);
                     } else {
                         $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
                         $this.prop('checked', false); // rollback toggle if error
@@ -378,7 +428,8 @@
                         $('#con_resp_' + member_id).html('<small class="text-success">Marked</small>');
                         // $this.prop('disabled', true); // ✅ disable the switch
                         let defaultService = $('#service').val();
-                        loadMetrics(service_id);  
+                        
+                        attendance_report(service_id); 
                     } else {
                         $('#con_resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
                         $this.prop('checked', false); // rollback toggle if error
@@ -391,25 +442,26 @@
             });
         
     });
-
+    // Handle Absent Toggle
     $(document).on('change', '.mark-absent-switch', function () {
         let $this = $(this);
         let member_id = $this.data('member-id');
         let isAbsent = $this.is(':checked');
-        var service_id = $('#attendance_id').val();
-        var church_id = $('#church_id').val();
+        let service_id = $('#attendance_id').val();
+        let church_id = $('#church_id').val();
+        let mark = isAbsent ? 1 : 0;
 
-        // Disable Present switch if Absent is checked
+        // Disable present switches
         $('#presentSwitch_' + member_id).prop('disabled', isAbsent);
         $('#presentSwitchz_' + member_id).prop('disabled', isAbsent);
         $('#presentSwitchm_' + member_id).prop('disabled', isAbsent);
-        var mark = 0;
-        if(isAbsent){
-            var mark = 1;
-        }
 
-        console.log(mark);
-        if(mark == 0){
+        // Show or hide reason wrapper
+        $('#absent_reason_wrapper_' + member_id).toggle(isAbsent);
+        if (isAbsent) $('#absent_reason_' + member_id).val('');
+
+        // If unchecked, mark them present
+        if (!mark) {
             $.ajax({
                 url: site_url + 'service/report/attendance/mark_present',
                 type: 'POST',
@@ -420,22 +472,14 @@
                     mark: mark
                 },
                 success: function (response) {
-                    // Try to parse if it's JSON
-                    let res;
-                    try {
-                        res = typeof response === 'object' ? response : JSON.parse(response);
-                    } catch (e) {
-                        res = { status: 'error', message: response };
-                    }
-
+                    let res = typeof response === 'object' ? response : JSON.parse(response);
                     if (res.status === 'success') {
                         $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
-                        // $this.prop('disabled', true); // ✅ disable the switch
-                        let defaultService = $('#service').val();
-                        loadMetrics(service_id); 
+                       
+                        attendance_report(service_id);
                     } else {
                         $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
-                        $this.prop('checked', false); // rollback toggle if error
+                        $this.prop('checked', false);
                     }
                 },
                 error: function () {
@@ -444,52 +488,38 @@
                 }
             });
         }
-        
-
-        // Show or hide reason input
-        if (mark) {
-            $('#absent_reason_wrapper_' + member_id).show(500);
-            $('#absent_reason_' + member_id).val('');
-        } else {
-            $('#absent_reason_wrapper_' + member_id).hide(500);
-        }
     });
 
+    // Show other reason input when "Other" is selected
     $(document).on('change', '.reason-select', function () {
         let $this = $(this);
         let member_id = $this.data('member-id');
-        let selected = $this.val();
-
-        // Look for the wrapper closest to this reason dropdown
         let $row = $this.closest('tr');
+        let selected = $this.val();
         let $otherInput = $row.find('.other-reason-input');
 
-        if (selected === 'Other' || selected.includes('Other')) {
+        if (selected.includes('Other')) {
             $otherInput.show().focus();
         } else {
             $otherInput.hide().val('');
         }
     });
 
-    // Submit on reason select or when "other" input loses focus
+    // Auto-submit reason
     $(document).on('change blur', '.reason-select, .other-reason-input', function () {
         let $this = $(this);
         let $row = $this.closest('tr');
         let member_id = $this.data('member-id');
-
         let reason = $row.find('.reason-select').val();
         let other_reason = $row.find('.other-reason-input').val();
-        let final_reason = reason === 'Other' || reason.includes('Other') ? other_reason.trim() : reason;
+        let final_reason = reason.includes('Other') ? other_reason.trim() : reason;
 
-        let isAbsent =  $('.mark-absent-switch').is(':checked');
-        var mark = 0;
-        if(isAbsent){
-            var mark = 1;
-        }
         if (final_reason !== '') {
-            var service_id = $('#attendance_id').val();
+            let service_id = $('#attendance_id').val();
             let church_id = $('#church_id').val();
-            let $resp = $row.find('#resp_' + member_id);
+            let $resp = $('#resp_' + member_id);
+            let isAbsent = $row.find('.mark-absent-switch').is(':checked');
+            let mark = isAbsent ? 1 : 0;
 
             $resp.html('<small class="text-info">Saving reason...</small>');
 
@@ -507,8 +537,8 @@
                     let res = typeof response === 'object' ? response : JSON.parse(response);
                     if (res.status === 'success') {
                         $resp.html('<small class="text-success">' + res.message + '</small>');
-                        let defaultService = $('#service').val();
-                        loadMetrics(service_id); 
+                       
+                        attendance_report(service_id);
                         $row.find('.mark-absent-switch').prop('disabled', true);
                         $row.find('.reason-select').prop('disabled', true);
                         $row.find('.other-reason-input').prop('readonly', true);
@@ -522,7 +552,7 @@
             });
         }
     });
-        
+
     function get_member() {
         $('#member_response').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         var member_id = $('#member_id').val();
@@ -957,9 +987,9 @@
             success: function (data) {
                 var dt = JSON.parse(data);
                 $('#finance_id').val(dt.id);
-                $('#total_part').val(dt.total_part);
-                $('#member_part').val(dt.member_part);
-                $('#guest_part').val(dt.guest_part);
+                $('#total_partnership').val(dt.total_partnership);
+                $('#member_partnership').val(dt.member_partnership);
+                $('#guest_partnership').val(dt.guest_partnership);
                 $('#total_thanksgiving').val(dt.total_thanksgiving);
                 $("#member_thanksgiving").val(dt.member_thanksgiving);
                 $("#guest_thanksgiving").val(dt.guest_thanksgiving);
@@ -984,124 +1014,194 @@
     
     function fetchAndPopulateFirstTimers(id) {
         $.ajax({
-            url: site_url + 'service/report/records/getFirstTimers/' + id, // Adjust the URL according to your API
+            url: site_url + 'service/report/records/getFirstTimers/' + id,
             type: 'get',
             success: function (data) {
-                var firstTimers = JSON.parse(data); // Assuming the response is JSON formatted
-        
-                // Clear existing entries
+                const firstTimers = JSON.parse(data);
                 $('#guest_partner_list').empty();
-        
-                // Check if there are any first timers
+    
                 if (firstTimers.length === 0) {
                     $('#guest_part_view').hide(500);
                     $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">No first timers available</td></tr>');
                     return;
                 }
-        
+    
                 $('#guest_part_view').show(500);
-        
-                // Iterate over firstTimers and append rows to the table
+    
                 firstTimers.forEach(function (timer, index) {
-                    var row = '<tr class="original-row">';
-                    var fullname = timer.id ? timer.id.toUpperCase() : '';
-                    var phone = timer.phone ? timer.phone : '';
-        
-                    row += '<td><input type="hidden" readonly class="form-control firsts" name="first_timer[' + index + ']" value="' + fullname + '"><span class="small">' + fullname + ' - ' + phone + '</span></td>';
-        
-                    if (fullname) {
-                        $.ajax({
-                            url: site_url + 'service/report/records/get_service_partnership/' + id,
-                            method: 'POST',
-                            data: { name: fullname },
-                            dataType: 'json', // Ensures response is treated as JSON
-                            success: function (response) {
-                                if (!response || !response.partners) {
-                                    console.error("Invalid response format");
-                                    return;
-                                }
-        
-                                var currency = response.currency || [];
-                                var partners = response.partners;
-                                var guest_offering = response.guest_offering || "0";
-                                var guest_tithe = response.guest_tithe || "0";
-                                var guest_thanksgiving = response.guest_thanksgiving || "0";
-                                var guest_seed = response.guest_seed || "0";
-        
-                                var row = '<tr>';
-                                row += '<td><input type="hidden" class="form-control guests" name="guests[]" value="' + fullname + '">';
-                                row += '<span class="small">' + fullname + '</span></td>';
-        
-                                // Financial Contributions Inputs with pre-filled values
-                                var contributions = {
-                                    "guestz_offering": { value: guest_offering, function: "calculateTotalz()" },
-                                    "guestz_tithe": { value: guest_tithe, function: "calculateTotal()" },
-                                    "guestz_thanksgiving": { value: guest_thanksgiving, function: "calculateTotalz_thanksgiving()" },
-                                    "guestz_seed": { value: guest_seed, function: "calculateTotalz_seed()" }
-                                };
-        
-                                Object.keys(contributions).forEach(function (type) {
-                                    var details = contributions[type];
-                                    row += '<td><input type="text" style="width:100px;" class="form-control ' + type + '" name="' + type + '[]" ';
-                                    row += 'oninput="' + details.function + '; this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');" ';
-                                    row += 'placeholder="0" value="' + details.value + '"></td>';
+                    const fullname = timer.name?.toUpperCase() || '';
+                    const phone = timer.phone || '';
+                    const member_id = timer.id;
+    
+                    if (!fullname) return;
+    
+                    $.ajax({
+                        url: site_url + 'service/report/records/get_service_partnership/' + id,
+                        method: 'POST',
+                        data: { name: member_id },
+                        dataType: 'json',
+                        success: function (response) {
+                            if (!response || !response.partners) return;
+    
+                            const currency = response.currency || [];
+                            const partners = response.partners;
+                            const guest_offering = response.guest_offering || "0";
+                            const guest_tithe = response.guest_tithe || "0";
+                            const guest_thanksgiving = response.guest_thanksgiving || "0";
+                            const guest_seed = response.guest_seed || "0";
+    
+                            let row = '<tr>';
+                            row += `<td><input type="hidden" class="form-control member-id-field guests" name="guests[]" value="${member_id}">`;
+                            row += `<span class="small">${fullname} - ${phone}</span></td>`;
+    
+                            // Core guest finance types
+                            const contributions = {
+                                "offering": guest_offering,
+                                "tithe": guest_tithe,
+                                "thanksgiving": guest_thanksgiving,
+                                "seed": guest_seed
+                            };
+    
+                            Object.entries(contributions).forEach(([type, value]) => {
+                                row += `
+                                    <td>
+                                        <input type="text" 
+                                               style="width:100px;" 
+                                               class="form-control finance-fields" 
+                                               name="guest_${type}[]" 
+                                               value="${value}" 
+                                               data-field="${type}" 
+                                               data-member-id="${member_id}" 
+                                               data-user-type="guest"
+                                               oninput="
+                                                    this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');
+                                                    autoSaveFinance(this);
+                                               "
+                                        >
+                                    </td>`;
+                            });
+    
+                            // Guest partnership contributions
+                            partners.forEach(function (partner) {
+                                const amount = partner.amount || '0';
+                                const partnerField = `partner_${partner.id}`;
+                                row += `
+                                    <td>
+                                        <input type="text" 
+                                               style="width:100px;" 
+                                               class="form-control finance-fields" 
+                                               name="${partnerField}_guest[]" 
+                                               value="${amount}" 
+                                               data-field="${partnerField}" 
+                                               data-member-id="${member_id}" 
+                                               data-user-type="guest"
+                                               oninput="
+                                                    this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');
+                                                    autoSaveFinance(this);
+                                               "
+                                        >
+                                    </td>`;
+                            });
+    
+                            // Currency dropdown
+                            const currency_selectz = $('<select class="js-select2  currency-select form-control" name="guest_currency[]"></select>');
+                            currency_selectz.append('<option value="0">Espees</option>');
+    
+                            if (currency && Object.keys(currency).length > 0) {
+                                Object.entries(currency).forEach(([id, name]) => {
+                                    currency_selectz.append(`<option value="${id}" selected>${name}</option>`);
                                 });
-                                
-        
-                                // Partnership Contributions Inputs for Guests
-                                partners.forEach(function (partner) {
-                                    var amount = partner.amount || '0';
-                                    row += '<td>';
-                                    row += '<input type="text" style="width:100px;" class="form-control firsts_amount" ';
-                                    row += 'name="' + partner.id + '_guest[]" '; // Correct field name format
-                                    row += 'oninput="bindInputEvents();" ';
-                                    row += 'value="' + amount + '">';
-                                    row += '</td>';
-                                });
-        
-                                // Create currency dropdown select element
-                                var currency_selectz = $('<select class="js-select2" name="guest_currency[]"></select>');
-        
-                                // Add default "Espees" option
-                                currency_selectz.append(`<option value="0">Espees</option>`);
-        
-                                // Check if currency data exists and populate the dropdown
-                                if (currency && Object.keys(currency).length > 0) {
-                                    Object.entries(currency).forEach(([id, name]) => {
-                                        currency_selectz.append(`<option value="${id}" selected>${name}</option>`);
-                                    });
-                                }
-        
-                                // Append the select dropdown inside a new table column correctly
-                                row += '<td>' + currency_selectz.prop('outerHTML') + '</td>'; // Convert jQuery object to string
-        
-                                row += '</tr>'; // Close table row
-        
-                                // Append the row to the table
-                                $('#guest_partner_list').append(row);
-        
-                                // Activate select2 for newly added dropdowns
-                                $('.js-select2').select2();
-                            },
-                            error: function (xhr, status, error) {
-                                console.error("AJAX Error:", status, error);
-                                alert("Failed to fetch partnership data. Please try again.");
                             }
-                        });
-                    } else {
-                        row += '</tr>';
-                        $('#guest_partner_list').append(row);
-                    }
+    
+                            row += `<td>${currency_selectz.prop('outerHTML')}</td>`;
+                            row += '</tr>';
+    
+                            $('#guest_partner_list').append(row);
+                            $('.js-select2').select2();
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Partnership fetch error:", status, error);
+                            alert("Could not fetch partnership data.");
+                        }
+                    });
                 });
             },
             error: function (xhr, status, error) {
-                console.error('Error fetching first timers:', error);
+                console.error('First timer fetch error:', error);
                 $('#guest_partner_list').html('<tr><td colspan="8" class="text-center">Failed to load first timers.</td></tr>');
             }
         });
-        
     }
 
+    function autoSaveFinance(input) {
+        const $input = $(input);
+        let val = $input.val();
+        const match = val.match(/^\d*\.?\d{0,2}/);
+        val = match ? match[0] : '';
+        $input.val(val);
+        
+        const $row = $input.closest('tr'); // ✅ Correct reference
+        const amount = parseFloat(val) || 0;
+        const member_id = $input.data('member-id');
+        const field = $input.data('field');
+        const user_type = $input.data('user-type') || 'guest';
+        const report_id = $('#finance_id').val();
+        const currency = $row.find('.currency-select').val(); // ✅ Now works
+    
+        if (!member_id || !field || !report_id) return;
+    
+        // ✅ Send all required data
+        $.post(site_url + 'service/report/records/save_finance_field', {
+            member_id: member_id,
+            field_name: field,
+            amount: amount,
+            report_id: report_id,
+            user_type: user_type,
+            currency: currency
+        }, function (res) {
+            if (res.status) {
+                console.log(`✅ ${user_type} - ${field} saved: ₦${amount}`);
+            } else {
+                alert('Save failed: ' + res.message);
+            }
+        }, 'json');
+    
+        updateFinanceTotals(field);
+    }
+    
+    
+    function updateFinanceTotals(field) {
+        const isPartner = field.startsWith('partner_');
+        const mainField = isPartner ? 'partnership' : field;
+    
+        let guestTotal = 0;
+    
+        // ✅ Loop through all guest inputs and sum values for this finance type
+        $(`.finance-fields[data-user-type="guest"]`).each(function () {
+            const thisField = $(this).data('field');
+            const thisVal = parseFloat($(this).val()) || 0;
+    
+            if (
+                (!isPartner && thisField === field) || 
+                (isPartner && thisField.startsWith('partner_'))
+            ) {
+                guestTotal += thisVal;
+            }
+        });
+    
+        // ✅ Update guest field only (e.g. #guest_offering)
+        const guestSelector = `#guest_${mainField}`;
+        $(guestSelector).val(guestTotal.toFixed(2));
+    
+        // ✅ Read existing member value (unchanged)
+        const memberVal = parseFloat($(`#member_${mainField}`).val()) || 0;
+    
+        // ✅ Update total (guest + member)
+        const total = memberVal + guestTotal;
+        $(`#total_${mainField}`).val(total.toFixed(2));
+    }
+    
+    
 
     let churchMembers = [];
     let partnerships = [];
@@ -1157,109 +1257,11 @@
         });
     }
     
-
-              
-    function populateTithe(id) {
-        $.ajax({
-            url: site_url + 'service/report/records/get_members_tithe/'+id, // Adjust the URL according to your API
-            type: 'get',
-            success: function (data) {
-                var mems = JSON.parse(data); // Assuming the response is JSON formatted
     
-                // Clear existing entries
-                $('#tithe_table_resp').empty();
-                // console.log(mems.members_part);
-                $('#tithe_table_resp').html(mems.members_part).fadeIn(500);
-                if (Array.isArray(mems.members)) {
-                    churchMembers = mems.members;
-                } else {
-                    console.error('mems.members is not an array');
-                    churchMembers = []; // or some default value
-                }
-                
-                $('.js-select2 ').select2();
-            }
-        });
-    }
-
-    
-              
-    function populateThanksgiving(id) {
-        $.ajax({
-            url: site_url + 'service/report/records/get_members_thanksgiving/'+id, // Adjust the URL according to your API
-            type: 'get',
-            success: function (data) {
-                var mems = JSON.parse(data); // Assuming the response is JSON formatted
-    
-                // Clear existing entries
-                $('#thanksgiving_table_resp').empty();
-                // console.log(mems.members_part);
-                $('#thanksgiving_table_resp').html(mems.members_part).fadeIn(500);
-                if (Array.isArray(mems.members)) {
-                    churchMembers = mems.members;
-                } else {
-                    console.error('mems.members is not an array');
-                    churchMembers = []; // or some default value
-                }
-                
-                $('.js-select2 ').select2();
-            }
-        });
-    }
-
     function deleteRowz(button) {
         $(button).closest('tr').remove(); // Remove the closest <tr> (table row)
     }
     
-
-              
-    function populateSeed(id) {
-        $.ajax({
-            url: site_url + 'service/report/records/get_members_seed/'+id, // Adjust the URL according to your API
-            type: 'get',
-            success: function (data) {
-                var mems = JSON.parse(data); // Assuming the response is JSON formatted
-    
-                // Clear existing entries
-                $('#seed_table_resp').empty();
-                // console.log(mems.members_part);
-                $('#seed_table_resp').html(mems.members_part).fadeIn(500);
-                if (Array.isArray(mems.members)) {
-                    churchMembers = mems.members;
-                } else {
-                    console.error('mems.members is not an array');
-                    churchMembers = []; // or some default value
-                }
-                
-                $('.js-select2 ').select2();
-            }
-        });
-    }
-
-              
-    function populateOffering(id) {
-        $.ajax({
-            url: site_url + 'service/report/records/get_members_offering/'+id, // Adjust the URL according to your API
-            type: 'get',
-            success: function (data) {
-                var mems = JSON.parse(data); // Assuming the response is JSON formatted
-    
-                // Clear existing entries
-                $('#offering_table_resp').empty();
-                // console.log(mems.members_part);
-                $('#offering_table_resp').html(mems.members_part).fadeIn(500);
-                if (Array.isArray(mems.members)) {
-                    churchMembers = mems.members;
-                } else {
-                    console.error('mems.members is not an array');
-                    churchMembers = []; // or some default value
-                }
-                
-                $('.js-select2 ').select2();
-            }
-        });
-    }
-
               
     function populateAttendance(id) {
         $.ajax({
@@ -1330,207 +1332,18 @@
         absent_memberSelect.select2();
     });
 
-    $('#mem_btn').click(function() {
-        const tableBody = $('#member_partner_list');
-        const noRecordsRow = tableBody.find('tr').first();
-    
-        // Check if the table contains "No records found."
-        if (noRecordsRow.length && noRecordsRow.text().trim() === "No records found.") {
-            tableBody.empty(); // Clear the tbody if the only row contains "No records found."
-        }
-    
-        // Create a new row
-        const newRow = $('<tr></tr>');
-    
-        // Create a select element for church members
-        const memberSelect = $('<select class="js-selects2 members form-control" name="members[]" ></select>');
-        memberSelect.append('<option value="" selected disabled>Select a Member</option>');
-    
-        // Check if church members are available and append them to the select
-        if (churchMembers && churchMembers.length > 0) {
-            churchMembers.forEach(function(member) {
-                memberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
-            });
-        }
-    
-        // Append the select2-enabled memberSelect to the new row
-        newRow.append($('<td width="250px;"></td>').append(memberSelect));
-    
-        // Define different oninput functions for each contribution type
-        const inputFunctions = {
-            'offering': 'calculateTotalz()',
-            'tithe': 'calculateTotal()',
-            'thanksgiving': 'calculateTotalz_thanksgiving()',
-            'seed': 'calculateTotalz_seed()'
-        };
-    
-        // Add input textboxes for general contributions (Offering, Tithe, Thanksgiving, Seed)
-        Object.keys(inputFunctions).forEach(function(type) {
-            newRow.append(`
-                <td>
-                    <input type="text" style="width:100px;" class="form-control ${type}" name="${type}[]" 
-                        oninput="${inputFunctions[type]}; this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');" 
-                        placeholder="0">
-                </td>
-            `);
-            
-        });
-    
-        // Add input textboxes for each partnership contribution dynamically
-        partnerships.forEach(function(partnership) {
-            let partnershipId = partnership.id; // Get the partnership ID
-            let dynamicOninputFunction = `bindInputEvents(${partnershipId})`; // Bind function using partnership ID
-
-            newRow.append(`
-                <td>
-                    <input type="text" style="width:100px;" class="form-control members_amount" 
-                        oninput="${dynamicOninputFunction}; this.value = this.value.replace(/[^0-9]/g, '');" 
-                        name="${partnershipId}_member[]" placeholder="0">
-                </td>
-            `);
-        });
-
-        const currency_select = $('<select class="js-select2" name="currency[]"></select>');
-
-        // Add default "espees" option
-        currency_select.append(`<option value="0">Espees</option>`);
-
-        // Check if currency data exists and populate the dropdown
-        if (currency && Object.keys(currency).length > 0) {
-            Object.entries(currency).forEach(([id, name]) => {
-                currency_select.append(`<option value="${id}" selected>${name}</option>`);
-            });
-        }
-
-        
-        // Append the select dropdown to the new row
-        newRow.append($('<td></td>').append(currency_select));
-
-         // Add delete button
-         newRow.append(`
-            <td>
-                <button type="button" class="btn btn-danger btn-sm deleteRow" onclick="deleteRowz(this)">
-                    <i class="icon ni ni-trash"></i>
-                </button>
-            </td>
-        `);
-    
-        // Append the new row to the table body
-        tableBody.append(newRow);
-    
-        // Initialize select2 for the new element only
-        memberSelect.select2();
-        currency_select.select2();
-        // Reinitialize select2 for any previously existing elements if necessary
-        $('.js-selects2').select2();
-    });
-    
-    
-    
-    
-    let titheRowIndex = 0;
-
-    $('#tithe_btn').click(function() {
-        titheRowIndex++; // Increment the row index for each new row
-    
-        const titheNewRow = $('<tr></tr>');
-        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${titheRowIndex}" ></select>`);
-        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
-    
-        if (churchMembers && churchMembers.length > 0) {
-            churchMembers.forEach(function(member) {
-                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
-            });
-        } else {
-            console.warn("No church members available.");
-        }
-    
-        // Append the select element to the row
-        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
-    
-        // Add the input field
-        titheNewRow.append(`
-            <td>
-                <input type="text" class="form-control tithe" name="tithe[]" value="0" oninput="calculateTotal(); this.value = this.value.replace(/[^0-9]/g, '');">
-
-            </td>
-        `);
-        
-    
-        // Append the new row to the table body
-        $('#tithe_table_resp').append(titheNewRow);
-    
-        // Initialize Select2 for the new select element
-        titheMemberSelect.select2();
-    });
-    
-    
-    
-    let offeringRowIndex = 0;
-
-
-    $('#offering_btn').click(function() {
-        offeringRowIndex++; // Increment the row index for each new row
-        
-        const titheNewRow = $('<tr></tr>');
-        const titheMemberSelect = $(`<select class="js-select2 members" name="members[]" id="members_${offeringRowIndex}" ></select>`);
-        titheMemberSelect.append('<option value="" selected disabled>Select a Member</option>');
-    
-        if (churchMembers && churchMembers.length > 0) {
-            churchMembers.forEach(function(member) {
-                titheMemberSelect.append(`<option value="${member.id}">${member.fullname} - ${member.phone}</option>`);
-            });
-        } else {
-            console.warn("No church members available.");
-        }
-    
-        // Append the select element to the row
-        titheNewRow.append($('<td width="250px;"></td>').append(titheMemberSelect));
-    
-        // Add the input field
-        titheNewRow.append(`
-            <td>
-                <input type="text" class="form-control offering" name="offering[]" value="0" oninput="calculateTotalz(); this.value = this.value.replace(/[^0-9]/g, '');">
-
-            </td>
-            <td>
-                <input type="text" class="form-control thanksgiving" name="thanksgiving[]" value="0" oninput="calculateTotalz_thanksgiving(); this.value = this.value.replace(/[^0-9]/g, '');">
-
-            </td>
-            <td>
-                <input type="text" class="form-control seed" name="seed[]" value="0" oninput="calculateTotalz_seed(); this.value = this.value.replace(/[^0-9]/g, '');">
-
-            </td>
-        `);
-    
-        // Append the new row to the table body
-        $('#offering_table_resp').append(titheNewRow);
-    
-        // Initialize Select2 for the new select element
-        titheMemberSelect.select2();
-    });
-    
-    
-    function bindInputEvents() {
-        $('.members_amount').on('input', calculateSum);
-        $('.members_amount').on('input', restrictNumericInput);
-        $('.firsts_amount').on('input', calculateFirst);
-        $('.firsts_amount').on('input', restrictNumericInput);
-    }
-
-    // Function to allow only numeric input with up to two decimal places
+    // Global input restriction handler
     function restrictNumericInput() {
-        // Replace any non-numeric characters (except decimal point) with an empty string
-        $(this).val($(this).val().replace(/[^0-9.]/g, ''));
-
-        // Allow only one decimal point
-        var val = $(this).val();
-        var parts = val.split('.');
-        if (parts.length > 2) {
-            parts.pop();
-            $(this).val(parts.join('.'));
-        }
+        let val = $(this).val();
+    
+        // Match allowed pattern: digits, optional dot, up to 2 decimals
+        const match = val.match(/^\d*\.?\d{0,2}/);
+    
+        // Apply matched portion (or empty if nothing valid)
+        $(this).val(match ? match[0] : '');
     }
+    
+    
 
     function calculateSum() {
         var sum = 0;
@@ -1607,42 +1420,6 @@
         deleteSection(rowId);
     });
 
-    function get_tithe(){
-        var member = $('#member_tithe').val();
-        var guest = $('#guest_tithe').val();
-        
-        var total = parseFloat(member) + parseFloat(guest);
-        total = total.toFixed(2);
-        $('#total_tithe').val(total);
-    }
-
-    function get_offering(){
-        var member = $('#member_offering').val();
-        var guest = $('#guest_offering').val();
-        
-        var total = parseFloat(member) + parseFloat(guest);
-        total = total.toFixed(2);
-        $('#total_offering').val(total);
-    }
-
-    function get_thanksgiving(){
-        var member = $('#member_thanksgiving').val();
-        var guest = $('#guest_thanksgiving').val();
-        
-        var total = parseFloat(member) + parseFloat(guest);
-        total = total.toFixed(2);
-        $('#total_thanksgiving').val(total);
-    }
-
-    function get_seed(){
-        var member = $('#member_seed').val();
-        var guest = $('#guest_seed').val();
-        
-        var total = parseFloat(member) + parseFloat(guest);
-        total = total.toFixed(2);
-        $('#total_seed').val(total);
-    }
-
     function updateTotals() {
         // Get values from the input fields
         var memberValue = parseInt($('#member_attendance').val()) || 0;
@@ -1676,28 +1453,75 @@
             $('#loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
 
+
        
-        var search = $('#search').val();
-        //alert(status);
+        // Get filter values
+        const search = $('#search').val();
+        const date = $('#filterDate').val();
+        const type = $('#filterType').val();
+        const scope = $('#church_scope').val();
+        const selectedChurches = $('#selected_churches').val(); // array
+        const cell_id = $('#cell_id').val();
 
         $.ajax({
             url: site_url + 'service/report/load' + methods,
             type: 'post',
-            data: { search: search },
+            data: {
+                search: search,
+                date: date,
+                type: type,
+                church_scope: scope,
+                selected_churches: selectedChurches,
+                cell_id: cell_id
+            },
             success: function (data) {
                 var dt = JSON.parse(data);
-                if (more == 'no') {
+            
+                if (more === 'no') {
                     $('#load_data').html(dt.item);
                 } else {
                     $('#load_data').append(dt.item);
                 }
+
+                if (dt.services.length > 0) {
+                    let options = `<option value="all">All Types</option>`;
+                    dt.services.forEach(service => {
+                        options += `<option value="${service.id}">${service.name}</option>`;
+                    });
+                    $('#filterType').html(options);
+                } else {
+                    // If no services found, show only "All Types"
+                    $('#filterType').html(`<option value="all">All Types</option>`);
+                }
+            
+            
                 $('#counta').html(dt.count);
-                if (dt.offset > 0) {
-                    $('#loadmore').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
+                $('#t_attendance').html(dt.t_attendance);
+                $('#t_firstTimer').html(dt.t_firstTimer);
+                $('#t_convert').html(dt.t_convert);
+                $('#t_offering').html(dt.t_offering);
+                $('#t_tithe').html(dt.t_tithe);
+                $('#t_partnership').html(dt.t_partnership);
+                $('#t_thanksgiving').html(dt.t_thanksgiving);
+                $('#t_seed').html(dt.t_seed);
+            
+                // Show Load More button only if there are records left
+                if (parseInt(dt.left) > 0) {
+                    let loadMoreCount = Math.min(parseInt(dt.left), parseInt(dt.limit)); // don't show more than remaining
+                    $('#loadmore').html(`
+                        <tr>
+                            <td colspan="8">
+                                <a href="javascript:;" class="btn btn-dim btn-light btn-block p-30" onclick="load(${dt.limit}, ${dt.offset});">
+                                    <em class="icon ni ni-redo fa-spin"></em> Load ${loadMoreCount} More
+                                </a>
+                            </td>
+                        </tr>
+                    `);
                 } else {
                     $('#loadmore').html('');
                 }
             },
+            
             complete: function () {
                 $.getScript(site_url + '/assets/js/jsmodal.js');
             }
@@ -2197,3 +2021,442 @@
         // Remove the tag and the button from the UI
         $(this).closest('.tag').remove(); // Adjust to remove the entire tag
     });
+
+
+    
+    
+    $(document).on('change', '.mark-present-switch', function () {
+        var $this = $(this);
+        var member_id = $(this).data('member-id');
+        var isPresent = $(this).is(':checked');
+        var service_id = $('#attendance_id').val();
+        var church_id = $('#church_id').val();
+
+        var mark = 0;
+        if(isPresent){
+            var mark = 1;
+        }
+
+        // Disable Absent if Present is checked
+        $('#absentSwitchq_' + member_id).prop('disabled', isPresent);
+        
+            $('#respq_' + member_id).html('<small class="text-info">Updating...</small>');
+            // $this.prop('disabled', true);
+            $.ajax({
+                url: site_url + 'service/report/attendance/mark_present',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    service_id: service_id,
+                    church_id: church_id,
+                    mark: mark
+                },
+                success: function (response) {
+                    // Try to parse if it's JSON
+                    let res;
+                    try {
+                        res = typeof response === 'object' ? response : JSON.parse(response);
+                    } catch (e) {
+                        res = { status: 'error', message: response };
+                    }
+
+                    if (res.status === 'success') {
+                        $('#respq_' + member_id).html('<small class="text-success">Marked</small>');
+                        // $this.prop('disabled', true); // ✅ disable the switch
+                        let defaultService = $('#service').val();
+                        attendance_report(service_id);
+                    } else {
+                        $('#respq_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                        $this.prop('checked', false); // rollback toggle if error
+                    }
+                },
+                error: function () {
+                    $('#respq_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
+                    $this.prop('disabled', false);
+                }
+            });
+        
+    });
+
+    
+    $(document).on('change', '.mark-convert-switch', function () {
+        var $this = $(this);
+        var member_id = $(this).data('member-id');
+        var type = $(this).data('type');
+        var isPresent = $(this).is(':checked');
+        var service_id = $('#attendance_id').val();
+        var church_id = $('#church_id').val();
+
+        var mark = 0;
+        if(isPresent){
+            var mark = 1;
+        }
+
+       
+            $('#con_resp_' + member_id).html('<small class="text-info">Updating...</small>');
+            // $this.prop('disabled', true);
+            $.ajax({
+                url: site_url + 'service/report/attendance/mark_convert',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    service_id: service_id,
+                    church_id: church_id,
+                    mark: mark,
+                    type: type
+                },
+                success: function (response) {
+                    // Try to parse if it's JSON
+                    let res;
+                    try {
+                        res = typeof response === 'object' ? response : JSON.parse(response);
+                    } catch (e) {
+                        res = { status: 'error', message: response };
+                    }
+
+                    if (res.status === 'success') {
+                        $('#con_resp_' + member_id).html('<small class="text-success">Marked</small>');
+                        // $this.prop('disabled', true); // ✅ disable the switch
+                        let defaultService = $('#service').val();
+                        
+                        attendance_report(service_id); 
+                    } else {
+                        $('#con_resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                        $this.prop('checked', false); // rollback toggle if error
+                    }
+                },
+                error: function () {
+                    $('#con_resp_' + member_id).html('<small class="text-danger">Failed to mark member as New Convert.</small>');
+                    $this.prop('disabled', false);
+                }
+            });
+        
+    });
+    // Handle Absent Toggle
+    $(document).on('change', '.mark-absent-switch', function () {
+        let $this = $(this);
+        let member_id = $this.data('member-id');
+        let isAbsent = $this.is(':checked');
+        let service_id = $('#attendance_id').val();
+        let church_id = $('#church_id').val();
+        let mark = isAbsent ? 1 : 0;
+
+        // Disable present switches
+        $('#presentSwitchq_' + member_id).prop('disabled', isAbsent);
+       
+        // Show or hide reason wrapper
+        $('#absent_reason_wrapper_' + member_id).toggle(isAbsent);
+        if (isAbsent) $('#absent_reasonq_' + member_id).val('');
+
+        // If unchecked, mark them present
+        if (!mark) {
+            $.ajax({
+                url: site_url + 'service/report/attendance/mark_present',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    service_id: service_id,
+                    church_id: church_id,
+                    mark: mark
+                },
+                success: function (response) {
+                    let res = typeof response === 'object' ? response : JSON.parse(response);
+                    if (res.status === 'success') {
+                        $('#respq_' + member_id).html('<small class="text-success">Marked</small>');
+                       
+                        attendance_report(service_id);
+                    } else {
+                        $('#respq_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                        $this.prop('checked', false);
+                    }
+                },
+                error: function () {
+                    $('#respq_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
+                    $this.prop('disabled', false);
+                }
+            });
+        }
+    });
+
+    // Show other reason input when "Other" is selected
+    $(document).on('change', '.reason-select', function () {
+        let $this = $(this);
+        let member_id = $this.data('member-id');
+        let $row = $this.closest('tr');
+        let selected = $this.val();
+        let $otherInput = $row.find('.other-reason-input');
+
+        if (selected.includes('Other')) {
+            $otherInput.show().focus();
+        } else {
+            $otherInput.hide().val('');
+        }
+    });
+
+    // Auto-submit reason
+    $(document).on('change blur', '.reason-select, .other-reason-input', function () {
+        let $this = $(this);
+        let $row = $this.closest('tr');
+        let member_id = $this.data('member-id');
+        let reason = $row.find('.reason-select').val();
+        let other_reason = $row.find('.other-reason-input').val();
+        let final_reason = reason.includes('Other') ? other_reason.trim() : reason;
+
+        if (final_reason !== '') {
+            let service_id = $('#attendance_id').val();
+            let church_id = $('#church_id').val();
+            let $resp = $('#respq_' + member_id);
+            let isAbsent = $row.find('.mark-absent-switch').is(':checked');
+            let mark = isAbsent ? 1 : 0;
+
+            $resp.html('<small class="text-info">Saving reason...</small>');
+
+            $.ajax({
+                url: site_url + 'service/report/attendance/mark_absent',
+                type: 'POST',
+                data: {
+                    member_id: member_id,
+                    reason: final_reason,
+                    service_id: service_id,
+                    mark: mark,
+                    church_id: church_id
+                },
+                success: function (response) {
+                    let res = typeof response === 'object' ? response : JSON.parse(response);
+                    if (res.status === 'success') {
+                        $resp.html('<small class="text-success">' + res.message + '</small>');
+                       
+                        attendance_report(service_id);
+                        $row.find('.mark-absent-switch').prop('disabled', true);
+                        $row.find('.reason-select').prop('disabled', true);
+                        $row.find('.other-reason-input').prop('readonly', true);
+                    } else {
+                        $resp.html('<small class="text-danger">' + res.message + '</small>');
+                    }
+                },
+                error: function () {
+                    $resp.html('<small class="text-danger">Error saving reason.</small>');
+                }
+            });
+        }
+    });
+    let partnershipList = []; // to be filled from backend
+
+    // Load partnerships once
+    $.get(site_url + 'service/report/records/get_partnerships', function (res) {
+        partnershipList = res.data; // expects [{id: 1, name: "Bible"}, ...]
+        }, 'json');
+
+    // ========== Add More Member Finance Row ==========
+    $(document).on('click', '#mem_btn', function () {
+        let service_id = $('#attendance_id').val();
+        const $tableBody = $('#member_partner_list');
+    
+        $tableBody.find('tr:contains("No records found")').remove();
+    
+        let partnershipInputs = '';
+        partnershipList.forEach(p => {
+            partnershipInputs += `<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="partner_${p.id}" value="0"></td>`;
+        });
+    
+        const row = `
+            <tr class="member-finance-row">
+                <td style="min-width: 200px;">
+                    <select class="form-control member-select js-select2" name="members[]" style="width: 100%;">
+                        <option value="">Select Member</option>
+                    </select>
+                    <input type="hidden" class="member-id-field" name="member_id[]" value="">
+                </td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="offering" value="0"></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="tithe" value="0"></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="thanksgiving" value="0"></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="seed" value="0"></td>
+                ${partnershipInputs}
+                <td>
+                    <select class="form-control currency-select" style="min-width: 120px;">
+                        <option value="ESP">ESPees</option>
+                    </select>
+                </td>
+                <td><button type="button" class="btn btn-danger btn-sm remove-row"><em class="icon ni ni-cross"></em></button></td>
+            </tr>
+        `;
+    
+        $tableBody.append(row);
+        $('.js-select2').select2();
+    
+         // Load members into the new select
+        $.post(site_url + 'service/report/records/get_member_list', {}, function (res) {
+            const $lastSelect = $('.member-select:last');
+            $lastSelect.append(res.options);
+
+            // Setup change handler to fetch currency
+            $lastSelect.on('change', function () {
+                const member_id = $(this).val();
+                let service_id = $('#finance_id').val();
+                const $row = $(this).closest('tr');
+                $row.find('.member-id-field').val(member_id);
+
+                // Now fetch currency based on member's country
+                $.post(site_url + 'service/report/records/get_member_currency', { member_id: member_id }, function (res) {
+                    if (res.status && res.currency_code) {
+                        const $currency = $row.find('.currency-select');
+                        $currency.html(`
+                            <option value="0">ESPees</option>
+                            <option value="${res.currency_code}">${res.currency_name}</option>
+                        `);
+                    }
+                }, 'json');
+            });
+        }, 'json');
+    });
+    
+    // ========== Set Member ID on Dropdown Change ==========
+    $(document).on('change', '.member-select', function () {
+        const member_id = $(this).val();
+        $(this).closest('tr').find('.member-id-field').val(member_id);
+    });
+
+    // ========== Auto-Save Finance Input ==========
+    $(document).on('input', '.finance-field', function () {
+            
+        const $row = $(this).closest('tr');
+        const member_id = $row.find('.member-id-field').val();
+        const field = $(this).data('field');
+        const report_id = $('#finance_id').val();
+        const user_type = $input.data('user-type') || 'member';
+        const currency = $row.find('.currency-select').val();
+
+        let val = $(this).val();
+
+        // ✅ Sanitize: remove all except digits and dot
+        val = val.replace(/[^0-9.]/g, '');
+    
+        // ✅ Limit to one dot
+        const parts = val.split('.');
+        if (parts.length > 2) {
+            val = parts[0] + '.' + parts[1];
+        }
+    
+        // ✅ Limit to 2 decimal places
+        if (parts.length === 2) {
+            parts[1] = parts[1].substring(0, 2);
+            val = parts[0] + '.' + parts[1];
+        }
+    
+        // ✅ Update input value
+        $(this).val(val);
+
+
+        if (!member_id) {
+            alert('Please select a member before entering values.');
+            $(this).val('');
+            return;
+        }
+
+        if (!field || val === '') return;
+
+        // ✅ Save to backend
+        $.post(site_url + 'service/report/records/save_finance_field', {
+            member_id: member_id,
+            field_name: field,
+            amount: val,
+            report_id: report_id,
+            user_type: user_type,
+            currency: currency
+        }, function (res) {
+            if (res.status) {
+                console.log('Saved:', field, val);
+            } else {
+                alert('Save failed: ' + res.message);
+            }
+        }, 'json');
+    });
+    
+    
+    // ========== Remove Member Row ==========
+    $(document).on('click', '.remove-row', function () {
+        $(this).closest('tr').remove();
+    });
+    $(document).on('click', '.remove-row', function () {
+        const $row = $(this).closest('tr');
+        const member_id = $row.find('.member-id-field').val();
+        const report_id = $('#finance_id').val();
+    
+        if (!member_id || !report_id) {
+            alert('Invalid member or report ID.');
+            return;
+        }
+    
+        if (!confirm('Are you sure you want to delete this finance record?')) return;
+    
+        $.post(site_url + 'service/report/records/delete_finance_record', {
+            member_id: member_id,
+            report_id: report_id
+        }, function (res) {
+            if (res.status) {
+                $row.remove();
+                console.log('Finance record deleted and report updated.');
+                finance_report(report_id);
+            } else {
+                alert('Delete failed: ' + res.message);
+            }
+        }, 'json');
+    });
+    
+
+    function restrictNumericInput() {
+        let val = $(this).val();
+    
+        // Match allowed pattern: digits, optional dot, up to 2 decimals
+        const match = val.match(/^\d*\.?\d{0,2}/);
+    
+        // Apply matched portion (or empty if nothing valid)
+        $(this).val(match ? match[0] : '');
+    }
+    
+    $(document).on('input', '.finance-field', function () {
+        let val = $(this).val();
+    
+        // Sanitize: allow only digits and a single decimal point with 2 decimal places
+        const match = val.match(/^\d*\.?\d{0,2}/);
+        val = match ? match[0] : '';
+        $(this).val(val);
+    
+        const $row = $(this).closest('tr');
+        const field = $(this).data('field');
+        if (!field) return;
+    
+        // 🔄 Update per-member row total
+        let rowTotal = 0;
+        $row.find('.finance-field').each(function () {
+            rowTotal += parseFloat($(this).val()) || 0;
+        });
+        $row.find('.row-total').val(rowTotal.toFixed(2));
+    
+        // 🔢 If it's a partner_* field, treat it as 'partnership'
+        const isPartner = field.startsWith('partner_');
+        const mainField = isPartner ? 'partnership' : field;
+    
+        // 🔁 Sum all same-type fields across all rows → MEMBER total
+        let memberSum = 0;
+        if (isPartner) {
+            $('[data-field^="partner_"]').each(function () {
+                memberSum += parseFloat($(this).val()) || 0;
+            });
+        } else {
+            $(`.finance-field[data-field="${field}"]`).each(function () {
+                memberSum += parseFloat($(this).val()) || 0;
+            });
+        }
+    
+        // 📝 Update member field
+        $(`#member_${mainField}`).val(memberSum.toFixed(2));
+    
+        // ➕ Add member to guest to get total
+        const guestVal = parseFloat($(`#guest_${mainField}`).val()) || 0;
+        const total = memberSum + guestVal;
+    
+        $(`#total_${mainField}`).val(total.toFixed(2));
+    });
+    
+    

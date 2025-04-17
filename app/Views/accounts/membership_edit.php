@@ -458,6 +458,19 @@
                                     </div>
                                 </div>
                                 <?php } ?>
+                                <?php if(!empty($e_is_duplicate) && $e_is_duplicate > 0){ ?>
+                                    <div class="col-md-6 col-lg-4 col-xxl-3">
+                                        <div class="form-group"><label class="form-label">Duplicate Account</label>
+                                            <div class="form-control-wrap">
+                                                <select class="form-select js-select2" id="is_duplicate" name="archive"
+                                                    data-placeholder="Select">
+                                                    <option value="0" <?php if(!empty($e_is_duplicate)){if($e_is_duplicate == '0'){echo 'selected';}} ?>>Not a Duplicate </option>
+                                                    <option value="1" <?php if(!empty($e_is_duplicate)){if($e_is_duplicate == '1'){echo 'selected';}} ?>>Yes - A Duplicate Account</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php } ?>
                                 <div class="mb-2 col-md-6 col-lg-4 col-xxl-3">
                                     <label for="img-upload" class="pointer text-center" style="width:50%;">
                                         <input type="hidden" name="img_id" value="<?php if(!empty($e_img_id)){echo $e_img_id;} ?>" />

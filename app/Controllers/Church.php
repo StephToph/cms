@@ -2028,19 +2028,30 @@ class Church extends BaseController{
 						';
 
 
+
 						$data['body'] = $body;
 						if ($this->request->getMethod() == 'post') {
-							$head = 'Welcome to ' . $ministry . ' - Set Your Password';
-							$email_status = $this->Crud->send_email($email, $head, $body);
-							if ($email_status > 0) {
-								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
+							$head = 'Welcome to ' . $church . ' - Set Your Password';
+
+							$upd_rec = $this->Crud->mailgun($email, $head, $body, $church);
+			
+							// echo $upd_rec;
+							if (!empty($upd_rec)) {
+								$mailgun_response = json_decode($upd_rec, true); // Decode the JSON response
+
+								if (isset($mailgun_response['message']) && stripos($mailgun_response['message'], 'Queued') !== false) {
+									echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
 								echo '<script>
 										load_admin("","",' . $church_id . ');
 										$("#modal").modal("hide");
 									</script>';
+								} else {
+									echo $this->Crud->msg('danger', 'Error Sending Email');
+								}
 							} else {
 								echo $this->Crud->msg('danger', 'Error Sending Email');
 							}
+
 							die;
 						}
 
@@ -2452,13 +2463,13 @@ class Church extends BaseController{
 						$ministry_id = $this->Crud->read_field('id', $admin_id, 'user', 'ministry_id');
 						$church_id = $this->Crud->read_field('id', $admin_id, 'user', 'church_id');
 						$ministry = $this->Crud->read_field('id', $ministry_id, 'ministry', 'name');
-
+						$church = $this->Crud->read_field('id', $church_id, 'church', 'name');
 						$name = ucwords($firstname . ' ' . $othername . ' ' . $surname);
 						$reset_link = site_url('auth/email_verify?uid=' . $user_no);
 						$link = '<p><a href="' . htmlspecialchars($reset_link) . '">Set Your Password</a></p>';
 						$body = '
 							Dear ' . $name . ', <br><br>
-								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($ministry)) . ' within the ' . htmlspecialchars(app_name) . ' platform.</p>
+								<p>A ' . ucwords($roles) . ' account has been created for you on the ' . htmlspecialchars(ucwords($church)) . ' digital platform.</p>
     							Below are your Account Details:<br><br>
 
 								Website: ' . site_url() . '
@@ -2478,14 +2489,23 @@ class Church extends BaseController{
 								
 						';
 						if ($this->request->getMethod() == 'post') {
-							$head = 'Welcome to ' . $ministry . ' - Set Your Password';
-							$email_status = $this->Crud->send_email($email, $head, $body);
-							if ($email_status > 0) {
-								echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
+							
+							$head = 'Welcome to ' . $church . ' - Set Your Password';
+							$upd_rec = $this->Crud->mailgun($email, $head, $body, $church);
+			
+							// echo $upd_rec;
+							if (!empty($upd_rec)) {
+								$mailgun_response = json_decode($upd_rec, true); // Decode the JSON response
+
+								if (isset($mailgun_response['message']) && stripos($mailgun_response['message'], 'Queued') !== false) {
+									echo $this->Crud->msg('success', 'Login Credential Sent to Email Successfully');
 								echo '<script>
 										load_pastor("","",' . $church_id . ');
 										$("#modal").modal("hide");
 									</script>';
+								} else {
+									echo $this->Crud->msg('danger', 'Error Sending Email');
+								}
 							} else {
 								echo $this->Crud->msg('danger', 'Error Sending Email');
 							}

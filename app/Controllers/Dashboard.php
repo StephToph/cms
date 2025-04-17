@@ -33,6 +33,7 @@ class Dashboard extends BaseController {
             $church_id = $switch_id ;
         }
         
+        
         $role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
         $role_c = $this->Crud->module($role_id, $mod, 'create');
         $role_r = $this->Crud->module($role_id, $mod, 'read');
@@ -275,6 +276,28 @@ class Dashboard extends BaseController {
 			die;
 		}
 
+        if($role == 'church leader' || $role == 'regional manager' || $role == 'zonal manager' || $role == 'group manager' || $role == 'center manager') {
+            $data['is_church_admin'] = true;
+
+            // Check cell count
+            $cell_count = $this->Crud->check('church_id', $church_id, 'cells');
+            $data['has_cells'] = $cell_count > 0;
+    
+            // Check member count
+            $member_count = $this->Crud->check2('church_id', $church_id, 'is_member', 1, 'user');
+            $data['has_members'] = $member_count > 0;
+    
+            // Check service schedules
+            $schedule_count = $this->Crud->check('church_id', $church_id, 'service_schedule');
+            $data['has_schedules'] = $schedule_count > 0;
+    
+            // Check service schedules
+            $monitor_count = $this->Crud->check2('church_id', $church_id, 'is_monitoring', 1, 'user');
+            $data['has_monitor'] = $monitor_count > 0;
+    
+            // Determine completeness
+            $data['is_setup_complete'] = ($data['has_cells'] && $data['has_members'] && $data['has_schedules'] && $data['has_monitor']);
+        }
 
         $data['log_id'] = $log_id;
         $data['log_name'] = $username;
@@ -440,16 +463,42 @@ class Dashboard extends BaseController {
            
             $cells = $this->Crud->read('cells', 7);
         } else {
-            if($ministry_id > 0 && $church_id <= 0){
+            if ($church_id > 0) {
+                $church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+            
+                if (strtolower($church_type) === 'center') {
+                    // If it's a regular church, fetch data directly
+                    $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
+                    $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id, 'partners_history');
+                    $cells = $this->Crud->read_single('church_id', $church_id, 'cells', 7);
+                } else {
+                    // If it's a church center, zone, group, etc., get sub-churches
+                    $sub_churches = $this->Crud->get_sub_churches($church_id);
+            
+                    // Also include the parent church_id itself
+                    $sub_churches[] = $church_id;
+            
+                    $service_report = [];
+                    $partners = [];
+                    $cells = [];
+            
+                    foreach ($sub_churches as $cid) {
+                        $sub_reports = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $cid, 'service_report');
+                        $sub_partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $cid, 'partners_history');
+                        $sub_cells = $this->Crud->read_single('church_id', $cid, 'cells', 7);
+            
+                        if (!empty($sub_reports)) $service_report = array_merge($service_report, $sub_reports);
+                        if (!empty($sub_partners)) $partners = array_merge($partners, $sub_partners);
+                        if (!empty($sub_cells)) $cells = array_merge($cells, $sub_cells);
+                    }
+                }
+            } elseif ($ministry_id > 0) {
+                // fallback to ministry if church not provided
                 $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'ministry_id', $ministry_id, 'service_report');
-                $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id,'partners_history');
-           
-                $cells = $this->Crud->read_single('ministry_id', $ministry_id,'cells', 7);
-            } else {
-                $cells = $this->Crud->read_single('church_id', $church_id,'cells', 7);
-                $service_report = $this->Crud->date_range1($start_date, 'date', $end_date, 'date', 'church_id', $church_id, 'service_report');
-                $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'church_id', $church_id,'partners_history');
+                $partners = $this->Crud->date_range2($start_date, 'date_paid', $end_date, 'date_paid', 'status', 1, 'ministry_id', $ministry_id, 'partners_history');
+                $cells = $this->Crud->read_single('ministry_id', $ministry_id, 'cells', 7);
             }
+            
         }
 
         // print_r($service_report);
@@ -721,15 +770,47 @@ class Dashboard extends BaseController {
                 $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'cell_id', $celss, 'user');
                
             } else {
-                if($church_id > 0){
-                    $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'church_id', $church_id, 'user');
-                    $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'church_id', $church_id, 'visitors');
-                    $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'church_id', $church_id, 'user');
-                    $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'church_id', $church_id, 'visitors');
-                    $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'church_id', $church_id, 'user');
-                    $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'church_id', $church_id, 'visitors');
-                    
-                } else {
+                if ($church_id > 0) {
+                    $church_type = $this->Crud->read_field('id', $church_id, 'church', 'type');
+                
+                    // Initialize counters
+                    $pmembers = $pvisitors = $smembers = $svisitors = $gmembers = $gvisitors = 0;
+                
+                    if (strtolower($church_type) !== 'center') {
+                        $sub_churches = $this->Crud->get_sub_churches($church_id);
+                        $sub_churches[] = $church_id;
+                
+                        foreach ($sub_churches as $cid) {
+                            $pm = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'church_id', $cid, 'user');
+                            $pv = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'church_id', $cid, 'visitors');
+                
+                            $sm = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'church_id', $cid, 'user');
+                            $sv = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'church_id', $cid, 'visitors');
+                
+                            $gm = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'church_id', $cid, 'user');
+                            $gv = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'church_id', $cid, 'visitors');
+                
+                            // Sum counts
+                            $pmembers += (int) $pm;
+                            $pvisitors += (int) $pv;
+                            $smembers += (int) $sm;
+                            $svisitors += (int) $sv;
+                            $gmembers += (int) $gm;
+                            $gvisitors += (int) $gv;
+                        }
+                    } else {
+                        // Just one church
+                        $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'church_id', $church_id, 'user');
+                        $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'church_id', $church_id, 'visitors');
+                
+                        $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'church_id', $church_id, 'user');
+                        $svisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 1, 'church_id', $church_id, 'visitors');
+                
+                        $gmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 2, 'church_id', $church_id, 'user');
+                        $gvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 2, 'church_id', $church_id, 'visitors');
+                    }
+                }
+                else {
                     $pmembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 0, 'ministry_id', $ministry_id, 'user');
                     $pvisitors = $this->Crud->date_check2($start_date, 'reg_date', $end_date, 'reg_date', 'foundation_school', 0, 'ministry_id', $ministry_id, 'visitors');
                     $smembers = $this->Crud->date_check3($start_date, 'reg_date', $end_date, 'reg_date', 'is_member', 1, 'foundation_school', 1, 'ministry_id', $ministry_id, 'user');
@@ -1444,5 +1525,96 @@ class Dashboard extends BaseController {
         }
         
         
+    }
+
+    public function duplicate() {
+        // Fetch all users ordered by ID ASC (so first occurrence is treated as the original)
+        $users = $this->Crud->read_order('user', 'id', 'asc');
+        
+        if (!empty($users)) {
+            foreach ($users as $u) {
+                $this->Crud->updates('id', $u->id, 'user', ['is_duplicate' => 0]);
+            }
+        }
+    
+        // Only get members
+        $users = $this->Crud->read_single_order('is_member', 1, 'user', 'id', 'asc');
+    
+        $seenEmails = [];
+        $seenPhones = [];
+        $seenCombos = [];
+    
+        foreach ($users as $user) {
+            $userId = $user->id;
+            $email = strtolower(trim($user->email));
+            $phone = preg_replace('/\D/', '', $user->phone); // clean phone
+    
+            $isDuplicate = false;
+    
+            // Check for duplicate email
+            if (!empty($email)) {
+                if (in_array($email, $seenEmails)) {
+                    $isDuplicate = true;
+                } else {
+                    $seenEmails[] = $email;
+                }
+            }
+    
+            // Check for duplicate phone
+            if (!empty($phone)) {
+                if (in_array($phone, $seenPhones)) {
+                    $isDuplicate = true;
+                } else {
+                    $seenPhones[] = $phone;
+                }
+            }
+    
+            // Final action: delete if duplicate, else mark as not duplicate
+            if ($isDuplicate) {
+                $this->Crud->updates('id', $userId, 'user', ['is_duplicate' => 1]);
+            } else {
+                $this->Crud->updates('id', $userId, 'user', ['is_duplicate' => 0]);
+            }
+        }
+    
+        echo $this->Crud->msg('success', 'Duplicate users deleted successfully.');
+    }
+    
+    public function email(){
+        $body = [
+            'from'    => 'Your Church <noreply@mg.mychurchconnectpal.com>', // ✅ Required
+            'to'      => 'tofunmi015@gmail.com',                            // ✅ Required
+            'subject' => 'Test Mailgun Email',
+            'html'    => '<h1>Hello!</h1><p>This is a test email sent from Mailgun</p>'
+        ];
+        echo $this->Crud->mailgun('tofunmi015@gmail.com', 'Mailgun Eail', '<h1>Hello!</h1><p>This is a test email sent from Mailgun</p>', 'Redeem Christian Church of God');
+        // echo $this->Crud->mailgun($body);
+    }
+
+    public function serverz(){
+        $ftp_server = "ftp.mychurchconnectpal.com"; // replace with your FTP server
+        $ftp_user = "admin@mychurchconnectpal.com";     // replace with your FTP username
+        $ftp_pass = "YJC5eG[=nTpT";     // replace with your FTP password
+ 
+        // Set up a connection
+        $conn_id = ftp_connect($ftp_server);
+
+        if (!$conn_id) {
+            die("❌ Could not connect to FTP server.");
+        }
+
+        // Try to login
+        $login_result = ftp_login($conn_id, $ftp_user, $ftp_pass);
+
+        // Check connection and login
+        if ($login_result) {
+            echo "✅ FTP connection successful!";
+        } else {
+            echo "❌ FTP login failed. Check credentials.";
+        }
+
+        // Close the connection
+        ftp_close($conn_id);
+
     }
 }

@@ -77,6 +77,12 @@ $service_church_id = $this->session->get('service_church_id');
                                             
                                             <?php } ?>
                                             <li>
+                                                <a href="javascript:;" id="toggleFilterBtn" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Toggle Filters">
+                                                    <em class="icon ni ni-filter-alt"></em>
+                                                </a>
+                                            </li>
+
+                                            <li>
                                                 <div class="nk-block-head-sub mb-3" id="attendance_prev"
                                                     style="display:none;">
                                                     <a class="btn btn-outline-danger" id="back_btn"
@@ -91,6 +97,179 @@ $service_church_id = $this->session->get('service_church_id');
                                 </div><!-- .card-title-group -->
 
                             </div><!-- .card-inner -->
+                            <div class="card card-bordered mb-3" id="filterSection" style="display: none;">
+                                <div class="card-inner">
+                                    <h6 class="title mb-3">Filter Service Reports</h6>
+                                    <form id="filterForm">
+                                        <div class="row g-3 align-center">
+                                            <div class="col-md-3 mb-3">
+                                                <div class="form-control-wrap">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control date-picker" id="filterDate" onchange="load();"  name="date" value="">
+                                                        <button class="btn btn-outline-secondary" type="button" id="clearDateBtn"><em class="icon ni ni-cross"></em></button>
+                                                    </div>
+                                                </div>
+                                                <span class="text-danger small">Service Date</span>
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                               <div class="form-control-wrap">
+                                                    <select class="js-select2" data-search="on" id="filterType" onchange="load();" name="type">
+                                                        <option value="all">All Types</option>
+                                                        <?php
+                                                            $service_types = $this->Crud->read_order('service_type', 'name', 'asc'); 
+                                                            foreach($service_types as $stype): ?>
+                                                            <option value="<?= $stype->id; ?>"><?= esc($stype->name); ?></option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <span class="text-danger small">Service Types</span>
+                                            </div>
+                                            <div class="col-sm-2 mb-3">
+                                                <select class="form-control js-select2"  data-search="on" id="church_scope" name="church_scope" onchange="toggleChurchScope(this.value)">
+                                                    <option value="all">All Churches</option>
+                                                    <?php if (!empty($church_id)) { ?><option value="own">My Church</option><?php } ?>
+                                                    <option value="selected">Selected Churches</option>
+                                                </select>
+                                                <span class="text-danger small">Church Filter Type</span>
+                                            </div>
+
+                                            <!-- Multi-select churches -->
+                                            <div class="col-sm-4 mb-3" id="selected_church_container" style="display:none;">
+                                                <select class="form-control js-select2"  data-search="on" id="selected_churches" name="selected_churches" multiple onchange="load();">
+                                                    <!-- Dynamically populated -->
+                                                </select>
+                                                <span class="text-danger small">Select Churches</span>
+                                            </div>
+
+                                            <!-- Dynamic Cell Dropdown -->
+                                            <!-- <div class="col-sm-4 mb-3" id="cell_container">
+                                                <select class="form-control js-select2"  data-search="on" id="cell_id" name="cell_id" onchange="load();">
+                                                   
+                                                </select>
+                                                <span class="text-danger small">Select Cell</span>
+                                            </div> -->
+
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="row p-2" id="metricSection">
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered text-white bg-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Attendance'); ?></h6>
+                                                </div>
+                                            </div>
+                                            <div class="card-amount"><span class="amount text-white" id="t_attendance"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('First Timer'); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="t_firstTimer"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('New Convert'); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="t_convert"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-success card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Offering'); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount " id="t_offering"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-danger card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Tithe'); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="t_tithe"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Partnership'); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="t_partnership"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Thanksgiving'); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="t_thanksgiving"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('Special Seed '); ?></h6>
+                                                </div>
+                                                
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="t_seed"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
                             <div class="card-inner" id="show">
 
                                 <div class="table-responsive" >
@@ -144,8 +323,6 @@ $service_church_id = $this->session->get('service_church_id');
                                         </div>
                                     <?php } else { ?>
                                         <input type="hidden" id="ministry_id" value="<?= $ministry_id; ?>">
-
-
                                     <?php } ?>
                                     <?php if ($role != 'church leader') {
                                         $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
@@ -298,15 +475,22 @@ $service_church_id = $this->session->get('service_church_id');
                                                 name="children" value="" readonly placeholder="0">
                                         </div>
                                         
-                                        <div class="col-sm-6 mb-2">
-                                            <label class="name">Mark New Member Attendance</label>   
+                                        <div class="col-sm-4 mb-2">
+                                            <label class="name">Search Member</label>   
                                             <div class="input-group">        
-                                                <input type="text" id="member_id" oninput="get_member();"class="form-control " placeholder="Enter Name or Email">        
+                                                <input type="text" id="member_id" oninput="get_member();$('#memberAttendance').hide(500);$('#member_response').show(500);$('#metric_response').show(500);"class="form-control " placeholder="Enter Name or Email">        
                                                 <div class="input-group-append">            
-                                                    <button class="btn btn-outline-primary btn-dim" onclick="get_member();">Search</button>        
+                                                    <button class="btn btn-outline-primary btn-dim" onclick="get_member();$('#memberAttendance').hide(500);$('#member_response').show(500);$('#metric_response').show(500);">Search</button>        
                                                 </div> 
                                             </div>
                                         </div>
+                                        
+                                        <div class="col-sm-2 my-2">
+                                            <button id="markMemberBTN" type="button" data-service-id="" onclick="get_memberz(this)"  data-bs-toggle="tooltip" data-bs-placement="top" title="Mark Member" class="btn btn-block btn-dim btn-outline-dark mt-3 mx-2">
+                                                <em class="icon ni ni-user"></em><span> Mark Member</span>
+                                            </button>
+                                        </div>
+
                                         <div class="col-sm-2 my-2">
                                             <a href="javascript:;" id="firstTimerBtnz"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
@@ -319,22 +503,16 @@ $service_church_id = $this->session->get('service_church_id');
                                             </a>
 
                                         </div>
+                                        <div class="col-12 my-2 text-center" id="memberAttendance" style="display:none;"></div>
                                         <div class="col-12 my-2 text-center" id="member_response"></div>
                                         <div class="col-sm-12 my-3" id="metric_response">
                                             <!-- dynamic content appears here -->
                                         </div>
                                     </div>
                                     <hr>
-                                    <div class="row mt-5">
-                                        <div class="col-sm-12 text-center mt-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i>
-                                                <span><?= translate_phrase('Save Record'); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
                                     <div class="row">
                                         <div class="col-sm-12 my-2">
+                                            <div id="attendance_mzg"></div>
                                             <div id="attendance_msg"></div>
                                         </div>
                                     </div>
@@ -420,17 +598,17 @@ $service_church_id = $this->session->get('service_church_id');
                                         
                                         <div class="col-sm-4 mb-3 ">
                                             <label>Total Partnership</label>
-                                            <input class="form-control" id="total_part" type="text" name="total_part"
+                                            <input class="form-control" id="total_partnership" type="text" name="total_part"
                                                 readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>Member Partnership</label>
-                                            <input class="form-control" id="member_part" type="text" name="member_part"
+                                            <input class="form-control" id="member_partnership" type="text" name="member_part"
                                                 readonly value="0">
                                         </div>
                                         <div class="col-sm-4 mb-3">
                                             <label>Guest Partnership</label>
-                                            <input class="form-control" id="guest_part" type="text" name="guest_part"
+                                            <input class="form-control" id="guest_partnership" type="text" name="guest_part"
                                                 oninput="get_part();this.value = this.value.replace(/[^\d.]/g,'');this.value = this.value.replace(/(\..*)\./g,'$1')"
                                                 readonly value="0">
                                         </div>
@@ -527,15 +705,6 @@ $service_church_id = $this->session->get('service_church_id');
                                             <tbody id="guest_partner_list"> </tbody>
                                         </table>
                                     </div>
-                                    <hr>
-                                    <div class="row">
-                                        <div class="col-sm-12 text-center my-5">
-                                            <button class="btn btn-primary bb_fo_btn" type="submit">
-                                                <i class="icon ni ni-save"></i>
-                                                <span><?= translate_phrase('Save Record'); ?></span>
-                                            </button>
-                                        </div>
-                                    </div>
                                     <div class="row">
                                         <div class="col-sm-12">
                                             <div id="finance_msg"></div>
@@ -596,7 +765,23 @@ $service_church_id = $this->session->get('service_church_id');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 
 <script>
+
+   
     $(document).ready(function() {
+        
+        toggleChurchScope('all');
+        $('#toggleFilterBtn').on('click', function () {
+            $('#filterSection').slideToggle(300);
+        });
+        $('#clearDateBtn').on('click', function () {
+            $('#filterDate').val('').datepicker('update', '').change();
+        });
+
+        $('.date-picker').datepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            clearBtn: true // ✅ This shows a "Clear" button
+        });
         $('#add_first_timer').click(function() {
             // Clone the original form fields (the first set)
             var originalFields = $('#container').clone();
@@ -629,7 +814,78 @@ $service_church_id = $this->session->get('service_church_id');
                 $('#first_count').val(currentCount - 1);  // Decrement the value of first_count
             }
         });
-});
+    });
+
+    function toggleChurchScope(scope) {
+        const $selectedChurchContainer = $('#selected_church_container');
+        const $selectedChurches = $('#selected_churches');
+        const $cellSelect = $('#cell_id');
+
+        if (scope === 'selected') {
+            $selectedChurchContainer.show();
+
+            // Fetch church list only once
+            if ($selectedChurches.children().length === 0) {
+                $.ajax({
+                    url: "<?= site_url('service/fetch_scope_churches') ?>",
+                    method: 'GET',
+                    success: function (res) {
+                        $selectedChurches.empty();
+                        $.each(res, function (i, church) {
+                            $selectedChurches.append(`<option value="${church.id}">${church.name} (${church.type})</option>`);
+                        });
+                        $selectedChurches.select2();
+                    }
+                });
+            }
+
+            // Bind change event to fetch cells dynamically when church selection changes
+            $selectedChurches.off('change').on('change', function () {
+                const selected = $(this).val();
+                if (selected.length > 0) {
+                    $.ajax({
+                        url: "<?= site_url('service/analytics/records/fetch_cells_by_churches') ?>",
+                        method: 'POST',
+                        data: { church_ids: selected },
+                        success: function (res) {
+                            $cellSelect.empty();
+                            $cellSelect.append(`<option value="all">-- All Cell --</option>`); // default option
+                            $.each(res, function (i, cell) {
+                                $cellSelect.append(`<option value="${cell.id}">${cell.name} (Church ID: ${cell.church})</option>`);
+                            });
+                        }
+                    });
+                } else {
+                    $cellSelect.empty();
+                }
+            });
+
+        } else {
+            $selectedChurchContainer.hide();
+            $selectedChurches.val(null).trigger('change');
+
+            // 🔁 Fetch cells for "own" or "all" scope
+            $.ajax({
+                url: "<?= site_url('service/analytics/records/fetch_cells_by_scope') ?>",
+                method: 'POST',
+                data: { scope: scope },
+                success: function(res) {
+                    $cellSelect.empty();
+                    $cellSelect.append(`<option value="all">-- All Cell --</option>`); // default option
+
+                    $.each(res, function(index, cell) {
+                        $cellSelect.append(`
+                            <option value="${cell.cell_id}">
+                                ${cell.cell_name} (Church ID: ${cell.church})
+                            </option>
+                        `);
+                    });
+                },
+            });
+        }
+    }
+
+    
 </script>
 <script src="<?php echo site_url(); ?>assets/js/jsform.js"></script>
 <script src="<?php echo site_url(); ?>assets/js/service_report.js?v=<?= time(); ?>"></script>
