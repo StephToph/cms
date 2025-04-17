@@ -77,7 +77,17 @@ $this->Crud = new Crud();
                             }
                         }
                         ?>
+
+                        <option value="__new__">➕ Add New Service Type</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- Hidden input for new service type name -->
+            <div class="col-sm-6 mb-3" id="new_service_type_container" style="display:none;">
+                <div class="form-group">
+                    <label for="new_type">Enter New Service Type</label>
+                    <input type="text" class="form-control" name="new_type" id="new_type" placeholder="e.g. Healing Service">
                 </div>
             </div>
 
@@ -258,7 +268,17 @@ $this->Crud = new Crud();
     <?php } ?>
 <?php echo form_close(); ?>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
+        $('#type').on('change', function () {
+            if ($(this).val() === '__new__') {
+                $('#new_service_type_container').slideDown();
+            } else {
+                $('#new_service_type_container').slideUp();
+                $('#new_type').val('');
+            }
+        });
+   
+        
         $('.schedule-scope').on('change', function() {
             const selectedScope = $(this).val();
 

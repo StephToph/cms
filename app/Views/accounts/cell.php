@@ -42,12 +42,12 @@
                                             </li>
                                             <?php if(empty($switch_id)){?>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
-                                                <li>
+                                                <li id="message-button">
                                                     <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/cell/manage/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
 
                                                 </li>
                                                 <li class="btn-toolbar-sep"></li><!-- li -->
-                                                <li>
+                                                <li id="add-button">
                                                     <a href="javascript:;" pageTitle="Add Cell" class="btn btn-outline-primary btn-icon pop" pageName="<?=site_url('accounts/cell/manage'); ?>"><em class="icon ni ni-plus-c"></em></a>
                                                 </li><!-- li -->
                                             <?php } ?>
@@ -63,7 +63,7 @@
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
-                            <div class="card-inner table-responsive p-0">
+                            <div class="card-inner table-responsive p-0" id="table">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>

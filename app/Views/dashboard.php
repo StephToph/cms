@@ -22,63 +22,131 @@
                     </div>
                 </div>
                 <div class="nk-block">
-                    <div class="d-flex flex-row-reverse">
-                        <div class="btn-group align-items-center" id="data-resp" style="display:none;">
-                            &nbsp;|&nbsp;<b><?=translate_phrase('Date');?>:</b>&nbsp;
-                            <input type="date" class="form-control" name="date_from" id="date_from" oninput="load()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('START DATE');?>">
-                            &nbsp;<i class="anticon anticon-arrow-right"></i>&nbsp;
-                            <input type="date" class="form-control" name="date_to" id="date_to" oninput="load()" style="border:1px solid #ddd;" placeholder="<?=translate_phrase('END DATE');?>">
+                    <div class="row g-2 my-2 align-items-center justify-content-end flex-wrap">
+
+                        <!-- Copy Attendance Link -->
+                        <div class="col-auto">
+                            <button type="button" class="btn btn-white btn-outline-light w-100" id="copyAttendanceBtn">
+                                <em class="icon ni ni-link"></em>
+                                <span><?= translate_phrase('Copy Attendance Link'); ?></span>
+                            </button>
                         </div>
 
-                        <div class="" style="color:transparent;  text-white align:right;"><span id="date_resul"></span></div>
-
-                        <div class=" mx-1 mb-1">
-                            <input type="hidden" id="date_type"value="This Month">
-                            <div class="drodown">
-                                <a href="javascript:;" class="dropdown-toggle btn btn-white btn  btn-outline-light" data-bs-toggle="dropdown"><em class="  icon ni ni-calender-date"></em><span id="filter_type"><span class="" id="filter_type"><?=translate_phrase('This'); ?></span> <?=translate_phrase('Month'); ?></span></a>
+                        <!-- Calendar Filter Dropdown -->
+                        <div class="col-auto" id="date-type">
+                            <input type="hidden" id="date_type" value="This Month">
+                            <div class="dropdown w-100">
+                                <a href="javascript:;" class="dropdown-toggle btn btn-white btn-outline-light w-100" data-bs-toggle="dropdown">
+                                    <em class="icon ni ni-calender-date"></em>
+                                    <span id="filter_type"><?= translate_phrase('This Month'); ?></span>
+                                </a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <ul class="link-list-opt no-bdr">
-                                        <li><a href="javascript:;" class="typeBtn" data-value="Today"><span><?=translate_phrase('Today');?></span></a></li>
-                                        <li><a href="javascript:;" class="typeBtn" data-value="Yesterday"><span><?=translate_phrase('Yesterday');?></span></a></li>
-                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Week"><span><?=translate_phrase('Last 7 Days');?></span></a></li>
-                                        <li><a href="javascript:;" class="typeBtn active" data-value=""><span><?=translate_phrase('This Month');?></span></a></li>
-                                        <li><a href="javascript:;" class="typeBtn" data-value="This_Year"><span><?=translate_phrase('This Year');?></span></a></li>
-                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Month"><span><?=translate_phrase('Last 30 Days');?></span></a></li>
-                                        <li><a href="javascript:;" class="typeBtn" data-value="Date_Range"><span><?=translate_phrase('Date Range');?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Today"><span><?= translate_phrase('Today'); ?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Yesterday"><span><?= translate_phrase('Yesterday'); ?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Week"><span><?= translate_phrase('Last 7 Days'); ?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn active" data-value=""><span><?= translate_phrase('This Month'); ?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="This_Year"><span><?= translate_phrase('This Year'); ?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Last_Month"><span><?= translate_phrase('Last 30 Days'); ?></span></a></li>
+                                        <li><a href="javascript:;" class="typeBtn" data-value="Date_Range"><span><?= translate_phrase('Date Range'); ?></span></a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Date Range Picker -->
+                        <div class="col-md-auto" id="data-resp" style="display:none;">
+                            <div class="d-flex align-items-center gap-2">
+                                <label class="mb-0 fw-bold"><?= translate_phrase('Date'); ?>:</label>
+                                <input type="date" class="form-control" name="date_from" id="date_from" oninput="load()" placeholder="<?= translate_phrase('START DATE'); ?>">
+                                <i class="anticon anticon-arrow-right"></i>
+                                <input type="date" class="form-control" name="date_to" id="date_to" oninput="load()" placeholder="<?= translate_phrase('END DATE'); ?>">
+                            </div>
+                        </div>
+
+                        <!-- Currency Switch -->
                         <?php 
                             $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
-			
-                            if($church_id > 0){
+                            if ($church_id > 0) {
                                 $checked = '';
                                 $default_cur = $this->Crud->read_field('id', $church_id, 'church', 'default_currency');
                                 $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
-                                if($country_id > 0 && $default_cur > 0){
+                                if ($country_id > 0 && $default_cur > 0) {
                                     $checked = 'checked';
                                 }
-                                ?>
-                            <div class=" mb-1">
-                                <div class="form-group ">
-                                    <div class="custom-control custom-checkbox custom-control-pro no-control">            
-                                        <input type="checkbox" class="custom-control-input" name="btnRadio"  <?=$checked; ?> id="currency">            
-                                        <label class="custom-control-label" for="currency"><em class=" icon ni ni-tranx"></em>
-                                        <span><?=translate_phrase('Switch Currency'); ?> </span></label>        
-                                    </div> 
-                                </div>
-                                
+                        ?>
+                        <div class="col-auto" id="currency-resp">
+                            <div class="form-group mb-0">
+                                <div class="custom-control custom-checkbox custom-control-pro no-control">            
+                                    <input type="checkbox" class="custom-control-input" name="btnRadio" <?= $checked; ?> id="currency">            
+                                    <label class="custom-control-label" for="currency">
+                                        <em class="icon ni ni-tranx"></em>
+                                        <span><?= translate_phrase('Switch Currency'); ?></span>
+                                    </label>        
+                                </div> 
                             </div>
-                            <div class="mb-1">
-                                <span class="" id="currency_resp"></span>
-                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <span id="currency_resp"></span>
+                        </div>
                         <?php } ?>
-                    </div>
+                        </div>
+
                     <div class="row g-gs">
+                        <?php if (!empty($is_church_admin)): ?>
+
+                            <?php if (!$has_cells): ?>
+                                <div class="alert alert-warning border-start border-4 border-warning shadow-sm mb-3" role="alert">
+                                    <h5 class="text-dark">
+                                        <i class="fas fa-layer-group text-warning me-1"></i>
+                                        Step 1: Set up your Church Cells
+                                    </h5>
+                                    <p class="mb-2">You haven’t created any cells yet. Cells help group members and support better structure.</p>
+                                    <a href="<?= site_url('accounts/cell') ?>" class="btn btn-sm btn-outline-primary">➕ Create Cell</a>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!$has_members): ?>
+                                <div class="alert alert-warning border-start border-4 border-warning shadow-sm mb-3" role="alert">
+                                    <h5 class="text-dark">
+                                        <i class="fas fa-users text-warning me-1"></i>
+                                        Step 2: Add Church Members
+                                    </h5>
+                                    <p class="mb-2">No members have been registered yet. You need members to assign to cells and track attendance.</p>
+                                    <a href="<?= site_url('accounts/membership') ?>" class="btn btn-sm btn-outline-primary">👥 Add Members</a>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php if (!$has_schedules): ?>
+                                <div class="alert alert-warning border-start border-4 border-warning shadow-sm mb-3" role="alert">
+                                    <h5 class="text-dark">
+                                        <i class="fas fa-calendar-check text-warning me-1"></i>
+                                        Step 3: Create Service Schedules
+                                    </h5>
+                                    <p class="mb-2">No service schedules have been created. You need to schedule recurring or one-time services to enable attendance tracking.</p>
+                                    <a href="<?= site_url('service/schedule') ?>" class="btn btn-sm btn-outline-primary">📅 Schedule Service</a>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!$has_monitor): ?>
+                                <div class="alert alert-warning border-start border-4 border-warning shadow-sm mb-3" role="alert">
+                                    <h5 class="text-dark">
+                                        <i class="fas fa-calendar-check text-warning me-1"></i>
+                                        Step 4: Create Attendance Monitors
+                                    </h5>
+                                    <p class="mb-2">
+                                        Attendance monitors help oversee and record service attendance accurately. Assign members as monitors to ensure proper tracking and reporting for each service.
+                                    </p>
+
+                                    <a href="<?= site_url('accounts/monitoring') ?>" class="btn btn-sm btn-outline-primary">📅 Create Attendance Monitors</a>
+                                </div>
+                            <?php endif; ?>
+
+                        <?php endif; ?>
+
+
                         <?php if($role != 'cell leader' && $role != 'cell executive' & $role != 'assistant cell_leader'){?>
                             
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="admin-member">
                                 <div class="card card-bordered text-white bg-primary card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -95,7 +163,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="admin-timer">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -112,7 +180,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="admin-convert">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -129,7 +197,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="admin-prospective">
                                 <div class="card card-bordered card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -146,7 +214,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="admin-foundation">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -164,7 +232,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="admin-graduate">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -182,7 +250,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="admin-service-offering">
                                 <div class="card card-bordered card-full">
                                     <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_offering'); ?>" pageTitle="Service Offering Records" pageSize="modal-xl">
                                         <div class="card-inner">
@@ -204,7 +272,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="admin-cell-offering">
                                 <div class="card card-bordered card-full">
                                     <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Cell Offering Records" pageSize="modal-xl">
                                         <div class="card-inner">
@@ -226,7 +294,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="admin-tithe">
                                 <div class="card card-bordered card-full">
                                     <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/service_tithe'); ?>" pageTitle="Service Tithe Records" pageSize="modal-xl">
                                         <div class="card-inner">
@@ -254,7 +322,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="admin-partnership">
                                 <div class="card card-bordered  card-full">
                                     <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/partnership'); ?>" pageTitle="Partnership Records" pageSize="modal-xl">
                                         <div class="card-inner">
@@ -282,7 +350,7 @@
                                 </div>
                             </div>
                         <?php } else {?>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="cell-member">
                                 <div class="card card-bordered bg-primary card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -300,7 +368,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="cell-prospective">
                                 <div class="card card-bordered card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -317,7 +385,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" id="cell-foundation">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -335,7 +403,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="cell-graduate">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -353,7 +421,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="cell-offering">
                                 <div class="card card-bordered card-full">
                                     <a href="javascript:;" class="pop" pageName="<?=site_url('dashboard/records/finance/cell_offering'); ?>" pageTitle="Membership" pageSize="modal-xl">
                                     <div class="card-inner">
@@ -375,7 +443,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="cell-first">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -393,7 +461,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-3" id="cell-convert">
                                 <div class="card card-bordered  card-full">
                                     <div class="card-inner">
                                         <div class="card-title-group align-start mb-0">
@@ -413,7 +481,7 @@
                             </div>
                         <?php } ?>
                             
-                        <div class="col-md-12">
+                        <div class="col-md-12" id="partnership-section">
                             <div class="card card-bordered card-full">
                                 <div class="card-inner d-flex flex-column h-100">
                                     <div class="card-title-group mb-3">
@@ -427,7 +495,7 @@
                                 </div>
                             </div>
                         </div>
-                       <div class="col-md-12">
+                       <div class="col-md-12" id="finance-analytics">
                             <div class="card card-bordered h-100">
                                 <div class="card-inner">
                                     <div class="card-title-group pb-3 g-2">
@@ -586,6 +654,20 @@
 
 <script>
     $(document).ready(function() {
+        $(document).ready(function () {
+            $('#copyAttendanceBtn').on('click', function () {
+                const attendanceLink = "<?= site_url('attendance') ?>"; // or customize logic
+                const tempInput = document.createElement("input");
+                tempInput.value = attendanceLink;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+
+                // Optional: show success toast or alert
+                alert('✅ Attendance link copied to clipboard:\n' + attendanceLink);
+            });
+        });
         // Listen for changes on the checkbox
         $('#currency').change(function() {
             // Check if the checkbox is checked

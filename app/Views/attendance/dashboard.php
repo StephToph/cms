@@ -15,13 +15,9 @@ $this->Crud = new Crud();
                 <div class="nk-block-head nk-block-head-sm">
                     <div class="nk-block-between">
                         <div class="nk-block-head-content">
-                            <?php
-                                $type_id = $this->Crud->read_field2('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'type');
-                                $type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
-                            ?>
-                            <h3 class="nk-block-title page-title"><?=ucwords($type); ?></h3>
+                            <h3 class="nk-block-title page-title"><?=ucwords($church); ?></h3>
                             <div class="nk-block-des text-soft">
-                                <p><?=date('Y-m-d'); ?></p>
+                                <p><?=date('d F Y h:i:sA'); ?></p>
                             </div>
                         </div>
                         
@@ -29,58 +25,45 @@ $this->Crud = new Crud();
                 </div>
                 <div class="nk-block">
                     <div class="row ">
-                        <?php 
-                            $service_count = $this->Crud->check3('status', 0, 'date', date('Y-m-d'), 'church_id', $church_id, 'service_report');
-                            if($service_count > 1){
-                                if($attend_type == 'cell'){
-                                    echo  '<div class="col-sm-3 mb-3">
-                                        <select class="js-select2" data-search="on" name="service"  id="service_select" >';
-                                            for ($i=0; $i < $service_count; $i++) { 
-                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
-                                            }
-
-                                        echo '</select>
-                                    </div>';
-                                } else {
-                                    echo  '<div class="col-sm-3 mb-3">
-                                        <select class="js-select2" data-search="on" name="service" id="service">';
-                                            for ($i=0; $i < $service_count; $i++) { 
-                                                echo '<option value="'.($i+1).'">Service '.($i+1).'</option>';
-                                            }
-
-                                        echo '</select>
-                                    </div>';
+                        <div class="col-sm-3 mb-3">
+                            <select class="js-select2" data-search="on" name="service"  id="service" >
+                            <?php 
+                           
+                            if(!empty($service_count)){
+                                foreach ($service_count as $service) { 
+                                    $start = date('h:iA', strtotime($this->Crud->read_field('id', $service->schedule_id, 'service_schedule', 'start_time')));
+                                    $end = date('h:iA', strtotime($this->Crud->read_field('id', $service->schedule_id, 'service_schedule', 'end_time')));
+                                    $type = $this->Crud->read_field('id', $service->type, 'service_type', 'name');
+                                    echo '<option value="'.$service->id.'">'.ucwords($type).' {'.$start.' - '.$end.'}</option>';
                                 }
-                            
-                        } else{
-                            echo '<input type="hidden" id="service" value="1">
-                            <input type="hidden" id="service_select" value="1">';
-                        }
+                            } 
                         
-                        if($attend_type == 'admin'){?>
+                            echo '</select></div>';
+                        
+                            if($attend_type == 'admin'){?>
+                                <div class="col-sm-2 mb-3">
+                                    <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-block mx-2 btn-outline-primary"><em
+                                            class="icon ni ni-reports"></em><span>Analytics</span></a>
+                                </div>
+                            <?php } ?>
                             <div class="col-sm-2 mb-3">
-                                <a href="javascript:;" onclick="checkAnalyticsAccess();" class="btn btn-white btn-dim btn-block mx-2 btn-outline-primary"><em
-                                        class="icon ni ni-reports"></em><span>Analytics</span></a>
+                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-block  btn-outline-info pop mx-2" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
+                                    <em class="icon ni ni-plus-c"></em><span> First Timer</span>
+                                </a>
                             </div>
-                        <?php } ?>
-                        <div class="col-sm-2 mb-3">
-                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add First Timer"  class="btn btn-white btn-dim btn-block  btn-outline-info pop mx-2" pageTitle="<?=translate_phrase('Add First Timer');?>" pageName="<?php echo site_url('attendance/dashboard/manage'); ?>" pageSize="modal-xl">
-                                <em class="icon ni ni-plus-c"></em><span> First Timer</span>
-                            </a>
+                            <div class="col-sm-2 mb-3">
+                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add membership" class="float-right btn btn-outline-danger btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('Add membership');?>" pageName="<?php echo site_url('attendance/dashboard/manage/member'); ?>" pageSize="modal-xl"><em
+                                        class="icon ni ni-user"></em><span> Add Member</span></a>
+                            </div>
+                            <div class="col-sm-2 mb-3">
+                                <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
+                                        class="icon ni ni-qr"></em><span>First Timer QR</span></a>
+                            </div>
                         </div>
-                        <div class="col-sm-2 mb-3">
-                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="Add membership" class="float-right btn btn-outline-danger btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('Add membership');?>" pageName="<?php echo site_url('attendance/dashboard/manage/member'); ?>" pageSize="modal-xl"><em
-                                    class="icon ni ni-user"></em><span> Add Member</span></a>
-                        </div>
-                        <div class="col-sm-2 mb-3">
-                            <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="First Timer Link" class="float-right btn btn-outline-dark btn-block btn-white pop  ml-2" pageTitle="<?=translate_phrase('First Timer Link');?>" pageName="<?php echo site_url('attendance/dashboard/manage/link'); ?>" pageSize="modal-md"><em
-                                    class="icon ni ni-qr"></em><span>First Timer QR</span></a>
-                        </div>
-                    </div>
                     <div class="row g-gs">
                         <div class="col-12" id="analytics" style="display:none;">
                             <div class="row">
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <div class="card card-bordered text-white bg-primary card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -93,7 +76,7 @@ $this->Crud = new Crud();
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <div class="card card-bordered  border-primary  card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -107,7 +90,7 @@ $this->Crud = new Crud();
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-4 mb-3">
                                     <div class="card card-bordered border-success card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -121,7 +104,7 @@ $this->Crud = new Crud();
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <div class="card card-bordered border-danger card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -136,7 +119,7 @@ $this->Crud = new Crud();
                                     </div>
                                 </div>
                                 
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <div class="card card-bordered border-primary card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -151,7 +134,7 @@ $this->Crud = new Crud();
                                     </div>
                                 </div>
                                 
-                                <div class="col-md-2 mb-3">
+                                <div class="col-md-3 mb-3">
                                     <div class="card card-bordered border-primary card-full">
                                         <div class="card-inner">
                                             <div class="card-title-group align-start mb-0">
@@ -161,6 +144,20 @@ $this->Crud = new Crud();
                                                
                                             </div>
                                             <div class="card-amount"><span class="amount" id="female"> 0 <span class="currency currency-usd"></span></span></div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card card-bordered border-primary card-full">
+                                        <div class="card-inner">
+                                            <div class="card-title-group align-start mb-0">
+                                                <div class="card-title">
+                                                    <h6 class="title"><?=translate_phrase('First Timer'); ?></h6>
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="card-amount"><span class="amount" id="firstTimer"> 0 <span class="currency currency-usd"></span></span></div>
                                             
                                         </div>
                                     </div>
@@ -187,7 +184,7 @@ $this->Crud = new Crud();
                                         <input type="hidden" id="cell_id" value="<?=$cell_id; ?>">
                                             
                                         <?php if($attend_type == 'monitoring' || $attend_type == 'admin'){?>
-                                            <div class="col-md-8 my-2">
+                                            <div class="col-md-7 my-2">
                                                 <div class="form-control-wrap p-2"> 
                                                     <label class="name">Enter Name/Email</label>   
                                                     <div class="input-group p-2">        
@@ -198,7 +195,7 @@ $this->Crud = new Crud();
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4 my-2">
+                                            <div class="col-md-5 my-2">
                                                 <div class="container py-4">
                                                     <h4>Scan QR to Mark Attendance</h4>
                                                     <div id="reader" style="width: 350px;"></div>
@@ -234,8 +231,10 @@ $this->Crud = new Crud();
                 </div>
             </div>
         </div>
+        </div>
     </div>
 </div>
+
 
 <!-- Member Confirmation Modal -->
 <div class="modal fade" id="qrConfirmModal" tabindex="-1" aria-labelledby="qrConfirmModalLabel" aria-hidden="true">
@@ -259,19 +258,6 @@ $this->Crud = new Crud();
 <?= $this->endSection(); ?>
 <?= $this->section('scripts'); ?>
 <script>
-    function speakText(text) {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.pitch = 1;
-            utterance.rate = 1;
-            speechSynthesis.speak(utterance);
-        } else {
-            alert('Sorry, your browser does not support text-to-speech.');
-        }
-    }
-    speakText('Welcome!!');
-    
     function get_member() {
         $('#member_response').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
         var member_id = $('#member_id').val();
@@ -279,7 +265,7 @@ $this->Crud = new Crud();
         var church_id = $('#church_id').val();
 
         $.ajax({
-            url: site_url + 'attendance/dashboard/get_member',
+            url: site_url + 'attendance/records/get_member',
             type: 'post',
             data: { member_id: member_id, service:service, church_id:church_id },
             success: function (data) {
@@ -290,11 +276,6 @@ $this->Crud = new Crud();
         });
     }
     
-    $(document).ready(function () {
-        // Trigger change on page load
-        $('#service_select').trigger('change');
-        
-    });
 
     function checkAnalyticsAccess() {
         let enteredPassword = prompt("Enter password to view analytics:");
@@ -302,7 +283,7 @@ $this->Crud = new Crud();
         if (enteredPassword === null || enteredPassword === "") return;
 
         $.ajax({
-            url: site_url + 'attendance/dashboard/verify_password',
+            url: site_url + 'attendance/records/verify_password',
             type: 'POST',
             data: { password: enteredPassword },
             success: function(response) {
@@ -325,7 +306,7 @@ $this->Crud = new Crud();
         
         if (service !== "") {
             $.ajax({
-                url: site_url + 'attendance/dashboard/get_attendance_by_service', // adjust this to your route
+                url: site_url + 'attendance/records/get_attendance_by_service', // adjust this to your route
                 type: 'POST',
                 data: {
                     service: service,
@@ -351,7 +332,7 @@ $this->Crud = new Crud();
         var $this = $(this);
         var member_id = $(this).data('member-id');
         var isPresent = $(this).is(':checked');
-        var service_id = $('#service').val() || $('#service_select').val();
+        var service_id = $('#service').val();
         var church_id = $('#church_id').val();
 
         var mark = 0;
@@ -367,7 +348,7 @@ $this->Crud = new Crud();
             $('#resp_' + member_id).html('<small class="text-info">Updating...</small>');
             // $this.prop('disabled', true);
             $.ajax({
-                url: site_url + 'attendance/dashboard/mark_present',
+                url: site_url + 'attendance/records/mark_present',
                 type: 'POST',
                 data: {
                     member_id: member_id,
@@ -408,7 +389,7 @@ $this->Crud = new Crud();
         var member_id = $(this).data('member-id');
         var type = $(this).data('type');
         var isPresent = $(this).is(':checked');
-        var service_id = $('#service').val() || $('#service_select').val();
+        var service_id = $('#service').val();
         var church_id = $('#church_id').val();
 
         var mark = 0;
@@ -420,7 +401,7 @@ $this->Crud = new Crud();
             $('#con_resp_' + member_id).html('<small class="text-info">Updating...</small>');
             // $this.prop('disabled', true);
             $.ajax({
-                url: site_url + 'attendance/dashboard/mark_convert',
+                url: site_url + 'attendance/records/mark_convert',
                 type: 'POST',
                 data: {
                     member_id: member_id,
@@ -460,7 +441,7 @@ $this->Crud = new Crud();
         let $this = $(this);
         let member_id = $this.data('member-id');
         let isAbsent = $this.is(':checked');
-        var service_id = $('#service').val() || $('#service_select').val();
+        var service_id = $('#service').val();
         var church_id = $('#church_id').val();
 
         // Disable Present switch if Absent is checked
@@ -475,7 +456,7 @@ $this->Crud = new Crud();
         console.log(mark);
         if(mark == 0){
             $.ajax({
-                url: site_url + 'attendance/dashboard/mark_present',
+                url: site_url + 'attendance/records/mark_present',
                 type: 'POST',
                 data: {
                     member_id: member_id,
@@ -546,14 +527,14 @@ $this->Crud = new Crud();
         let final_reason = reason === 'Other' || reason.includes('Other') ? other_reason.trim() : reason;
 
         if (final_reason !== '') {
-            let service_id = $('#service').val() || $('#service_select').val();
+            let service_id = $('#service').val();
             let church_id = $('#church_id').val();
             let $resp = $row.find('#resp_' + member_id);
 
             $resp.html('<small class="text-info">Saving reason...</small>');
 
             $.ajax({
-                url: site_url + 'attendance/dashboard/mark_absent',
+                url: site_url + 'attendance/records/mark_absent',
                 type: 'POST',
                 data: {
                     member_id: member_id,
@@ -583,7 +564,7 @@ $this->Crud = new Crud();
         
     function loadMetrics(serviceNumber) {
         $.ajax({
-            url: site_url + 'attendance/dashboard/get_attendance_metrics',
+            url: site_url + 'attendance/records/get_attendance_metrics',
             type: 'POST',
             data: { service: serviceNumber },
             success: function (data) {
@@ -592,12 +573,13 @@ $this->Crud = new Crud();
                 $('#absent').text(data.absent);
                 $('#male').text(data.male);
                 $('#female').text(data.female);
+                $('#firstTimer').text(data.firstTimer);
                 $('#unmarked').text(data.unmarked);
                 $('#metric_response').html(data.metric_response);
                 $('#general_response').html(data.general_response);
             },
             error: function () {
-                $('#membership, #present, #absent,#male, #female, #unmarked').text('0');
+                $('#membership, #present, #absent,#male, #female, #firstTimer, #unmarked').text('0');
             }
         });
     }
@@ -615,32 +597,19 @@ $this->Crud = new Crud();
 </script>   
 <?php if($attend_type == 'monitoring' || $attend_type == 'admin'){?>
     <script>
-        function speakText(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.pitch = 1;
-                utterance.rate = 1;
-                speechSynthesis.speak(utterance);
-            } else {
-                alert('Sorry, your browser does not support text-to-speech.');
-            }
-        }
-        speakText('Welcome!!');
-        $('#confirmMarkBtn').on('click', function () {
+       $('#confirmMarkBtn').on('click', function () {
             const member_id = $('#mark_member_id').val();
             const service_id = $('#mark_service_id').val();
             const church_id = $('#mark_church_id').val();
 
             $('#qr_member_details').html('<p class="text-info">⏳ Marking attendance...</p>');
 
-            $.post("<?= site_url('attendance/dashboard/mark_attendance') ?>", {
+            $.post("<?= site_url('attendance/records/mark_attendance') ?>", {
                 member_id: member_id,
                 service_id: service_id,
                 church_id: church_id
             }, function (res) {
                 $('#qr_member_details').html(`<p class="text-${res.status === 'success' ? 'success' : 'warning'} fw-bold">${res.message}</p>`);
-                speakText(res.message.replace(/<[^>]*>?/gm, '').trim());
                 setTimeout(() => {
                     
                     const modal = bootstrap.Modal.getInstance(document.getElementById('qrConfirmModal'));
@@ -655,13 +624,13 @@ $this->Crud = new Crud();
         function onScanSuccess(decodedText) {
             if (decodedText.startsWith("USER-")) {
                 const memberId = decodedText.replace("USER-", "");
-                const service_id = $('#service').val() || $('#service_select').val();
+                const service_id = $('#service').val();
                 const church_id = $('#church_id').val();
 
                 html5QrcodeScanner.clear();
                 $('#scan_result').html(`<p class="text-info">🔍 Verifying member ID: ${memberId}...</p>`);
 
-                $.post("<?= site_url('attendance/dashboard/verify_member') ?>", {
+                $.post("<?= site_url('attendance/records/verify_member') ?>", {
                     member_id: memberId,
                     service_id: service_id,
                     church_id: church_id
@@ -678,15 +647,13 @@ $this->Crud = new Crud();
                             <input type="hidden" id="mark_service_id" value="${service_id}">
                             <input type="hidden" id="mark_church_id" value="${church_id}">
                         `);
-                        speakText("Member Confirmed, Please Click Button to Mark Attendance");
-                
+                       
                         const modal = new bootstrap.Modal(document.getElementById('qrConfirmModal'));
                         modal.show();
 
 
                     } else {
-                        speakText(res.message.replace(/<[^>]*>?/gm, '').trim());
-                        $('#scan_result').html(`<p class="text-danger">❌ ${res.message}</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Try Again</button>`);
+                         $('#scan_result').html(`<p class="text-danger">❌ ${res.message}</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Try Again</button>`);
                     }
                 }).fail(function () {
                     $('#scan_result').html(`<p class="text-danger">❌ Failed to verify member.</p><button class="btn btn-primary mt-2" onclick="restartScanner()">Retry</button>`);
@@ -697,7 +664,7 @@ $this->Crud = new Crud();
         function confirmAttendance(memberId, service_id, church_id) {
             $('#scan_result').html('⏳ Marking attendance...');
 
-            $.post("<?= site_url('attendance/dashboard/mark_attendance') ?>", {
+            $.post("<?= site_url('attendance/records/mark_attendance') ?>", {
                 member_id: memberId,
                 service_id: service_id,
                 church_id: church_id

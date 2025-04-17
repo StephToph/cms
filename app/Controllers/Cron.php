@@ -192,12 +192,13 @@ class Cron extends BaseController {
 		$report_table = 'service_report';
 
 		$logs = [];
+		$response = '';
 
 		$schedules = $db->table($schedule_table)->get()->getResult();
 
 		foreach ($schedules as $schedule) {
 			// Set timezone per church
-			$timezone = $this->Crud->getChurchTimezone($schedule->church_id); // 👈 NEW METHOD
+			$timezone = $this->Crud->getChurchTimezone($schedule->church_id); // ðŸ‘ˆ NEW METHOD
 			date_default_timezone_set($timezone); // Set before any time-based operations
 
 			$run_today = false;
@@ -252,7 +253,7 @@ class Cron extends BaseController {
 			$name = $this->Crud->read_field('id', $schedule->type_id, 'service_type', 'name');
 
 			// 4. CREATE: New report
-			if (!$report && $now >= $create_window_timestamp && $now <= $start_timestamp) {
+			if (!$report && $now >= $create_window_timestamp) {
 				$db->table($report_table)->insert([
 					'church_id'   => $schedule->church_id,
 					'ministry_id' => $schedule->ministry_id,
@@ -263,7 +264,7 @@ class Cron extends BaseController {
 					'reg_date'    => date('Y-m-d H:i:s')
 				]);
 
-				$logs[] = "✅ Created service report for <strong>{$name}</strong> at {$create_window_dt} (Timezone: {$timezone})";
+				$logs[] = "âœ… Created service report for <strong>{$name}</strong> at {$create_window_dt} (Timezone: {$timezone})";
 			}
 
 			// 5. CLOSE: If past end time
@@ -272,20 +273,26 @@ class Cron extends BaseController {
 					->where('id', $report->id)
 					->update(['status' => 1]);
 
-				$logs[] = "🔒 Closed service report for <strong>{$name}</strong> at {$close_window_dt} (Timezone: {$timezone})";
+				$logs[] = "ðŸ”’ Closed service report for <strong>{$name}</strong> at {$close_window_dt} (Timezone: {$timezone})";
 			}
 		}
 
-		echo "<h4>CRON Job Executed at " . date('Y-m-d H:i:s') . "</h4>";
+		$response .= "<h4>CRON Job Executed at " . date('Y-m-d H:i:s') . "</h4>";
 		if (count($logs) > 0) {
-			echo "<ul>";
+			$response .=  "<ul>";
 			foreach ($logs as $log) {
-				echo "<li>$log</li>";
+				$response .=  "<li>$log</li>";
 			}
-			echo "</ul>";
+			$response .=  "</ul>";
 		} else {
-			echo "<p>No services triggered at this time.</p>";
+			$response .=  "<p>No services triggered at this time.</p>";
 		}
+
+
+
+
+		$this->Crud->create('cron', ['response'=> json_encode($response)]);
+	
 	}
 
 }

@@ -7,6 +7,7 @@ class Settings extends BaseController {
 		return $this->modules();
 	}
 	
+	
 	/////// MODULES
 	public function modules($param1='', $param2='', $param3='') {
 		// check login
@@ -211,6 +212,249 @@ class Settings extends BaseController {
 		}
 	}
 	
+	public function tour($param1='', $param2='', $param3='') {
+		// check login
+        $log_id = $this->session->get('td_id');
+        if(empty($log_id)) return redirect()->to(site_url('auth'));
+
+		$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+		$permit = array('developer', 'administrator');
+		if(!in_array(strtolower($role), $permit)) return redirect()->to(site_url('dashboard'));
+		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
+        $data['role'] = $role;
+        $data['log_id'] = $log_id;
+		
+		$table = 'tour_steps';
+		
+        $data['current_language'] = $this->session->get('current_language');
+		$form_link = site_url('settings/tour/');
+		if($param1){$form_link .= $param1.'/';}
+		if($param2){$form_link .= $param2.'/';}
+		if($param3){$form_link .= $param3.'/';}
+		
+		// pass parameters to view
+		$data['param1'] = $param1;
+		$data['param2'] = $param2;
+		$data['param3'] = $param3;
+		$data['form_link'] = rtrim($form_link, '/');
+		
+		// manage record
+		if ($param1 == 'manage') {
+			// prepare for delete
+			if ($param2 == 'delete') {
+				if ($param3) {
+					$edit = $this->Crud->read_single('id', $param3, $table);
+					if (!empty($edit)) {
+						foreach ($edit as $e) {
+							$data['d_id'] = $e->id;
+						}
+					}
+		
+					if ($this->request->getMethod() == 'post') {
+						$del_id = $this->request->getVar('d_step_id');
+						if ($this->Crud->deletes('id', $del_id, $table) > 0) {
+							echo $this->Crud->msg('success', 'Tour step deleted');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+						exit;
+					}
+				}
+			} else {
+				// Load roles for dropdown
+				$data['all_roles'] = $this->Crud->read_order('access_role', 'name', 'ASC');
+		
+				// prepare for edit
+				if ($param2 == 'edit') {
+					if ($param3) {
+						$edit = $this->Crud->read_single('id', $param3, $table);
+						if (!empty($edit)) {
+							foreach ($edit as $e) {
+								$data['e_id']          = $e->id;
+								$data['e_title']       = $e->title;
+								$data['e_content']     = $e->content;
+								$data['e_selector']    = $e->selector;
+								$data['e_placement']   = $e->placement;
+								$data['e_order']       = $e->step_order;
+								$data['e_page']        = $e->page;
+								$data['e_roles']       = $e->allowed_roles;
+							}
+						}
+					}
+				}
+		
+				// Handle form submission
+				if ($this->request->getMethod() == 'post') {
+					$step_id       = $this->request->getVar('step_id');
+					$title         = $this->request->getVar('title');
+					$content       = $this->request->getVar('content');
+					$selector      = $this->request->getVar('selector');
+					$placement     = $this->request->getVar('placement');
+					$page          = $this->request->getVar('page');
+					$step_order    = $this->request->getVar('step_order');
+					$allowed_roles = $this->request->getVar('allowed_roles'); // array from multi-select
+		
+					$ins_data = [
+						'title'         => $title,
+						'content'       => $content,
+						'selector'      => $selector,
+						'placement'     => $placement,
+						'page'          => $page,
+						'step_order'    => $step_order,
+						'allowed_roles' => is_array($allowed_roles) ? implode(',', $allowed_roles) : ''
+					];
+		
+					// do create or update
+					if ($step_id) {
+						$upd_rec = $this->Crud->updates('id', $step_id, $table, $ins_data);
+						if ($upd_rec > 0) {
+							echo $this->Crud->msg('success', 'Tour step updated');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('info', 'No changes made');
+						}
+					} else {
+						// No duplicate check needed here unless you're enforcing uniqueness per selector/page
+						$ins_rec = $this->Crud->create($table, $ins_data);
+						if ($ins_rec > 0) {
+							echo $this->Crud->msg('success', 'Tour step created');
+							echo '<script>location.reload(false);</script>';
+						} else {
+							echo $this->Crud->msg('danger', 'Please try later');
+						}
+					}
+		
+					die;
+				}
+			}
+		}
+		
+		// record listing
+		if ($param1 == 'list') {
+			// DataTable parameters
+			$table = 'tour_steps';
+			$column_order = array('title', 'content', 'selector', 'placement', 'step_order', 'page', 'allowed_roles');
+			$column_search = array('title', 'content', 'selector', 'placement', 'page', 'allowed_roles');
+			$order = array('id' => 'desc');
+			$where = '';
+		
+			// Load data
+			$list = $this->Crud->datatable_load($table, $column_order, $column_search, $order, $where);
+			$data = array();
+			$count = 1;
+		
+			foreach ($list as $item) {
+				$id = $item->id;
+			
+				// Row fields
+				$title         = esc($item->title);
+				$content       = esc($item->content);
+				$selector      = esc($item->selector);
+				$placement     = ucfirst($item->placement);
+				$step_order    = (int) $item->step_order;
+				$page          = ucfirst($item->page);
+				$allowed_roles = esc($item->allowed_roles);
+			
+				// Manage buttons
+				$action_btns = '
+					<div class="text-center">
+						<a href="javascript:;" class="text-primary pop" pageTitle="Edit Tour Step" pageName="'.site_url('settings/tour/manage/edit/'.$id).'">
+							<em class="icon ni ni-edit"></em>
+						</a>&nbsp;
+						<a href="javascript:;" class="text-danger pop" pageTitle="Delete Tour Step" pageName="'.site_url('settings/tour/manage/delete/'.$id).'">
+							<em class="icon ni ni-trash-alt"></em>
+						</a>
+					</div>
+				';
+
+				$placement = strtolower(trim($item->placement));
+				$placement_badge = '<span class="badge bg-info">'.ucfirst($placement ?: 'Bottom').'</span>';
+				$row[] = $placement_badge;
+
+				$allowed_roles_raw = $item->allowed_roles ?? '';
+				$roles_list = array_filter(array_map('trim', explode(',', $allowed_roles_raw)));
+
+				$role_badges = '';
+				foreach ($roles_list as $role) {
+					$role_badges .= '<span class="badge bg-secondary me-1">'.ucfirst($role).'</span>';
+				}
+
+				$row[] = $role_badges ?: '<span class="text-muted small">None</span>';
+
+			
+				// ✅ Add the counter here to match the # column
+				$row = array();
+				$row[] = '<b>'.$title.'</b><br/><span class="text-muted small">Step #'.$step_order.' on <code>'.$page.'</code></span>';
+				$row[] = '<span class="small">'.$content.'</span>';
+				$row[] = '<code>'.$selector.'</code>';
+				$row[] = $placement_badge;
+				$row[] = '<code>'.ucfirst($page).'</code>';
+				$row[] = $role_badges;
+				$row[] = $action_btns;
+			
+				$data[] = $row;
+				$count += 1;
+			}
+			
+		
+			$output = array(
+				"draw" => intval($_POST['draw']),
+				"recordsTotal" => $this->Crud->datatable_count($table, $where),
+				"recordsFiltered" => $this->Crud->datatable_filtered($table, $column_order, $column_search, $order, $where),
+				"data" => $data,
+			);
+		
+			echo json_encode($output);
+			exit;
+		}
+		
+		
+		if($param1 == 'manage') { // view for form data posting
+			return view('setting/tour_form', $data);
+		} else { // view for main page
+			// for datatable
+			$data['table_rec'] = 'settings/tour/list'; // ajax table
+			$data['order_sort'] = '1, "asc"'; // default ordering (0, 'asc')
+			$data['no_sort'] = '0'; // sort disable columns (1,3,5)
+		
+			$data['title'] = 'Tour Guide - '.app_name;
+			$data['page_active'] = 'tour';
+			
+			return view('setting/tour', $data);
+		}
+	}
+
+	public function tours($param1='', $param2='', $param3=''){
+		if ($param1 == 'steps') {
+			$db = \Config\Database::connect();
+			$log_id = $this->session->get('td_id');
+		
+			$role_id = $this->Crud->read_field('id', $log_id, 'user', 'role_id');
+			$role = $this->Crud->read_field('id', $role_id, 'access_role', 'name');
+		
+			// Combine page parameters if $param3 exists
+			$page = isset($param3) && !empty($param3) ? $param2 . '/' . $param3 : $param2;
+		
+			$builder = $db->table('tour_steps');
+			$builder->where('page', $page);
+			$builder->groupStart()
+				->like('allowed_roles', $role)
+				->groupEnd();
+			$builder->orderBy('step_order', 'ASC');
+		
+			$steps = $builder->get()->getResultArray();
+		
+			return $this->response->setJSON([
+				'status' => true,
+				'data' => $steps
+			]);
+		}
+		
+
+	}
+
 	/////// ROLES
 	public function roles($param1='', $param2='', $param3='') {
 		// check login

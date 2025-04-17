@@ -41,32 +41,34 @@
                                                 <a href="javascript:;" class="btn btn-icon search-toggle toggle-search" data-target="search"><em class="icon ni ni-search"></em></a>
                                             </li>
                                             <?php if(empty($switch_id)){?>
+                                           
                                             <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
-                                                <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk QR Details" pageName="<?=site_url('accounts/membership/manage/bulk_qr'); ?>" pageSize="modal-md" pageTitle="Bulk QR Details" class="btn  btn-outline-danger pop btn-icon"><em class="icon ni ni-qr"></em></a>
-
-                                            </li><!-- li -->
-                                            <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
+                                            <li id="bulk-button">
                                                 <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Bulk Message" pageName="<?=site_url('accounts/membership/manage/bulk_message'); ?>" pageSize="modal-md" pageTitle="Bulk Message" class="btn  btn-outline-dark pop btn-icon"><em class="icon ni ni-chat"></em></a>
 
                                             </li><!-- li -->
                                             <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
+                                            <li id="upload-button">
                                                 <a href="javascript:;" data-toggle="tooltip" data-bs-placement="top" title="Membership Bulk Upload" pageName="<?=site_url('accounts/membership/manage/upload'); ?>" pageSize="modal-md" pageTitle="Upload Membership" class="btn  btn-outline-success pop btn-icon"><em class="icon ni ni-upload-cloud"></em></a>
 
                                             </li><!-- li -->
                                             <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
+                                            <li id="link-button">
                                                 <a href="javascript:;" data-bs-toggle="tooltip" data-bs-placement="top" title="New member Link" class="float-right btn btn-outline-dark btn-icon pop" pageTitle="<?=translate_phrase('New member Link');?>" pageName="<?php echo base_url('accounts/membership/manage/link'); ?>" pageSize="modal-md">
                                                     <em class="icon ni ni-user"></em>
                                                 </a>
                                             </li>
                                             <li class="btn-toolbar-sep"></li><!-- li -->
-                                            <li>
+                                            <li id="add-button">
                                                 <a href="<?=site_url('accounts/membership/manages'); ?>" pageTitle="Add Membership" data-toggle="tooltip" data-bs-placement="top" title=" Add Membership"  class="btn btn-outline-primary btn-icon" pageName=""><em class="icon ni ni-plus-c"></em></a>
                                             </li><!-- li -->
                                            <?php } ?>
+                                           <li class="btn-toolbar-sep"></li>
+                                           <li id="filter-button">
+                                                <a href="javascript:;" id="toggleFilterBtn" class="btn btn-icon btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Toggle Filters">
+                                                    <em class="icon ni ni-filter-alt"></em>
+                                                </a>
+                                            </li>
                                         </ul><!-- .btn-toolbar -->
                                     </div><!-- .card-tools -->
                                 </div><!-- .card-title-group -->
@@ -79,14 +81,38 @@
                                     </div>
                                 </div><!-- .card-search -->
                             </div><!-- .card-inner -->
-                            <div class="card-inner" id="filter_resp" style="display:none;">
-                                <div class="row">
-                                    <div class="col-sm-4 mb-3" >
-                                        <select class=" js-select2" id="include" onchange="load();">
-                                            <option value="true">All Churches</option>
-                                            <option value="false" >My Church Only</option>
-                                        </select>
-                                    </div>
+                            <div class="card card-bordered mb-3" id="filterSection" style="display: none;">
+                                <div class="card-inner">
+                                    <h6 class="title mb-3">Filter Service Reports</h6>
+                                    <form id="filterForm">
+                                        <div class="row g-3 align-center">
+                                            <div class="col-sm-2 mb-3">
+                                                <select class="form-control js-select2"  data-search="on" id="church_scope" name="church_scope" onchange="toggleChurchScope(this.value)">
+                                                    <option value="all">All Churches</option>
+                                                    <?php if (!empty($church_id)) { ?><option value="own">My Church</option><?php } ?>
+                                                    <option value="selected">Selected Churches</option>
+                                                </select>
+                                                <span class="text-danger small">Church Filter Type</span>
+                                            </div>
+
+                                            <!-- Multi-select churches -->
+                                            <div class="col-sm-4 mb-3" id="selected_church_container" style="display:none;">
+                                                <select class="form-control js-select2"  data-search="on" id="selected_churches" name="selected_churches" multiple onchange="load();">
+                                                    <!-- Dynamically populated -->
+                                                </select>
+                                                <span class="text-danger small">Select Churches</span>
+                                            </div>
+
+                                            <!-- Dynamic Cell Dropdown -->
+                                            <div class="col-sm-4 mb-3" id="cell_container">
+                                                <select class="form-control js-select2"  data-search="on" id="cell_id" name="cell_id" onchange="load();">
+                                                   
+                                                </select>
+                                                <span class="text-danger small">Select Cell</span>
+                                            </div>
+
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                             <div class="card-inner table-responsive p-0">
@@ -121,9 +147,84 @@
 <script>
     $(function() {
         load('', '');
+        toggleChurchScope('all');
+        $('#toggleFilterBtn').on('click', function () {
+            $('#filterSection').slideToggle(300);
+        });
     });
    
    
+
+    function toggleChurchScope(scope) {
+        const $selectedChurchContainer = $('#selected_church_container');
+        const $selectedChurches = $('#selected_churches');
+        const $cellSelect = $('#cell_id');
+
+        if (scope === 'selected') {
+            $selectedChurchContainer.show();
+
+            // Fetch church list only once
+            if ($selectedChurches.children().length === 0) {
+                $.ajax({
+                    url: "<?= site_url('service/fetch_scope_churches') ?>",
+                    method: 'GET',
+                    success: function (res) {
+                        $selectedChurches.empty();
+                        $.each(res, function (i, church) {
+                            $selectedChurches.append(`<option value="${church.id}">${church.name} (${church.type})</option>`);
+                        });
+                        $selectedChurches.select2();
+                    }
+                });
+            }
+
+            // Bind change event to fetch cells dynamically when church selection changes
+            $selectedChurches.off('change').on('change', function () {
+                const selected = $(this).val();
+                if (selected.length > 0) {
+                    $.ajax({
+                        url: "<?= site_url('service/analytics/records/fetch_cells_by_churches') ?>",
+                        method: 'POST',
+                        data: { church_ids: selected },
+                        success: function (res) {
+                            $cellSelect.empty();
+                            $cellSelect.append(`<option value="all">-- All Cell --</option>`); // default option
+                            $.each(res, function (i, cell) {
+                                $cellSelect.append(`<option value="${cell.id}">${cell.name} (Church ID: ${cell.church})</option>`);
+                            });
+                        }
+                    });
+                } else {
+                    $cellSelect.empty();
+                }
+            });
+
+        } else {
+            $selectedChurchContainer.hide();
+            $selectedChurches.val(null).trigger('change');
+
+            // 🔁 Fetch cells for "own" or "all" scope
+            $.ajax({
+                url: "<?= site_url('service/analytics/records/fetch_cells_by_scope') ?>",
+                method: 'POST',
+                data: { scope: scope },
+                success: function(res) {
+                    $cellSelect.empty();
+                    $cellSelect.append(`<option value="all">-- All Cell --</option>`); // default option
+
+                    $.each(res, function(index, cell) {
+                        $cellSelect.append(`
+                            <option value="${cell.cell_id}">
+                                ${cell.cell_name} (Church ID: ${cell.church})
+                            </option>
+                        `);
+                    });
+                },
+            });
+        }
+    }
+
+    
     function load(x, y) {
         var more = 'no';
         var methods = '';
@@ -140,13 +241,18 @@
 
        
         var search = $('#search').val();
-        var include = $('#include').val();
-        //alert(status);
+        var church_scope = $('#church_scope').val();
+        var selected_churches = $('#selected_churches').val(); // array
+        var cell_id = $('#cell_id').val();
 
         $.ajax({
             url: site_url + 'accounts/membership/load' + methods,
             type: 'post',
-            data: { search: search, include:include },
+            data: { search: search,
+                church_scope: church_scope,
+                selected_churches: selected_churches,
+                cell_id: cell_id 
+            },
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
