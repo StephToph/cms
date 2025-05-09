@@ -16,4 +16,6 @@ application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
 /writable/
+/vendor/
+/vendor
 /assets/images/qr
