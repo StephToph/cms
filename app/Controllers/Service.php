@@ -1594,57 +1594,66 @@ class Service extends BaseController {
 					</tr>
 				</thead>	
 				';
-				foreach($query as $q){
-						$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
-					
-						// If absent, fetch the reason (optional)
-						$absent_reason = '';
-						if ($status == 'absent') {
-							$absent_reason = $this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'reason');
-						}
-						
-						$response .= '
-							<tr>
-								<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
-								<td>
-									<div class="custom-control custom-switch mb-2">
-										<input type="checkbox"
-											class="custom-control-input mark-present-switch"
-											id="presentSwitchq_'.$q->id.'"
-											data-member-id="'.$q->id.'"
-											'.($status == 'present' ? 'checked' : '').'>
-										<label class="custom-control-label" for="presentSwitchq_'.$q->id.'">Mark Present</label>
-									</div>
+				foreach ($query as $q) {
+					// echo $service_report_id.' ';
+					$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+					$absent_reason = '';
+					if ($status == 'absent') {
+						$absent_reason = $this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'reason');
+					}
+					if(empty($status))$status = 'absent';
+		
+					$email = !empty($q->email) ? $this->Crud->mask_email($q->email) : '';
+					$phone = !empty($q->phone) ? $this->Crud->mask_phone($q->phone) : '';
+		
+					$response .= '
+					<tr>
+						<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
+						<td>' . $email . '</td>
+						<td>' . $phone . '</td>
+						<td>
+							<div class="custom-control custom-switch mb-2">
+								<input type="checkbox"
+									class="custom-control-input mark-present-switch"
+									id="presentSwitchz_' . $q->id . '"
+									data-member-id="' . $q->id . '" 
+									' . ($status == 'present' ? 'checked' : '') . '>
+								<label class="custom-control-label" for="presentSwitchz_' . $q->id . '">Mark Present</label>
+							</div>
+		
+							<div id="absent_reason_wrapper_' . $q->id . '" 
+								 class="mt-2 form-group absent_reason_wrapper_' . $q->id . '" 
+								 style="display: ' . ($status == 'absent' ? 'block' : 'none') . ';">
+								<label for="absent_reason_' . $q->id . '" class="form-label">Reason for Absence</label><br>
+								<select class="js-select2 reason-select w-100" data-search="on"
+									name="absent_reason" id="absent_reason_' . $q->id . '" 
+									data-member-id="' . $q->id . '">
+									<option value="">-- Select Reason --</option>
+									<option value="Out of Town" '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
+									<option value="Gone to School" '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
+									<option value="Health Challenges" '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
+									<option value="Challenges at Work" '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
+									<option value="Challenges at Home" '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
+									<option value="Financial Constraint" '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
+									<option value="Absent without reason" '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
+									<option value="Offence" '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
+									<option value="Irregular" '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
+									<option value="Not Yet Attending Church" '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
+									<option value="Other" '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
+								</select>
 
-									<div id="absent_reason_wrapper_'.$q->id.'" class="mt-2 form-group" style="display: '.($status == 'present' ? 'none' : 'block').';">
-										<label for="absent_reason_'.$q->id.'" class="form-label">Reason for Absence</label>
-										<select class="form-select reason-select" name="absent_reason" id="absent_reasonq_'.$q->id.'" data-member-id="'.$q->id.'">
-											<option value="">-- Select Reason --</option>
-											<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
-											<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
-											<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
-											<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
-											<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
-											<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
-											<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
-											<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
-											<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
-											<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
-											<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
-										</select>
-
-										<input type="text"
-											class="form-control form-control-sm mt-2 other-reason-input"
-											id="other_reasonq_'.$q->id.'"
-											placeholder="Please specify"
-											style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';"
-											value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
-									</div>
-
-									<span id="respq_'.$q->id.'"></span>
-								</td>
-							</tr>';
-
+		
+								<input type="text" 
+									class="form-control form-control-sm mt-2 other-reason-input"
+									id="other_reason_' . $q->id . '" 
+									placeholder="Please specify"
+									style="display: ' . (stripos($absent_reason, 'Other') !== false ? 'block' : 'none') . ';"
+									value="' . (stripos($absent_reason, 'Other') !== false ? $absent_reason : '') . '" />
+							</div>
+		
+							<span id="resp_' . $q->id . '"></span>
+						</td>
+					</tr>';
 				}
 				
 				$response .= '</table></div><br><br><hr>';
@@ -5326,63 +5335,66 @@ class Service extends BaseController {
 							$query = $this->Crud->filter_member_attendance($member_id, $church_id);
 							if(!empty($query)){
 								$response .= '<div class="table-responsive"><table class="table table-hover">';
-								foreach($query as $q){
-										$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
-									
-										// If absent, fetch the reason (optional)
-										$absent_reason = '';
-										if ($status == 'absent') {
-											$absent_reason = $this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'reason');
-										}
-
-										if ($status != '') continue;
-									
-										$response .= '
-										<tr>
-											<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
-											<td>
-												<div class="custom-control custom-switch">
-													<input type="checkbox"
-														class="custom-control-input mark-present-switch"
-														id="presentSwitchz_'.$q->id.'"
-														data-member-id="'.$q->id.'"
-														'.($status == 'present' ? 'checked' : '').'>
-													<label class="custom-control-label" for="presentSwitchz_'.$q->id.'">Mark Present</label>
-												</div>
-									
-												<div class="custom-control custom-switch mb-1">
-													<input type="checkbox"
-														class="custom-control-input mark-absent-switch"
-														id="absentSwitchz_'.$q->id.'"
-														data-member-id="'.$q->id.'"
-														'.($status == 'absent' ? 'checked' : '').'>
-													<label class="custom-control-label" for="absentSwitchz_'.$q->id.'">Absent</label>
-												</div>
-									
-												<div id="absent_reason_wrapper_'.$q->id.'" style="display: '.($status == 'absent' ? 'block' : 'none').';" class="mt-2 form-group absent_reason_wrapper_'.$q->id.'">
-													<label for="absent_reason_'.$q->id.'" class="form-label">Reason for Absence</label><br>
-													<select class="js-select2 reason-select w-100" data-search="on" name="absent_reason" id="absent_reason_'.$q->id.'" data-member-id="'.$q->id.'">
-														<option value="">-- Select Reason --</option>
-														<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
-														<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
-														<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
-														<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
-														<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
-														<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
-														<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
-														<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
-														<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
-														<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
-														<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
-													</select>
-									
-													<input type="text" class="form-control form-control-sm mt-2 other-reason-input" id="other_reason_'.$q->id.'" placeholder="Please specify" style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';" value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
-												</div>
-									
-												<span id="resp_'.$q->id.'"></span>
-											</td>
-										</tr>';
-									
+								foreach ($query as $q) {
+									// echo $service_report_id.' ';
+									$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
+									$absent_reason = '';
+									if ($status == 'absent') {
+										$absent_reason = $this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'reason');
+									}
+									if(empty($status))$status = 'absent';
+						
+									$email = !empty($q->email) ? $this->Crud->mask_email($q->email) : '';
+									$phone = !empty($q->phone) ? $this->Crud->mask_phone($q->phone) : '';
+						
+									$response .= '
+									<tr>
+										<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
+										<td>' . $email . '</td>
+										<td>' . $phone . '</td>
+										<td>
+											<div class="custom-control custom-switch mb-2">
+												<input type="checkbox"
+													class="custom-control-input mark-present-switch"
+													id="presentSwitchz_' . $q->id . '"
+													data-member-id="' . $q->id . '" 
+													' . ($status == 'present' ? 'checked' : '') . '>
+												<label class="custom-control-label" for="presentSwitchz_' . $q->id . '">Mark Present</label>
+											</div>
+						
+											<div id="absent_reason_wrapper_' . $q->id . '" 
+												 class="mt-2 form-group absent_reason_wrapper_' . $q->id . '" 
+												 style="display: ' . ($status == 'absent' ? 'block' : 'none') . ';">
+												<label for="absent_reason_' . $q->id . '" class="form-label">Reason for Absence</label><br>
+												<select class="js-select2 reason-select w-100" data-search="on"
+													name="absent_reason" id="absent_reason_' . $q->id . '" 
+													data-member-id="' . $q->id . '">
+													<option value="">-- Select Reason --</option>
+													<option value="Out of Town" '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
+													<option value="Gone to School" '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
+													<option value="Health Challenges" '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
+													<option value="Challenges at Work" '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
+													<option value="Challenges at Home" '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
+													<option value="Financial Constraint" '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
+													<option value="Absent without reason" '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
+													<option value="Offence" '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
+													<option value="Irregular" '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
+													<option value="Not Yet Attending Church" '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
+													<option value="Other" '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
+												</select>
+				
+						
+												<input type="text" 
+													class="form-control form-control-sm mt-2 other-reason-input"
+													id="other_reason_' . $q->id . '" 
+													placeholder="Please specify"
+													style="display: ' . (stripos($absent_reason, 'Other') !== false ? 'block' : 'none') . ';"
+													value="' . (stripos($absent_reason, 'Other') !== false ? $absent_reason : '') . '" />
+											</div>
+						
+											<span id="resp_' . $q->id . '"></span>
+										</td>
+									</tr>';
 								}
 	
 								$response .= '</table></div>';

@@ -156,18 +156,8 @@ class Attendance extends BaseController {
 					} else {
 						$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
 					
-						$occurrence = 0;
-						$service_report_id = 0;
-					
-						if (!empty($query)) {
-							foreach ($query as $q) {
-								$occurrence++;
-								if ($occurrence == $service) {
-									$service_report_id = $q->id;
-									break;
-								}
-							}
-						}
+						$service_report_id =  $service;
+		
 					
 						$query = $this->Crud->filter_member_attendance($member_id, $church_id);
 					
@@ -175,6 +165,7 @@ class Attendance extends BaseController {
 							$response .= '<div class="table-responsive"><table class="table table-hover">';
 					
 							foreach ($query as $q) {
+								// echo $service_report_id.' ';
 								$status = strtolower($this->Crud->read_field2('member_id', $q->id, 'service_id', $service_report_id, 'service_attendance', 'status'));
 								$absent_reason = '';
 								if ($status == 'absent') {
