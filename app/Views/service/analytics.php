@@ -85,95 +85,37 @@
                     
                 </div><!-- .nk-block-head -->
                 <div class="row">
+                    <?php
+                        $cards = [
+                            ['id' => 'membership', 'label' => 'Total Members', 'border' => 'bg-primary text-white', 'filter' => 'all', 'color'=>'text-white'],
+                            ['id' => 'present', 'label' => 'Total Present', 'border' => 'border-success', 'filter' => 'present', 'color'=>'text-dark'],
+                            ['id' => 'absent', 'label' => 'Total Absent', 'border' => 'border-danger', 'filter' => 'absent', 'color'=>'text-dark'],
+                            ['id' => 'male', 'label' => 'Male Present', 'border' => 'border-primary', 'filter' => 'male', 'color'=>'text-dark'],
+                            ['id' => 'female', 'label' => 'Female Present', 'border' => 'border-primary', 'filter' => 'female', 'color'=>'text-dark'],
+                            ['id' => 'firstTimer', 'label' => 'First Timer', 'border' => 'border-primary', 'filter' => 'first_timer', 'color'=>'text-dark']
+                        ];
+
+                        foreach ($cards as $card):
+                    ?>
                     <div class="col-md-4 mb-3">
-                        <div class="card card-bordered text-white bg-primary card-full">
+                        <div class="card card-bordered card-full <?= $card['border']; ?> filter-card cursor-pointer"
+                            data-filter="<?= $card['filter']; ?>">
                             <div class="card-inner">
                                 <div class="card-title-group align-start mb-0">
                                     <div class="card-title">
-                                        <h6 class="title"><?=translate_phrase('Total Members'); ?></h6>
+                                        <h6 class="title"><?= translate_phrase($card['label']); ?></h6>
                                     </div>
                                 </div>
-                                <div class="card-amount"><span class="amount text-white" id="membership"> 0 <span class="currency currency-usd"></span></span></div>
-                                
+                                <div class="card-amount">
+                                    <span class="amount <?= $card['color']; ?>" id="<?= $card['id']; ?>"> 0 <span class="currency currency-usd"></span></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card card-bordered border-success card-full">
-                            <div class="card-inner">
-                                <div class="card-title-group align-start mb-0">
-                                    <div class="card-title">
-                                        <h6 class="title"><?=translate_phrase('Total Present'); ?></h6>
-                                    </div>
-                                    
-                                </div>
-                                <div class="card-amount"><span class="amount " id="present"> 0 <span class="currency currency-usd"></span></span></div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card card-bordered border-danger card-full">
-                            <div class="card-inner">
-                                <div class="card-title-group align-start mb-0">
-                                    <div class="card-title">
-                                        <h6 class="title"><?=translate_phrase('Total Absent'); ?></h6>
-                                    </div>
-                                    
-                                </div>
-                                <div class="card-amount"><span class="amount" id="absent"> 0 <span class="currency currency-usd"></span></span></div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4 mb-3">
-                        <div class="card card-bordered border-primary card-full">
-                            <div class="card-inner">
-                                <div class="card-title-group align-start mb-0">
-                                    <div class="card-title">
-                                        <h6 class="title"><?=translate_phrase('Male Present'); ?></h6>
-                                    </div>
-                                    
-                                </div>
-                                <div class="card-amount"><span class="amount" id="male"> 0 <span class="currency currency-usd"></span></span></div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-4 mb-3">
-                        <div class="card card-bordered border-primary card-full">
-                            <div class="card-inner">
-                                <div class="card-title-group align-start mb-0">
-                                    <div class="card-title">
-                                        <h6 class="title"><?=translate_phrase('Female Present'); ?></h6>
-                                    </div>
-                                    
-                                </div>
-                                <div class="card-amount"><span class="amount" id="female"> 0 <span class="currency currency-usd"></span></span></div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card card-bordered border-primary card-full">
-                            <div class="card-inner">
-                                <div class="card-title-group align-start mb-0">
-                                    <div class="card-title">
-                                        <h6 class="title"><?=translate_phrase('First Timer'); ?></h6>
-                                    </div>
-                                    
-                                </div>
-                                <div class="card-amount"><span class="amount" id="firstTimer"> 0 <span class="currency currency-usd"></span></span></div>
-                                
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12 mb-3" id="metric_response">
-                        <!-- dynamic content appears here -->
-                    </div>
+                    <?php endforeach; ?>
+
                 </div>
+
                 <div class="nk-block">
                     <div class="card card-bordered card-stretch">
                         <div class="card-inner-group">
@@ -213,6 +155,7 @@
 <script>var site_url = '<?php echo site_url(); ?>';</script>
 <script src="<?php echo base_url(); ?>/assets/js/jquery.min.js"></script>
 <script>
+    let cardFilter = 'all';
     $(function() {
         loads();
          toggleChurchScope('all');
@@ -333,6 +276,13 @@
         }
     }
 
+    $('.filter-card').on('click', function () {
+        cardFilter = $(this).data('filter'); // store selected card filter
+        $('.filter-card').removeClass('bg-highlight');
+        $(this).addClass('bg-highlight');
+
+        load('', ''); // reload with card filter
+    });
     function load(x, y) {
         var more = 'no';
         var methods = '';
@@ -365,7 +315,8 @@
                 marked_type: $('#marked_type').val(),
                 marker_by: $('#marker_by').val(),
                 church_scope: church_scope,
-                selected_churches: selected_churches
+                selected_churches: selected_churches,
+                filter: cardFilter // ✅ NEW LINE TO SEND FILTER
             },
             success: function (data) {
                 var dt = JSON.parse(data);

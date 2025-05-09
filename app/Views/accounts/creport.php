@@ -44,6 +44,7 @@
                             </div><!-- .card-inner -->
                             <div class="card-inner" id="show">
                                 <div class="row">
+                                    <!-- DATE FILTERS -->
                                     <div class="col-sm-4 mb-3 filter_resp" style="display:none;">
                                         <div class="row">
                                             <div class="col-6 col-sm-6">
@@ -57,113 +58,43 @@
                                             <div class="col-md-12" style="color: transparent;"><span id="date_resul"></span></div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
-                                        <select data-search="on" class=" js-select2" id="meeting_type" onchange="load();">
+
+                                    <!-- MEETING TYPE -->
+                                    <div class="col-sm-4 mb-3 filter_resp" style="display:none;">
+                                        <select data-search="on" class="js-select2" id="meeting_type" onchange="load();">
                                             <option value="all">All Meeting Type</option>
-                                            <option value="wk1" >WK1 - Prayer and Planning</option>
-                                            <option value="wk2" >WK2 - Bible Study</option>
-                                            <option value="wk3" >WK3 - Bible Study</option>
-                                            <option value="wk4" >WK4 - Fellowship / Outreach</option>
+                                            <option value="wk1">WK1 - Prayer and Planning</option>
+                                            <option value="wk2">WK2 - Bible Study</option>
+                                            <option value="wk3">WK3 - Bible Study</option>
+                                            <option value="wk4">WK4 - Fellowship / Outreach</option>
                                         </select>
                                     </div>
 
-                                    <?php if($role != 'cell executive' && $role != 'cell leader' && $role != 'assistant cell leader'){ 
-                                        $ministry_id = $this->Crud->read_field('id', $log_id, 'user', 'ministry_id');
-                                        if ($ministry_id <= 0) { ?>
-                                        <div class="col-sm-3 mb-3 filter_resp" style="display:none;">
-                                            <div class="form-group">
-                                                <select id="ministry_id" name="ministry_id" class="js-select2 "  onchange="load_cells();">
-                                                    <option value="all">All Ministry</option>
-                                                    <?php
-                                                        $ministries = $this->Crud->read_order('ministry', 'name', 'asc');
-                                                        foreach ($ministries as $ministry) {
-                                                            $selected = '';
-                                                            echo '<option value="' . $ministry->id . '" ' . $selected . '>' . ucwords($ministry->name) . '</option>';
-                                                        }
-                                                    ?>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    <?php } else {?>
-                                        <input type="hidden" id="ministry_id" value="<?=$ministry_id;?>">
-
-
-                                    <?php } ?>
-                                    <?php if($role != 'church leader'){
-                                        $log_church_id = $this->Crud->read_field('id', $log_id, 'user',  'church_id');
-                                        ?>
-                                        <div class="col-sm-2 mb-3 level_resp"  style="display:none;" id="level_resp">
-                                            <select class="js-select2" name="level" id="level" onchange="load_level();">
-                                                <option value="all">All Church Level</option>
-                                                <?php if($log_church_id > 0){?>
-                                                <option value="<?=$log_church_id; ?>">My Church</option>
-
-                                               <?php }
-                                                    $log_church_type = $this->Crud->read_field('id', $log_church_id, 'church', 'type');
-
-                                                    if($log_church_type == 'region'){
-                                                        
-                                                ?>
-                                                
-                                                    <option value="zone" >Zonal Church</option>
-                                                    <option value="group" >Group Church</option>
-                                                    <option value="church" >Church Assembly</option>
-                                                <?php } elseif($log_church_type == 'zone'){?>
-                                                
-                                                    <option value="group" >Group Church</option>
-                                                    <option value="church" >Church Assembly</option>
-
-                                                <?php } elseif($log_church_type == 'group'){?>
-                                                
-                                                    <option value="church" >Church Assembly</option>
-
-                                                <?php } else{?>
-                                                    <option value="region">Regional Church</option>
-                                                    <option value="zone" >Zonal Church</option>
-                                                    <option value="group" >Group Church</option>
-                                                    <option value="church" >Church Assembly</option>
-                                                <?php } ?>
-                                                
-                                            </select>
-                                        </div>
-
-                                    <?php } ?>
-                                    <div class="col-sm-3 mb-3 region_resp"  style="display:none;" id="region_resp">
-                                        <select class="js-select2" name="region_id" id="region_id">
-                                            <option value="all">All Region Church </option>
-                                           
+                                    <!-- CHURCH SCOPE -->
+                                    <div class="col-sm-4 mb-3 filter_resp" style="display:none;">
+                                        <select class="form-select js-select2" name="church_scope" id="church_scope" onchange="onChurchScopeChange();">
+                                            <option value="own">My Church Only</option>
+                                            <option value="all">All Churches (Under My Scope)</option>
+                                            <option value="selected">Select Specific Churches</option>
                                         </select>
                                     </div>
-                                    
-                                    <div class="col-sm-3 mb-3 zone_resp"  style="display:none;" id="zone_resp">
-                                        <select class="js-select2" name="zone_id" id="zone_id" >
-                                            <option value="all">All Zonal Church </option>
-                                           
+
+                                    <!-- MULTI CHURCH SELECTION (VISIBLE IF church_scope = selected) -->
+                                    <div class="col-sm-4 mb-3 filter_resp" style="display:none;" id="selectedChurchesWrapper">
+                                        <select class="form-select js-select2" name="selected_churches[]" id="selected_churches" multiple onchange="loadCellsFromChurches();">
+                                            <!-- Populated via JS/AJAX -->
                                         </select>
                                     </div>
-                                    <div class="col-sm-3 mb-3 group_resp"  style="display:none;" id="group_resp">
-                                        <select class="js-select2" name="group_id" id="group_id" >
-                                            <option value="all">All Group Church </option>
-                                           
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-3 mb-3 church_resp"  style="display:none;" id="church_resp">
-                                        <select class="js-select2" name="church_id" id="church_id" >
-                                            <option value="all">All Church Assembly</option>
-                                           
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="col-sm-3 mb-3 filter_resp" style="display:none;" id="cell_resp">
-                                        <select class="form-select js-select2" id="cell_idz" onchange="load();"
-                                            data-placeholder="All Cell">
+
+                                    <!-- CELL DROPDOWN -->
+                                    <div class="col-sm-4 mb-3 filter_resp" style="display:none;" id="cell_resp">
+                                        <select class="form-select js-select2" id="cell_idz" onchange="load();" data-placeholder="All Cell">
                                             <option value="all">All Cell</option>
-                                            
                                         </select>
                                     </div>
 
-                                    <?php } ?>
                                 </div>
+
 
                                 <div class="card-inner table-responsive p-0">
                                     <table class="table table-hover">
@@ -343,6 +274,51 @@
             load_cells();
         <?php } ?>
     });
+
+    function onChurchScopeChange() {
+        let scope = $('#church_scope').val();
+        if (scope === 'selected') {
+            $('#selectedChurchesWrapper').show();
+            loadChurchOptions(); // AJAX call to populate selected_churches
+        } else {
+            $('#selectedChurchesWrapper').hide();
+            loadCellsFromChurches(); // Based on scope (own or all)
+        }
+    }
+
+    // Populate churches dynamically (for selected scope)
+    function loadChurchOptions() {
+        $.post(site_url + 'accounts/creport/records/get_churches', {}, function(res) {
+            if (res.status) {
+                let html = '';
+                res.data.forEach(ch => {
+                    html += `<option value="${ch.id}">${ch.name}</option>`;
+                });
+                $('#selected_churches').html(html).trigger('change');
+            }
+        });
+    }
+
+    // Populate cells based on scope or selected churches
+    function loadCellsFromChurches() {
+        let scope = $('#church_scope').val();
+        let postData = { scope: scope };
+
+        if (scope === 'selected') {
+            postData.selected_churches = $('#selected_churches').val();
+        }
+
+        $.post(site_url + 'accounts/creport/records/get_cells_by_scope', postData, function(res) {
+            if (res.status) {
+                let html = `<option value="all">All Cell</option>`;
+                res.data.forEach(cell => {
+                    html += `<option value="${cell.id}">${cell.name}</option>`;
+                });
+                $('#cell_idz').html(html).trigger('change');
+            }
+        });
+    }
+
     
     function filter_resp(){
         load_cells();
@@ -514,7 +490,6 @@
     }
 
 
-
     function load(x, y) {
         var more = 'no';
         var methods = '';
@@ -529,23 +504,31 @@
             $('#loadmore').html('<tr><td colspan="8"><div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div></td></tr>');
         }
 
-       
         var search = $('#search').val();
-        var cell_id = $('#cell_id').val();
-        var level = $('#level').val();
+        var cell_id = $('#cell_idz').val();
         var meeting_type = $('#meeting_type').val();
         var start_date = $('#start_date').val();
         var end_date = $('#end_date').val();
-        var region_id = $('#region_id').val();
-        var zone_id = $('#zone_id').val();
-        var group_id = $('#group_id').val();
-        var church_id = $('#church_id').val();
-        //alert(status);
+        var church_scope = $('#church_scope').val();
+
+        // Collect selected churches
+        var selected_churches = [];
+        $("select[name='selected_churches[]'] option:selected").each(function () {
+            selected_churches.push($(this).val());
+        });
 
         $.ajax({
             url: site_url + 'accounts/creport/load' + methods,
             type: 'post',
-            data: { search: search,cell_id: cell_id,level: level,meeting_type: meeting_type,start_date: start_date,end_date: end_date,region_id: region_id,zone_id: zone_id,group_id: group_id,church_id: church_id},
+            data: {
+                search: search,
+                cell_id: cell_id,
+                meeting_type: meeting_type,
+                start_date: start_date,
+                end_date: end_date,
+                church_scope: church_scope,
+                selected_churches: selected_churches
+            },
             success: function (data) {
                 var dt = JSON.parse(data);
                 if (more == 'no') {
@@ -553,7 +536,7 @@
                 } else {
                     $('#load_data').append(dt.item);
                 }
-                
+
                 if (dt.offset > 0) {
                     $('#loadmore').html('<tr><td colspan="8"><a href="javascript:;" class="btn btn-light btn-block p-30" onclick="load(' + dt.limit + ', ' + dt.offset + ');"><em class="icon ni ni-redo fa-spin"></em> Load ' + dt.left + ' More</a></td></tr>');
                 } else {
@@ -565,7 +548,7 @@
             }
         });
     }
-
+    
     function load_cells(){
         var level = $('#level').val();
         var ministry_id = $('#ministry_id').val();

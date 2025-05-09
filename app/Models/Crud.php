@@ -156,6 +156,38 @@ class Crud extends Model {
         $db->close();
 	}
 
+    public function read_where_in($column, $values = [], $table, $order_by = '', $order_dir = 'asc', $limit = '', $offset = '')
+    {
+        if (empty($values)) {
+            return [];
+        }
+    
+        $db = db_connect();
+        $builder = $db->table($table);
+    
+        // Apply whereIn condition
+        $builder->whereIn($column, $values);
+    
+        // Optional ordering
+        if (!empty($order_by)) {
+            $builder->orderBy($order_by, $order_dir);
+        }
+    
+        // Apply limits if provided
+        if ($limit && $offset) {
+            $query = $builder->get($limit, $offset);
+        } elseif ($limit) {
+            $query = $builder->get($limit);
+        } else {
+            $query = $builder->get();
+        }
+    
+        // Return result
+        $result = $query->getResult();
+        $db->close();
+        return $result;
+    }
+
     public function read_single_order($field, $value, $table, $or_field, $or_value, $limit='', $offset='') {
 		$db = db_connect();
         $builder = $db->table($table);
@@ -3469,7 +3501,7 @@ class Crud extends Model {
 	}
 
 
-	public function filter_service_analytics($limit = '', $offset = '', $log_id = '', $date = '', $service_type = '', $scope = '', $church_idz = '', $cell_id = '', $marked_type = '', $marked_by = '', $switch_id = '')	{
+	public function filter_service_analytics($limit = '', $offset = '', $log_id = '', $date = '', $service_type = '', $scope = '', $church_idz = '', $cell_id = '', $marked_type = '', $marked_by = '', $switch_id = '', $filter='all')	{
 		$db = db_connect();
 		$builder = $db->table('service_attendance');
 		$builder->select('service_attendance.*, service_report.date, church.name as church_name, church.type as church_type');
@@ -3551,6 +3583,23 @@ class Crud extends Model {
 				$builder->where('service_attendance.member_id', 0); // Return no results
 			}
 		}
+		// 🎯 Apply direct filter (status or gender)
+		if (!empty($filter) && $filter !== 'all') {
+			// Filter by attendance status
+			if (in_array($filter, ['present', 'absent'])) {
+				$builder->where('LOWER(td_service_attendance.status)', strtolower($filter));
+
+			}
+
+			// Filter by gender
+			if (in_array($filter, ['male', 'female'])) {
+				$builder->join('td_user', 'td_user.id = service_attendance.member_id', 'left');
+				$builder->where('LOWER(td_user.gender)', strtolower($filter));
+			}
+
+			// Note: 'first_timer' is handled separately outside this method
+		}
+
 
 		// ✅ Pagination
 		if (is_numeric($limit) && is_numeric($offset)) {
@@ -3744,119 +3793,115 @@ class Crud extends Model {
 		return $result;
 	}
 
-    public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $region_id = '', $zone_id = '', $group_id = '', $church_id = '', $level = '', $switch_id = '') {
-        $db = db_connect();
-        $builder = $db->table('cell_report');
-    
-        // Define an array to store IDs of the churches under the given hierarchy
-        $church_ids = [];
-    
-        // Retrieve user details
-        $role_id = $this->read_field('id', $log_id, 'user', 'role_id');
-        $cell_id = $this->read_field('id', $log_id, 'user', 'cell_id');
-        $ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
-        $church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
-        $role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
-		
-		
-		if(!empty($switch_id)){
+    public function filter_cell_report($limit = '', $offset = '', $search = '', $log_id, $start_date = '', $end_date = '', $cell_id = '', $meeting_type = '', $church_scope = '', $selected_churches = [], $switch_id = '')	{
+		$db = db_connect();
+		$builder = $db->table('cell_report');
+		$builder->orderBy('date', 'desc');
+
+		// Search filter
+		if (!empty($search)) {
+			$builder->groupStart()
+				->like('type', $search)
+				->orLike('attendance', $search)
+				->groupEnd();
+		}
+
+		// User and role info
+		$role_id = $this->read_field('id', $log_id, 'user', 'role_id');
+		$ministry_id = $this->read_field('id', $log_id, 'user', 'ministry_id');
+		$church_id_user = $this->read_field('id', $log_id, 'user', 'church_id');
+		$role = strtolower($this->read_field('id', $role_id, 'access_role', 'name'));
+
+		// Handle switch logic
+		if (!empty($switch_id)) {
 			$church_type = $this->read_field('id', $switch_id, 'church', 'type');
-			if($church_type == 'region'){
-				$role_ids = $this->read_field('name', 'Regional Manager', 'access_role', 'id');
-				$role = 'regional manager';
-			}
-			if($church_type == 'zone'){
-				$role_ids = $this->read_field('name', 'Zonal Manager', 'access_role', 'id');
-				$role = 'zonal manager';
-			}
-			if($church_type == 'group'){
-				$role_ids = $this->read_field('name', 'Group Manager', 'access_role', 'id');
-				$role = 'group manager';
-			}
-			if($church_type == 'church'){
-				$role_ids = $this->read_field('name', 'Church Leader', 'access_role', 'id');
-				$role = 'church leader';
-			}
 			$ministry_id = $this->read_field('id', $switch_id, 'church', 'ministry_id');
 			$church_id_user = $switch_id;
-		
+
+			switch ($church_type) {
+				case 'region':
+					$role = 'regional manager';
+					break;
+				case 'zone':
+					$role = 'zonal manager';
+					break;
+				case 'group':
+					$role = 'group manager';
+					break;
+				case 'church':
+					$role = 'church leader';
+					break;
+			}
 		}
-        // Apply filters based on user role
-        if ($role != 'developer' && $role != 'administrator') {
-            if ($role == 'ministry administrator') {
-                $builder->where('ministry_id', $ministry_id);
-			} elseif($role == 'cell leader' || $role == 'cell executive' || $role == 'assistant cell leader'){
-				$builder->where('cell_id', $cell_id);
-            } else {
-                $builder->where('church_id', $church_id_user);
-            }
-        }
-    
-        if ($level !== 'all' && !empty($level)) {
-            // Convert $level to an integer
-            $levelInt = (int)$level;
-            
-            // Check if $levelInt is a valid church_id
-            if ($levelInt > 0) {
-                $builder->where('church_id', $levelInt);
-            }
-        }
-    
-        // Build the church IDs based on the hierarchy
-        if (!empty($region_id) && $region_id != 'all') {
-            $churches = $db->table('church')->where('regional_id', $region_id)->get()->getResult();
-            foreach ($churches as $church) {
-                $church_ids[] = $church->id;
-            }
-        } elseif (!empty($zone_id) && $zone_id != 'all') {
-            $churches = $db->table('church')->where('zonal_id', $zone_id)->get()->getResult();
-            foreach ($churches as $church) {
-                $church_ids[] = $church->id;
-            }
-        } elseif (!empty($group_id) && $group_id != 'all') {
-            $churches = $db->table('church')->where('group_id', $group_id)->get()->getResult();
-            foreach ($churches as $church) {
-                $church_ids[] = $church->id;
-            }
-        } elseif (!empty($church_id) && $church_id != 'all') {
-            $church_ids[] = $church_id;
-        }
-    
-        // Apply church_id filter if any
-        if (!empty($church_ids)) {
-            $builder->whereIn('church_id', $church_ids);
-        }
-    
-        // Additional filters
-        if (!empty($search)) {
-            $builder->like('meeting', $search);
-        }
-        if (!empty($meeting_type) && $meeting_type != 'all') {
-            $builder->like('type', $meeting_type);
-        }
-        if (!empty($cell_id) && $cell_id != 'all') {
-            $builder->like('cell_id', $cell_id);
-        }
-        if (!empty($start_date) && !empty($end_date)) {
-            $builder->where("DATE(reg_date) >=", $start_date);
-            $builder->where("DATE(reg_date) <=", $end_date);
-        }
-		
-        // build query
-		$builder->orderBy('date', 'desc');
-        // Limit query
-        if ($limit && $offset) {
-            $query = $builder->get($limit, $offset);
-        } elseif ($limit) {
-            $query = $builder->get($limit);
-        } else {
-            $query = $builder->get();
-        }
-    
-        // Close the database connection and return query results
-        $db->close();
-        return $query->getResult();
-    }
+
+		// Date filter
+		if (!empty($start_date) && !empty($end_date)) {
+			$builder->where("DATE(reg_date) >=", $start_date);
+			$builder->where("DATE(reg_date) <=", $end_date);
+		}
+
+		// Type filter
+		if (!empty($meeting_type) && $meeting_type != 'all') {
+			$builder->where('type', $meeting_type);
+		}
+
+		// Cell filter
+		if (!empty($cell_id) && $cell_id != 'all') {
+			$builder->where('cell_id', $cell_id);
+		}
+
+		// Scope filter
+		if ($church_scope === 'selected' && !empty($selected_churches)) {
+			$builder->whereIn('church_id', $selected_churches);
+		} elseif ($church_scope === 'own' && !empty($church_id_user)) {
+			$builder->where('church_id', $church_id_user);
+		} elseif ($church_scope === 'all' && !empty($church_id_user)) {
+			$church_type = $this->read_field('id', $church_id_user, 'church', 'type');
+			$sub_churches = [$church_id_user];
+
+			// Fetch children churches
+			switch ($church_type) {
+				case 'region':
+					$records = $this->read_single('regional_id', $church_id_user, 'church');
+					break;
+				case 'zone':
+					$records = $this->read_single('zonal_id', $church_id_user, 'church');
+					break;
+				case 'group':
+					$records = $this->read_single('group_id', $church_id_user, 'church');
+					break;
+				case 'church':
+					$records = $this->read_single('church_id', $church_id_user, 'church');
+					break;
+				default:
+					$records = [];
+			}
+
+			if (!empty($records)) {
+				$sub_churches = array_merge($sub_churches, array_map(fn($rec) => $rec->id, $records));
+			}
+
+			$builder->whereIn('church_id', $sub_churches);
+		} else {
+			if (!in_array($role, ['developer', 'administrator'])) {
+				if ($role === 'ministry administrator') {
+					$builder->where('ministry_id', $ministry_id);
+				}
+			}
+		}
+
+		// Final execution
+		if ($limit && $offset) {
+			$query = $builder->get($limit, $offset);
+		} elseif ($limit) {
+			$query = $builder->get($limit);
+		} else {
+			$query = $builder->get();
+		}
+
+		return $query->getResult();
+	}
+
 
 	public function filter_service_report($limit = '', $offset = '', $search = '', $log_id, $switch_id = '', $date = '', $type = '', $church_scope = '', $selected_churches = [], $cell_id = ''){
 		$db = db_connect();
@@ -4787,12 +4832,12 @@ class Crud extends Model {
 	}
 
 
-	public function filter_church_admin($limit='', $offset='',$log_id, $status='all', $search='', $role_id) {
+	public function filter_church_admin($limit='', $offset='',$log_id, $status='all', $search='', $role_id, $ministry_id='') {
         $db = db_connect();
         $builder = $db->table('user');
 		$builder->where('is_admin', 1);
 		$builder->where('church_id', $role_id);
-        
+        // $builder->where('ministry_id', $ministry_id);
         // build query
 		$builder->orderBy('id', 'DESC');
 		if(!empty($search)) {
@@ -6597,7 +6642,48 @@ class Crud extends Model {
 		return date_default_timezone_get();
 	}
 
-	
+	protected $apiKey = 'your_api_key_here'; // Replace this with your actual API key
+    protected $endpoint = 'https://api.espees.org/agents/vending/createtoken';
+
+	public function espees_token(){
+		$walletAddress = '0x0bd3e40f8410ea473850db5479348f074d254ded';
+		$walletPin = '1234';
+		$vendingHash = bin2hex(random_bytes(8)); // exactly 16 alphanumeric characters
+
+		
+		$payload = json_encode([
+            'vending_wallet_address' => $walletAddress,
+            'vending_wallet_pin'     => $walletPin,
+            'vending_hash'           => $vendingHash,
+        ]);
+
+        $ch = curl_init($this->endpoint);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'x-api-key: ' . $this->apiKey,
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+        $response = curl_exec($ch);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        if ($error) {
+            return [
+                'status'  => 'error',
+                'message' => $error
+            ];
+        }
+
+        return [
+            'status' => 'success',
+            'data'   => json_decode($response, true)
+        ];
+    
+	}
 
 	//////////////////////////////////END///////////////////////////////////////////////////////
 }

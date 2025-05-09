@@ -152,6 +152,8 @@
         load();
         $('#show').show(500);
         $('#form').hide(500);
+        $('#service_name').html('');
+                
         $('#attendance_view').hide(500);
         $('#mark_attendance_view').hide(500);
          $('#new_convert_view').hide(500);
@@ -204,6 +206,7 @@
             success: function (data) {
                 var dt = JSON.parse(data);
                 $('#report_id').val(dt.e_id);
+                $('#service_name').html(dt.service_name);
                 $('#type').val(dt.e_type).change();
                 $("#partnership").val(dt.e_partnership).val();
                 $("#tithe").val(dt.e_tithe).val();
@@ -267,6 +270,8 @@
                 $('#female_attendance').val(dt.female_attendance);
                 $('#children_attendance').val(dt.children_attendance);
                 $('#attendance_mzg').html('');
+
+                $('#service_name').html(dt.service_name);
 
                  // ✅ Dynamically update the button's data-service-id
                 $('#markMemberBTN').attr('data-service-id', id);
@@ -332,62 +337,68 @@
         });
     }
 
-    
-    $(document).on('change', '.mark-present-switch', function () {
+    $(document).on('change', '.mark-present-switchz', function () {
         var $this = $(this);
-        var member_id = $(this).data('member-id');
-        var isPresent = $(this).is(':checked');
+        var member_id = $this.data('member-id');
+        var isPresent = $this.is(':checked');
         var service_id = $('#attendance_id').val();
         var church_id = $('#church_id').val();
-
-        var mark = 0;
-        if(isPresent){
-            var mark = 1;
+    
+        var mark = isPresent ? 1 : 0; // 1 = Present, 0 = Absent
+    
+        // ✅ Hide/Show Reason box immediately
+        if (isPresent) {
+            $('#absent_reason_wrapper_' + member_id).slideUp();
+        } else {
+            $('#absent_reason_wrapper_' + member_id).slideDown();
         }
-
-        // Disable Absent if Present is checked
-        $('#absentSwitch_' + member_id).prop('disabled', isPresent);
-        $('#absentSwitchz_' + member_id).prop('disabled', isPresent);
-        $('#absentSwitchm_' + member_id).prop('disabled', isPresent);
-        
-            $('#resp_' + member_id).html('<small class="text-info">Updating...</small>');
-            // $this.prop('disabled', true);
-            $.ajax({
-                url: site_url + 'service/report/attendance/mark_present',
-                type: 'POST',
-                data: {
-                    member_id: member_id,
-                    service_id: service_id,
-                    church_id: church_id,
-                    mark: mark
-                },
-                success: function (response) {
-                    // Try to parse if it's JSON
-                    let res;
-                    try {
-                        res = typeof response === 'object' ? response : JSON.parse(response);
-                    } catch (e) {
-                        res = { status: 'error', message: response };
-                    }
-
-                    if (res.status === 'success') {
-                        $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
-                        // $this.prop('disabled', true); // ✅ disable the switch
-                        let defaultService = $('#service').val();
-                        attendance_report(service_id);
-                    } else {
-                        $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
-                        $this.prop('checked', false); // rollback toggle if error
-                    }
-                },
-                error: function () {
-                    $('#resp_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
-                    $this.prop('disabled', false);
+    
+        // Feedback during update
+        $('#resp_' + member_id).html('<small class="text-info">Updating...</small>');
+    
+        $.ajax({
+            url: site_url + 'service/report/attendance/mark_present',
+            type: 'POST',
+            data: {
+                member_id: member_id,
+                service_id: service_id,
+                church_id: church_id,
+                mark: mark
+            },
+            success: function (response) {
+                let res;
+                try {
+                    res = typeof response === 'object' ? response : JSON.parse(response);
+                } catch (e) {
+                    res = { status: 'error', message: response };
                 }
-            });
-        
+    
+                if (res.status === 'success') {
+                    $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
+                    // Refresh attendance report if needed
+                    attendance_report(service_id);
+                } else {
+                    $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                    $this.prop('checked', !isPresent); // Rollback checkbox if failed
+                    if (isPresent) {
+                        $('#absent_reason_wrapper_' + member_id).slideDown(); // rollback UI
+                    } else {
+                        $('#absent_reason_wrapper_' + member_id).slideUp();
+                    }
+                }
+            },
+            error: function () {
+                $('#resp_' + member_id).html('<small class="text-danger">Failed to update status.</small>');
+                $this.prop('checked', !isPresent);
+                if (isPresent) {
+                    $('#absent_reason_wrapper_' + member_id).slideDown();
+                } else {
+                    $('#absent_reason_wrapper_' + member_id).slideUp();
+                }
+            }
+        });
     });
-
+    
     
     $(document).on('change', '.mark-convert-switch', function () {
         var $this = $(this);
@@ -490,13 +501,12 @@
         }
     });
 
-    // Show other reason input when "Other" is selected
-    $(document).on('change', '.reason-select', function () {
+    // Show or hide "Other" reason input field
+    $(document).on('change', '.reason-selectz', function () {
         let $this = $(this);
         let member_id = $this.data('member-id');
-        let $row = $this.closest('tr');
         let selected = $this.val();
-        let $otherInput = $row.find('.other-reason-input');
+        let $otherInput = $('#other_reason_' + member_id);
 
         if (selected.includes('Other')) {
             $otherInput.show().focus();
@@ -505,21 +515,18 @@
         }
     });
 
-    // Auto-submit reason
-    $(document).on('change blur', '.reason-select, .other-reason-input', function () {
+    // Auto-submit Reason
+    $(document).on('change blur', '.reason-selectz, .other-reason-inputz', function () {
         let $this = $(this);
-        let $row = $this.closest('tr');
         let member_id = $this.data('member-id');
-        let reason = $row.find('.reason-select').val();
-        let other_reason = $row.find('.other-reason-input').val();
+        let reason = $('#absent_reason_' + member_id).val();
+        let other_reason = $('#other_reason_' + member_id).val();
         let final_reason = reason.includes('Other') ? other_reason.trim() : reason;
 
         if (final_reason !== '') {
             let service_id = $('#attendance_id').val();
             let church_id = $('#church_id').val();
             let $resp = $('#resp_' + member_id);
-            let isAbsent = $row.find('.mark-absent-switch').is(':checked');
-            let mark = isAbsent ? 1 : 0;
 
             $resp.html('<small class="text-info">Saving reason...</small>');
 
@@ -528,20 +535,15 @@
                 type: 'POST',
                 data: {
                     member_id: member_id,
-                    reason: final_reason,
                     service_id: service_id,
-                    mark: mark,
-                    church_id: church_id
+                    church_id: church_id,
+                    reason: final_reason
                 },
                 success: function (response) {
                     let res = typeof response === 'object' ? response : JSON.parse(response);
                     if (res.status === 'success') {
                         $resp.html('<small class="text-success">' + res.message + '</small>');
-                       
-                        attendance_report(service_id);
-                        $row.find('.mark-absent-switch').prop('disabled', true);
-                        $row.find('.reason-select').prop('disabled', true);
-                        $row.find('.other-reason-input').prop('readonly', true);
+                        attendance_report(service_id); // reload report if needed
                     } else {
                         $resp.html('<small class="text-danger">' + res.message + '</small>');
                     }
@@ -552,6 +554,7 @@
             });
         }
     });
+
 
     function get_member() {
         $('#member_response').html('<div class="col-sm-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>');
@@ -987,6 +990,9 @@
             success: function (data) {
                 var dt = JSON.parse(data);
                 $('#finance_id').val(dt.id);
+
+                $('#service_name').html(dt.service_name);
+
                 $('#total_partnership').val(dt.total_partnership);
                 $('#member_partnership').val(dt.member_partnership);
                 $('#guest_partnership').val(dt.guest_partnership);
@@ -1045,10 +1051,10 @@
     
                             const currency = response.currency || [];
                             const partners = response.partners;
-                            const guest_offering = response.guest_offering || "0";
-                            const guest_tithe = response.guest_tithe || "0";
-                            const guest_thanksgiving = response.guest_thanksgiving || "0";
-                            const guest_seed = response.guest_seed || "0";
+                            const guest_offering = response.guest_offering || "";
+                            const guest_tithe = response.guest_tithe || "";
+                            const guest_thanksgiving = response.guest_thanksgiving || "";
+                            const guest_seed = response.guest_seed || "";
     
                             let row = '<tr>';
                             row += `<td><input type="hidden" class="form-control member-id-field guests" name="guests[]" value="${member_id}">`;
@@ -1070,6 +1076,7 @@
                                                class="form-control finance-fields" 
                                                name="guest_${type}[]" 
                                                value="${value}" 
+                                               placeholder="0"
                                                data-field="${type}" 
                                                data-member-id="${member_id}" 
                                                data-user-type="guest"
@@ -1077,7 +1084,7 @@
                                                     this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');
                                                     autoSaveFinance(this);
                                                "
-                                        >
+                                        ><small class="text-success msg-box" style="display:none;"></small>
                                     </td>`;
                             });
     
@@ -1094,12 +1101,13 @@
                                                value="${amount}" 
                                                data-field="${partnerField}" 
                                                data-member-id="${member_id}" 
+                                               placeholder="0"
                                                data-user-type="guest"
                                                oninput="
                                                     this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');
                                                     autoSaveFinance(this);
                                                "
-                                        >
+                                        ><small class="text-success msg-box" style="display:none;"></small>
                                     </td>`;
                             });
     
@@ -2024,60 +2032,67 @@
 
 
     
-    
     $(document).on('change', '.mark-present-switch', function () {
         var $this = $(this);
-        var member_id = $(this).data('member-id');
-        var isPresent = $(this).is(':checked');
+        var member_id = $this.data('member-id');
+        var isPresent = $this.is(':checked');
         var service_id = $('#attendance_id').val();
         var church_id = $('#church_id').val();
-
-        var mark = 0;
-        if(isPresent){
-            var mark = 1;
+    
+        var mark = isPresent ? 1 : 0; // 1 = Present, 0 = Absent
+    
+        // ✅ Hide/Show Reason box immediately
+        if (isPresent) {
+            $('#absent_reason_wrapper_' + member_id).slideUp();
+        } else {
+            $('#absent_reason_wrapper_' + member_id).slideDown();
         }
-
-        // Disable Absent if Present is checked
-        $('#absentSwitchq_' + member_id).prop('disabled', isPresent);
-        
-            $('#respq_' + member_id).html('<small class="text-info">Updating...</small>');
-            // $this.prop('disabled', true);
-            $.ajax({
-                url: site_url + 'service/report/attendance/mark_present',
-                type: 'POST',
-                data: {
-                    member_id: member_id,
-                    service_id: service_id,
-                    church_id: church_id,
-                    mark: mark
-                },
-                success: function (response) {
-                    // Try to parse if it's JSON
-                    let res;
-                    try {
-                        res = typeof response === 'object' ? response : JSON.parse(response);
-                    } catch (e) {
-                        res = { status: 'error', message: response };
-                    }
-
-                    if (res.status === 'success') {
-                        $('#respq_' + member_id).html('<small class="text-success">Marked</small>');
-                        // $this.prop('disabled', true); // ✅ disable the switch
-                        let defaultService = $('#service').val();
-                        attendance_report(service_id);
-                    } else {
-                        $('#respq_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
-                        $this.prop('checked', false); // rollback toggle if error
-                    }
-                },
-                error: function () {
-                    $('#respq_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
-                    $this.prop('disabled', false);
+    
+        // Feedback during update
+        $('#resp_' + member_id).html('<small class="text-info">Updating...</small>');
+    
+        $.ajax({
+            url: site_url + 'service/report/attendance/mark_present',
+            type: 'POST',
+            data: {
+                member_id: member_id,
+                service_id: service_id,
+                church_id: church_id,
+                mark: mark
+            },
+            success: function (response) {
+                let res;
+                try {
+                    res = typeof response === 'object' ? response : JSON.parse(response);
+                } catch (e) {
+                    res = { status: 'error', message: response };
                 }
-            });
-        
+    
+                if (res.status === 'success') {
+                    $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
+                    // Refresh attendance report if needed
+                    attendance_report(service_id);
+                } else {
+                    $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                    $this.prop('checked', !isPresent); // Rollback checkbox if failed
+                    if (isPresent) {
+                        $('#absent_reason_wrapper_' + member_id).slideDown(); // rollback UI
+                    } else {
+                        $('#absent_reason_wrapper_' + member_id).slideUp();
+                    }
+                }
+            },
+            error: function () {
+                $('#resp_' + member_id).html('<small class="text-danger">Failed to update status.</small>');
+                $this.prop('checked', !isPresent);
+                if (isPresent) {
+                    $('#absent_reason_wrapper_' + member_id).slideDown();
+                } else {
+                    $('#absent_reason_wrapper_' + member_id).slideUp();
+                }
+            }
+        });
     });
-
     
     $(document).on('change', '.mark-convert-switch', function () {
         var $this = $(this);
@@ -2256,7 +2271,7 @@
     
         let partnershipInputs = '';
         partnershipList.forEach(p => {
-            partnershipInputs += `<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="partner_${p.id}" value="0"></td>`;
+            partnershipInputs += `<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="partner_${p.id}" placeholder="0"></td>`;
         });
     
         const row = `
@@ -2267,14 +2282,14 @@
                     </select>
                     <input type="hidden" class="member-id-field" name="member_id[]" value="">
                 </td>
-                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="offering" value="0"></td>
-                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="tithe" value="0"></td>
-                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="thanksgiving" value="0"></td>
-                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="seed" value="0"></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="offering" placeholder="0"><small class="text-success msg-box" style="display:none;"></small></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="tithe" placeholder="0"><small class="text-success msg-box" style="display:none;"></small></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="thanksgiving" placeholder="0"><small class="text-success msg-box" style="display:none;"></small></td>
+                <td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="seed" placeholder="0"><small class="text-success msg-box" style="display:none;"></small></td>
                 ${partnershipInputs}
                 <td>
                     <select class="form-control currency-select" style="min-width: 120px;">
-                        <option value="ESP">ESPees</option>
+                        <option value="0">ESPees</option>
                     </select>
                 </td>
                 <td><button type="button" class="btn btn-danger btn-sm remove-row"><em class="icon ni ni-cross"></em></button></td>
@@ -2310,6 +2325,7 @@
         }, 'json');
     });
     
+
     // ========== Set Member ID on Dropdown Change ==========
     $(document).on('change', '.member-select', function () {
         const member_id = $(this).val();
@@ -2317,60 +2333,76 @@
     });
 
     // ========== Auto-Save Finance Input ==========
-    $(document).on('input', '.finance-field', function () {
-            
-        const $row = $(this).closest('tr');
-        const member_id = $row.find('.member-id-field').val();
-        const field = $(this).data('field');
-        const report_id = $('#finance_id').val();
-        const user_type = $input.data('user-type') || 'member';
-        const currency = $row.find('.currency-select').val();
+    let financeTimeout;
 
-        let val = $(this).val();
+    $(document).on('input keyup keypress blur', '.finance-field', function () {
+        clearTimeout(financeTimeout); // Clear any existing timeout
 
-        // ✅ Sanitize: remove all except digits and dot
-        val = val.replace(/[^0-9.]/g, '');
-    
-        // ✅ Limit to one dot
-        const parts = val.split('.');
-        if (parts.length > 2) {
-            val = parts[0] + '.' + parts[1];
-        }
-    
-        // ✅ Limit to 2 decimal places
-        if (parts.length === 2) {
-            parts[1] = parts[1].substring(0, 2);
-            val = parts[0] + '.' + parts[1];
-        }
-    
-        // ✅ Update input value
-        $(this).val(val);
+        const $input = $(this); // Cache the input
+        financeTimeout = setTimeout(function () {
+            const $row = $input.closest('tr');
+            const member_id = $row.find('.member-id-field').val();
+            const field = $input.data('field');
+            const report_id = $('#finance_id').val();
+            const user_type = $input.data('user-type') || 'member';
+            const currency = $row.find('.currency-select').val();
+            const $msgBox = $input.next('.msg-box');
 
+            let val = $input.val();
 
-        if (!member_id) {
-            alert('Please select a member before entering values.');
-            $(this).val('');
-            return;
-        }
+            // ✅ Sanitize: remove all except digits and dot
+            val = val.replace(/[^0-9.]/g, '');
 
-        if (!field || val === '') return;
-
-        // ✅ Save to backend
-        $.post(site_url + 'service/report/records/save_finance_field', {
-            member_id: member_id,
-            field_name: field,
-            amount: val,
-            report_id: report_id,
-            user_type: user_type,
-            currency: currency
-        }, function (res) {
-            if (res.status) {
-                console.log('Saved:', field, val);
-            } else {
-                alert('Save failed: ' + res.message);
+            // ✅ Limit to one dot
+            const parts = val.split('.');
+            if (parts.length > 2) {
+                val = parts[0] + '.' + parts[1];
             }
-        }, 'json');
+
+            // ✅ Limit to 2 decimal places
+            if (parts.length === 2) {
+                parts[1] = parts[1].substring(0, 2);
+                val = parts[0] + '.' + parts[1];
+            }
+
+            // ✅ Update input value
+            $input.val(val);
+
+            if (!member_id) {
+                alert('Please select a member before entering values.');
+                $input.val('');
+                return;
+            }
+
+            if (!field || val === '') return;
+
+            // ✅ Save to backend
+            $.post(site_url + 'service/report/records/save_finance_field', {
+                member_id: member_id,
+                field_name: field,
+                amount: val,
+                report_id: report_id,
+                user_type: user_type,
+                currency: currency
+            }, function (res) {
+                if (res.status) {
+                    $msgBox.text('✓ Saved').fadeIn();
+    
+                    setTimeout(() => {
+                        $msgBox.fadeOut();
+                    }, 2000);
+                } else {
+                    $msgBox.text('✖ Failed').removeClass('text-success').addClass('text-danger').fadeIn();
+    
+                    setTimeout(() => {
+                        $msgBox.fadeOut().removeClass('text-danger').addClass('text-success');
+                    }, 2000);
+                }
+            }, 'json');
+
+        }, 1000); // Delay 1 second after last input
     });
+
     
     
     // ========== Remove Member Row ==========

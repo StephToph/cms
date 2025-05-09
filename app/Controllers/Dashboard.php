@@ -299,6 +299,7 @@ class Dashboard extends BaseController {
             $data['is_setup_complete'] = ($data['has_cells'] && $data['has_members'] && $data['has_schedules'] && $data['has_monitor']);
         }
 
+        
         $data['log_id'] = $log_id;
         $data['log_name'] = $username;
         $data['current_language'] = $this->session->get('current_language');
@@ -1499,7 +1500,40 @@ class Dashboard extends BaseController {
 
         }
 
-        if($param1 == 'finance'){
+        if ($param1 == 'birthday') {
+            $members = $this->Crud->filter_memberz($log_id, '', '', '');
+        
+            $today = date('Y-m-d');
+            $month = date('m');
+            $day = date('d');
+        
+            $birthdays = [];
+        
+            if (!empty($members)) {
+                foreach ($members as $m) {
+                    if (!empty($m->dob)) {
+                        $dob_month = date('m', strtotime($m->dob));
+                        $dob_day = date('d', strtotime($m->dob));
+        
+                        if ($dob_month == $month && $dob_day >= $day) {
+                            $birthdays[] = $m;
+                        }
+                    }
+                }
+
+                // ✅ Sort birthdays by day of month ASC
+                usort($birthdays, function ($a, $b) {
+                    return (int)date('d', strtotime($a->dob)) <=> (int)date('d', strtotime($b->dob));
+                });
+            }
+            // print_r($birthdays);
+        
+            $data['birthdays'] = $birthdays;
+        }
+        
+
+
+        if($param1 == 'finance' || $param1 == 'birthday'){
             return view('dashboard_form', $data);
         }
     }
@@ -1617,4 +1651,5 @@ class Dashboard extends BaseController {
         ftp_close($conn_id);
 
     }
+
 }

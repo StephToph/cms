@@ -291,7 +291,7 @@ $this->session = \Config\Services::session();
                                 $firstname = $this->Crud->read_field('id', $q->user_id, 'user', 'firstname');
                                 $name = $surname.' '.$firstname.' '.$othername;
                                 if($q->user_type == 'guest'){
-                                    $name = $guest;
+                                    $name = $q->guest;
                                 }
                                 $part = '';
                                 if($q->finance_type == 'partnership'){
@@ -883,22 +883,22 @@ $this->session = \Config\Services::session();
 
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Email');?></label>
+                    <label class="form-label" for="name"><?=translate_phrase('Email');?></label>
                     <input class="form-control" type="text" id="email" name="email" value="<?php if(!empty($e_email)) {echo $e_email;} ?>" >
                 </div>
             </div>
 
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Phone');?></label>
-                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>" required>
+                    <label class="form-label" for="name"><?=translate_phrase('Phone');?></label>
+                    <input class="form-control" type="text" id="phone" name="phone" value="<?php if(!empty($e_phone)) {echo $e_phone;} ?>" >
                 </div>
             </div>
 
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label">Gender</label>
-                    <select class="js-select2" name="gender" id="gender" data-placeholder="Select Gender" required>
+                    <select class="js-select2" name="gender" id="gender" data-placeholder="Select Gender" >
                         <option value="">Select Gender</option>
                         <option value="male" <?php if(!empty($e_gender)){if($e_gender ==  'male'){echo 'selected';}}; ?>>Male</option>
                         <option value="female" <?php if(!empty($e_gender)){if($e_gender ==  'female'){echo 'selected';}}; ?>>Female</option>
@@ -920,14 +920,14 @@ $this->session = \Config\Services::session();
             </div>
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Address');?></label>
-                    <input class="form-control" type="text" id="address" name="address"required>
+                    <label class="form-label" for="name"><?=translate_phrase('Address');?></label>
+                    <input class="form-control" type="text" id="address" name="address">
                 </div>
             </div>
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('City');?></label>
-                    <input class="form-control" type="text" id="city" name="city"  required>
+                    <label class="form-label" for="name"><?=translate_phrase('City');?></label>
+                    <input class="form-control" type="text" id="city" name="city"  >
                 </div>
             </div>
             <div class="col-sm-4">
@@ -945,7 +945,7 @@ $this->session = \Config\Services::session();
                             
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Postal Code');?></label>
+                    <label class="form-label" for="name"><?=translate_phrase('Postal Code');?></label>
                     <input class="form-control" type="text" id="postal" name="postal"  >
                 </div>
             </div>
@@ -953,7 +953,7 @@ $this->session = \Config\Services::session();
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
                     <label class="form-label">Marital Status</label>
-                    <select class="js-select2" name="marital" id="marital" data-placeholder="Select Marital Status" required>
+                    <select class="js-select2" name="marital" id="marital" data-placeholder="Select Marital Status">
                         <option value="">Select Marital Status</option>
                         <option value="married">Married</option>
                         <option value="single" >Single</option>
@@ -965,7 +965,7 @@ $this->session = \Config\Services::session();
 
             <div class="col-sm-4 mb-3">
                 <div class="form-group">
-                    <label class="form-label" for="name">*<?=translate_phrase('Occupation');?></label>
+                    <label class="form-label" for="name"><?=translate_phrase('Occupation');?></label>
                     <input class="form-control" type="text" id="occupation" name="occupation"  >
                 </div>
             </div>

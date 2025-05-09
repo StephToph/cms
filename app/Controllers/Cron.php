@@ -219,11 +219,23 @@ class Cron extends BaseController {
 				}
 
 				if ($schedule->recurrence_pattern === 'monthly') {
+					if ($schedule->monthly_type === 'pattern') {
+						$weekOfMonth = ceil(date('j') / 7); // 1st, 2nd, etc. week
+						$dayOfWeek   = date('D'); // 'Sun', 'Mon', etc.
+				
+						$target_week = (int) $schedule->monthly_weeks;
+						$target_day  = $schedule->monthly_weekdays;
+				
+						$run_today = ($weekOfMonth == $target_week && $dayOfWeek == $target_day);
+					}
+				
 					if ($schedule->monthly_type === 'dates') {
 						$monthly_dates = explode(',', $schedule->monthly_dates ?? '');
 						$run_today = in_array(date('j'), $monthly_dates);
 					}
 				}
+				
+				
 
 				if ($schedule->recurrence_pattern === 'yearly') {
 					$run_today = (date('m-d') === date('m-d', strtotime($schedule->yearly_date)));
@@ -248,6 +260,12 @@ class Cron extends BaseController {
 				->where('date <=', date('Y-m-d', strtotime('+1 day')))
 				->get()
 				->getRow();
+
+			// Get service type name
+			// Skip if service type is 0 (invalid)
+			if ((int) $schedule->type_id === 0) {
+				continue;
+			}
 
 			// Get service type name
 			$name = $this->Crud->read_field('id', $schedule->type_id, 'service_type', 'name');
