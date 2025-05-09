@@ -575,6 +575,7 @@
                         <?php 
                         $is_admin = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
                         $church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id');
+                        $church_type = $this->Crud->read_field('id', $log_id, 'user', 'church_type');
                         $country_id = $this->Crud->read_field('id', $church_id, 'church', 'country_id');
                         $state_id = $this->Crud->read_field('id', $church_id, 'church', 'state_id');
                         ?>
@@ -931,7 +932,7 @@
                 }
             ?>
             <?php 
-            $hasTransactionPin = ($is_admin > 0 && $state_id == 0) ? 'true' : 'false'; 
+            $hasTransactionPin = ($is_admin > 0 && $state_id == 0 && $church_id > 0) ? 'true' : 'false'; 
             ?>
             var hasTransactionPin = <?= $hasTransactionPin ?>;
             console.log(hasTransactionPin);

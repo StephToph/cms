@@ -44,6 +44,33 @@ $service_church_id = $this->session->get('service_church_id');
             color: red;
             margin-top: 0.5rem;
         }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table-scroll {
+            max-height: 350px; /* adjust as needed */
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .table-scroll table {
+            width: max-content; /* ensures full width scroll */
+            border-collapse: collapse;
+        }
+
+        .table-scroll thead th {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            z-index: 1;
+        }
+        .table-scroll td input {
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
     </style>
     <div class="container-fluid mt-3">
         <div class="nk-content-inner">
@@ -62,7 +89,9 @@ $service_church_id = $this->session->get('service_church_id');
                             <div class="card-inner position-relative card-tools-toggle">
                                 <div class="card-title-group">
                                     <div class="card-tools">
-
+                                        <ul>
+                                            <li id="service_name"></li>
+                                        </ul>
                                     </div><!-- .card-tools -->
                                     <div class="card-tools me-n1">
                                         <ul class="btn-toolbar gx-1">
@@ -476,13 +505,15 @@ $service_church_id = $this->session->get('service_church_id');
                                         </div>
                                         
                                         <div class="col-sm-4 mb-2">
-                                            <label class="name">Search Member</label>   
-                                            <div class="input-group">        
-                                                <input type="text" id="member_id" oninput="get_member();$('#memberAttendance').hide(500);$('#member_response').show(500);$('#metric_response').show(500);"class="form-control " placeholder="Enter Name or Email">        
-                                                <div class="input-group-append">            
-                                                    <button class="btn btn-outline-primary btn-dim" onclick="get_member();$('#memberAttendance').hide(500);$('#member_response').show(500);$('#metric_response').show(500);">Search</button>        
-                                                </div> 
+                                            <label class="name">Search Member</label> 
+                                            <div class="input-group">
+                                                <input type="text" id="member_id" class="form-control" placeholder="Enter Name or Email">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-primary btn-dim" id="search_member_btn">Search</button>
+                                                </div>
                                             </div>
+                                            
+                                           
                                         </div>
                                         
                                         <div class="col-sm-2 my-2">
@@ -503,8 +534,8 @@ $service_church_id = $this->session->get('service_church_id');
                                             </a>
 
                                         </div>
-                                        <div class="col-12 my-2 text-center" id="memberAttendance" style="display:none;"></div>
-                                        <div class="col-12 my-2 text-center" id="member_response"></div>
+                                        <div class="col-12 my-2 text-cener" id="memberAttendance" style="display:none;"></div>
+                                        <div class="col-12 my-2 " id="member_response"></div>
                                         <div class="col-sm-12 my-3" id="metric_response">
                                             <!-- dynamic content appears here -->
                                         </div>
@@ -615,53 +646,48 @@ $service_church_id = $this->session->get('service_church_id');
                                       
                                     </div>
                                     <hr>
+                                    <div class="table-container">
+                                        <div class="table-scroll">
+                                            <table class="table table-striped table-hover mt-5 p-2">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="250px">MEMBER</th>
+                                                        <th>OFFERING</th>
+                                                        <th>TITHE</th>
+                                                        <th>THANKSGIVING</th>
+                                                        <th>SPECIAL SEED</th>
+                                                        <?php
+                                                        $parts = $this->Crud->read_order('partnership', 'name', 'asc');
+                                                        if (!empty($parts)) {
+                                                            foreach ($parts as $pp) {
+                                                                $name = $pp->name;
+                                                                if (strtoupper($pp->name) == 'BIBLE SPONSOR') $name = 'Bible';
+                                                                if (strtoupper($pp->name) == 'CHILDREN MINISTRY') $name = 'Children';
+                                                                if (strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE') $name = 'H.S.M';
+                                                                if (strtoupper($pp->name) == 'HEALING STREAM') $name = 'H.S';
+                                                                if (strtoupper($pp->name) == 'LOVEWORLD LWUSA') $name = 'lwusa';
+                                                                if (strtoupper($pp->name) == 'MINISTRY PROGRAM') $name = 'Ministry';
 
-                                    <div class="table-responsive">
-                                        <table class="table table-striped table-hover mt-5">
-                                            <thead>
-                                                <tr>
-                                                    <th width="250px;">MEMBER</th>
-                                        
-                                                    <th>OFFERING</th>
-                                                    <th>TITHE</th>
-                                                    <th>THANKSGIVING</th>
-                                                    <th>SPECIAL SEED</th>
-                                                    <?php
-                                                    $parts = $this->Crud->read_order('partnership', 'name', 'asc');
-                                                    if (!empty($parts)) {
-                                                        foreach ($parts as $pp) {
-                                                            $name = $pp->name;
-                                                            if (strtoupper($pp->name) == 'BIBLE SPONSOR')
-                                                                $name = 'Bible';
-                                                            if (strtoupper($pp->name) == 'CHILDREN MINISTRY')
-                                                                $name = 'Children';
-                                                            if (strtoupper($pp->name) == 'HEALING SCHOOL MAGAZINE')
-                                                                $name = 'H.S.M';
-                                                            if (strtoupper($pp->name) == 'HEALING STREAM')
-                                                                $name = 'H.S';
-                                                            if (strtoupper($pp->name) == 'LOVEWORLD LWUSA')
-                                                                $name = 'lwusa';
-                                                            if (strtoupper($pp->name) == 'MINISTRY PROGRAM')
-                                                                $name = 'Ministry';
-                                                            // if($pp->name == 'BIBLE SPONSOR')$name = 'Bible';
-                                                    
-                                                            echo ' <th >' . strtoupper($name) . '</th>';
+                                                                echo '<th>' . strtoupper($name) . '</th>';
+                                                            }
                                                         }
-                                                    }
-                                                    ?>
-                                                    <th>CURRENCY</th>
-                                                    <th></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="member_partner_list">
-
-                                            </tbody>
-                                        </table>
+                                                        ?>
+                                                        <th>CURRENCY</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="member_partner_list">
+                                                    <!-- Rows -->
+                                                </tbody>
+                                            </table>
+                                        </div>
                                         <div class="col-12 my-3 text-center">
                                             <p id="mem_resp"></p>
                                             <button type="button" class="btn btn-primary" id="mem_btn">Add More</button>
                                         </div>
                                     </div>
+
+
                                     <hr>
 
                                     
@@ -765,9 +791,24 @@ $service_church_id = $this->session->get('service_church_id');
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.3/min/dropzone.min.js"></script>
 
 <script>
-
+    
    
     $(document).ready(function() {
+         // When user types into the input box
+        $('#member_id').on('input', function() {
+            $('#memberAttendance').hide(500);
+            $('#member_response').show(500);
+            $('#metric_response').show(500);
+            get_member();
+        });
+
+        // When user clicks Search button
+        $('#search_member_btn').on('click', function() {
+            $('#memberAttendance').hide(500);
+            $('#member_response').show(500);
+            $('#metric_response').show(500);
+            get_member();
+        });
         
         toggleChurchScope('all');
         $('#toggleFilterBtn').on('click', function () {

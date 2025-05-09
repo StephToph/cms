@@ -628,7 +628,9 @@
                                             <div class="card-title">
                                                 <h6 class="title my-1"><?=translate_phrase('Upcoming Birthdays');?></h6>
                                             </div>
-                                            <div class="card-tools"></a>
+                                            
+                                            <div class="card-tools">
+                                                <a href="javascript:;" pageSize="modal-lg" pageTitle="View Birthdays" pageName="<?=site_url('dashboard/records/birthday'); ?>" class="link pop"><?=translate_phrase('View All');?></a>
                                             </div>
                                         </div>
                                     </div>

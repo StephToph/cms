@@ -328,36 +328,115 @@ $this->Crud = new Crud();
     });
 
 
+    // Handle Mark Present Switch
     $(document).on('change', '.mark-present-switch', function () {
         var $this = $(this);
-        var member_id = $(this).data('member-id');
-        var isPresent = $(this).is(':checked');
+        var member_id = $this.data('member-id');
+        var isPresent = $this.is(':checked');
         var service_id = $('#service').val();
         var church_id = $('#church_id').val();
 
-        var mark = 0;
-        if(isPresent){
-            var mark = 1;
-        }
+        $('#resp_' + member_id).html('<small class="text-info">Updating...</small>');
 
-        // Disable Absent if Present is checked
-        $('#absentSwitch_' + member_id).prop('disabled', isPresent);
-        $('#absentSwitchz_' + member_id).prop('disabled', isPresent);
-        $('#absentSwitchm_' + member_id).prop('disabled', isPresent);
-        
-            $('#resp_' + member_id).html('<small class="text-info">Updating...</small>');
-            // $this.prop('disabled', true);
+        $.ajax({
+            url: site_url + 'attendance/records/mark_present',
+            type: 'POST',
+            data: {
+                member_id: member_id,
+                service_id: service_id,
+                church_id: church_id,
+                mark: isPresent ? 1 : 0
+            },
+            success: function (response) {
+                let res;
+                try {
+                    res = typeof response === 'object' ? response : JSON.parse(response);
+                } catch (e) {
+                    res = { status: 'error', message: response };
+                }
+
+                if (res.status === 'success') {
+                    $('#resp_' + member_id).html('<small class="text-success">' + res.message + '</small>');
+
+                    // ✅ Handle Reason Box Visibility
+                    if (isPresent) {
+                        $('#absent_reason_wrapper_' + member_id).slideUp();
+                        $('#absent_reason_' + member_id).val('');
+                        $('#other_reason_' + member_id).val('').hide();
+                    } else {
+                        $('#absent_reason_wrapper_' + member_id).slideDown();
+                    }
+
+                    loadMetrics(service_id);
+                } else {
+                    $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
+                    $this.prop('checked', !isPresent); // rollback if error
+                }
+            },
+            error: function () {
+                $('#resp_' + member_id).html('<small class="text-danger">Failed to update status.</small>');
+                $this.prop('checked', !isPresent);
+            }
+        });
+    });
+
+    $(document).on('change', '.reason-select', function () {
+    var $this = $(this);
+    var member_id = $this.data('member-id');
+    var selected = $this.val().toLowerCase(); // 🔥 force lowercase for safe matching
+    var $otherInput = $('#other_reason_' + member_id);
+
+    if (selected.includes('other')) { // 🔥 lowercase match always works
+        $otherInput.show().focus();
+    } else {
+        $otherInput.hide().val('');
+    }
+});
+
+
+$(document).on('change blur', '.reason-select, .other-reason-input', function () {
+        var $this = $(this);
+        var $row = $this.closest('tr');
+        var member_id = $this.data('member-id');
+
+        setTimeout(function() { // wait to capture final typed value
+            var reason = $('#absent_reason_' + member_id).val() || '';
+            var other_reason = $('#other_reason_' + member_id).val() || '';
+            
+            var final_reason = '';
+
+            if (reason.includes('Other')) {
+                // 🔥 Force to use custom input
+                if (other_reason.trim() !== '') {
+                    final_reason = other_reason.trim();
+                } else {
+                    final_reason = ''; // ❗ Blank if user didn't fill
+                }
+            } else {
+                final_reason = reason.trim();
+            }
+
+            var service_id = $('#service').val();
+            var church_id = $('#church_id').val();
+            var $resp = $('#resp_' + member_id);
+
+            if (final_reason === '') {
+                $resp.html('<small class="text-warning">Please provide a valid reason for absence.</small>');
+                return; // ❗ Stop here, don't proceed if blank
+            }
+
+            $resp.html('<small class="text-info">Saving reason...</small>');
+
             $.ajax({
-                url: site_url + 'attendance/records/mark_present',
+                url: site_url + 'attendance/records/mark_absent',
                 type: 'POST',
                 data: {
                     member_id: member_id,
                     service_id: service_id,
                     church_id: church_id,
-                    mark: mark
+                    reason: final_reason
                 },
                 success: function (response) {
-                    // Try to parse if it's JSON
                     let res;
                     try {
                         res = typeof response === 'object' ? response : JSON.parse(response);
@@ -366,24 +445,20 @@ $this->Crud = new Crud();
                     }
 
                     if (res.status === 'success') {
-                        $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
-                        // $this.prop('disabled', true); // ✅ disable the switch
-                        let defaultService = $('#service').val();
-                        loadMetrics(defaultService); 
+                        $resp.html('<small class="text-success">' + res.message + '</small>');
+                        loadMetrics(service_id);
                     } else {
-                        $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
-                        $this.prop('checked', false); // rollback toggle if error
+                        $resp.html('<small class="text-danger">' + res.message + '</small>');
                     }
                 },
                 error: function () {
-                    $('#resp_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
-                    $this.prop('disabled', false);
+                    $resp.html('<small class="text-danger">Error saving reason.</small>');
                 }
             });
-        
+        }, 100);
     });
 
-    
+
     $(document).on('change', '.mark-convert-switch', function () {
         var $this = $(this);
         var member_id = $(this).data('member-id');
@@ -436,132 +511,7 @@ $this->Crud = new Crud();
             });
         
     });
-
-    $(document).on('change', '.mark-absent-switch', function () {
-        let $this = $(this);
-        let member_id = $this.data('member-id');
-        let isAbsent = $this.is(':checked');
-        var service_id = $('#service').val();
-        var church_id = $('#church_id').val();
-
-        // Disable Present switch if Absent is checked
-        $('#presentSwitch_' + member_id).prop('disabled', isAbsent);
-        $('#presentSwitchz_' + member_id).prop('disabled', isAbsent);
-        $('#presentSwitchm_' + member_id).prop('disabled', isAbsent);
-        var mark = 0;
-        if(isAbsent){
-            var mark = 1;
-        }
-
-        console.log(mark);
-        if(mark == 0){
-            $.ajax({
-                url: site_url + 'attendance/records/mark_present',
-                type: 'POST',
-                data: {
-                    member_id: member_id,
-                    service_id: service_id,
-                    church_id: church_id,
-                    mark: mark
-                },
-                success: function (response) {
-                    // Try to parse if it's JSON
-                    let res;
-                    try {
-                        res = typeof response === 'object' ? response : JSON.parse(response);
-                    } catch (e) {
-                        res = { status: 'error', message: response };
-                    }
-
-                    if (res.status === 'success') {
-                        $('#resp_' + member_id).html('<small class="text-success">Marked</small>');
-                        // $this.prop('disabled', true); // ✅ disable the switch
-                        let defaultService = $('#service').val();
-                        loadMetrics(defaultService); 
-                    } else {
-                        $('#resp_' + member_id).html('<small class="text-danger">' + res.message + '</small>');
-                        $this.prop('checked', false); // rollback toggle if error
-                    }
-                },
-                error: function () {
-                    $('#resp_' + member_id).html('<small class="text-danger">Failed to mark member as present.</small>');
-                    $this.prop('disabled', false);
-                }
-            });
-        }
-        
-
-        // Show or hide reason input
-        if (isAbsent) {
-            $('.absent_reason_wrapper_' + member_id).slideDown();
-        } else {
-            $('.absent_reason_wrapper_' + member_id).slideUp();
-            $('#absent_reason_' + member_id).val('');
-        }
-    });
-
-    $(document).on('change', '.reason-select', function () {
-        let $this = $(this);
-        let member_id = $this.data('member-id');
-        let selected = $this.val();
-
-        // Look for the wrapper closest to this reason dropdown
-        let $row = $this.closest('tr');
-        let $otherInput = $row.find('.other-reason-input');
-
-        if (selected === 'Other' || selected.includes('Other')) {
-            $otherInput.show().focus();
-        } else {
-            $otherInput.hide().val('');
-        }
-    });
-
-    // Submit on reason select or when "other" input loses focus
-    $(document).on('change blur', '.reason-select, .other-reason-input', function () {
-        let $this = $(this);
-        let $row = $this.closest('tr');
-        let member_id = $this.data('member-id');
-
-        let reason = $row.find('.reason-select').val();
-        let other_reason = $row.find('.other-reason-input').val();
-        let final_reason = reason === 'Other' || reason.includes('Other') ? other_reason.trim() : reason;
-
-        if (final_reason !== '') {
-            let service_id = $('#service').val();
-            let church_id = $('#church_id').val();
-            let $resp = $row.find('#resp_' + member_id);
-
-            $resp.html('<small class="text-info">Saving reason...</small>');
-
-            $.ajax({
-                url: site_url + 'attendance/records/mark_absent',
-                type: 'POST',
-                data: {
-                    member_id: member_id,
-                    reason: final_reason,
-                    service_id: service_id,
-                    church_id: church_id
-                },
-                success: function (response) {
-                    let res = typeof response === 'object' ? response : JSON.parse(response);
-                    if (res.status === 'success') {
-                        $resp.html('<small class="text-success">' + res.message + '</small>');
-                        let defaultService = $('#service').val();
-                        loadMetrics(defaultService);
-                        $row.find('.mark-absent-switch').prop('disabled', true);
-                        $row.find('.reason-select').prop('disabled', true);
-                        $row.find('.other-reason-input').prop('readonly', true);
-                    } else {
-                        $resp.html('<small class="text-danger">' + res.message + '</small>');
-                    }
-                },
-                error: function () {
-                    $resp.html('<small class="text-danger">Error saving reason.</small>');
-                }
-            });
-        }
-    });
-        
+    
     function loadMetrics(serviceNumber) {
         $.ajax({
             url: site_url + 'attendance/records/get_attendance_metrics',
@@ -688,7 +638,10 @@ $this->Crud = new Crud();
         });
         html5QrcodeScanner.render(onScanSuccess);
 
-        
+        $(document).ready(function(){
+            // Initialize Select2 for the original select dropdown
+            $('.js-select2').select2();
+        });
     </script>
 <?php } ?>
 <?= $this->endSection(); ?>

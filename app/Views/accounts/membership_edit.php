@@ -275,24 +275,35 @@
                                 <div class="col-md-6 col-lg-4 col-xxl-3">
                                     <div class="form-group"><label class="form-label">Department</label>
                                         <div class="form-control-wrap">
+                                            <?php
+                                            // Always ensure $selected_depts is an array
+                                            $selected_depts = [];
+
+                                            if (!empty($e_dept_id)) {
+                                                if (is_array($e_dept_id)) {
+                                                    $selected_depts = $e_dept_id;
+                                                } elseif (is_string($e_dept_id)) {
+                                                    $decoded = json_decode($e_dept_id, true);
+                                                    $selected_depts = is_array($decoded) ? $decoded : [];
+                                                }
+                                            }
+                                            ?>
+
                                             <select class="form-select js-select2" id="dept_id" name="dept_id[]" multiple data-placeholder="Select Department" onchange="dept_role();">
                                                 <option value="">Select</option>
                                                 <?php
-                                                    $parent  = $this->Crud->read_order('dept', 'name', 'asc');
-                                                    if(!empty($parent)){
-                                                        foreach($parent as $p){
-                                                            $sel = '';
-                                                            if(!empty($e_dept_id)){
-                                                                if($e_dept_id == $p->id){
-                                                                    $sel = 'selected';
-                                                                }
-                                                            }
-                                                            echo '<option value="'.$p->id.'" '.$sel.'>'.ucwords($p->name).'</option>';
-                                                        }
+                                                $parent = $this->Crud->read_order('dept', 'name', 'asc');
+                                                if (!empty($parent)) {
+                                                    foreach ($parent as $p) {
+                                                        $isSelected = in_array((string)$p->id, array_map('strval', $selected_depts)); // ensure strict comparison
+                                                        $sel = $isSelected ? 'selected' : '';
+                                                        echo '<option value="' . $p->id . '" ' . $sel . '>' . ucwords($p->name) . '</option>';
                                                     }
+                                                }
                                                 ?>
                                             </select>
                                         </div>
+
                                     </div>
                                 </div>
 
@@ -451,7 +462,7 @@
                                         <div class="form-control-wrap">
                                             <select class="form-select js-select2" id="archive" name="archive"
                                                 data-placeholder="Select">
-                                                <option value="0" <?php if(!empty($e_archive)){if($e_archive == '0'){echo 'selected';}} ?>>No </option>
+                                                <option value="0">No </option>
                                                 <option value="1" <?php if(!empty($e_archive)){if($e_archive == '1'){echo 'selected';}} ?>>Yes </option>
                                             </select>
                                         </div>
@@ -464,7 +475,7 @@
                                             <div class="form-control-wrap">
                                                 <select class="form-select js-select2" id="is_duplicate" name="archive"
                                                     data-placeholder="Select">
-                                                    <option value="0" <?php if(!empty($e_is_duplicate)){if($e_is_duplicate == '0'){echo 'selected';}} ?>>Not a Duplicate </option>
+                                                    <option value="0">Not a Duplicate </option>
                                                     <option value="1" <?php if(!empty($e_is_duplicate)){if($e_is_duplicate == '1'){echo 'selected';}} ?>>Yes - A Duplicate Account</option>
                                                 </select>
                                             </div>
@@ -587,66 +598,68 @@
             }
         });
     });
-    <?php 
-        if(!empty($e_dept_role)){?>
-            var dept = '<?=$e_dept_role; ?>';
-            setTimeout(dept_role(dept), 2000);
-        <?php }
-    ?>
+    <?php if (!empty($e_dept_role)) : ?>
+            var dept = <?= json_encode(json_decode($e_dept_role, true)) ?>;
+            setTimeout(function () {
+                dept_role(dept);
+            }, 1000);
+    <?php endif; ?>
+
         <?php 
         if(!empty($e_cell_role)){?>
             var cell = '<?=$e_cell_role; ?>';
             setTimeout(cell_role(cell), 2000);
         <?php }
     ?>
-    
-    function dept_role() {
+
+    function dept_role(preselected = {}) {
         $('#dept_display').hide(500);
-        const dept_ids = $('#dept_id').val(); // Get selected departments
+        const dept_ids = $('#dept_id').val();
         const container = $('#dept_roles_container');
-        container.empty(); // Clear current role fields
+        container.empty();
 
-        if (dept_ids.length === 0) return;
+        if (!dept_ids || dept_ids.length === 0) return;
 
-        // Loop through each selected dept ID and fetch roles
         dept_ids.forEach(dept_id => {
             $.ajax({
-                url: "<?= site_url('accounts/membership/get_dept_role') ?>", // Adjust this URL to your route
+                url: "<?= site_url('accounts/membership/get_dept_role') ?>",
                 method: 'POST',
+                dataType: 'json',
                 data: { dept_id: dept_id },
                 success: function(response) {
-                    // Assume response is an array of role objects { id, name }
                     $('#dept_display').show(500);
                     let options = '<option value="">Select Role</option>';
-                    if (response.length > 0) {
-                        response.forEach(role => {
-                            options += `<option value="${role.name}">${role.name}</option>`;
-                        });
-                    }
+                    let department_name = response[0]?.department_name || 'Department';
+                    let selectedRole = preselected[dept_id] || '';
+
+                    response.forEach(role => {
+                        let selected = (role.name === selectedRole) ? 'selected' : '';
+                        options += `<option value="${role.name}" ${selected}>${role.name}</option>`;
+                    });
 
                     const html = `
-                    
                         <div class="col-md-6 col-lg-4 col-xxl-3 mb-3">
                             <div class="form-group">
-                                <label class="form-label">Role in ${response[0]?.department_name || 'Department'}</label>
+                                <label class="form-label">Role in ${department_name}</label>
                                 <div class="form-control-wrap">
-                                    <select class="form-select js-select2" name="dept_role_id[${dept_id}]">
+                                    <select class="form-select js-select2" name="dept_role[${dept_id}]">
                                         ${options}
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        
                     `;
 
                     container.append(html);
-                    $('.js-select2').select2(); // Re-initialize select2 for new fields
+                    container.find(`select[name="dept_role[${dept_id}]"]`).select2();
                 }
             });
         });
-        }
+    }
 
-    // function dept_role(dept){
+
+
+// function dept_role(dept){
     //     var dept_id = $('#dept_id').val();
     //     $.ajax({
     //         url: site_url + 'accounts/membership/get_dept_role/' + dept_id + '/'+ dept,
@@ -702,46 +715,51 @@
     $(document).ready(function () {
         <?php
            $e_church_ids = !empty($e_church_id) ? $e_church_id : 0;
+           $log_church_id = $this->Crud->read_field('id', $log_id, 'user', 'church_id') ?? 0;
+
         ?>
+          var logIdChurchId = <?php echo $log_church_id; ?>; //
+                            
         var eChurchId = <?php echo $e_church_ids; ?>;
         // Function to load churches based on selected ministry ID and/or level
+       
+       
         function loadChurches(ministryId, level) {
-            // Clear the Church dropdown
-            $('#church_id').empty();
-            $('#church_id').append(new Option('Loading...', '', false, false));
+            $('#church_id').empty().append(new Option('Loading...', '', false, false));
 
-            // Construct data object based on provided parameters
             var data = {};
-            if (ministryId) {
-                data.ministry_id = ministryId;
-            }
-            if (level) {
-                data.level = level;
-            }
+            if (ministryId) data.ministry_id = ministryId;
+            if (level) data.level = level;
 
-            // Proceed if there's data to be sent
             if (Object.keys(data).length > 0) {
                 $.ajax({
-                    url: site_url + 'ministry/announcement/get_church', // Update this to the path of your API endpoint
+                    url: site_url + 'ministry/announcement/get_church',
                     type: 'POST',
                     dataType: 'json',
                     data: data,
                     success: function (response) {
-                        $('#church_id').empty(); // Clear 'Loading...' option
+                        $('#church_id').empty(); // clear loading
 
-                        if (response.success) {
-                            $('#church_id').append(new Option('select church', '', false, false));
-    
-                           // Populate the Church dropdown with the data received
-                           $.each(response.data, function (index, church) {
-                                var selected = (eChurchId === church.id); // Check if the ID matches
-                                var churchName = toTitleCase(church.name); // Convert name to title case
-                                var churchType = toTitleCase(church.type); // Convert type to title case
-                                $('#church_id').append(new Option(churchName + ' - ' + churchType, church.id, selected, selected));
-                            });
-                            if (eChurchId) {
-                                $('#church_id').val(eChurchId);
+                        if (response.success && Array.isArray(response.data)) {
+                            $('#church_id').append(new Option('Select Church', '', false, false));
+
+                            // ⚠️ Fallback BEFORE population
+                            if (!eChurchId || eChurchId === 0) {
+                                eChurchId = logIdChurchId;
                             }
+
+                            // ✅ Populate dropdown
+                            response.data.forEach(function (church) {
+                                var isSelected = String(eChurchId) === String(church.id);
+                                var churchName = toTitleCase(church.name);
+                                var churchType = toTitleCase(church.type);
+                                $('#church_id').append(new Option(`${churchName} - ${churchType}`, church.id, isSelected, isSelected));
+                            });
+
+                            // ✅ Ensure selected ID is applied to dropdown
+                            $('#church_id').val(eChurchId).trigger('change');
+
+                            // Load dependents
                             getParents(eChurchId, ministryId);
                             getSpouse(eChurchId, ministryId);
                         } else {
@@ -749,7 +767,7 @@
                         }
                     },
                     error: function () {
-                        $('#church_id').append(new Option('Error fetching churches', '', false, false));
+                        $('#church_id').empty().append(new Option('Error fetching churches', '', false, false));
                     }
                 });
             } else {
@@ -860,32 +878,59 @@
 
     
     function getSpouse(churchId, ministryId) {
-        // Ensure church and ministry IDs are provided
+        // Get fallback values from PHP
+        var editId = <?= (int) $param3 ?? 0 ?>;
+        var logIdChurchId = <?= (int) ($this->Crud->read_field('id', $log_id, 'user', 'church_id') ?? 0) ?>;
+        var logIdMinistryId = <?= (int) ($this->Crud->read_field('id', $log_id, 'user', 'ministry_id') ?? 0) ?>;
+        var spouse_id = <?= (int) (!empty($e_spouse_id) ? $e_spouse_id : 0) ?>;
+
+        // Fallbacks
+        if (!churchId) churchId = logIdChurchId;
+        if (!ministryId) ministryId = logIdMinistryId;
+
+        // Shortcut if spouse_id is set: just fetch and display the name
+        if (spouse_id > 0) {
+            $.ajax({
+                url: site_url + 'accounts/get_spouse_name',
+                type: 'POST',
+                data: { id: spouse_id },
+                success: function (spouseName) {
+                    const option = `<option value="${spouse_id}" selected>${spouseName}</option>`;
+                    $('#spouse_id').html(option);
+                },
+                error: function () {
+                    $('#spouse_id').html('<option value="">Spouse not found</option>');
+                }
+            });
+            return;
+        }
+
+        // If no church and ministry ID, abort
         if (!churchId && !ministryId) {
             $('#spouse_id').html('<option value="">Select Spouse</option>');
             return;
         }
-        var spouse_id = '<?= !empty($e_spouse_id) ? $e_spouse_id : ""; ?>';
 
+        // Otherwise, load spouse list
         $.ajax({
             url: site_url + 'accounts/membership/get_spouse/' + churchId + '/' + ministryId,
-            type: 'get',
-            success: function (data) {
+            type: 'POST', // switched to POST
+            data: {
+                edit_id: editId // 👈 pass editId here
+            },success: function (data) {
                 try {
-                    var response = JSON.parse(data);
+                    const response = JSON.parse(data);
+                    let options = '<option value="0">Select Spouse</option>';
 
-                    // Populate parent dropdown
-                    var options = '<option value="">Select Spouse</option>';
-                    response.forEach(function (parent) {
-                        // Check if the current parent ID matches the selected spouse_id
-                        var selected = parent.id === spouse_id ? 'selected' : '';
-                        options += `<option value="${parent.id}" ${selected}>${parent.name}</option>`;
-                    });
-                    
+                    if (response.length > 0) {
+                        response.forEach(function (parent) {
+                            options += `<option value="${parent.id}">${parent.name}</option>`;
+                        });
+                    }
+
                     $('#spouse_id').html(options);
-                   
-                } catch (error) {
-                    console.error('Error parsing response:', error);
+                } catch (err) {
+                    console.error('JSON Parse Error:', err);
                     $('#spouse_id').html('<option value="">Error loading Spouse</option>');
                 }
             },
@@ -895,6 +940,7 @@
             }
         });
     }
+
 
     
 

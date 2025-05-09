@@ -2100,18 +2100,43 @@ class Church extends BaseController{
 					if ($church_type == 'zone') {
 						$urole_id = $this->Crud->read_field('name', 'Zonal Manager', 'access_role', 'id');
 
+    					$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+    					$ins['regional_id'] = $regional_id;
 					}
 					if ($church_type == 'group') {
 						$urole_id = $this->Crud->read_field('name', 'Group Manager', 'access_role', 'id');
 
+    					$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+    					$ins['regional_id'] = $regional_id;
+
+    					$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+    					$ins['zonal_id'] = $zonal_id;
+
 					}
 					if ($church_type == 'church') {
 						$urole_id = $this->Crud->read_field('name', 'Church Leader', 'access_role', 'id');
+						$regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+    					$ins['regional_id'] = $regional_id;
+
+    					$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+    					$ins['zonal_id'] = $zonal_id;
+    					
+    					$group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+    					$ins['group_id'] = $group_id;
 
 					}
 					if ($church_type == 'center') {
 						$urole_id = $this->Crud->read_field('name', 'Center Manager', 'access_role', 'id');
+                        $regional_id = $this->Crud->read_field('id', $church_id, 'church', 'regional_id');
+    					$ins['regional_id'] = $regional_id;
 
+    					$zonal_id = $this->Crud->read_field('id', $church_id, 'church', 'zonal_id');
+    					$ins['zonal_id'] = $zonal_id;
+    					
+    					$group_id = $this->Crud->read_field('id', $church_id, 'church', 'group_id');
+    					$ins['group_id'] = $group_id;
+    					$church_id = $this->Crud->read_field('id', $church_id, 'church', 'church_id');
+    					$ins['church_id'] = $church_id;
 					}
 
 					if (empty($title) || $title == ' ') {
@@ -2149,9 +2174,9 @@ class Church extends BaseController{
 							echo $this->Crud->msg('info', translate_phrase('No Changes'));
 						}
 					} else {
-						// if ($this->Crud->check('email', $email, $table) > 0 || $this->Crud->check('phone', $phone, $table) > 0) {
-						// 	echo $this->Crud->msg('warning', ('Email and/or Phone Already Exist'));
-						// } else {
+						if ($this->Crud->check('email', $email, $table)  > 0) {
+							echo $this->Crud->msg('warning', ('Email and/or Phone Already Exist'));
+						} else {
 							$ins_data['ministry_id'] = $ministry_id;
 							$ins_data['church_id'] = $church_id;
 							$ins_data['church_type'] = $church_type;
@@ -2176,7 +2201,7 @@ class Church extends BaseController{
 							} else {
 								echo $this->Crud->msg('danger', translate_phrase('Please try later'));
 							}
-						// }
+						}
 					}
 					exit;
 				}

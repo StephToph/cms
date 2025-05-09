@@ -1171,6 +1171,8 @@ class Service extends BaseController {
 			$search     = $this->request->getPost('search');
 			$sdate      = $this->request->getPost('date') ?? '';
 			$type       = $this->request->getPost('service') ?? 'all';
+			$service_type       = $this->request->getPost('service') ?? 'all';
+			$filter       = $this->request->getPost('filter') ?? 'all';
 			$cell       = $this->request->getPost('cell_id') ?? '';
 			$marked_type    = $this->request->getPost('marked_type') ?? '';
 			$marked_by    = $this->request->getPost('marked_by') ?? '';
@@ -1183,6 +1185,7 @@ class Service extends BaseController {
 			$a = 1;
 			$total_members = $this->Crud->filter_members($log_id);
 			$members = $this->Crud->filter_members($log_id);
+	        $all_members = $this->Crud->filter_memberz($log_id);
 
 			
 			$log_id = $this->session->get('td_id');
@@ -1191,11 +1194,11 @@ class Service extends BaseController {
 			} else {
 				$timer_query = $this->Crud->read3_order('source_type', 'service', 'source_id', $service_report_id,  'church_id', $church_id, 'visitors', 'fullname', 'asc');
 				
-				$all_rec = $this->Crud->filter_service_analytics('', '', $log_id, $sdate, $service_report_id, $scope, $selected, $cell, $marked_type, $marked_by, $switch_id);
+				$all_rec = $this->Crud->filter_service_analytics('', '', $log_id, $sdate, $service_report_id, $scope, $selected, $cell, $marked_type, $marked_by, $switch_id,$filter);
                 // $all_rec = json_decode($all_rec);
 				if(!empty($all_rec)) { $counts = count($all_rec); } else { $counts = 0; }
 
-				$query = $this->Crud->filter_service_analytics($limit, $offset, $log_id, $sdate, $service_report_id, $scope, $selected, $cell, $marked_type, $marked_by, $switch_id);
+				$query = $this->Crud->filter_service_analytics($limit, $offset, $log_id, $sdate, $service_report_id, $scope, $selected, $cell, $marked_type, $marked_by, $switch_id,$filter);
 				$data['count'] = $counts;
 				$firstTimer = 0;
 				$present = 0;
@@ -1203,9 +1206,94 @@ class Service extends BaseController {
 				
 				$male = 0;$female = 0;$children = 0;
 				$present = 0;$absent = 0;
+                $marked_ids = [];
+                $item = ''; // Ensure $item is initialized
+                
+                if ($filter === 'absent') {
+                    $item .= '<tr><td colspan="4" class="fw-bold text-danger text-uppercase">Marked Absent Members</td></tr>';
+                
+                    // Always try to loop, even if $query is empty
+                    if (!empty($query)) {
+                        foreach ($query as $q) {
+                            if (!empty($q->member_id)) {
+                                $marked_ids[] = $q->member_id;
+                            }
+                
+                            if (strtolower($q->status) !== 'absent') continue;
+                
+                            $id = $q->id;
+                            $church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+                            $fullname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname') . ' ' .
+                                        $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
+                            $email = $this->Crud->read_field('id', $q->member_id, 'user', 'email');
+                            $phone = $this->Crud->read_field('id', $q->member_id, 'user', 'phone');
+                            $cell_id = $this->Crud->read_field('id', $q->member_id, 'user', 'cell_id');
+                            $cell = $this->Crud->read_field('id', $cell_id, 'cells', 'name');
+                            $reg_date = date('d M Y h:i:sA', strtotime($q->reg_date));
+                            $type_id = $this->Crud->read_field('id', $q->service_id, 'service_report', 'type');
+                            $type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
+                
+                            $reason = empty($q->reason)
+                                ? '<small class="text-danger">⚠️ Reason not provided!</small>'
+                                : '<small class="text-danger">Reason: ' . htmlspecialchars($q->reason) . '</small>';
+                
+                            $item .= '
+                            <tr>
+                                <td>' . $reg_date . ' <br><small>' . $type . '</small></td>
+                                <td><strong>' . ucwords($church) . ' <br><small>' . ucwords($cell) . '</small></strong></td>
+                                <td><a href="javascript:;" class="text-primary pop" pageSize="modal-xl" pageTitle="View Profile" pageName="' . site_url($mod . '/manage/view/' . $q->member_id) . '"><em class="icon ni ni-eye"></em> <span>' . translate_phrase($fullname) . '</span></a></td>
+                                <td><span class="text-danger">Absent</span><br>' . $reason . '</td>
+                            </tr>';
+                        }
+                    } else {
+                        // Still initialize marked_ids to an empty array if $query is empty
+                        $marked_ids = [];
+                    }
+                
+                    // 🔘 Always show unmarked block, even if no marked absent found
+                    $item .= '<tr><td colspan="4" class="fw-bold text-muted text-uppercase">Unmarked Members</td></tr>';
+                
+                    if (!isset($all_members)) {
+                        $all_members = $this->Crud->filter_memberz($log_id);
+                    }
+                    
+                    foreach ($all_members as $member) {
+                         // ✅ Check if this member has ANY record in service_attendance for this service
+                        if($service_report_id == 'all'){
+                            $alreadyMarked = $this->Crud->date_check1($sdate, 'reg_date', $sdate, 'reg_date', 'member_id', $member->id, 'service_attendance');
+                        } else {
+							$report_id = $this->Crud->read_field3('date', $sdate, 'type', $service_report_id, 'church_id', $church_id, 'service_report', 'id'); 
+                            $alreadyMarked = $this->Crud->check2('member_id', $member->id,'service_id', $report_id, 'service_attendance');
+                           
+                        }
+                        if ($alreadyMarked > 0) {
+                            continue; // skip if already marked (present/absent)
+                        }
+                
+                        $fullname = $member->firstname . ' ' . $member->surname;
+                        $email = !empty($member->email) ? $this->Crud->mask_email($member->email) : '';
+                        $phone = !empty($member->phone) ? $this->Crud->mask_phone($member->phone) : '';
+                        $cell = $this->Crud->read_field('id', $member->cell_id, 'cells', 'name');
+                        $church = $this->Crud->read_field('id', $member->church_id, 'church', 'name');
+                
+                        $item .= '
+                        <tr>
+                            <td>-</td>
+                            <td><strong>' . ucwords($church) . ' <br><small>' . ucwords($cell) . '</small></strong></td>
+                            <td><a href="javascript:;" class="text-warning pop" pageSize="modal-xl" pageTitle="View Profile" pageName="' . site_url($mod . '/manage/view/' . $member->id) . '"><em class="icon ni ni-alert"></em> ' . translate_phrase($fullname) . '</a></td>
+                            <td><span class="text-danger">Absent</span></td>
+                        </tr>';
+                    }
+                }
 
-				if (!empty($query)) {
+				if (!empty($query) && $filter !== 'first_timer') {
+					// 🔹 Fallback: All other filters (present, male, female, etc.)
 					foreach ($query as $q) {
+						$status = strtolower($q->status);
+			
+						// Enforce reason for absentees
+					
+			
 						$id = $q->id;
 						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
 						$fullname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname') . ' ' . $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
@@ -1216,88 +1304,111 @@ class Service extends BaseController {
 						$reg_date = date('d M Y h:i:sA', strtotime($q->reg_date));
 						$type_id = $this->Crud->read_field('id', $q->service_id, 'service_report', 'type');
 						$type = $this->Crud->read_field('id', $type_id, 'service_type', 'name');
-						
-						// Attendance Status and Reason
-						$status = ucfirst($q->status); // Example: Present, Absent
-						$reason = (!empty($q->reason) && strtolower($q->status) == 'absent') ? '<small class="text-danger">Reason: ' . htmlspecialchars($q->reason) . '</small>' : '';
-						
-						$email = '';
-						if(!empty($email)){
-							$email = $this->Crud->mask_email($email);
-						}
-						$phone = '';
-						if(!empty($phone)){
-							$phone = $this->Crud->mask_phone($phone);
-						}
-						// Build table row
+			
+						$reason = ($status === 'absent') ? '<small class="text-danger">Reason: ' . htmlspecialchars($q->reason) . '</small>' : '';
+						$status_display = ucfirst($status);
+			
 						$item .= '
 						<tr>
-							<td>' . $reg_date . ' <br><small>'.$type.'</small></td>
-							<td><strong>' . ucwords($church) . ' <br><small>'.ucwords($cell).'</small></strong></td>
-							<td><a href="javascript:;" class="text-primary pop" pageSize="modal-xl" pageTitle="View Profile " pageName="' . site_url(  $mod.'/manage/view/' . $q->member_id) . '"><em class="icon ni ni-eye"></em> <span>'.translate_phrase($fullname).'</span></a></td>
+							<td>' . $reg_date . ' <br><small>' . $type . '</small></td>
+							<td><strong>' . ucwords($church) . ' <br><small>' . ucwords($cell) . '</small></strong></td>
+							<td><a href="javascript:;" class="text-primary pop" pageSize="modal-xl" pageTitle="View Profile" pageName="' . site_url($mod . '/manage/view/' . $q->member_id) . '"><em class="icon ni ni-eye"></em> <span>' . translate_phrase($fullname) . '</span></a></td>
 							<td>
-								<span class="text-' . (strtolower($status) == 'present' ? 'success' : 'danger') . '">' . $status . '</span>
+								<span class="text-' . ($status === 'present' ? 'success' : 'danger') . '">' . $status_display . '</span>
 								<br>' . $reason . '
 							</td>
 						</tr>';
-						$a++;
-					}
-					
-					
-				} 
-
-				if (!empty($timer_query)) {
-					foreach ($timer_query as $q) {
-						$firstTimer++;
-
-						$reg_date = date('d M Y h:i:sA', strtotime($q->reg_date));
-						$email = '';
-						if(!empty($q->email)){
-							$email = $this->Crud->mask_email($q->email);
-						}
-						$phone = '';
-						if(!empty($q->phone)){
-							$phone = $this->Crud->mask_phone($q->phone);
-						}
-						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
-		
-						$status ='present';
-						$item .= '
-						<tr>
-							<td>'.$reg_date.'</td>
-							<td><strong>' . ucwords($church) . '</strong></td>
-							<td>' . ucwords(strtolower($q->fullname)).'<br><span class="small text-info">FT</span></td>
-							<td>'.($phone).'</td>
-							<td>'.($email).'</td>
-							<td>Present</td>
-							
-						</tr>';
-					
-						
-					}
-					
-				} 
-				
-			}
-			
-			
-			if (!empty($all_rec)) {
-				
-				foreach ($all_rec as $res) {
-					if(strtolower($res->status) == 'present')$present++;
-					if(strtolower($res->status) == 'absent')$absent++;
-					
-					if(strtolower($this->Crud->read_field('id', $res->member_id, 'user', 'gender')) == 'male'){
-						$male++;
-					}
-
-					if(strtolower($this->Crud->read_field('id', $res->member_id, 'user', 'gender')) == 'female'){
-						$female++;
 					}
 				}
+				
+				if (!empty($timer_query) && in_array($filter, ['first_timer', 'present', 'all', 'male', 'female'])) {
+					foreach ($timer_query as $q) {
+						// Attempt to get gender
+						$gender = strtolower($q->gender ?? $this->Crud->read_field('id', $q->id, 'user', 'gender'));
+				
+						// Filter gender if needed
+						if (in_array($filter, ['male', 'female']) && $gender !== $filter) {
+							continue;
+						}
+				
+						$firstTimer++;
+				
+						$reg_date = date('d M Y h:i:sA', strtotime($q->reg_date));
+				
+						$email = '';
+						if (!empty($q->email)) {
+							$email = $this->Crud->mask_email($q->email);
+						}
+				
+						$phone = '';
+						if (!empty($q->phone)) {
+							$phone = $this->Crud->mask_phone($q->phone);
+						}
+				
+						$church = $this->Crud->read_field('id', $q->church_id, 'church', 'name');
+				
+						$item .= '
+						<tr>
+							<td>' . $reg_date . '</td>
+							<td><strong>' . ucwords($church) . '</strong></td>
+							<td>' . ucwords(strtolower($q->fullname)) . '<br><span class="small text-info">FT</span></td>
+							<td>Present</td>
+						</tr>';
+					}
+				}
+				
 			}
 			
 			
+            
+            $present = $absent = $male = $female = 0;
+
+            // Step 1: Get all services for the date
+            if ($service_type == 'all') {
+                $services = $this->Crud->date_range($sdate, 'date', $sdate, 'date', 'service_report');
+            } else {
+                $services = $this->Crud->date_range1($sdate, 'date', $sdate, 'date', 'type', $service_type, 'service_report');
+            }
+            $service_ids = [];
+            foreach ($services as $s) {
+                $service_ids[] = $s->id;
+            }
+
+            
+            // Step 2: Fetch all attendance records in bulk
+            $attendance_records = $this->Crud->read_where_in('service_id', $service_ids, 'service_attendance');
+            
+            // Step 3: Index attendance data by member_id and service_id
+            $attendance_map = [];
+            foreach ($attendance_records as $record) {
+                $attendance_map[$record->member_id][$record->service_id] = strtolower($record->status);
+            }
+            
+            // Step 4: Loop through members and analyze attendance from the preloaded array
+            foreach ($all_members as $member) {
+                $member_id = $member->id;
+                $was_present = false;
+            
+                foreach ($service_ids as $service_id) {
+                    $status = $attendance_map[$member_id][$service_id] ?? null;
+            
+                    if ($status == 'present') {
+                        $was_present = true;
+                        break;
+                    }
+                }
+            
+                if ($was_present) {
+                    $present++;
+                    $gender = strtolower($member->gender);
+                    if ($gender == 'male') $male++;
+                    if ($gender == 'female') $female++;
+                } else {
+                    $absent++;
+                }
+            }
+
+            			
 			if(empty($item)) {
 				$resp['item'] = '
 					<tr><td colspan="9"><div class="text-center text-muted">
@@ -1313,7 +1424,7 @@ class Service extends BaseController {
 				
 			}
 			$unmarked = $total_members - $present - $absent;
-
+			
 			// Gender breakdown
 			$resp['present']   = $present;
 			$resp['absent'] = $absent;
@@ -1450,6 +1561,15 @@ class Service extends BaseController {
 						$edata['e_ministry_id'] = $e->ministry_id;
 						$edata['e_church_id'] = $e->church_id;
 						$edata['e_level'] = $this->Crud->read_field('id', $e->church_id, 'church', 'type');
+
+						// ✅ Get the service type name
+						$service_type_name = $this->Crud->read_field('id', $e->type, 'service_type', 'name');
+
+						// ✅ Format the date
+						$formatted_date = date('l, jS F Y', strtotime($e->date));
+				
+						// ✅ Combine both to form "Service Name (Date)"
+						$edata['service_name'] = $service_type_name . ' (' . $formatted_date . ')';
 					}
 				}
 			}
@@ -1484,51 +1604,47 @@ class Service extends BaseController {
 						}
 						
 						$response .= '
-						<tr>
-							<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
-							<td>
-								<div class="custom-control custom-switch">
-									<input type="checkbox"
-										class="custom-control-input mark-present-switch"
-										id="presentSwitchq_'.$q->id.'"
-										data-member-id="'.$q->id.'"
-										'.($status == 'present' ? 'checked' : '').'>
-									<label class="custom-control-label" for="presentSwitchq_'.$q->id.'">Mark Present</label>
-								</div>
-					
-								<div class="custom-control custom-switch mb-1">
-									<input type="checkbox"
-										class="custom-control-input mark-absent-switch"
-										id="absentSwitchq_'.$q->id.'"
-										data-member-id="'.$q->id.'"
-										'.($status == 'absent' ? 'checked' : '').'>
-									<label class="custom-control-label" for="absentSwitchq_'.$q->id.'">Absent</label>
-								</div>
-					
-								<div id="absent_reason_wrapper_'.$q->id.'" style="display: '.($status == 'absent' ? 'block' : 'none').';" class="mt-2 form-group absent_reason_wrapper_'.$q->id.'">
-									<label for="absent_reason_'.$q->id.'" class="form-label">Reason for Absence</label><br>
-									<select class="js-select2 reason-select w-100" data-search="on" name="absent_reason" id="absent_reasonq_'.$q->id.'" data-member-id="'.$q->id.'">
-										<option value="">-- Select Reason --</option>
-										<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
-										<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
-										<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
-										<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
-										<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
-										<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
-										<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
-										<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
-										<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
-										<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
-										<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
-									</select>
-					
-									<input type="text" class="form-control form-control-sm mt-2 other-reason-input" id="other_reasonq_'.$q->id.'" placeholder="Please specify" style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';" value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
-								</div>
-					
-								<span id="respq_'.$q->id.'"></span>
-							</td>
-						</tr>';
-					
+							<tr>
+								<td>' . ucwords(strtolower($q->firstname . ' ' . $q->surname . ' ' . $q->othername)) . '</td>
+								<td>
+									<div class="custom-control custom-switch mb-2">
+										<input type="checkbox"
+											class="custom-control-input mark-present-switch"
+											id="presentSwitchq_'.$q->id.'"
+											data-member-id="'.$q->id.'"
+											'.($status == 'present' ? 'checked' : '').'>
+										<label class="custom-control-label" for="presentSwitchq_'.$q->id.'">Mark Present</label>
+									</div>
+
+									<div id="absent_reason_wrapper_'.$q->id.'" class="mt-2 form-group" style="display: '.($status == 'present' ? 'none' : 'block').';">
+										<label for="absent_reason_'.$q->id.'" class="form-label">Reason for Absence</label>
+										<select class="form-select reason-select" name="absent_reason" id="absent_reasonq_'.$q->id.'" data-member-id="'.$q->id.'">
+											<option value="">-- Select Reason --</option>
+											<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
+											<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
+											<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
+											<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
+											<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
+											<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
+											<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
+											<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
+											<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
+											<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
+											<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
+										</select>
+
+										<input type="text"
+											class="form-control form-control-sm mt-2 other-reason-input"
+											id="other_reasonq_'.$q->id.'"
+											placeholder="Please specify"
+											style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';"
+											value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
+									</div>
+
+									<span id="respq_'.$q->id.'"></span>
+								</td>
+							</tr>';
+
 				}
 				
 				$response .= '</table></div><br><br><hr>';
@@ -2175,7 +2291,17 @@ class Service extends BaseController {
 					// Encode arrays
 					$resp['guest_partners'] = json_encode($guest_partners);
 					$resp['member_partners'] = json_encode($member_partners);
-				
+					$type = $this->Crud->read_field('id', $param3, 'service_report', 'type');
+					$date = $this->Crud->read_field('id', $param3, 'service_report', 'date');
+					// ✅ Get the service type name
+					$service_type_name = $this->Crud->read_field('id', $type, 'service_type', 'name');
+	
+					// ✅ Format the date
+					$formatted_date = date('l, jS F Y', strtotime($date));
+			
+					// ✅ Combine both to form "Service Name (Date)"
+					$resp['service_name'] = $service_type_name . ' (' . $formatted_date . ')';
+
 					echo json_encode($resp);
 					die;
 				}
@@ -3381,95 +3507,6 @@ class Service extends BaseController {
 					exit;	
 				}
 				
-			} elseif($param2 == 'timers'){
-				if($param3){
-					$resp = [];
-					$edit = $this->Crud->read_single('id', $param3, 'service_report');
-					$timers = [];
-					$id = 0;
-					if(!empty($edit)) {
-						foreach($edit as $e) {
-							$timers = $e->timers;
-							if(empty($timers)){
-								$timers = "[]";
-							}
-							$id = $e->id;
-						}
-						
-					}
-
-					
-				}
-				
-				if($this->request->getMethod() == 'post'){
-					
-					$occurrence = 0;
-					$church_id = $this->request->getPost('church_id');
-					$ministry_id = $this->request->getPost('ministry_id');
-					$service = $this->request->getPost('service');
-					$invited_by = $this->request->getPost('invited_by');
-					$platform = $this->request->getPost('platform');
-					$channel = $this->request->getPost('channel');
-					$member_id = $this->request->getPost('member_id');
-					if($invited_by == 'Member'){
-						$channel = $member_id;
-					}
-					if($invited_by == 'Online'){
-						$channel = $platform;
-					}
-					
-					$service_report_id = $service;
-					
-					
-					$ins_data = [
-						'ministry_id'        => $ministry_id,
-						'channel'          	 => $channel,
-						'church_id'          => $church_id,
-						'title'              => $this->request->getPost('title'),
-						'invited_by'         => $this->request->getPost('invited_by'),
-						'fullname'           => $this->request->getPost('fullname'),
-						'email'              => $this->request->getPost('email'),
-						'phone'              => $this->request->getPost('phone'),
-						'dob'                => $this->request->getPost('dob'),
-						'gender'             => $this->request->getPost('gender'),
-						'address'            => $this->request->getPost('address'),
-						'city'               => $this->request->getPost('city'),
-						'state'              => $this->request->getPost('state_id'),
-						'postal_code'        => $this->request->getPost('postal'),
-						'country'            => $this->request->getPost('country'),
-						'marital_status'     => $this->request->getPost('marital'),
-						'occupation'         => $this->request->getPost('occupation'),
-						'connect_method'     => $this->request->getPost('connection'),
-						'consider_joining'   => $this->request->getPost('joining') ? 1 : 0,
-						'baptised'           => $this->request->getPost('baptised') ? 1 : 0,
-						'wants_visit'        => $this->request->getPost('visit') ? 1 : 0,
-						'visit_time'         => $this->request->getPost('visit_time'),
-						'prayer_request'     => $this->request->getPost('prayer_request'),
-						'category'         	=> 'first_timer',
-						'source_type'         	=> 'service',
-						'source_id'         	=> $service_report_id,
-						'reg_date'           => date('Y-m-d H:i:s'),
-					];
-			
-
-					$upd_rec = $this->Crud->create('visitors', $ins_data);
-					if($upd_rec > 0) {
-						echo $this->Crud->msg('success', translate_phrase('First Timer Record Submitted'));
-
-						///// store activities
-						$by = $this->Crud->read_field('id', $log_id, 'user', 'firstname');
-						$code = $this->Crud->read_field('id', $upd_rec, 'visitors', 'fullname');
-						$action = $by.' submitted First Timer ('.$upd_rec.') Record';
-						$this->Crud->activity('first_timer', $upd_rec, $action, $log_id);
-
-						echo '<script>location.reload(false);</script>';
-					} else {
-						echo $this->Crud->msg('info', translate_phrase('No Changes'));	
-					}
-					 
-					exit;	
-				}
-				
 			} elseif($param2 == 'report'){
 				if($param3){
 					$resp = [];
@@ -3884,7 +3921,7 @@ class Service extends BaseController {
 					if (!empty($partnerships)) {
 						foreach ($partnerships as $p) {
 							$pid = $p->id;
-							$amount = "0"; // Default amount
+							$amount = ""; // Default amount
 				
 							// Fetch guest partnership contribution from service_finance
 							$guest_partnership = $this->Crud->read_field5('user_type', 'guest', 'service_id', $param3, 'user_id', $guest_id, 'finance_type',  'partnership', 'partnership_id', $pid, 'service_finance', 'amount');
@@ -4014,10 +4051,10 @@ class Service extends BaseController {
 						$phone = $is_guest ? '-' : $this->Crud->read_field('id', $member_id, 'user', 'phone');
 
 						// Fetch financial contributions
-						$offering = $offerings_list[$member_id] ?? "0";
-						$tithe = $tithes_list[$member_id] ?? "0";
-						$thanksgiving = $thanksgiving_list[$member_id] ?? "0";
-						$seed = $seeds_list[$member_id] ?? "0";
+						$offering = $offerings_list[$member_id] ?? "";
+						$tithe = $tithes_list[$member_id] ?? "";
+						$thanksgiving = $thanksgiving_list[$member_id] ?? "";
+						$seed = $seeds_list[$member_id] ?? "";
 
 						// Define member type
 						$member_type = $is_guest ? "guest" : "member";
@@ -4029,17 +4066,17 @@ class Service extends BaseController {
 										<input type="hidden" readonly class="form-control member-id-field members" name="members[]" value="' . htmlspecialchars($member_id) . '">
 										<span class="small">' . htmlspecialchars(strtoupper($fullname)) . ' - ' . htmlspecialchars($phone) . '</span>
 									</td>
-									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="offering" value="' . htmlspecialchars($offering) . '" oninput=""></td>
-									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="tithe" oninput=" this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($tithe) . '"></td>
-									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="thanksgiving" oninput="this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($thanksgiving) . '"></td>
-									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="seed" oninput="this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($seed) . '"></td>
+									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="offering" value="' . htmlspecialchars($offering) . '" placeholder="0" oninput=""><small class="text-success msg-box" style="display:none;"></small></td>
+									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="tithe" placeholder="0" oninput=" this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($tithe) . '"><small class="text-success msg-box" style="display:none;"></small></td>
+									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="thanksgiving" placeholder="0" oninput="this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($thanksgiving) . '"><small class="text-success msg-box" style="display:none;"></small></td>
+									<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="seed" placeholder="0" oninput="this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($seed) . '"><small class="text-success msg-box" style="display:none;"></small></td>
 									';
 									// Process Partnership Contributions
 									
 									foreach ($partnership_types as $p_id => $p_name) {
-										$amount = $partnerships_list[$member_type][$member_id][$p_id] ?? "0";
+										$amount = $partnerships_list[$member_type][$member_id][$p_id] ?? "";
 										$table .= '
-											<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="partner_' . htmlspecialchars($p_id) . '" oninput="this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($amount) . '"></td>
+											<td><input type="number" class="form-control finance-field" style="min-width: 120px;" data-field="partner_' . htmlspecialchars($p_id) . '" placeholder="0" oninput="this.value = this.value.replace(/[^0-9.]/g, \'\').replace(/(\\..*)\\./g, \'$1\');"  value="' . htmlspecialchars($amount) . '"><small class="text-success msg-box" style="display:none;"></small></td>
 											';
 									}
 									
@@ -4949,99 +4986,84 @@ class Service extends BaseController {
 		
 		
 		if($param1 == 'get_attendance_metrics'){
-			$service = $this->request->getPost('service'); // e.g. 1st, 2nd, 3rd occurrence
+			$service = $this->request->getPost('service'); // service_report id
 			$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
-			
-			$query = $this->Crud->read2_order('date', date('Y-m-d'), 'church_id', $church_id, 'service_report', 'date', 'asc');
 		
 			$service_report_id = $service;
-			$metric_response = '';
-
-			
-			// echo $cell_id;
-			$query = $this->Crud->read2('status', 'present', 'service_id', $service, 'service_attendance');
-			$timer_query = $this->Crud->read3_order('source_type', 'service', 'source_id', $service_report_id,  'church_id', $church_id, 'visitors', 'fullname', 'asc');
 		
-			$response = '';
-			$response .= '<div class="table-responsive"><table class="table table-hover">';
-					
-			if (!empty($query)) {
-				foreach ($query as $q) {
-					
-					$status = strtolower($this->Crud->read_field2('member_id', $q->member_id, 'service_id', $service_report_id, 'service_attendance', 'status'));
-					$new_convert = ($this->Crud->read_field2('member_id', $q->member_id, 'service_id', $service_report_id, 'service_attendance', 'new_convert'));
-					
-						// If absent, fetch the reason (optional)
-						$absent_reason = '';
-						if ($status == 'absent') {
-							$absent_reason = $this->Crud->read_field2('member_id', $q->member_id, 'service_id', $service_report_id, 'service_attendance', 'reason');
-						}
-						
-						$firstname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname');
-						$surname = $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
-						$othername = $this->Crud->read_field('id', $q->member_id, 'user', 'othername');
-						$email = $this->Crud->read_field('id', $q->member_id, 'user', 'email');
-						$phone = $this->Crud->read_field('id', $q->member_id, 'user', 'phone');
-
-						$emailz = '';
-						$phonez = '';
-						if(!empty($email)){
-							$emailz = $this->Crud->mask_email($email);
-						}
-						if(!empty($phone)){
-							$phonez = $this->Crud->mask_phone($phone);
-						}
-
-						$response .= '
+			$response = '<div class="table-responsive"><table class="table table-hover">';
+		
+			// Read members who have been marked (present or absent)
+			$members_query = $this->Crud->read_single('service_id', $service_report_id, 'service_attendance');
+		
+			// Read First Timers
+			$timer_query = $this->Crud->read3_order('source_type', 'service', 'source_id', $service_report_id, 'church_id', $church_id, 'visitors', 'fullname', 'asc');
+		
+			if (!empty($members_query)) {
+				foreach ($members_query as $q) {
+					$status = strtolower($q->status ?? 'absent');
+					$absent_reason = ($status == 'absent') ? $q->reason : '';
+		
+					$firstname = $this->Crud->read_field('id', $q->member_id, 'user', 'firstname');
+					$surname = $this->Crud->read_field('id', $q->member_id, 'user', 'surname');
+					$othername = $this->Crud->read_field('id', $q->member_id, 'user', 'othername');
+					$email = $this->Crud->read_field('id', $q->member_id, 'user', 'email');
+					$phone = $this->Crud->read_field('id', $q->member_id, 'user', 'phone');
+		
+					$emailz = !empty($email) ? $this->Crud->mask_email($email) : '';
+					$phonez = !empty($phone) ? $this->Crud->mask_phone($phone) : '';
+		
+					$new_convert = $q->new_convert ?? 0;
+		
+					$response .= '
 						<tr>
-							<td>' . ucwords(strtolower($firstname . ' ' . $surname . ' ' . $othername)) . '</td>
+							<td>' . ucwords(strtolower(trim($firstname . ' ' . $surname . ' ' . $othername))) . '</td>
 							<td style="vertical-align: top;">
 								<div class="d-flex justify-content-between align-items-start">
 									<div class="w-100">
-										<div id="switches_wrapper_'.$q->member_id.'" style="display: none;">
+										<div id="switches_wrapper_'.$q->member_id.'" style="display: block;">
 											<div class="mb-2">
 												<div class="custom-control custom-switch">
-													<input type="checkbox" class="custom-control-input mark-present-switch"
+													<input type="checkbox" class="custom-control-input mark-present-switchz"
 														id="presentSwitch_'.$q->member_id .'"
-														data-member-id="'.$q->member_id.'" '.($status == 'present' ? 'checked' : '').'>
+														data-member-id="'.$q->member_id.'"
+														'.($status == 'present' ? 'checked' : '').'>
 													<label class="custom-control-label" for="presentSwitch_'.$q->member_id.'">Mark Present</label>
 												</div>
-											</div>
-
-											<div class="mb-2">
-												<div class="custom-control custom-switch">
-													<input type="checkbox" class="custom-control-input mark-absent-switch"
-														id="absentSwitch_'.$q->member_id.'"
-														data-member-id="'.$q->member_id.'" '.($status == 'absent' ? 'checked' : '').'>
-													<label class="custom-control-label" for="absentSwitch_'.$q->member_id.'">Absent</label>
-												</div>
-											</div>
-
-											<div id="absent_reason_wrapper_'.$q->member_id.'" class="form-group mb-2"
-												style="display: '.($status == 'absent' ? 'block' : 'none').';">
-												<label for="absent_reason_'.$q->member_id.'" class="form-label">Reason for Absence</label>
-												<select class="form-select reason-select" name="absent_reason"
-													id="absent_reason_'.$q->member_id.'" data-member-id="'.$q->member_id.'">
-													<option value="">-- Select Reason --</option>
-													<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
-													<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
-													<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
-													<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
-													<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
-													<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
-													<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
-													<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
-													<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
-													<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
-													<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
-												</select>
-												<input type="text" class="form-control form-control-sm mt-2 other-reason-input"
-													id="other_reason_'.$q->member_id.'"
-													placeholder="Please specify"
-													style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';"
-													value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
-											</div>
-
+											</div>';
+		
+											if ($status == 'absent') {
+												$response .= '
+													<div id="absent_reason_wrapper_'.$q->member_id.'" class="form-group mb-2">
+														<label for="absent_reason_'.$q->member_id.'" class="form-label">Reason for Absence</label>
+														<select class="form-select reason-selectz" name="absent_reason" id="absent_reason_'.$q->member_id.'" data-member-id="'.$q->member_id.'">
+															<option value="">-- Select Reason --</option>
+															<option '.($absent_reason == 'Out of Town' ? 'selected' : '').'>Out of Town</option>
+															<option '.($absent_reason == 'Gone to School' ? 'selected' : '').'>Gone to School</option>
+															<option '.($absent_reason == 'Health Challenges' ? 'selected' : '').'>Health Challenges</option>
+															<option '.($absent_reason == 'Challenges at Work' ? 'selected' : '').'>Challenges at Work</option>
+															<option '.($absent_reason == 'Challenges at Home' ? 'selected' : '').'>Challenges at Home</option>
+															<option '.($absent_reason == 'Financial Constraint' ? 'selected' : '').'>Financial Constraint</option>
+															<option '.($absent_reason == 'Absent without reason' ? 'selected' : '').'>Absent without reason</option>
+															<option '.($absent_reason == 'Offence' ? 'selected' : '').'>Offence</option>
+															<option '.($absent_reason == 'Irregular' ? 'selected' : '').'>Irregular</option>
+															<option '.($absent_reason == 'Not Yet Attending Church' ? 'selected' : '').'>Not Yet Attending Church</option>
+															<option '.(stripos($absent_reason, 'Other') !== false ? 'selected' : '').'>Other – Specify</option>
+														</select>
+														<input type="text" class="form-control form-control-sm mt-2 other-reason-input"
+															id="other_reason_'.$q->member_id.'"
+															placeholder="Please specify"
+															style="display: '.(stripos($absent_reason, 'Other') !== false ? 'block' : 'none').';"
+															value="'.(stripos($absent_reason, 'Other') !== false ? $absent_reason : '').'" />
+													</div>';
+											} else {
+												// If present, reason box hidden by default
+												$response .= '
+													<div id="absent_reason_wrapper_'.$q->member_id.'" class="form-group mb-2" style="display:none;">
+													</div>';
+											}
+								
+											$response .= '
 											<div class="custom-control custom-switch mb-2">
 												<input type="checkbox" class="custom-control-input mark-convert-switch"
 													id="convertSwitch_'.$q->member_id.'"
@@ -5049,148 +5071,148 @@ class Service extends BaseController {
 													data-member-id="'.$q->member_id.'" '.($new_convert == '1' ? 'checked' : '').'>
 												<label class="custom-control-label" for="convertSwitch_'.$q->member_id.'">New Convert</label>
 											</div>
-
+		
 											<span id="resp_'.$q->member_id.'"></span>
 											<span id="con_resp_'.$q->member_id.'"></span>
 										</div>
 									</div>
-
+		
 									<div>
 										<button type="button" class="btn btn-sm btn-outline-primary toggle-switches-btn" data-member-id="'.$q->member_id.'">
-											 Action
+											Action
 										</button>
 									</div>
 								</div>
 							</td>
-
 						</tr>';
-					
-					
 				}
-				
 			} else {
-				$response .='<tr><td><div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Record Found</div></td></tr>';
+				$response .='<tr><td colspan="2"><div class="text-center text-muted"><em class="icon ni ni-user" style="font-size:150px;"></em><br><br>No Members Found</div></td></tr>';
 			}
+		
+			// Visitors (First Timers)
 			if (!empty($timer_query)) {
 				foreach ($timer_query as $q) {
-					$emailz = '';
-					$phonez = '';
-					if(!empty($q->email)){
-						$emailz = $this->Crud->mask_email($q->email);
-					}
-					if(!empty($q->phone)){
-						$phonez = $this->Crud->mask_phone($q->phone);
-					}
-					$status ='present';
+					$emailz = !empty($q->email) ? $this->Crud->mask_email($q->email) : '';
+					$phonez = !empty($q->phone) ? $this->Crud->mask_phone($q->phone) : '';
+					$new_convert = $q->new_convert ?? 0;
+		
 					$response .= '
 					<tr>
-						<td>' . ucwords(strtolower($q->fullname)).'<br><span class="small text-info">FT</span></td>
+						<td>' . ucwords(strtolower($q->fullname)) . '<br><span class="small text-info">First Timer</span></td>
 						<td>
 							<div class="custom-control custom-switch mb-1">
 								<input type="checkbox"
 									class="custom-control-input mark-convert-switch"
-									id="convertSwitch_'.$q->id.'" data-type="ft"
+									id="convertSwitch_'.$q->id.'"
+									data-type="ft"
 									data-member-id="'.$q->id.'"
-									'.($q->new_convert == '1' ? 'checked' : '').'>
+									'.($new_convert == '1' ? 'checked' : '').'>
 								<label class="custom-control-label" for="convertSwitch_'.$q->id.'">New Convert</label>
 							</div>
 							<span id="con_resp_'.$q->id.'"></span>
 						</td>
 					</tr>';
-				
-					
 				}
-				
-			} 
-			$response .= '</table></div>';
-
+			}
 		
-			
+			$response .= '</table></div>';
+		
 			return $this->response->setJSON([
 				'metric_response' => $response
 			]);
 		}
+		
 
 		if($param1 == 'attendance'){
+			$is_admin = $this->Crud->read_field('id', $log_id, 'user', 'is_admin');
+			$is_monitoring = $this->Crud->read_field('id', $log_id, 'user', 'is_monitoring');
+					// echo date('y-m-d');
+			$attend_type = 'admin';
+			if($is_admin > 0 || $role == 'Administrator' || $role == 'Developer'){
+				$attend_type = 'admin';
+			}
+			
+			if($is_monitoring > 0){
+				$attend_type = 'monitoring';
+			}
+
+			if($role == 'Assistant Cell Leader' || $role == 'Cell Leader' || $role == 'Cell Executive'){
+				$attend_type = 'cell';
+			}
 			if($param2 == 'mark_present'){
 				$member_id = $this->request->getPost('member_id');
-				$service = $this->request->getPost('service_id'); // e.g., "Sunday Service"
-				$mark = $this->request->getPost('mark'); // e.g., "Sunday Service"
+				$service = $this->request->getPost('service_id'); // service_report id
+				$mark = $this->request->getPost('mark'); // 1 = present, 0 = absent
 				$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
 				$service_report_id = $service;
-
-
+			
 				if(empty($service_report_id)){
 					return $this->response->setJSON([
 						'status' => 'warning',
 						'message' => 'Service report not found.'
 					]);
 				}
-
+				$timezone = $this->Crud->getChurchTimezone($church_id); // ðŸ‘ˆ NEW METHOD
+				date_default_timezone_set($timezone); // Set before any time-based operations
+	
 				$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
-				if($exists == 0 && !empty($mark)){
-					// Do DB logic here, example:
-					$ins_rec = $this->Crud->create('service_attendance',[
+			
+				if ($exists == 0) {
+					// No record yet — Insert new
+					$status_text = ($mark == 1) ? 'present' : 'absent';
+					$ins_rec = $this->Crud->create('service_attendance', [
 						'member_id' => $member_id,
 						'service_id' => $service_report_id,
 						'church_id' => $church_id,
 						'monitor_type' => $attend_type,
 						'monitor_id' => $log_id,
-						'status' => 'present'
+						'status' => $status_text
 					]);
-					
-					if($ins_rec > 0){
-						// Add 1 to service_report.attendance
+			
+					if($ins_rec > 0 && $mark == 1){
+						// Only increase attendance count if marked present
 						$current = (int) $this->Crud->read_field('id', $service_report_id, 'service_report', 'attendance');
 						$current++;
 						$this->Crud->updates('id', $service_report_id, 'service_report', ['attendance' => $current]);
 					}
-					
-					
+			
 					return $this->response->setJSON([
 						'status' => 'success',
-						'message' => 'Marked as present.'
+						'message' => 'Marked as ' . ucfirst($status_text) . '.'
 					]);
+			
 				} else {
-					if (empty($mark)) {
-						// Unmark - delete attendance record
-						$ins_del = $this->Crud->deletes('id', $exists, 'service_attendance');
-						if($ins_del > 0){
-							// Subtract 1 from service_report.attendance (if > 0)
+					// Record exists — Update it
+					$current_status = $this->Crud->read_field('id', $exists, 'service_attendance', 'status');
+					$new_status = ($mark == 1) ? 'present' : 'absent';
+			
+					if($current_status != $new_status) {
+						$upd = $this->Crud->updates('id', $exists, 'service_attendance', ['status' => $new_status]);
+			
+						if($upd > 0){
+							// Adjust service_report.attendance count based on switch
 							$current = (int) $this->Crud->read_field('id', $service_report_id, 'service_report', 'attendance');
-							if ($current > 0) {
+			
+							if ($mark == 1 && $current_status == 'absent') {
+								// Going from absent → present
+								$current++;
+							} elseif ($mark == 0 && $current_status == 'present' && $current > 0) {
+								// Going from present → absent
 								$current--;
-								$this->Crud->updates('id', $service_report_id, 'service_report', ['attendance' => $current]);
 							}
-						}
-
-					
-						return $this->response->setJSON([
-							'status' => 'success',
-							'message' => 'Member Unmarked'
-						]);
-					} else {
-						// Mark present - update existing attendance record
-						$ins_upd = $this->Crud->updates('id', $exists, 'service_attendance', ['status' => 'present']);
-						
-						if($ins_upd > 0){
-							// Add 1 to service_report.attendance
-							$current = (int) $this->Crud->read_field('id', $service_report_id, 'service_report', 'attendance');
-							$current++;
+			
 							$this->Crud->updates('id', $service_report_id, 'service_report', ['attendance' => $current]);
 						}
-						
-					
-						return $this->response->setJSON([
-							'status' => 'success',
-							'message' => 'Marked as present.'
-						]);
 					}
-					
-					
-				}
 			
+					return $this->response->setJSON([
+						'status' => 'success',
+						'message' => 'Marked as ' . ucfirst($new_status) . '.'
+					]);
+				}
 			}
+			
 
 			if($param2 == 'mark_convert'){
 				$member_id = $this->request->getPost('member_id');
@@ -5223,14 +5245,12 @@ class Service extends BaseController {
 				
 			
 			}
-
 			if ($param2 === 'mark_absent') {
 				$member_id = $this->request->getPost('member_id');
-				$service = $this->request->getPost('service_id'); // e.g., "Sunday Service"
-				$mark = $this->request->getPost('mark'); // e.g., "Sunday Service"
-				$church_id = $this->Crud->read_field('id', $service, 'service_report', 'church_id');
+				$service = $this->request->getPost('service_id');
+				$church_id = $this->request->getPost('church_id');
 				$reason = $this->request->getPost('reason');
-				
+			
 				// 🛡️ Validation
 				if (!$member_id || !$service || !$church_id || !$reason) {
 					return $this->response->setJSON([
@@ -5241,7 +5261,6 @@ class Service extends BaseController {
 			
 				$service_report_id = $service;
 			
-				// 🛑 If not found
 				if (empty($service_report_id)) {
 					return $this->response->setJSON([
 						'status' => 'warning',
@@ -5249,11 +5268,11 @@ class Service extends BaseController {
 					]);
 				}
 			
-				// ✅ Check if already marked
+				// Check if already marked
 				$exists = $this->Crud->read_field2('member_id', $member_id, 'service_id', $service_report_id, 'service_attendance', 'id');
-				
-				if(empty($exists)) {
-					// 💾 Save absence with reason
+			
+				if (empty($exists)) {
+					// Insert new absent record
 					$this->Crud->create('service_attendance', [
 						'member_id' => $member_id,
 						'service_id' => $service_report_id,
@@ -5264,26 +5283,26 @@ class Service extends BaseController {
 						'reason' => $reason,
 						'reg_date' => date('Y-m-d H:i:s')
 					]);
+			
 					return $this->response->setJSON([
 						'status' => 'success',
 						'message' => 'Marked as absent.'
 					]);
+			
 				} else {
-					if(empty($mark)){
-						$this->Crud->deletes('id', $exists, 'service_attendance');
-						return $this->response->setJSON([
-							'status' => 'success',
-							'message' => 'Member Unmarked'
-						]);
-					} else {
-						$this->Crud->updates('id', $exists, 'service_attendance', ['status' => 'absent','reason' => $reason]);
-						return $this->response->setJSON([
-							'status' => 'success',
-							'message' => 'Marked as absent.'
-						]);
-					}
+					// Update existing record to absent with reason
+					$this->Crud->updates('id', $exists, 'service_attendance', [
+						'status' => 'absent',
+						'reason' => $reason
+					]);
+			
+					return $this->response->setJSON([
+						'status' => 'success',
+						'message' => 'Marked as absent.'
+					]);
 				}
 			}
+			
 
 			if($param2 == 'get_member'){
 				if($_POST){
@@ -5811,11 +5830,11 @@ class Service extends BaseController {
 					't_attendance'    => number_format($t_attendance),
 					't_firstTimer'  => number_format($t_firstTimer),
 					't_convert'      => number_format($t_convert),
-					't_offering'      => curr.number_format($t_offering,2),
-					't_tithe'         => curr.number_format($t_tithe,2),
-					't_thanksgiving'  => curr.number_format($t_thanksgiving,2),
-					't_partnership'   => curr.number_format($t_partnership,2),
-					't_seed'          => curr.number_format($t_seed,2),
+					't_offering'      => $this->session->get('currency').number_format($t_offering,2),
+					't_tithe'         => $this->session->get('currency').number_format($t_tithe,2),
+					't_thanksgiving'  => $this->session->get('currency').number_format($t_thanksgiving,2),
+					't_partnership'   => $this->session->get('currency').number_format($t_partnership,2),
+					't_seed'          => $this->session->get('currency').number_format($t_seed,2),
 					'services' => $services
 				];
 			
@@ -5959,6 +5978,16 @@ class Service extends BaseController {
 		
 					
 				}
+				$type = $this->Crud->read_field('id', $param2, 'service_report', 'type');
+				$date = $this->Crud->read_field('id', $param2, 'service_report', 'date');
+				// ✅ Get the service type name
+				$service_type_name = $this->Crud->read_field('id', $type, 'service_type', 'name');
+
+				// ✅ Format the date
+				$formatted_date = date('l, jS F Y', strtotime($date));
+		
+				// ✅ Combine both to form "Service Name (Date)"
+				$service_name = $service_type_name . ' (' . $formatted_date . ')';
 				$rezp = [
 					'attendance_id'      => $param2,
 					'head_count'         => $head,
@@ -5968,6 +5997,7 @@ class Service extends BaseController {
 					'male_attendance'    => $male,
 					'female_attendance'  => $female,
 					'children_attendance'=> $children,
+					'service_name'=> $service_name,
 				];
 	
 				echo json_encode($rezp);

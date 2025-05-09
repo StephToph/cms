@@ -108,4 +108,49 @@ $this->Crud = new Crud();
         </div>
     </div>
 <?php } ?>
+
+<?php if($param1 == 'birthday'){?>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>S/N</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Date of Birth</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $a =1;if (!empty($birthdays)) : ?>
+                    <?php foreach ($birthdays as $member) : ?>
+                        <tr>
+                            <?php
+                                $name = esc($member->firstname . ' ' . $member->othername . ' ' . $member->surname);
+                                $profileUrl = site_url('accounts/membership/view/' . $member->id);
+                                
+                                $names = '
+                                <a href="' . $profileUrl . '" class="text-decoration-none" title="View Profile">
+                                    <i class="ni ni-eye me-1 text-primary"></i>' . ucwords(strtolower($name)) . '
+                                </a>';
+                                
+                            
+                            ?>
+                            <td><?= $a; ?></td>
+                            <td><?= ($names) ?></td>
+                            <td><?= esc($member->email) ?></td>
+                            <td><?= esc($member->phone) ?></td>
+                            <td><?= date('F j', strtotime($member->dob)) ?></td>
+                        </tr>
+                    <?php $a++; endforeach; ?>
+                <?php else : ?>
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No upcoming birthdays this month</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+<?php } ?>
     

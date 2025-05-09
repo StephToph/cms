@@ -22,7 +22,8 @@ class Settings extends BaseController {
         $data['log_id'] = $log_id;
 		
 		$table = 'access_module';
-		
+		$data['role'] = $role;
+       
         $data['current_language'] = $this->session->get('current_language');
 		$form_link = site_url('settings/modules/');
 		if($param1){$form_link .= $param1.'/';}
@@ -467,7 +468,8 @@ class Settings extends BaseController {
 		if(!in_array(strtolower($role), $permit)) return redirect()->to(site_url('dashboard'));
 
         $data['log_id'] = $log_id;
-		
+		$data['role'] = $role;
+       
 		$table = 'access_role';
 
         $data['current_language'] = $this->session->get('current_language');
@@ -892,7 +894,8 @@ class Settings extends BaseController {
 		if(!in_array(strtolower($role), $permit)) return redirect()->to(site_url('dashboard'));
 
         $data['log_id'] = $log_id;
-		
+		$data['role'] = $role;
+       
 		$table = 'language_code';
 
         $data['current_language'] = $this->session->get('current_language');
@@ -1051,7 +1054,8 @@ class Settings extends BaseController {
 		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 		$permit = array('developer');
 		if(!in_array(strtolower($role), $permit)) return redirect()->to(site_url('dashboard'));
-
+		$data['role'] = $role;
+       
         $data['log_id'] = $log_id;
         $data['current_language'] = $this->session->get('current_language');
 
@@ -1074,7 +1078,8 @@ class Settings extends BaseController {
 		$role = strtolower($this->Crud->read_field('id', $role_id, 'access_role', 'name'));
 		$permit = array('developer');
 		if(!in_array(strtolower($role), $permit)) return redirect()->to(site_url('dashboard'));
-
+		$data['role'] = $role;
+       
         $data['log_id'] = $log_id;
 
 		$data['settings'] = $this->Crud->read_order('setting', 'name', 'asc');
